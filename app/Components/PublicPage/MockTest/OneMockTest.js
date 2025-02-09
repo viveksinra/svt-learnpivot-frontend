@@ -243,7 +243,7 @@ const OneMockTest = ({ data }) => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-           Batches
+           {data.testType.label} Mock Test Batches
           <CloseIcon 
             onClick={() => setOpenBatchModal(false)} 
             sx={{ cursor: 'pointer', color: '#1F2937' }} 

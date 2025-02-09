@@ -182,7 +182,7 @@ const MockTestCard = ({ data , selectedChild, totalAmount, selectedBatch}) => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-         Selected Batches 
+          {`${data?.testType?.label} Selected Batches ${selectedChild?.childName ? 'for ' + selectedChild.childName : ''}`}
           <CloseIcon 
             onClick={() => setOpenBatchModal(false)} 
             sx={{ cursor: 'pointer', color: '#1F2937' }}
