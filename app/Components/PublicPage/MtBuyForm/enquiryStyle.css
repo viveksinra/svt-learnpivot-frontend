@@ -1,0 +1,41 @@
+.enquryBg{
+   background-color: rgb(255, 255, 255);
+   padding-top: 25px;
+   padding-bottom: 25px;
+}
+#self{
+   display: flex;
+}
+/* #infoDesign{
+   background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1684735057/Oasis_Design_djvozk.jpg");
+   background-size: cover;	
+   background-repeat: no-repeat;
+   height: 850px;
+} */
+#thanks{
+   background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1696092703/thanks_zx5zho.png");
+   background-size: contain;	
+   background-repeat: no-repeat;
+   background-position: center;
+   width: 100%;
+   height: 350px;
+}
+#enquiryForm{
+   padding: 20px;
+}
+
+
+/* Mobile */
+@media (max-width: 700px) {
+   #self{
+      flex-direction: column;
+      color: #1672eb;
+   }
+   #thanks{
+      height: 200px;
+   }
+   #infoDesign{
+      max-height: 380px; 
+      padding: 0px 30px;
+   }
+  }

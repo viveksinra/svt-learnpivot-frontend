@@ -1,0 +1,65 @@
+.enquryBg{
+   background-color: #F4FAFD;
+   padding-top: 25px;
+   padding-bottom: 25px;
+}
+.enquiryCard{
+   max-width: 375px;
+   width: 100%;
+   height: 150px;
+   padding: 20px;
+   border-radius: 20px;
+   background-color: #fff;
+   border: 1px solid rgba(0,0,0,0.125);
+   box-shadow: 0 2px 6px #00000029;
+   display: flex;
+   flex-direction: column;
+   overflow: hidden;
+  
+}
+.enquiryCard img{
+   margin-top:-20px;
+   margin-right: -20px;
+   align-self: flex-end;
+   position: absolute;
+   /* border: 1px solid rgba(0,0,0,0.125); */
+   /* box-shadow: 0 2px 6px #00000029; */
+
+   
+}
+#self{
+   display: flex;
+}
+/* #infoDesign{
+   background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1684735057/Oasis_Design_djvozk.jpg");
+   background-size: cover;	
+   background-repeat: no-repeat;
+   height: 850px;
+} */
+#thanks{
+   background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1696092703/thanks_zx5zho.png");
+   background-size: contain;	
+   background-repeat: no-repeat;
+   background-position: center;
+   width: 100%;
+   height: 350px;
+}
+#enquiryForm{
+   padding: 20px;
+}
+
+
+/* Mobile */
+@media (max-width: 700px) {
+   #self{
+      flex-direction: column;
+      color: #1672eb;
+   }
+   #thanks{
+      height: 200px;
+   }
+   #infoDesign{
+      max-height: 380px; 
+      padding: 0px 30px;
+   }
+  }

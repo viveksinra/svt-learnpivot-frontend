@@ -1,0 +1,4 @@
+export const protectedRoutes = ["/dashboard","/dashboard/allBuyMock", "/dashboard/allBuyCourse","/dashboard/addCourse","/dashboard/addMockTest","/dashboard/allPayment"];
+export const userProtectedRoutes = ["/userDash","/userDash/dashCourse","/userDash/dashMock","/userDash/allPayment"];
+export const authRoutes = ["/login"];
+export const publicRoutes = ["/","/login", "/course","/mockTest","/contact"];

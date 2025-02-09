@@ -1,0 +1,156 @@
+#topAbstract{
+  background : url("https://www.ecsforseniors.org/cdn-cgi/image/format=auto/wp-content/uploads/2022/11/abstract_gradient.jpg");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
+  height: 16px;  
+}
+
+#design{
+  background: url("https://res.cloudinary.com/oasismanors/image/upload/v1704391434/Banner-texture_y57tn3.svg");
+  height: 126px;
+  width: 100%;
+  position: relative;
+  top: -63px;
+} 
+
+#heroText{
+  font-family: Adequate, Helvetica Neue, Helvetica, sans-serif !important;
+  font-size: 2.5rem;
+  line-height: 6.2rem;
+  color: #fff;
+  font-weight: 300;
+}
+
+#heroBtn{
+  border: 2px solid #ffffff;
+  color: #fff;
+  background-color: transparent;
+  border-radius:28px;
+  text-align:center;
+  cursor:pointer;
+  font-size:22px;
+  font-family: Adequate,Helvetica Neue,Helvetica,"sans-serif" !important;
+  padding: 6px 25px;
+  transition:all .5s;
+  margin-bottom: 10px;
+}
+
+
+#visit{
+  display: flex;
+  justify-items: center;
+  background-color:transparent;
+  padding-bottom: 18px;
+  font-family: "acumin-pro", sans-serif !important;
+  font-weight: 300;
+  line-height: 1.32rem;
+  font-size: 1.2rem;
+}
+#firstText{
+  color: #082952;
+  font-weight:700;
+  transition:all .2s;
+}
+#firstText:hover{
+  color: #2988c9;
+  text-decoration: underline;
+  text-underline-offset: 8px;
+  text-decoration-color: #2988c9;
+  text-decoration-thickness: 2px;
+}
+#welcomeImg{
+  width: 100%;
+  height: 100%;
+  object-fit:cover;
+  object-position:center center;
+  background-image: url("https://img.freepik.com/free-vector/college-university-students-group-young-happy-people-standing-isolated-white-background_575670-66.jpg?w=740&t=st=1706385395~exp=1706385995~hmac=7808d977346540dc2a2226d15da595427fc14e198ceb26f2b97faa0179822bea");
+  background-position:center;
+  background-repeat: no-repeat;
+  background-size:cover;
+};
+
+.legend{
+  width:40% !important;
+  opacity:1 !important;
+  left:30% !important;
+  bottom:100px !important;
+  margin-left:unset !important;
+  background-color: unset !important;
+}
+#availability{
+  height: 110px;
+  z-index: 2;
+  border: 1px solid rgb(22, 5, 148);
+  background-color: rgba(255, 255, 255, 0.7);
+  border-radius: 20px;
+  padding: 0px 20px;
+}
+#availability input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+
+  
+/* Mobile */
+@media (max-width: 700px) {
+  .legend{
+    display: none;
+  }
+  #topAbstract{
+    max-width: 420px;
+  }
+  #availability{
+    margin-left: 20px;
+    margin-right: 20px;
+    height: 180px;
+  }
+  #visit{
+    flex-direction: column;
+}
+}
+
+@keyframes modernColorChange {
+  0% {
+    color: #2196F3; /* Material Blue */
+    text-shadow: 0 0 20px rgba(33, 150, 243, 0.1);
+  }
+  33% {
+    color: #4CAF50; /* Material Green */
+    text-shadow: 0 0 20px rgba(76, 175, 80, 0.1);
+  }
+  66% {
+    color: #3F51B5; /* Indigo */
+    text-shadow: 0 0 20px rgba(63, 81, 181, 0.1);
+  }
+  100% {
+    color: #2196F3; /* Back to Material Blue */
+    text-shadow: 0 0 20px rgba(33, 150, 243, 0.1);
+  }
+}
+
+.animated-text {
+  animation: modernColorChange 8s ease-in-out infinite;
+  transition: color 0.5s ease;
+}
+
+/* Optional hover effect */
+.animated-text:hover {
+  animation-play-state: paused;
+  color: #1976D2; /* Darker Blue */
+}
+/* Custom styles for mobile view */
+@media (max-width: 768px) {
+  .banner-btn a {
+    display: block; /* Stack buttons vertically */
+    margin-bottom: 15px; /* Add space between buttons */
+  }
+
+  .banner-btn a:last-child {
+    margin-bottom: 0; /* Remove margin for the last button */
+  }
+}

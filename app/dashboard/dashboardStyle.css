@@ -1,0 +1,58 @@
+.activeLink{
+    display: 'block';
+    background: linear-gradient(45deg,#e3f5da 17%,#e9f3ee 70%) !important;
+    border-left: 3px solid rgb(13, 39, 183);
+    border-top-right-radius: 25px;
+    border-bottom-right-radius: 25px;
+}
+.headingText{
+    background-color: #f2faf6;
+    padding: 2px 8px;
+    border-left: 2px solid rgb(13, 0, 128);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    width: fit-content;
+}
+.iconBox{
+    width: 44px;
+    height: 44px;
+    box-shadow: rgba(58, 53, 65, 0.42) 0px 4px 8px -4px;
+    color:#fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.75rem;
+    line-height: 1;
+    overflow: hidden;
+    border-radius: 5px;
+    position: relative;
+}
+#topBoxBg {
+    background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1692976085/triangle-light_c86w2w.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+#trophy{
+    background-image: url("https://res.cloudinary.com/oasismanors/image/upload/v1692978494/trophy_nnngau.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    float: right;
+}
+
+@media only screen and (max-width: 700px) {
+    .css-zxdg2z{
+        padding: 0px !important;
+    }
+    #trophy{
+        max-width: 60px;
+        max-height: 60px;
+    }
+  }
+
+
+
