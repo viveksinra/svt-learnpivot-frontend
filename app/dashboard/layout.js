@@ -15,47 +15,29 @@ import {
   ListItemText,
   Divider,
   SwipeableDrawer,
-  Collapse,
   Menu,
   Avatar,
   MenuItem,
-  Tooltip,
 } from "@mui/material/";
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
 import {
   FcMenu,
   FcLeft,
-  FcHome,
-  FcImport,
-  FcStatistics,
-  FcAdvertising,
-  FcPlanner,
-  FcCalendar,
-  FcConferenceCall,
   FcComboChart,
-  FcBusinessman,
-  FcRightUp,
-  FcDataRecovery,
-  FcExpand,
-  FcCollapse,
   FcPlus,
-  FcLeftDown,
-  FcTodoList,
-  FcInspection,
-  FcDocument,
   FcFlowChart,
   FcContacts,
+  FcRightUp,
   FcCalculator,
-  FcBriefcase,
+  FcImport,
+  FcStatistics,
 } from "react-icons/fc";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
-import { MdQrCodeScanner } from "react-icons/md";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
-import { canAccess } from "../acs/common";
 import Link from "next/link";
 
 export const drawerWidth = 240;
@@ -63,8 +45,6 @@ export const drawerWidth = 240;
 const DrawerData = ({ open, setMobileOpen }) => {
   const router = useRouter();
   const { logout } = useLogout();
-  const [masterOpen, setMas] = useState(false);
-  const [reportOpen, setRO] = useState(false);
   const [dashList1, setDashList] = useState([
     {
       title: "Dashboard",
@@ -72,7 +52,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard",
       icon: <FcComboChart />,
     },
-         {
+    {
       title: "All Course",
       active: false,
       link: "/dashboard/addCourse",
@@ -84,12 +64,6 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/addMockTest",
       icon: <FcFlowChart />,
     },
-    // {
-    //   title: "All Notes",
-    //   active: false,
-    //   link: "/dashboard/notes",
-    //   icon: <FcInspection />,
-    // },
     {
       title: "Purchased Mock",
       active: false,
@@ -98,65 +72,24 @@ const DrawerData = ({ open, setMobileOpen }) => {
     },
     { 
       title: "Purchased Course",
-       active: false,
-        link: "/dashboard/allBuyCourse",
-         icon: <FcRightUp />
-     },
+      active: false,
+      link: "/dashboard/allBuyCourse",
+      icon: <FcRightUp />
+    },
     { 
       title: "All Payment",
-       active: false,
-        link: "/dashboard/allPayment",
-         icon: <FcCalculator />
-     },
-    // {
-    //   title: "Employee",
-    //   active: false,
-    //   link: "/dashboard/employee",
-    //   icon: <FcBusinessman />,
-    // },
+      active: false,
+      link: "/dashboard/allPayment",
+      icon: <FcCalculator />
+    },
+    { 
+      title: "Mock Batch Wise Report",
+      active: false,
+      link: "/dashboard/report/mockBatchReport",
+      icon: <FcStatistics />
+    },
+  ]);
 
-  ]);
-  const [reports, setReports] = useState([
-    {
-      title: "Day Book",
-      active: false,
-      link: "/dashboard/reports/daybook",
-      icon: <FcPlanner />,
-    },
-    {
-      title: "Ledger Book",
-      active: false,
-      link: "/dashboard/reports/ledgerbook",
-      icon: <FcContacts />,
-    },
-    {
-      title: "Trial Balance",
-      active: false,
-      link: "/dashboard/reports/trialbalance",
-      icon: <FcCalculator />,
-    },
-  ]);
-  const [masterList, setMasterList] = useState([
-    // {
-    //   title: "Create Ledger",
-    //   active: false,
-    //   link: "/dashboard/master/ledger",
-    //   icon: <FcPlus />,
-    // },
-    // {
-    //   title: "Create Group",
-    //   active: false,
-    //   link: "/dashboard/master/group",
-    //   icon: <FcPlus />,
-    // },
-    {
-      title: "Create Prospect Source",
-      active: false,
-      link: "/dashboard/master/prospectsource",
-      icon: <FcAdvertising />,
-    },
-
-  ]);
   const handleLink = (v, n, Ar) => {
     if (Ar === "Ar1") {
       let newArr = dashList1.map((obj, j) => {
@@ -167,58 +100,6 @@ const DrawerData = ({ open, setMobileOpen }) => {
         }
       });
       setDashList(newArr);
-      // setReports(
-      //   reports.map((r) => {
-      //     return { ...r, active: false };
-      //   })
-      // );
-      // setRO(false);
-      // setMasterList(
-      //   masterList.map((m) => {
-      //     return { ...m, active: false };
-      //   })
-      // );
-      // setMas(false);
-    } else if (Ar === "Ar2") {
-      let newArr = reports.map((obj, j) => {
-        if (n === j) {
-          return { ...obj, active: true };
-        } else {
-          return { ...obj, active: false };
-        }
-      });
-      setReports(newArr);
-      setDashList(
-        dashList1.map((r) => {
-          return { ...r, active: false };
-        })
-      );
-      setMasterList(
-        masterList.map((m) => {
-          return { ...m, active: false };
-        })
-      );
-      setMas(false);
-    } else if (Ar === "Ar3") {
-      let newArr = masterList.map((obj, j) => {
-        if (n === j) {
-          return { ...obj, active: true };
-        } else {
-          return { ...obj, active: false };
-        }
-      });
-      setMasterList(newArr);
-      setDashList(
-        dashList1.map((r) => {
-          return { ...r, active: false };
-        })
-      );
-      setReports(
-        reports.map((r) => {
-          return { ...r, active: false };
-        })
-      );
-      setRO(false);
     }
 
     router.push(v.link);
@@ -226,6 +107,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
       setMobileOpen();
     }
   };
+
   return (
     <div>
       <List>
@@ -259,105 +141,10 @@ const DrawerData = ({ open, setMobileOpen }) => {
         ))}
       </List>
       <Divider />
-{/* 
-      <List disablePadding>
-        <ListItemButton
-          onClick={() => setRO(!reportOpen)}
-          sx={{
-            minHeight: 48,
-            justifyContent: open ? "initial" : "center",
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 3 : "auto",
-              fontSize: 24,
-              justifyContent: "center",
-            }}
-          >
-            <FcStatistics />
-          </ListItemIcon>
-          <ListItemText primary="Reports" sx={{ opacity: open ? 1 : 0 }} />
-          {reportOpen ? <FcCollapse /> : <FcExpand />}
-        </ListItemButton>
-        <Collapse in={reportOpen} timeout="auto" unmountOnExit>
-          <List component="div" dense disablePadding>
-            {reports.map((t, i) => (
-              <ListItem
-                key={i}
-                onClick={() => handleLink(t, i, "Ar2")}
-                disablePadding
-                className={t.active ? "activeLink" : ""}
-              >
-                <ListItemButton sx={{ pl: 3 }}>
-                  <ListItemIcon sx={{ minWidth: "40px", fontSize: 20 }}>
-                    {t.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={t.title}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Collapse>
-      </List>
-      <Divider />
-
-      <List disablePadding>
-        <ListItemButton
-          onClick={() => setMas(!masterOpen)}
-          sx={{
-            minHeight: 48,
-            justifyContent: open ? "initial" : "center",
-            px: 2.5,
-          }}
-        >
-          <ListItemIcon
-            sx={{
-              minWidth: 0,
-              mr: open ? 3 : "auto",
-              fontSize: 24,
-              justifyContent: "center",
-            }}
-          >
-            <FcDataRecovery />
-          </ListItemIcon>
-          <ListItemText primary="Master" sx={{ opacity: open ? 1 : 0 }} />
-          {masterOpen ? <FcCollapse /> : <FcExpand />}
-        </ListItemButton>
-        <Collapse in={masterOpen} timeout="auto" unmountOnExit>
-          <List component="div" dense disablePadding>
-            {masterList.map((t, i) => (
-              <ListItem
-                key={i}
-                onClick={() => handleLink(t, i, "Ar3")}
-                disablePadding
-                className={t?.active ? "activeLink" : ""}
-              >
-                <ListItemButton sx={{ pl: 3 }}>
-                  <ListItemIcon sx={{ minWidth: "40px", fontSize: 20 }}>
-                    {t.icon}
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={t.title}
-                    sx={{ opacity: open ? 1 : 0 }}
-                  />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
-        </Collapse>
-      </List> */}
-     
+      
       <List
         sx={{
           display: { xs: "none", md: "block" },
-          // position: "absolute",
-          // bottom: 0,
           width: "100%",
         }}
       >

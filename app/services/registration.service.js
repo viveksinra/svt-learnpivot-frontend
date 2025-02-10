@@ -42,6 +42,13 @@ export class RegistrationService {
       })
       .then((res) => res.data);
   };
+  getMockTestNumbersApi = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/admin/getMockTestNumbers`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
   
 
