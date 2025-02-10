@@ -83,7 +83,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
       icon: <FcCalculator />
     },
     { 
-      title: "Mock Batch Wise Report",
+      title: "Mock Batch Report",
       active: false,
       link: "/dashboard/report/mockBatchReport",
       icon: <FcStatistics />
