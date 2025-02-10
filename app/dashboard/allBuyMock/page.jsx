@@ -280,8 +280,10 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   };
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
+    email: false,
+    bookingDate: false,
+    status: false,
     address: false,
-    mobileNo: false
   });
 
   const columns = [
@@ -555,8 +557,10 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   },
                   columns: {
                     columnVisibilityModel: {
+                      email: false,
+                      bookingDate: false,
+                      status: false,
                       address: false,
-                      mobileNo: false,
                     }
                   }
                 }}
