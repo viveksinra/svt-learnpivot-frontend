@@ -32,7 +32,7 @@ const MockTestTable = ({ data }) => {
       field: 'batchDate', 
       headerName: 'Date',
       flex: 1,
-      minWidth: 50,
+      minWidth: 40,
       valueFormatter: (params) => format(new Date(params.value), 'dd MMM yyyy')
     },
     { 
@@ -45,7 +45,7 @@ const MockTestTable = ({ data }) => {
       field: 'totalSeat', 
       headerName: 'Total Seats',
       flex: 1,
-      minWidth: 120,
+      minWidth: 40,
       renderCell: (params) => (
         <Chip 
           label={params.value}
@@ -58,7 +58,7 @@ const MockTestTable = ({ data }) => {
       field: 'filledSeat', 
       headerName: 'Booked Seats',
       flex: 1,
-      minWidth: 120,
+      minWidth: 40,
       renderCell: (params) => (
         <Chip 
           label={params.value}
@@ -71,7 +71,7 @@ const MockTestTable = ({ data }) => {
       field: 'remainingSeat', 
       headerName: 'Available Seats',
       flex: 1,
-      minWidth: 120,
+      minWidth: 40,
       renderCell: (params) => (
         <Chip 
           label={params.value}
