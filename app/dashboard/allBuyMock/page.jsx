@@ -24,6 +24,9 @@ import {
 import { 
   DataGrid, 
   GridToolbar,
+  GridToolbarColumnsButton,
+  GridToolbarFilterButton,
+  GridToolbarExport,
   gridPageCountSelector,
   gridPageSelector,
   useGridApiContext,
@@ -47,18 +50,20 @@ const SendEmailCom = lazy(() => import("./SendEmailCom"));
 // Custom Pagination Component
 
 
-// Custom Toolbar Component
-function CustomToolbar({ setFilterButtonEl }) {
+// Updated Custom Toolbar Component
+function CustomToolbar() {
   return (
     <GridToolbar 
       sx={{
-        p: 2,
+        p: 1,
         display: 'flex',
         gap: 1,
         flexWrap: 'wrap',
-        '& .MuiButtonBase-root': {
-          borderRadius: 1,
-          px: 2,
+        '& .MuiButton-root': {
+          color: 'primary.main',
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+          },
         },
       }}
     />
@@ -333,16 +338,9 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       field: 'bookingDate',
       headerName: 'Booking Date',
       width: 120,
-      valueGetter: (params) => {
-        // Store the original date for sorting
-        const originalDate = new Date(params?.row?.date);
-        return {
-          sort: originalDate.getTime(), // Use timestamp for sorting
-          formatted: formatDateToShortMonth(params?.row?.date) // Use formatted date for display
-        };
-      },
-      valueFormatter: (params) => params?.value?.formatted, // Display the formatted date
-      sortComparator: (v1, v2) => v1.sort - v2.sort, // Compare using timestamps
+      valueGetter: (params) => params.row.date, // Return raw date value
+      valueFormatter: (params) => formatDateToShortMonth(params.value), // Format display
+      sortComparator: (v1, v2) => new Date(v1) - new Date(v2), // Compare actual dates
       filterable: true,
     },
     {
@@ -550,6 +548,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   onRowSelectionModelChange={handleSelectionChange} 
                 loading={loading}
                 initialState={{
+                  filter: {
+                    filterModel: {
+                      items: [],
+                    },
+                  },
                   columns: {
                     columnVisibilityModel: {
                       address: false,
@@ -562,19 +565,30 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   setColumnVisibilityModel(newModel);
                 }}
                 components={{
-                  Toolbar: CustomToolbar,
-                  Pagination: CustomPagination,
                   noRowsOverlay: () => <EmptyContent title="No Mock Tests Available" />,
                   noResultsOverlay: () => <EmptyContent title="No results found" />,
                 }}
-                componentsProps={{
-                  toolbar: { setFilterButtonEl },
-                  panel: { anchorEl: filterButtonEl },
-                  columnsManagement: { getTogglableColumns },
+                slots={{ 
+                  toolbar: GridToolbar,
+                  pagination: CustomPagination, // Add back the custom pagination
+                }}
+                slotProps={{
+                  toolbar: {
+                    showQuickFilter: true,
+                    quickFilterProps: { debounceMs: 500 },
+                  },
+                }}
+                filterModel={{
+                  items: [],
                 }}
                 getRowClassName={(params) => `status-${params?.row?.status}`}
                 autoHeight
                 disableExtendRowFullWidth={false}
+                filterMode="server"
+                sortingMode="server"
+                disableColumnFilter={false}
+                disableColumnSelector={false}
+                disableDensitySelector={false}
                 sx={{
                   [`& .${gridClasses.cell}`]: { 
                     alignItems: 'center', 
@@ -607,7 +621,6 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   borderRadius: 2,
                   border: '1px solid rgba(224, 224, 224, 1)',
                 }}
-            
               />
             </Grid>
           </Grid>
