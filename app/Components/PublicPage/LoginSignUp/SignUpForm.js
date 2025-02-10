@@ -254,7 +254,7 @@ console.log("i passed this point")
                 name="mobile"
                 value={formData.mobile}
                 onChange={handleChange}
-                label="Phone"
+                label="WhatsApp Number"
                 placeholder="e.g. 07123456789"
                 required
                 error={!!errors.mobile}

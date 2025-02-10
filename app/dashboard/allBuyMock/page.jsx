@@ -27,7 +27,8 @@ import {
   gridPageCountSelector,
   gridPageSelector,
   useGridApiContext,
-  useGridSelector
+  useGridSelector,
+  gridClasses
 } from '@mui/x-data-grid';
 import { MdModeEdit, MdOutlineMail, MdOutlineClose, MdRestartAlt, MdRemove, MdAdd } from "react-icons/md";
 import { FcOk, FcNoIdea, FcOrgUnit, FcTimeline } from "react-icons/fc";
@@ -39,6 +40,7 @@ import { registrationService } from "@/app/services";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import MulSelCom from "./MulSelCom";
 import { TabContext, TabList } from "@mui/lab";
+import EmptyContent from '@/app/Components/EmptyContent';
 
 const SendEmailCom = lazy(() => import("./SendEmailCom"));
 
@@ -64,6 +66,24 @@ function CustomPagination() {
         Next
       </Button>
     </ButtonGroup>
+  );
+}
+
+// Custom Toolbar Component
+function CustomToolbar({ setFilterButtonEl }) {
+  return (
+    <GridToolbar 
+      sx={{
+        p: 2,
+        display: 'flex',
+        gap: 1,
+        flexWrap: 'wrap',
+        '& .MuiButtonBase-root': {
+          borderRadius: 1,
+          px: 2,
+        },
+      }}
+    />
   );
 }
 
@@ -194,6 +214,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [successOnly, setSuccessOnly] = useState(true);
   const [containerWidth, setContainerWidth] = useState(1250);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: 10,
+    page: 0,
+  });
+  const [filterButtonEl, setFilterButtonEl] = useState(null);
 
   // Debounced width update
   const debouncedWidthUpdate = useCallback(
@@ -329,8 +354,8 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       try {
         let response = await registrationService.getMockWithFilter({ 
           sortBy, 
-          rowsPerPage, 
-          page, 
+          rowsPerPage: paginationModel.pageSize, 
+          page: paginationModel.page, 
           searchText, 
           selectedMockTests, 
           selectedBatches, 
@@ -354,7 +379,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       }
     }
     fetchAllData();
-  }, [rowsPerPage, page, searchText, sortBy, selectedMockTests, selectedBatches, successOnly]);
+  }, [paginationModel, searchText, sortBy, selectedMockTests, selectedBatches, successOnly]);
 
   const handleSelectionChange = (newSelectionModel) => {
     console.log("newSelectionModel", newSelectionModel);
@@ -363,6 +388,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
     );
     setSelectedItems(selectedRows);
   };
+
+  // Function to get toggleable columns
+  const getTogglableColumns = useCallback(() => {
+    return columns.filter(column => column.field !== 'actions');
+  }, []);
 
   return (
     <main style={{ 
@@ -538,26 +568,24 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   setColumnVisibilityModel(newModel);
                 }}
                 components={{
-                  Toolbar: GridToolbar,
+                  Toolbar: CustomToolbar,
                   Pagination: CustomPagination,
+                  noRowsOverlay: () => <EmptyContent title="No Mock Tests Available" />,
+                  noResultsOverlay: () => <EmptyContent title="No results found" />,
                 }}
                 componentsProps={{
-                  toolbar: {
-                    csvOptions: { 
-                      allColumns: true,
-                      fileName: 'MockTests_Export'
-                    },
-                    printOptions: { 
-                      disableToolbarButton: true 
-                    },
-                    filterButton: true,
-                    showQuickFilter: true,
-                  },
+                  toolbar: { setFilterButtonEl },
+                  panel: { anchorEl: filterButtonEl },
+                  columnsManagement: { getTogglableColumns },
                 }}
                 getRowClassName={(params) => `status-${params?.row?.status}`}
                 autoHeight
                 disableExtendRowFullWidth={false}
                 sx={{
+                  [`& .${gridClasses.cell}`]: { 
+                    alignItems: 'center', 
+                    display: 'inline-flex' 
+                  },
                   '& .MuiDataGrid-columnHeaders': {
                     backgroundColor: '#f5f5f5',
                   },
@@ -568,6 +596,23 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   '& .MuiDataGrid-root': {
                     maxWidth: '99.9%',
                   },
+                  '& .MuiDataGrid-virtualScroller': {
+                    minHeight: 200,
+                    maxHeight: 'calc(100vh - 400px)',
+                  },
+                  '& .MuiDataGrid-footerContainer': {
+                    borderTop: '1px solid rgba(224, 224, 224, 1)',
+                  },
+                  '& .MuiDataGrid-row': {
+                    '&:nth-of-type(odd)': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                    },
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                    },
+                  },
+                  borderRadius: 2,
+                  border: '1px solid rgba(224, 224, 224, 1)',
                 }}
               />
             </Grid>
