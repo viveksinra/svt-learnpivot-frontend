@@ -18,6 +18,7 @@ import { AccessService } from "./access.service";
 import { API_ENDPOINT } from "../utils/index";
 import { ChildService } from "./child.service";
 import { ReportService } from "./report.service";
+import { MyProfileService } from "./myProfile.service";
 
 export const authService = new AuthService(API_ENDPOINT);
 export const dashboardService = new DashboardService(API_ENDPOINT);
@@ -26,6 +27,7 @@ export const myCourseService = new MyCourseService(API_ENDPOINT);
 export const mockTestService = new MockTestService(API_ENDPOINT);
 export const registrationService = new RegistrationService(API_ENDPOINT);
 export const childService = new ChildService(API_ENDPOINT);
+export const myProfileService = new MyProfileService(API_ENDPOINT);
 export const reportService = new ReportService(API_ENDPOINT);
 
 
