@@ -88,7 +88,8 @@ const ProfileInfo = ({
   onChange,
   error,
   helperText,
-  component: Component = TextField
+  component: Component = TextField,
+  disabled = false
 }) => {
   if (isEditing) {
     return (
@@ -117,6 +118,7 @@ const ProfileInfo = ({
             error={error}
             helperText={helperText}
             size="small"
+            disabled={disabled}
           />
         </Box>
       </Stack>
@@ -390,6 +392,7 @@ const UserProfile = () => {
               onChange={handleChange}
               error={!!errors.email}
               helperText={errors.email}
+              disabled={true}
             />
             <ProfileInfo
               icon={PhoneIcon}

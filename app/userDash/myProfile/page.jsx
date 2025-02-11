@@ -1,7 +1,7 @@
 // app/profile/page.js
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Container, Grid } from '@mui/material';
+import { Box, Container, Grid, Typography } from '@mui/material';
 import { myProfileService } from '@/app/services';
 import { useRouter } from 'next/navigation';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
@@ -12,17 +12,18 @@ const Profile = () => {
   
   const snackRef = useRef();
 
-
-
-
-
   return (
-    <Box sx={{ 
-      bgcolor: '#F8FAFC',
-      minHeight: '100vh',
-      py: 6
-    }}>
+    <Box 
+    // sx={{ 
+    //   bgcolor: '#F8FAFC',
+    //   minHeight: '100vh',
+    //   py: 6
+    // }}
+    >
       <Container maxWidth="lg">
+        <Typography variant="h4" component="h1" sx={{ mb: 4, fontWeight: 600 }}>
+          My Profile
+        </Typography>
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <UserProfile  />

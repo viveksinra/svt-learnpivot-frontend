@@ -10,7 +10,8 @@ import {
   Snackbar,
   Alert,
   Button,
-  IconButton
+  IconButton,
+  Skeleton
 } from '@mui/material';
 import { School, Cake, Person } from '@mui/icons-material';
 import { format, parseISO, isValid } from 'date-fns';
@@ -153,16 +154,43 @@ const LoadingState = () => (
       height: '100%'
     }}
   >
-    <CardContent
-      sx={{
-        p: 4,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: 200
-      }}
-    >
-      <CircularProgress />
+    <CardContent sx={{ p: 4 }}>
+      <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
+        <Skeleton width={120} />
+      </Typography>
+      <Box sx={{ textAlign: 'right', mb: 2 }}>
+        <Skeleton width={100} height={36} sx={{ ml: 'auto' }} />
+      </Box>
+      {[1, 2].map((item) => (
+        <Card
+          key={item}
+          elevation={0}
+          sx={{
+            mb: 2,
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider'
+          }}
+        >
+          <CardContent>
+            <Stack direction="row" spacing={3} alignItems="center">
+              <Skeleton variant="circular" width={56} height={56} />
+              <Box flex={1}>
+                <Skeleton width={200} height={32} sx={{ mb: 1 }} />
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                  <Skeleton width={100} height={32} />
+                  <Skeleton width={120} height={32} />
+                  <Skeleton width={80} height={32} />
+                </Stack>
+              </Box>
+              <Stack direction="row" spacing={1}>
+                <Skeleton width={40} height={40} />
+                <Skeleton width={40} height={40} />
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      ))}
     </CardContent>
   </Card>
 );
