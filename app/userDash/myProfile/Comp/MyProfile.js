@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -108,6 +108,7 @@ const UserProfile = () => {
   const [profile, setProfile] = useState({});
   const [initialProfile, setInitialProfile] = useState({});
   const [errors, setErrors] = useState({});
+  const snackRef = useRef();
 
   useEffect(() => {
     async function getProfile() {
@@ -165,7 +166,7 @@ const UserProfile = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = async () => {
+  const handleUpdate = async () => {
     if (!validateForm()) return;
 
     try {
@@ -178,7 +179,12 @@ const UserProfile = () => {
         // Optionally, display a success message here (e.g., via a snackbar).
       } else {
         console.error('Profile update failed:', res);
-        window.location.reload();
+        if(res.message) 
+        {
+            snackRef.current.handleSnack(res);
+        } else {
+        snackRef.current.handleSnack({ message: 'Failed to fetch children.', variant: 'error' });
+        }
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -247,7 +253,7 @@ const UserProfile = () => {
           <Box>
             {isEditing ? (
               <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleSave} color="primary">
+                <IconButton onClick={handleUpdate} color="primary">
                   <SaveIcon />
                 </IconButton>
                 <IconButton onClick={handleCancel} color="error">
@@ -336,6 +342,7 @@ const UserProfile = () => {
           helperText={errors.postcode}
         />
       </CardContent>
+
     </Card>
   );
 };
