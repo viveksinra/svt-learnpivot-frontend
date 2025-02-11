@@ -19,13 +19,13 @@ function Login() {
         <Grid
     item
     xs={12}
-    md={6}
+    md={5}
     className="center"
     style={{ flexDirection: "column", padding: "20px" , }}
   >
         <ComLogSigForm isRedirectToDashboard={true} />
         </Grid>
-          <Grid item xs={12} md={6} id="LoginImgSide">
+          <Grid item xs={12} md={7} id="LoginImgSide">
             <img
               src="https://res.cloudinary.com/oasismanors/image/upload/v1696145088/Login2_pvckvi.svg"
               style={{ width: "100%", height: "400px" }}
