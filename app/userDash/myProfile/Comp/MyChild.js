@@ -218,7 +218,13 @@ const ChildrenList = () => {
 
   const handleChildSubmit = (childData) => {
     if (editMode) {
-      setCurrentChild(childData);
+      // Preserve the original ID when updating child data
+      const updatedChildData = {
+        ...childData,
+        _id: currentChild._id // Keep the original ID
+      };
+      console.log('Updated child data:', updatedChildData);
+      setCurrentChild(updatedChildData);
       setChildDialogOpen(false);
       setPasswordDialogOpen(true);
     } else {
@@ -239,9 +245,32 @@ const ChildrenList = () => {
   };
 
   const handleConfirmPassword = async (password) => {
-    // Only triggered in edit mode. Call update child logic here.
-    setTempPassword('');
-    setPasswordDialogOpen(false);
+    console.log('Current Child State:', currentChild); // Debug log
+    // MongoDB typically uses _id, but API might return id
+    const childId = currentChild?._id || currentChild?.id;
+    if (!childId) {
+      console.error('No child ID found:', currentChild);
+      return;
+    }
+
+    const updatedChildData = { ...currentChild, password };
+    try {
+      const res = await myProfileService.updateMyOneChild(childId, updatedChildData);
+      if (res.variant === 'success') {
+        // After successful update, refresh the children list
+        await fetchChildren();
+        setPasswordDialogOpen(false);
+        if (snackRef.current) {
+          snackRef.current.handleSnack({
+            message: 'Child Profile updated successfully',
+            variant: 'success'
+          });
+        }
+      }
+      // ...rest of the error handling remains the same...
+    } catch (error) {
+      // ...existing error handling...
+    }
   };
 
   const handleCloseSnackbar = () => {
