@@ -46,9 +46,9 @@ export class MyProfileService {
       })
       .then((res) => res.data);
   };
-  deleteMyOneChild = async ( data) => {
+  deleteMyOneChild = async ( childId,data) => {
     return this.instance
-      .post(`/api/v1/publicMaster/otherApi/user/deleteMyOneChild`, data, {
+      .post(`/api/v1/publicMaster/otherApi/user/deleteMyOneChild/${childId}`, data, {
         headers: getAuthorizationHeader(),
       })
       .then((res) => res.data);

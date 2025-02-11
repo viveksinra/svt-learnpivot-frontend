@@ -16,10 +16,11 @@ import { School, Cake, Person } from '@mui/icons-material';
 import { format, parseISO, isValid } from 'date-fns';
 import { myProfileService } from '@/app/services';
 import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 import PasswordConfirmDialog from './PasswordConfirmDialog';
 import ChildDialog from './ChildDialog';
 
-const ChildCard = ({ child, onEdit }) => {
+const ChildCard = ({ child, onEdit, onDelete }) => {
   const formatDate = (dateString) => {
     try {
       // First try to parse the ISO string
@@ -128,9 +129,14 @@ const ChildCard = ({ child, onEdit }) => {
               </Box>
             </Stack>
           </Box>
-          <IconButton onClick={() => onEdit(child)}>
-            <EditIcon />
-          </IconButton>
+          <Stack direction="row">
+            <IconButton onClick={() => onEdit(child)}>
+              <EditIcon />
+            </IconButton>
+            <IconButton onClick={() => onDelete(child)} color="error">
+              <DeleteIcon />
+            </IconButton>
+          </Stack>
         </Stack>
       </CardContent>
     </Card>
@@ -189,6 +195,7 @@ const ChildrenList = () => {
   const [childDialogOpen, setChildDialogOpen] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [deleteMode, setDeleteMode] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
 
   useEffect(() => {
@@ -270,41 +277,68 @@ const ChildrenList = () => {
     }
   };
 
+  const handleDeleteChild = (child) => {
+    setCurrentChild(child);
+    setDeleteMode(true);
+    setPasswordDialogOpen(true);
+  };
+
   const handleConfirmPassword = async (password) => {
-    // Ensure we have a valid child ID (using _id or id)
     const childId = currentChild?._id || currentChild?.id;
     if (!childId) {
-      const errorMessage = 'No child ID found. Unable to update child.';
-      console.error(errorMessage, currentChild);
       setSnackbar({
         open: true,
-        message: errorMessage,
+        message: 'No child ID found. Unable to process request.',
         severity: 'error'
       });
       return;
     }
 
-    const updatedChildData = { ...currentChild, password };
-    try {
-      const res = await myProfileService.updateMyOneChild(childId, updatedChildData);
-      if (res.variant !== 'success') {
-        throw new Error(res.message || 'Failed to update child');
+    if (deleteMode) {
+      try {
+        const res = await myProfileService.deleteMyOneChild(childId, { password });
+        if (res.variant !== 'success') {
+          throw new Error(res.message || 'Failed to delete child');
+        }
+        await fetchChildren();
+        setSnackbar({
+          open: true,
+          message: 'Child Profile deleted successfully',
+          severity: 'success'
+        });
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: error.message || 'Failed to delete child',
+          severity: 'error'
+        });
       }
-      // Refresh the children list after a successful update
-      await fetchChildren();
-      setPasswordDialogOpen(false);
-      setSnackbar({
-        open: true,
-        message: 'Child Profile updated successfully',
-        severity: 'success'
-      });
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: error.message || 'Failed to update child',
-        severity: 'error'
-      });
+    } else {
+      // Existing update logic
+      const updatedChildData = { ...currentChild, password };
+      try {
+        const res = await myProfileService.updateMyOneChild(childId, updatedChildData);
+        if (res.variant !== 'success') {
+          throw new Error(res.message || 'Failed to update child');
+        }
+        // Refresh the children list after a successful update
+        await fetchChildren();
+        setPasswordDialogOpen(false);
+        setSnackbar({
+          open: true,
+          message: 'Child Profile updated successfully',
+          severity: 'success'
+        });
+      } catch (error) {
+        setSnackbar({
+          open: true,
+          message: error.message || 'Failed to update child',
+          severity: 'error'
+        });
+      }
     }
+    setPasswordDialogOpen(false);
+    setDeleteMode(false);
   };
 
   const handleCloseSnackbar = () => {
@@ -341,7 +375,12 @@ const ChildrenList = () => {
           </Box>
           {children.length > 0 ? (
             children.map((child) => (
-              <ChildCard key={child._id} child={child} onEdit={handleOpenChildDialog} />
+              <ChildCard 
+                key={child._id} 
+                child={child} 
+                onEdit={handleOpenChildDialog}
+                onDelete={handleDeleteChild}
+              />
             ))
           ) : (
             <Box sx={{ textAlign: 'center', py: 8 }}>
@@ -370,7 +409,12 @@ const ChildrenList = () => {
       <PasswordConfirmDialog
         open={passwordDialogOpen}
         onConfirm={handleConfirmPassword}
-        onCancel={() => setPasswordDialogOpen(false)}
+        onCancel={() => {
+          setPasswordDialogOpen(false);
+          setDeleteMode(false);
+        }}
+        title={deleteMode ? "Confirm Delete" : "Confirm Update"}
+        message={deleteMode ? "Please enter your password to confirm deletion" : "Please enter your password to confirm update"}
       />
     </>
   );
