@@ -3,6 +3,7 @@ import { Box, Button } from '@mui/material';
 import { PDFDocument } from 'pdf-lib';
 import download from 'downloadjs';
 import { reportService } from '@/app/services';
+import { add } from 'date-fns';
 
 const DownReceipt = ({
   data
@@ -57,18 +58,36 @@ if (response.variant === 'success') {
 
       // Get individual fields using their names
       const toName = form.getTextField('toName');
-      const address = form.getTextField('address');
       const receipt = form.getTextField('receipt');
       const receiptDate = form.getTextField('receiptDate');
       const product = form.getTextField('product');
       const amount = form.getTextField('amount');
       const totalAmount = form.getTextField('totalAmount');
+      const add1 = form.getTextField('add1');
+      const add2 = form.getTextField('add2');
+      const add3 = form.getTextField('add3');
+      const add4 = form.getTextField('add4');
+      const add5 = form.getTextField('add5');
 
+add1.setText(payData?.user?.address1 || 'N/A');
+if (payData?.user?.address2) {
+  add2.setText(payData?.user?.address2);
+  if (payData?.user?.address3) {
+    add3.setText(payData?.user?.address3);
+    add4.setText(payData?.user?.city);
+    add5.setText(payData?.user?.postcode);
+  } else {
+  add3.setText(payData?.user?.city);
+  add4.setText(payData?.user?.postcode);
+  }
+} else {
+  add2.setText(payData?.user?.city);
+  add3.setText(payData?.user?.postcode);
+}
 
       // Fill in the fields with the fetched data
       receiptDate.setText(finalReceiptDate);
       toName.setText(`${payData?.user?.firstName}  ${payData?.user?.lastName}`);
-      address.setText(`${payData?.user?.address1} ${payData?.user?.address2} ${payData?.user?.address3}, ${payData?.user?.city}, ${payData?.user?.postcode}`|| 'N/A');
       receipt.setText(payData?.invoiceNumber || 'N/A');
       product.setText(productName);
       totalAmount.setText(formatAmount(payData?.amount) || 'N/A');
