@@ -9,27 +9,10 @@ import UserProfile from './Comp/MyProfile';
 import ChildrenList from './Comp/MyChild';
 
 const Profile = () => {
-  const router = useRouter();
-  const [allChildren, setAllChildren] = useState([]);
+  
   const snackRef = useRef();
 
-  useEffect(() => {
-    handleGetAllChildren();
-  }, []);
 
-  const handleGetAllChildren = async () => {
-    try {
-      const response = await myProfileService.getMyAllChild();
-      if (response.data) {
-        setAllChildren(response.data);
-      } else {
-        throw new Error('No data received');
-      }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      snackRef.current.handleSnack({ message: 'Failed to fetch children.', variant: 'error' });
-    }
-  };
 
 
 
@@ -45,7 +28,7 @@ const Profile = () => {
             <UserProfile  />
           </Grid>
           <Grid item xs={12} md={6}>
-            <ChildrenList children={allChildren} />
+            <ChildrenList />
           </Grid>
         </Grid>
       </Container>
