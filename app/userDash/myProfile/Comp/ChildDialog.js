@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { format, parseISO } from 'date-fns';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   TextField, MenuItem, Button, Box, Typography
@@ -11,28 +12,92 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
     childGender: '',
     childYear: ''
   });
-  const [errors, setErrors] = useState({});
-
+  const [errors, setErrors] = useState({
+    childName: '',
+    childDob: '',
+    childGender: '',
+    childYear: ''
+  });
+  
   useEffect(() => {
     if (editMode && initialData) {
+      // Format the date for the input field (YYYY-MM-DD format)
+      let formattedDate = '';
+      try {
+        if (initialData.childDob) {
+          // Try parsing as ISO string first
+          const date = parseISO(initialData.childDob);
+          formattedDate = format(date, 'yyyy-MM-dd');
+        }
+      } catch (error) {
+        console.error('Error formatting date:', error);
+        // If parsing fails, try to use the date string as is
+        formattedDate = initialData.childDob;
+      }
+
       setChildData({
         childName: initialData.childName || '',
-        childDob: initialData.childDob || '',
+        childDob: formattedDate,
         childGender: initialData.childGender || '',
         childYear: initialData.childYear || ''
       });
     } else {
-      setChildData({ childName: '', childDob: '', childGender: '', childYear: '' });
+      // Reset form for new child
+      setChildData({
+        childName: '',
+        childDob: '',
+        childGender: '',
+        childYear: ''
+      });
     }
-  }, [editMode, initialData]);
+  }, [editMode, initialData, open]); // Added 'open' as dependency
 
   const validateForm = () => {
-    // ...existing code for validations...
-    return true; // or false if invalid
+    let tempErrors = {
+      childName: '',
+      childDob: '',
+      childGender: '',
+      childYear: ''
+    };
+    let isValid = true;
+
+    if (!childData.childName.trim()) {
+      tempErrors.childName = 'Name is required';
+      isValid = false;
+    }
+
+    if (!childData.childDob) {
+      tempErrors.childDob = 'Date of birth is required';
+      isValid = false;
+    }
+
+    if (!childData.childGender) {
+      tempErrors.childGender = 'Gender is required';
+      isValid = false;
+    }
+
+    if (!childData.childYear) {
+      tempErrors.childYear = 'Year group is required';
+      isValid = false;
+    }
+
+    setErrors(tempErrors);
+    return isValid;
   };
 
   const handleChange = (e) => {
-    setChildData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+    setChildData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
   };
 
   const handleSave = () => {

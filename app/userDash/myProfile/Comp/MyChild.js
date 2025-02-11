@@ -14,13 +14,37 @@ import {
   IconButton
 } from '@mui/material';
 import { School, Cake, Person } from '@mui/icons-material';
-import { format } from 'date-fns';
+import { format, parseISO, isValid } from 'date-fns';
 import { myProfileService } from '@/app/services';
 import EditIcon from '@mui/icons-material/Edit';
 import PasswordConfirmDialog from './PasswordConfirmDialog';
 import ChildDialog from './ChildDialog';
 
 const ChildCard = ({ child, onEdit }) => {
+  const formatDate = (dateString) => {
+    try {
+      // First try to parse the ISO string
+      const date = parseISO(dateString);
+      
+      // Check if the parsed date is valid
+      if (isValid(date)) {
+        return format(date, 'dd MMM yyyy');
+      }
+      
+      // If parsing ISO fails, try creating a new Date object
+      const fallbackDate = new Date(dateString);
+      if (isValid(fallbackDate)) {
+        return format(fallbackDate, 'dd MMM yyyy');
+      }
+      
+      // If all parsing fails, return the original string
+      return 'Invalid Date';
+    } catch (error) {
+      console.error('Error formatting date:', error);
+      return 'Invalid Date';
+    }
+  };
+
   return (
     <Card 
       elevation={0}
@@ -91,7 +115,7 @@ const ChildCard = ({ child, onEdit }) => {
                 }}
               >
                 <Cake fontSize="small" />
-                {format(new Date(child.childDob), 'dd MMM yyyy')}
+                {formatDate(child.childDob)}
               </Box>
               
               <Box
