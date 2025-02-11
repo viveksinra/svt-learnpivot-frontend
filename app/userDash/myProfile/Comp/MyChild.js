@@ -1,13 +1,12 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Stack, 
-  Box, 
+import React, { useEffect, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  Box,
   Avatar,
   CircularProgress,
-  Container,
   Snackbar,
   Alert,
   Button,
@@ -25,19 +24,15 @@ const ChildCard = ({ child, onEdit }) => {
     try {
       // First try to parse the ISO string
       const date = parseISO(dateString);
-      
-      // Check if the parsed date is valid
       if (isValid(date)) {
         return format(date, 'dd MMM yyyy');
       }
-      
       // If parsing ISO fails, try creating a new Date object
       const fallbackDate = new Date(dateString);
       if (isValid(fallbackDate)) {
         return format(fallbackDate, 'dd MMM yyyy');
       }
-      
-      // If all parsing fails, return the original string
+      // If all parsing fails, return an informative message
       return 'Invalid Date';
     } catch (error) {
       console.error('Error formatting date:', error);
@@ -46,9 +41,9 @@ const ChildCard = ({ child, onEdit }) => {
   };
 
   return (
-    <Card 
+    <Card
       elevation={0}
-      sx={{ 
+      sx={{
         mb: 2,
         borderRadius: 3,
         border: '1px solid',
@@ -57,14 +52,14 @@ const ChildCard = ({ child, onEdit }) => {
         '&:hover': {
           transform: 'translateY(-4px)',
           boxShadow: (theme) => theme.shadows[4],
-          borderColor: 'primary.main',
+          borderColor: 'primary.main'
         }
       }}
     >
       <CardContent>
         <Stack direction="row" spacing={3} alignItems="center">
-          <Avatar 
-            sx={{ 
+          <Avatar
+            sx={{
               width: 56,
               height: 56,
               bgcolor: 'primary.main',
@@ -74,15 +69,12 @@ const ChildCard = ({ child, onEdit }) => {
           >
             {child.childName.charAt(0)}
           </Avatar>
-          
+
           <Box flex={1}>
-            <Typography 
-              variant="h6" 
-              sx={{ mb: 1, fontWeight: 600 }}
-            >
+            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
               {child.childName}
             </Typography>
-            
+
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <Box
                 sx={{
@@ -94,13 +86,13 @@ const ChildCard = ({ child, onEdit }) => {
                   py: 0.5,
                   px: 1.5,
                   borderRadius: 2,
-                  fontSize: '0.875rem',
+                  fontSize: '0.875rem'
                 }}
               >
                 <School fontSize="small" />
                 {child.childYear}
               </Box>
-              
+
               <Box
                 sx={{
                   display: 'flex',
@@ -111,13 +103,13 @@ const ChildCard = ({ child, onEdit }) => {
                   py: 0.5,
                   px: 1.5,
                   borderRadius: 2,
-                  fontSize: '0.875rem',
+                  fontSize: '0.875rem'
                 }}
               >
                 <Cake fontSize="small" />
                 {formatDate(child.childDob)}
               </Box>
-              
+
               <Box
                 sx={{
                   display: 'flex',
@@ -128,7 +120,7 @@ const ChildCard = ({ child, onEdit }) => {
                   py: 0.5,
                   px: 1.5,
                   borderRadius: 2,
-                  fontSize: '0.875rem',
+                  fontSize: '0.875rem'
                 }}
               >
                 <Person fontSize="small" />
@@ -146,41 +138,41 @@ const ChildCard = ({ child, onEdit }) => {
 };
 
 const LoadingState = () => (
-  <Card 
-    elevation={0} 
-    sx={{ 
-      borderRadius: 4, 
-      border: '1px solid', 
-      borderColor: 'divider', 
-      height: '100%' 
+  <Card
+    elevation={0}
+    sx={{
+      borderRadius: 4,
+      border: '1px solid',
+      borderColor: 'divider',
+      height: '100%'
     }}
   >
-    <CardContent sx={{ 
-      p: 4, 
-      display: 'flex', 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      minHeight: 200 
-    }}>
+    <CardContent
+      sx={{
+        p: 4,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: 200
+      }}
+    >
       <CircularProgress />
     </CardContent>
   </Card>
 );
 
 const ErrorState = ({ message }) => (
-  <Card 
-    elevation={0} 
-    sx={{ 
-      borderRadius: 4, 
-      border: '1px solid', 
-      borderColor: 'divider', 
-      height: '100%' 
+  <Card
+    elevation={0}
+    sx={{
+      borderRadius: 4,
+      border: '1px solid',
+      borderColor: 'divider',
+      height: '100%'
     }}
   >
     <CardContent sx={{ p: 4, textAlign: 'center' }}>
-      <Typography color="error">
-        {message}
-      </Typography>
+      <Typography color="error">{message}</Typography>
     </CardContent>
   </Card>
 );
@@ -189,7 +181,6 @@ const ChildrenList = () => {
   const [children, setChildren] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const snackbarRef = useRef();
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
@@ -199,7 +190,6 @@ const ChildrenList = () => {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [currentChild, setCurrentChild] = useState(null);
-  const [tempPassword, setTempPassword] = useState('');
 
   useEffect(() => {
     fetchChildren();
@@ -209,12 +199,12 @@ const ChildrenList = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await myProfileService.getMyAllChild();
       if (response.variant !== 'success') {
         throw new Error(response.message || 'Failed to fetch children');
       }
-      
+
       setChildren(response.data || []);
     } catch (err) {
       setError(err.message);
@@ -242,63 +232,83 @@ const ChildrenList = () => {
 
   const handleChildSubmit = (childData) => {
     if (editMode) {
-      // Preserve the original ID when updating child data
+      // For edit mode, preserve the original ID and update state
       const updatedChildData = {
         ...childData,
         _id: currentChild._id // Keep the original ID
       };
-      console.log('Updated child data:', updatedChildData);
       setCurrentChild(updatedChildData);
       setChildDialogOpen(false);
+      // Open password confirmation dialog before updating
       setPasswordDialogOpen(true);
     } else {
-      setChildDialogOpen(false);
       addChild(childData);
     }
   };
 
   const addChild = async (childData) => {
     try {
-      // Call the service to add the child
-      // e.g.: const response = await myProfileService.addChild(childData);
-      // if (response.variant === 'success') { ... } else { ... }
-      // On success, refresh children or show a success snackbar
-    } catch (err) {
-      // Handle error scenario, show an error snackbar
+      const res = await myProfileService.addChild(childData);
+      if (res.variant !== 'success') {
+        throw new Error(res.message || 'Failed to add child');
+      }
+      // Refresh the children list after successful addition
+      await fetchChildren();
+      setChildDialogOpen(false);
+      setPasswordDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: 'Child Profile added successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.message || 'Failed to add child',
+        severity: 'error'
+      });
     }
   };
 
   const handleConfirmPassword = async (password) => {
-    console.log('Current Child State:', currentChild); // Debug log
-    // MongoDB typically uses _id, but API might return id
+    // Ensure we have a valid child ID (using _id or id)
     const childId = currentChild?._id || currentChild?.id;
     if (!childId) {
-      console.error('No child ID found:', currentChild);
+      const errorMessage = 'No child ID found. Unable to update child.';
+      console.error(errorMessage, currentChild);
+      setSnackbar({
+        open: true,
+        message: errorMessage,
+        severity: 'error'
+      });
       return;
     }
 
     const updatedChildData = { ...currentChild, password };
     try {
       const res = await myProfileService.updateMyOneChild(childId, updatedChildData);
-      if (res.variant === 'success') {
-        // After successful update, refresh the children list
-        await fetchChildren();
-        setPasswordDialogOpen(false);
-        if (snackRef.current) {
-          snackRef.current.handleSnack({
-            message: 'Child Profile updated successfully',
-            variant: 'success'
-          });
-        }
+      if (res.variant !== 'success') {
+        throw new Error(res.message || 'Failed to update child');
       }
-      // ...rest of the error handling remains the same...
+      // Refresh the children list after a successful update
+      await fetchChildren();
+      setPasswordDialogOpen(false);
+      setSnackbar({
+        open: true,
+        message: 'Child Profile updated successfully',
+        severity: 'success'
+      });
     } catch (error) {
-      // ...existing error handling...
+      setSnackbar({
+        open: true,
+        message: error.message || 'Failed to update child',
+        severity: 'error'
+      });
     }
   };
 
   const handleCloseSnackbar = () => {
-    setSnackbar(prev => ({ ...prev, open: false }));
+    setSnackbar((prev) => ({ ...prev, open: false }));
   };
 
   if (isLoading) {
@@ -311,9 +321,9 @@ const ChildrenList = () => {
 
   return (
     <>
-      <Card 
+      <Card
         elevation={0}
-        sx={{ 
+        sx={{
           borderRadius: 4,
           border: '1px solid',
           borderColor: 'divider',
@@ -321,13 +331,7 @@ const ChildrenList = () => {
         }}
       >
         <CardContent sx={{ p: 4 }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 600,
-              mb: 3
-            }}
-          >
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
             Children
           </Typography>
           <Box sx={{ textAlign: 'right', mb: 2 }}>
@@ -340,15 +344,8 @@ const ChildrenList = () => {
               <ChildCard key={child._id} child={child} onEdit={handleOpenChildDialog} />
             ))
           ) : (
-            <Box 
-              sx={{ 
-                textAlign: 'center',
-                py: 8
-              }}
-            >
-              <Typography color="text.secondary">
-                No children registered
-              </Typography>
+            <Box sx={{ textAlign: 'center', py: 8 }}>
+              <Typography color="text.secondary">No children registered</Typography>
             </Box>
           )}
         </CardContent>
@@ -359,11 +356,7 @@ const ChildrenList = () => {
         onClose={handleCloseSnackbar}
         anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert 
-          onClose={handleCloseSnackbar} 
-          severity={snackbar.severity}
-          sx={{ width: '100%' }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}
         </Alert>
       </Snackbar>

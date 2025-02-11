@@ -13,7 +13,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Button
+  Button,
+  Skeleton
 } from '@mui/material';
 import {
   Mail as EmailIcon,
@@ -160,17 +161,29 @@ const ProfileInfo = ({
   );
 };
 
+const ProfileInfoSkeleton = () => (
+  <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+    <Skeleton variant="rounded" width={48} height={48} />
+    <Box sx={{ flex: 1 }}>
+      <Skeleton variant="text" width={100} sx={{ mb: 0.5 }} />
+      <Skeleton variant="text" width={200} />
+    </Box>
+  </Stack>
+);
+
 const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profile, setProfile] = useState({});
   const [initialProfile, setInitialProfile] = useState({});
   const [errors, setErrors] = useState({});
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const snackRef = useRef();
 
   useEffect(() => {
     async function getProfile() {
       try {
+        setIsLoading(true);
         const res = await myProfileService.getMyProfile();
         if (res.variant === 'success') {
           setProfile(res.data);
@@ -181,6 +194,8 @@ const UserProfile = () => {
       } catch (error) {
         console.error('Failed to fetch profile:', error);
         window.location.reload();
+      } finally {
+        setIsLoading(false);
       }
     }
     getProfile();
@@ -277,142 +292,168 @@ const UserProfile = () => {
       <CardContent sx={{ p: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
           <Stack direction="row" spacing={3} alignItems="center">
-            <Avatar
-              sx={{
-                width: 72,
-                height: 72,
-                bgcolor: 'primary.main',
-                fontSize: '2rem',
-                fontWeight: 'bold'
-              }}
-            >
-              {profile?.firstName?.charAt(0)}
-            </Avatar>
+            {isLoading ? (
+              <>
+                <Skeleton variant="circular" width={72} height={72} />
+                <Box>
+                  <Skeleton variant="text" width={200} height={40} sx={{ mb: 0.5 }} />
+                  <Skeleton variant="text" width={100} />
+                </Box>
+              </>
+            ) : (
+              <>
+                <Avatar
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    bgcolor: 'primary.main',
+                    fontSize: '2rem',
+                    fontWeight: 'bold'
+                  }}
+                >
+                  {profile?.firstName?.charAt(0)}
+                </Avatar>
+                <Box>
+                  {isEditing ? (
+                    <Stack spacing={2}>
+                      <TextField
+                        name="firstName"
+                        label="First Name"
+                        value={profile?.firstName || ''}
+                        onChange={handleChange}
+                        error={!!errors.firstName}
+                        helperText={errors.firstName}
+                        size="small"
+                      />
+                      <TextField
+                        name="lastName"
+                        label="Last Name"
+                        value={profile?.lastName || ''}
+                        onChange={handleChange}
+                        error={!!errors.lastName}
+                        helperText={errors.lastName}
+                        size="small"
+                      />
+                    </Stack>
+                  ) : (
+                    <>
+                      <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        {`${profile?.firstName} ${profile?.lastName}`}
+                      </Typography>
+                      <Typography variant="subtitle1" color="text.secondary">
+                        {profile?.jobRole?.label || 'User'}
+                      </Typography>
+                    </>
+                  )}
+                </Box>
+              </>
+            )}
+          </Stack>
+          {!isLoading && (
             <Box>
               {isEditing ? (
-                <Stack spacing={2}>
-                  <TextField
-                    name="firstName"
-                    label="First Name"
-                    value={profile?.firstName || ''}
-                    onChange={handleChange}
-                    error={!!errors.firstName}
-                    helperText={errors.firstName}
-                    size="small"
-                  />
-                  <TextField
-                    name="lastName"
-                    label="Last Name"
-                    value={profile?.lastName || ''}
-                    onChange={handleChange}
-                    error={!!errors.lastName}
-                    helperText={errors.lastName}
-                    size="small"
-                  />
+                <Stack direction="row" spacing={1}>
+                  <IconButton onClick={handleUpdate} color="primary">
+                    <SaveIcon />
+                  </IconButton>
+                  <IconButton onClick={handleCancel} color="error">
+                    <CancelIcon />
+                  </IconButton>
                 </Stack>
               ) : (
-                <>
-                  <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    {`${profile?.firstName} ${profile?.lastName}`}
-                  </Typography>
-                  <Typography variant="subtitle1" color="text.secondary">
-                    {profile?.jobRole?.label || 'User'}
-                  </Typography>
-                </>
+                <IconButton onClick={handleEdit} color="primary">
+                  <EditIcon />
+                </IconButton>
               )}
             </Box>
-          </Stack>
-          <Box>
-            {isEditing ? (
-              <Stack direction="row" spacing={1}>
-                <IconButton onClick={handleUpdate} color="primary">
-                  <SaveIcon />
-                </IconButton>
-                <IconButton onClick={handleCancel} color="error">
-                  <CancelIcon />
-                </IconButton>
-              </Stack>
-            ) : (
-              <IconButton onClick={handleEdit} color="primary">
-                <EditIcon />
-              </IconButton>
-            )}
-          </Box>
+          )}
         </Box>
 
         <Divider sx={{ mb: 4 }} />
 
-        <ProfileInfo
-          icon={EmailIcon}
-          label="Email"
-          value={profile?.email}
-          isEditing={isEditing}
-          name="email"
-          onChange={handleChange}
-          error={!!errors.email}
-          helperText={errors.email}
-        />
-        <ProfileInfo
-          icon={PhoneIcon}
-          label="Mobile"
-          value={profile?.mobile}
-          isEditing={isEditing}
-          name="mobile"
-          onChange={handleChange}
-          error={!!errors.mobile}
-          helperText={errors.mobile}
-        />
-        <ProfileInfo
-          icon={LocationIcon}
-          label="Address"
-          value={profile?.address1}
-          isEditing={isEditing}
-          name="address1"
-          onChange={handleChange}
-          error={!!errors.address1}
-          helperText={errors.address1}
-          component={AddressInput}
-        />
-        {isEditing && (
+        {isLoading ? (
+          <>
+            <ProfileInfoSkeleton />
+            <ProfileInfoSkeleton />
+            <ProfileInfoSkeleton />
+            <ProfileInfoSkeleton />
+            <ProfileInfoSkeleton />
+          </>
+        ) : (
           <>
             <ProfileInfo
-              icon={LocationIcon}
-              label="Address Line 2"
-              value={profile?.address2}
+              icon={EmailIcon}
+              label="Email"
+              value={profile?.email}
               isEditing={isEditing}
-              name="address2"
+              name="email"
               onChange={handleChange}
+              error={!!errors.email}
+              helperText={errors.email}
+            />
+            <ProfileInfo
+              icon={PhoneIcon}
+              label="Mobile"
+              value={profile?.mobile}
+              isEditing={isEditing}
+              name="mobile"
+              onChange={handleChange}
+              error={!!errors.mobile}
+              helperText={errors.mobile}
             />
             <ProfileInfo
               icon={LocationIcon}
-              label="Address Line 3"
-              value={profile?.address3}
+              label="Address"
+              value={profile?.address1}
               isEditing={isEditing}
-              name="address3"
+              name="address1"
               onChange={handleChange}
+              error={!!errors.address1}
+              helperText={errors.address1}
+              component={AddressInput}
+            />
+            {isEditing && (
+              <>
+                <ProfileInfo
+                  icon={LocationIcon}
+                  label="Address Line 2"
+                  value={profile?.address2}
+                  isEditing={isEditing}
+                  name="address2"
+                  onChange={handleChange}
+                />
+                <ProfileInfo
+                  icon={LocationIcon}
+                  label="Address Line 3"
+                  value={profile?.address3}
+                  isEditing={isEditing}
+                  name="address3"
+                  onChange={handleChange}
+                />
+              </>
+            )}
+            <ProfileInfo
+              icon={LocationIcon}
+              label="City"
+              value={profile?.city}
+              isEditing={isEditing}
+              name="city"
+              onChange={handleChange}
+              error={!!errors.city}
+              helperText={errors.city}
+            />
+            <ProfileInfo
+              icon={LocationIcon}
+              label="Postcode"
+              value={profile?.postcode}
+              isEditing={isEditing}
+              name="postcode"
+              onChange={handleChange}
+              error={!!errors.postcode}
+              helperText={errors.postcode}
             />
           </>
         )}
-        <ProfileInfo
-          icon={LocationIcon}
-          label="City"
-          value={profile?.city}
-          isEditing={isEditing}
-          name="city"
-          onChange={handleChange}
-          error={!!errors.city}
-          helperText={errors.city}
-        />
-        <ProfileInfo
-          icon={LocationIcon}
-          label="Postcode"
-          value={profile?.postcode}
-          isEditing={isEditing}
-          name="postcode"
-          onChange={handleChange}
-          error={!!errors.postcode}
-          helperText={errors.postcode}
-        />
       </CardContent>
 
       <PasswordConfirmDialog

@@ -54,6 +54,13 @@ export class MyProfileService {
       .then((res) => res.data);
   };
 
+  addChild = async ( data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/child`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
 
 }
