@@ -254,17 +254,16 @@ export const UpcomingEvents = ({ selectedChild }) => {
           fontWeight: 700,
           fontSize: isMobile ? '1.25rem' : '1.5rem'
         }}>
-          Upcoming Courses
+          Upcoming Mock Tests
         </Typography>
         <LoadingSkeleton />
-        
         <Typography variant="h6" sx={{ 
           mt: 4,
           mb: 2, 
           fontWeight: 700,
           fontSize: isMobile ? '1.25rem' : '1.5rem'
         }}>
-          Upcoming Mock Tests
+          Upcoming Courses
         </Typography>
         <LoadingSkeleton />
       </Container>
@@ -318,17 +317,17 @@ export const UpcomingEvents = ({ selectedChild }) => {
             fontSize: isMobile ? '1.25rem' : '1.5rem'
           }}
         >
-          Upcoming Courses
+          Upcoming Mock Tests
         </Typography>
-        {events.classes.length > 0 ? (
+        {events.mockTests.length > 0 ? (
           <EventList 
-            items={events.classes}
-            type="class"
-            currentPage={classPage}
-            onShowMore={() => setClassPage(p => p + 1)}
+            items={events.mockTests}
+            type="mock"
+            currentPage={mockPage}
+            onShowMore={() => setMockPage(p => p + 1)}
           />
         ) : (
-          <EmptyState type="class" onButtonClick={handleNavigate} />
+          <EmptyState type="mock" onButtonClick={handleNavigate} />
         )}
       </Box>
 
@@ -341,17 +340,17 @@ export const UpcomingEvents = ({ selectedChild }) => {
             fontSize: isMobile ? '1.25rem' : '1.5rem'
           }}
         >
-          Upcoming Mock Tests
+          Upcoming Courses
         </Typography>
-        {events.mockTests.length > 0 ? (
+        {events.classes.length > 0 ? (
           <EventList 
-            items={events.mockTests}
-            type="mock"
-            currentPage={mockPage}
-            onShowMore={() => setMockPage(p => p + 1)}
+            items={events.classes}
+            type="class"
+            currentPage={classPage}
+            onShowMore={() => setClassPage(p => p + 1)}
           />
         ) : (
-          <EmptyState type="mock" onButtonClick={handleNavigate} />
+          <EmptyState type="class" onButtonClick={handleNavigate} />
         )}
       </Box>
     </Container>
