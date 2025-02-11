@@ -1,17 +1,16 @@
-import React, { useState } from 'react';
-import { 
-  Card, 
-  CardContent, 
-  Typography, 
-  Stack, 
-  Box, 
-  Avatar, 
+import React, { useEffect, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Stack,
+  Box,
+  Avatar,
   Divider,
   IconButton,
-  TextField,
-  Button
+  TextField
 } from '@mui/material';
-import { 
+import {
   Mail as EmailIcon,
   Phone as PhoneIcon,
   LocationOn as LocationIcon,
@@ -20,8 +19,19 @@ import {
   Cancel as CancelIcon
 } from '@mui/icons-material';
 import AddressInput from '@/app/Components/PublicPage/LoginSignUp/AddressInput';
+import { myProfileService } from '@/app/services';
 
-const ProfileInfo = ({ icon: Icon, label, value, isEditing, name, onChange, error, helperText, component: Component = TextField }) => {
+const ProfileInfo = ({
+  icon: Icon,
+  label,
+  value,
+  isEditing,
+  name,
+  onChange,
+  error,
+  helperText,
+  component: Component = TextField
+}) => {
   if (isEditing) {
     return (
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
@@ -34,7 +44,7 @@ const ProfileInfo = ({ icon: Icon, label, value, isEditing, name, onChange, erro
             alignItems: 'center',
             justifyContent: 'center',
             bgcolor: 'primary.main',
-            color: 'white',
+            color: 'white'
           }}
         >
           <Icon />
@@ -56,14 +66,14 @@ const ProfileInfo = ({ icon: Icon, label, value, isEditing, name, onChange, erro
   }
 
   return (
-    <Stack 
-      direction="row" 
-      spacing={2} 
-      sx={{ 
+    <Stack
+      direction="row"
+      spacing={2}
+      sx={{
         mb: 3,
         transition: 'transform 0.2s',
         '&:hover': {
-          transform: 'translateX(8px)',
+          transform: 'translateX(8px)'
         }
       }}
     >
@@ -76,7 +86,7 @@ const ProfileInfo = ({ icon: Icon, label, value, isEditing, name, onChange, erro
           alignItems: 'center',
           justifyContent: 'center',
           bgcolor: 'primary.main',
-          color: 'white',
+          color: 'white'
         }}
       >
         <Icon />
@@ -93,43 +103,63 @@ const ProfileInfo = ({ icon: Icon, label, value, isEditing, name, onChange, erro
   );
 };
 
-const UserProfile = ({ profile: initialProfile }) => {
+const UserProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [profile, setProfile] = useState(initialProfile);
+  const [profile, setProfile] = useState({});
+  const [initialProfile, setInitialProfile] = useState({});
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    async function getProfile() {
+      try {
+        const res = await myProfileService.getMyProfile();
+        if (res.variant === 'success') {
+          setProfile(res.data);
+          setInitialProfile(res.data);
+        } else {
+          // Handle error appropriately; for example, reload the page:
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Failed to fetch profile:', error);
+        window.location.reload();
+      }
+    }
+    getProfile();
+  }, []);
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
   const handleCancel = () => {
+    // Revert to the last saved profile data.
     setProfile(initialProfile);
     setIsEditing(false);
     setErrors({});
   };
 
   const handleChange = (e) => {
-    const { name, value, ...extra } = e.target;
-    setProfile(prev => ({
+    const { name, value } = e.target;
+    setProfile((prev) => ({
       ...prev,
-      [name]: value,
-      ...extra // This will handle additional address fields from AddressInput
+      [name]: value
     }));
 
     if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: undefined }));
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!profile.firstName?.trim()) newErrors.firstName = "First name is required";
-    if (!profile.lastName?.trim()) newErrors.lastName = "Last name is required";
-    if (!profile.email?.trim()) newErrors.email = "Email is required";
-    if (!profile.mobile?.trim()) newErrors.mobile = "Phone number is required";
-    if (!profile.address1?.trim()) newErrors.address1 = "Address is required";
-    if (!profile.city?.trim()) newErrors.city = "City is required";
-    if (!profile.postcode?.trim()) newErrors.postcode = "Postcode is required";
+    if (!profile?.firstName?.trim()) newErrors.firstName = 'First name is required';
+    if (!profile?.lastName?.trim()) newErrors.lastName = 'Last name is required';
+    if (!profile?.email?.trim()) newErrors.email = 'Email is required';
+    if (!profile?.mobile?.trim()) newErrors.mobile = 'Phone number is required';
+    if (!profile?.address1?.trim()) newErrors.address1 = 'Address is required';
+    if (!profile?.city?.trim()) newErrors.city = 'City is required';
+    if (!profile?.postcode?.trim()) newErrors.postcode = 'Postcode is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -139,20 +169,27 @@ const UserProfile = ({ profile: initialProfile }) => {
     if (!validateForm()) return;
 
     try {
-      // Add your API call here to update the profile
-      // const response = await updateProfile(profile);
-      setIsEditing(false);
-      // You might want to show a success message here
+      const res = await myProfileService.updateMyProfile(profile);
+      if (res.variant === 'success') {
+        // Update both the current and initial profile to the saved data.
+        setProfile(res.data);
+        setInitialProfile(res.data);
+        setIsEditing(false);
+        // Optionally, display a success message here (e.g., via a snackbar).
+      } else {
+        console.error('Profile update failed:', res);
+        window.location.reload();
+      }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      // Handle error appropriately
+      // Optionally handle the error (e.g., show an error message to the user).
     }
   };
 
   return (
-    <Card 
+    <Card
       elevation={0}
-      sx={{ 
+      sx={{
         borderRadius: 4,
         border: '1px solid',
         borderColor: 'divider',
@@ -162,8 +199,8 @@ const UserProfile = ({ profile: initialProfile }) => {
       <CardContent sx={{ p: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
           <Stack direction="row" spacing={3} alignItems="center">
-            <Avatar 
-              sx={{ 
+            <Avatar
+              sx={{
                 width: 72,
                 height: 72,
                 bgcolor: 'primary.main',
@@ -171,7 +208,7 @@ const UserProfile = ({ profile: initialProfile }) => {
                 fontWeight: 'bold'
               }}
             >
-              {profile.firstName?.charAt(0)}
+              {profile?.firstName?.charAt(0)}
             </Avatar>
             <Box>
               {isEditing ? (
@@ -179,7 +216,7 @@ const UserProfile = ({ profile: initialProfile }) => {
                   <TextField
                     name="firstName"
                     label="First Name"
-                    value={profile.firstName || ''}
+                    value={profile?.firstName || ''}
                     onChange={handleChange}
                     error={!!errors.firstName}
                     helperText={errors.firstName}
@@ -188,7 +225,7 @@ const UserProfile = ({ profile: initialProfile }) => {
                   <TextField
                     name="lastName"
                     label="Last Name"
-                    value={profile.lastName || ''}
+                    value={profile?.lastName || ''}
                     onChange={handleChange}
                     error={!!errors.lastName}
                     helperText={errors.lastName}
@@ -198,10 +235,10 @@ const UserProfile = ({ profile: initialProfile }) => {
               ) : (
                 <>
                   <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
-                    {`${profile.firstName} ${profile.lastName}`}
+                    {`${profile?.firstName} ${profile?.lastName}`}
                   </Typography>
                   <Typography variant="subtitle1" color="text.secondary">
-                    {profile.jobRole?.label || 'User'}
+                    {profile?.jobRole?.label || 'User'}
                   </Typography>
                 </>
               )}
@@ -227,30 +264,30 @@ const UserProfile = ({ profile: initialProfile }) => {
 
         <Divider sx={{ mb: 4 }} />
 
-        <ProfileInfo 
+        <ProfileInfo
           icon={EmailIcon}
           label="Email"
-          value={profile.email}
+          value={profile?.email}
           isEditing={isEditing}
           name="email"
           onChange={handleChange}
           error={!!errors.email}
           helperText={errors.email}
         />
-        <ProfileInfo 
+        <ProfileInfo
           icon={PhoneIcon}
           label="Mobile"
-          value={profile.mobile}
+          value={profile?.mobile}
           isEditing={isEditing}
           name="mobile"
           onChange={handleChange}
           error={!!errors.mobile}
           helperText={errors.mobile}
         />
-        <ProfileInfo 
+        <ProfileInfo
           icon={LocationIcon}
           label="Address"
-          value={profile.address1}
+          value={profile?.address1}
           isEditing={isEditing}
           name="address1"
           onChange={handleChange}
@@ -260,38 +297,38 @@ const UserProfile = ({ profile: initialProfile }) => {
         />
         {isEditing && (
           <>
-            <ProfileInfo 
+            <ProfileInfo
               icon={LocationIcon}
               label="Address Line 2"
-              value={profile.address2}
+              value={profile?.address2}
               isEditing={isEditing}
               name="address2"
               onChange={handleChange}
             />
-            <ProfileInfo 
+            <ProfileInfo
               icon={LocationIcon}
               label="Address Line 3"
-              value={profile.address3}
+              value={profile?.address3}
               isEditing={isEditing}
               name="address3"
               onChange={handleChange}
             />
           </>
         )}
-        <ProfileInfo 
+        <ProfileInfo
           icon={LocationIcon}
           label="City"
-          value={profile.city}
+          value={profile?.city}
           isEditing={isEditing}
           name="city"
           onChange={handleChange}
           error={!!errors.city}
           helperText={errors.city}
         />
-        <ProfileInfo 
+        <ProfileInfo
           icon={LocationIcon}
           label="Postcode"
-          value={profile.postcode}
+          value={profile?.postcode}
           isEditing={isEditing}
           name="postcode"
           onChange={handleChange}

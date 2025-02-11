@@ -39,7 +39,7 @@ export class MyProfileService {
   };
 
 
-  updateMyProfile = async ( data) => {
+  updateMyOneChild = async ( data) => {
     return this.instance
       .post(`/api/v1/publicMaster/otherApi/user/updateMyOneChild`, data, {
         headers: getAuthorizationHeader(),

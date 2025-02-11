@@ -9,7 +9,6 @@ import UserProfile from './Comp/MyProfile';
 import ChildrenList from './Comp/MyChild';
 
 const Profile = () => {
-  const [profile, setProfile] = useState({ });
   const router = useRouter();
   const [allChildren, setAllChildren] = useState([]);
   const snackRef = useRef();
@@ -32,17 +31,7 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    async function getProfile() {
-      let res = await myProfileService.getMyProfile();
-      if (res.variant === "success") {
-        setProfile(res.data);
-      } else {
-        router.reload();
-      }
-    }
-    getProfile();
-  }, []);
+
 
   return (
     <Box sx={{ 
@@ -53,7 +42,7 @@ const Profile = () => {
       <Container maxWidth="lg">
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
-            <UserProfile profile={profile} />
+            <UserProfile  />
           </Grid>
           <Grid item xs={12} md={6}>
             <ChildrenList children={allChildren} />
