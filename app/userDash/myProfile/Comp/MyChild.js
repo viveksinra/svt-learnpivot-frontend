@@ -6,7 +6,8 @@ import {
   Typography, 
   Stack, 
   Box, 
-  Avatar 
+  Avatar,
+  CircularProgress
 } from '@mui/material';
 import { School, Cake } from '@mui/icons-material';
 import moment from 'moment';
@@ -99,7 +100,29 @@ const ChildCard = ({ child }) => (
   </Card>
 );
 
-const ChildrenList = ({ children }) => {
+const ChildrenList = ({ children, isLoading, error }) => {
+  if (isLoading) {
+    return (
+      <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+        <CardContent sx={{ p: 4, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
+          <CircularProgress />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card elevation={0} sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', height: '100%' }}>
+        <CardContent sx={{ p: 4, textAlign: 'center' }}>
+          <Typography color="error">
+            {error}
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card 
       elevation={0}

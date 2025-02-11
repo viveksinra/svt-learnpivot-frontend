@@ -8,7 +8,12 @@ import {
   Avatar,
   Divider,
   IconButton,
-  TextField
+  TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
 } from '@mui/material';
 import {
   Mail as EmailIcon,
@@ -20,6 +25,58 @@ import {
 } from '@mui/icons-material';
 import AddressInput from '@/app/Components/PublicPage/LoginSignUp/AddressInput';
 import { myProfileService } from '@/app/services';
+import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
+
+const PasswordConfirmDialog = ({ open, onConfirm, onCancel }) => {
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleConfirm = () => {
+    if (!password.trim()) {
+      setError('Password is required');
+      return;
+    }
+    onConfirm(password);
+    setPassword('');
+    setError('');
+  };
+
+  const handleClose = () => {
+    setPassword('');
+    setError('');
+    onCancel();
+  };
+
+  return (
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>Confirm Password</DialogTitle>
+      <DialogContent>
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          Please enter your password to confirm these changes.
+        </Typography>
+        <TextField
+          autoFocus
+          fullWidth
+          type="password"
+          label="Password"
+          value={password}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (error) setError('');
+          }}
+          error={!!error}
+          helperText={error}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleConfirm} variant="contained">
+          Confirm
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
 
 const ProfileInfo = ({
   icon: Icon,
@@ -108,6 +165,7 @@ const UserProfile = () => {
   const [profile, setProfile] = useState({});
   const [initialProfile, setInitialProfile] = useState({});
   const [errors, setErrors] = useState({});
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const snackRef = useRef();
 
   useEffect(() => {
@@ -118,7 +176,6 @@ const UserProfile = () => {
           setProfile(res.data);
           setInitialProfile(res.data);
         } else {
-          // Handle error appropriately; for example, reload the page:
           window.location.reload();
         }
       } catch (error) {
@@ -134,7 +191,6 @@ const UserProfile = () => {
   };
 
   const handleCancel = () => {
-    // Revert to the last saved profile data.
     setProfile(initialProfile);
     setIsEditing(false);
     setErrors({});
@@ -168,27 +224,43 @@ const UserProfile = () => {
 
   const handleUpdate = async () => {
     if (!validateForm()) return;
+    setIsPasswordDialogOpen(true);
+  };
 
+  const handlePasswordConfirm = async (password) => {
     try {
-      const res = await myProfileService.updateMyProfile(profile);
+      const res = await myProfileService.updateMyProfile({
+        ...profile,
+        password
+      });
+      
       if (res.variant === 'success') {
-        // Update both the current and initial profile to the saved data.
         setProfile(res.data);
         setInitialProfile(res.data);
         setIsEditing(false);
-        // Optionally, display a success message here (e.g., via a snackbar).
+        setIsPasswordDialogOpen(false);
+        if (snackRef.current) {
+          snackRef.current.handleSnack({
+            message: 'Profile updated successfully',
+            variant: 'success'
+          });
+        }
       } else {
-        console.error('Profile update failed:', res);
-        if(res.message) 
-        {
-            snackRef.current.handleSnack(res);
-        } else {
-        snackRef.current.handleSnack({ message: 'Failed to fetch children.', variant: 'error' });
+        if (snackRef.current) {
+          snackRef.current.handleSnack({
+            message: res.message || 'Failed to update profile',
+            variant: 'error'
+          });
         }
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
-      // Optionally handle the error (e.g., show an error message to the user).
+      if (snackRef.current) {
+        snackRef.current.handleSnack({
+          message: 'An error occurred while updating profile',
+          variant: 'error'
+        });
+      }
     }
   };
 
@@ -342,6 +414,13 @@ const UserProfile = () => {
           helperText={errors.postcode}
         />
       </CardContent>
+
+      <PasswordConfirmDialog
+        open={isPasswordDialogOpen}
+        onConfirm={handlePasswordConfirm}
+        onCancel={() => setIsPasswordDialogOpen(false)}
+      />
+      <MySnackbar ref={snackRef} />
 
     </Card>
   );
