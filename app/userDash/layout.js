@@ -14,7 +14,6 @@ import {
   ListItemText,
   Divider,
   SwipeableDrawer,
-  Collapse,
   Menu,
   Avatar,
   MenuItem,
@@ -28,19 +27,12 @@ import {
   FcLeft,
   FcComboChart,
   FcContacts,
-  FcPlus,
-  FcFlowChart,
-  FcStatistics,
-  FcPlanner,
-  FcDataRecovery,
-  FcCollapse,
-  FcExpand,
   FcImport,
 } from "react-icons/fc";
+import { CgProfile } from "react-icons/cg";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
-import { MdQrCodeScanner } from "react-icons/md";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
 import Link from "next/link";
@@ -50,40 +42,18 @@ const drawerWidth = 240;
 const DrawerData = ({ open, setMobileOpen }) => {
   const router = useRouter();
   const { logout } = useLogout();
-  const [masterOpen, setMasterOpen] = useState(false);
-  const [reportOpen, setReportOpen] = useState(false);
   const [dashList, setDashList] = useState([
     { title: "Dashboard", active: true, link: "/userDash", icon: <FcComboChart /> },
-    // { title: "Course", active: false, link: "/course", icon: <FcPlus /> },
-    // { title: "Mock Test", active: false, link: "/mockTest", icon: <FcFlowChart /> },
     { title: "Transaction", active: false, link: "/userDash/allPayment", icon: <FcContacts /> },
-    { title: "Profile", active: false, link: "/userDash/myProfile", icon: <FcContacts /> },
-
+    { title: "Profile", active: false, link: "/userDash/myProfile", icon: <CgProfile size={24} /> },
   ]);
-  // const [reports, setReports] = useState([
-  //   { title: "Coming Soon", active: false, link: "#", icon: <FcPlanner /> },
-  // ]);
-//   const [masterList, setMasterList] = useState([
-//     { title: "Master", active: false, link: "#", icon: <FcDataRecovery /> },
-//   ]);
 
   const handleLink = (item, index, listType) => {
     let newList;
     if (listType === "dashList") {
       newList = dashList.map((obj, i) => ({ ...obj, active: i === index }));
       setDashList(newList);
-    } 
-    else if (listType === "reports") {
-      newList = reports?.map((obj, i) => ({ ...obj, active: i === index }));
-      setReports(newList);
-      setDashList(dashList.map((obj) => ({ ...obj, active: false })));
-    } else if (listType === "masterList") {
-      newList = masterList?.map((obj, i) => ({ ...obj, active: i === index }));
-      setMasterList(newList);
-      setDashList(dashList.map((obj) => ({ ...obj, active: false })));
-      setReports(reports.map((obj) => ({ ...obj, active: false })));
     }
-
     router.push(item.link);
     if (setMobileOpen) setMobileOpen(false);
   };
@@ -113,7 +83,6 @@ const DrawerData = ({ open, setMobileOpen }) => {
       </List>
       <Divider />
 
-      
       <List sx={{  width: "100%" }}>
         <ListItem
           onClick={() => {
@@ -235,15 +204,13 @@ function DashboardLayout({ children }) {
             <FcMenu />
           </IconButton>
           <Link href="/" className="navbar-brand">
-
-          <Image
-            width={160}
-            height={60}
-            src="https://res.cloudinary.com/qualifier/image/upload/v1706185907/Logo/chelmsford-high-resolution-logo_vc9ewh.svg"
-            alt="Chelmsford"
-            loading="lazy"
-
-          />
+            <Image
+              width={160}
+              height={60}
+              src="https://res.cloudinary.com/qualifier/image/upload/v1706185907/Logo/chelmsford-high-resolution-logo_vc9ewh.svg"
+              alt="Chelmsford"
+              loading="lazy"
+            />
           </Link>
           <span style={{ flexGrow: 1 }} />
   
@@ -273,9 +240,7 @@ function DashboardLayout({ children }) {
             aria-haspopup="true"
             aria-expanded={openProfile ? "true" : undefined}
             alt="User"
-            // src={authService.getLoggedInUser()?.userImage}
             src={"https://img.freepik.com/free-psd/contact-icon-illustration-isolated_23-2151903337.jpg"}
-
             onClick={(e) => setAnchorElProfile(e.currentTarget)}
           />
         </Toolbar>
