@@ -6,18 +6,21 @@ import { useRouter } from 'next/navigation';
 const quickLinks = [
   {
     id: 1,
-    title: 'Book New Courses',
-    link: "/course",
-    icon: <Book sx={{ fontSize: 28, color: 'white' }} />,
-    bgColor: 'linear-gradient(135deg, #6A11CB 0%, #2575FC 100%)'
-  },
-  {
-    id: 2,
     title: 'Book Mock Tests',
     link: "/mockTest",
     icon: <AssignmentOutlined sx={{ fontSize: 28, color: 'white' }} />,
-    bgColor: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%)'
+    bgColor: 'linear-gradient(135deg, #6A11CB 0%, #2575FC 100%)'
+
   },
+  {
+    id: 2,
+    title: 'Book New Courses',
+    link: "/course",
+    icon: <Book sx={{ fontSize: 28, color: 'white' }} />,
+    bgColor: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%)'
+
+  },
+
 
 ];
 
