@@ -9,13 +9,18 @@ import {
   CircularProgress,
   Container,
   Snackbar,
-  Alert
+  Alert,
+  Button,
+  IconButton
 } from '@mui/material';
 import { School, Cake, Person } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { myProfileService } from '@/app/services';
+import EditIcon from '@mui/icons-material/Edit';
+import PasswordConfirmDialog from './PasswordConfirmDialog';
+import ChildDialog from './ChildDialog';
 
-const ChildCard = ({ child }) => {
+const ChildCard = ({ child, onEdit }) => {
   return (
     <Card 
       elevation={0}
@@ -107,6 +112,9 @@ const ChildCard = ({ child }) => {
               </Box>
             </Stack>
           </Box>
+          <IconButton onClick={() => onEdit(child)}>
+            <EditIcon />
+          </IconButton>
         </Stack>
       </CardContent>
     </Card>
@@ -163,6 +171,11 @@ const ChildrenList = () => {
     message: '',
     severity: 'info'
   });
+  const [childDialogOpen, setChildDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [currentChild, setCurrentChild] = useState(null);
+  const [tempPassword, setTempPassword] = useState('');
 
   useEffect(() => {
     fetchChildren();
@@ -189,6 +202,46 @@ const ChildrenList = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleOpenChildDialog = (child = null) => {
+    setEditMode(!!child);
+    setCurrentChild(child);
+    setChildDialogOpen(true);
+  };
+
+  const handleCloseChildDialog = () => {
+    setChildDialogOpen(false);
+    setEditMode(false);
+    setCurrentChild(null);
+  };
+
+  const handleChildSubmit = (childData) => {
+    if (editMode) {
+      setCurrentChild(childData);
+      setChildDialogOpen(false);
+      setPasswordDialogOpen(true);
+    } else {
+      setChildDialogOpen(false);
+      addChild(childData);
+    }
+  };
+
+  const addChild = async (childData) => {
+    try {
+      // Call the service to add the child
+      // e.g.: const response = await myProfileService.addChild(childData);
+      // if (response.variant === 'success') { ... } else { ... }
+      // On success, refresh children or show a success snackbar
+    } catch (err) {
+      // Handle error scenario, show an error snackbar
+    }
+  };
+
+  const handleConfirmPassword = async (password) => {
+    // Only triggered in edit mode. Call update child logic here.
+    setTempPassword('');
+    setPasswordDialogOpen(false);
   };
 
   const handleCloseSnackbar = () => {
@@ -224,10 +277,14 @@ const ChildrenList = () => {
           >
             Children
           </Typography>
-          
+          <Box sx={{ textAlign: 'right', mb: 2 }}>
+            <Button variant="contained" onClick={() => handleOpenChildDialog()}>
+              Add Child
+            </Button>
+          </Box>
           {children.length > 0 ? (
             children.map((child) => (
-              <ChildCard key={child._id} child={child} />
+              <ChildCard key={child._id} child={child} onEdit={handleOpenChildDialog} />
             ))
           ) : (
             <Box 
@@ -257,6 +314,18 @@ const ChildrenList = () => {
           {snackbar.message}
         </Alert>
       </Snackbar>
+      <ChildDialog
+        open={childDialogOpen}
+        editMode={editMode}
+        initialData={currentChild}
+        onClose={handleCloseChildDialog}
+        onSubmit={handleChildSubmit}
+      />
+      <PasswordConfirmDialog
+        open={passwordDialogOpen}
+        onConfirm={handleConfirmPassword}
+        onCancel={() => setPasswordDialogOpen(false)}
+      />
     </>
   );
 };
