@@ -370,6 +370,13 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
     },
 
     {
+      field: 'address2',
+      headerName: 'Print Add',
+      width: 420,
+      valueGetter: (params) => params?.row?.user?.address,
+      filterable: true,
+    },
+    {
       field: 'address',
       headerName: 'Address',
       width: 420,
