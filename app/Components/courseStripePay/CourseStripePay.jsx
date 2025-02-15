@@ -7,16 +7,13 @@ import {
   Box, 
   Button, 
   CircularProgress, 
-  Paper,
   Typography,
-  Container,
   Checkbox,
   FormControlLabel
 } from "@mui/material";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { styled } from "@mui/material/styles";
 
 import "./stripePayStyle.css";
 import { myCourseService } from "../../services";
