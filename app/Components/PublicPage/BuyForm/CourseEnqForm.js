@@ -5,9 +5,9 @@ import MySnackbar from "../../MySnackbar/MySnackbar";
 import ComLogSigForm from "../LoginSignUp/ComLogSigForm";
 import MainContext from "../../Context/MainContext";
 import Cookies from "js-cookie";
-import DateSelector from "../Classes/DateSelector";
 import ChildSelector from "../LoginSignUp/ChildSelector";
-import StripePay from "../../courseStripePay/StripePay";
+import CourseDateSelector from "../Classes/CourseDateSelector";
+import CourseStripePay from "../../courseStripePay/CourseStripePay";
 
 function CourseEnqForm({ 
   isMobile, 
@@ -58,7 +58,7 @@ function CourseEnqForm({
       {step === 3 && (
         <>
           {!submitted ? (
-            <DateSelector
+            <CourseDateSelector
               isMobile={isMobile}
               data={data}
               selectedDates={selectedDates}
@@ -69,7 +69,7 @@ function CourseEnqForm({
               selectedChild={selectedChild}
             />
           ) : (
-            <StripePay 
+            <CourseStripePay 
               submittedId={submittedId}
               totalAmount={totalAmount}
             />

@@ -2,9 +2,9 @@
 import { useEffect, useState, useRef } from "react";
 import { useMediaQuery, Container, useTheme, Grid } from '@mui/material/';
 import SmallOneClass from "../Classes/SmallOneClass";
-import StripePay from "../../courseStripePay/StripePay";
 import MySnackbar from "../../MySnackbar/MySnackbar";
 import CourseEnqForm from "./CourseEnqForm";
+import CourseStripePay from "../../courseStripePay/CourseStripePay";
 
 const BuyComponent = ({ data }) => {
   const snackRef = useRef();  
@@ -35,7 +35,7 @@ const BuyComponent = ({ data }) => {
           {!isMobile && (
             <Grid item xs={12} lg={6}>
               {submitted ? (
-                <StripePay submittedId={submittedId} />
+                <CourseStripePay submittedId={submittedId} />
               ) : (
                 <CourseEnqForm 
                   isMobile={false}

@@ -14,7 +14,7 @@ import ProceedToPayButton from "./SubmitButton";
 import { FcApproval } from "react-icons/fc"; // Import the approval icon
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 
-const DateSelector = ({
+const CourseDateSelector = ({
   data,
   setSubmitted,
   setSubmittedId,
@@ -191,4 +191,4 @@ const DateSelector = ({
   );
 };
 
-export default DateSelector;
+export default CourseDateSelector;

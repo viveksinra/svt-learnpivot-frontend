@@ -29,7 +29,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 // this is for course
-export default function StripePay({ submittedId }) {
+export default function CourseStripePay({ submittedId }) {
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [buyCourseId, setBuyCourseId] = useState("");

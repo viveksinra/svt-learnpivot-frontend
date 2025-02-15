@@ -78,7 +78,7 @@ const ActionButton = styled(Button)(({ variant }) => ({
   }),
 }));
 
-const ClassCard = ({ data, selectedChild, totalAmount, selectedSchedules }) => {
+const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openScheduleModal, setOpenScheduleModal] = useState(false);
@@ -137,7 +137,7 @@ const ClassCard = ({ data, selectedChild, totalAmount, selectedSchedules }) => {
               transform: !totalAmount && 'rotate(12deg)',
             }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                {totalAmount ? `Total: £${totalAmount.toFixed(2)}` : `£${data.price || '299'}`}
+                { `Total: '299'}`}
               </Typography>
             </Box>
           </Box>
