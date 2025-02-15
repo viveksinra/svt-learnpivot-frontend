@@ -9,10 +9,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
+  Box,
 } from "@mui/material";
-import ProceedToPayButton from "./SubmitButton";
 import { FcApproval } from "react-icons/fc"; // Import the approval icon
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
+import CoursePayButton from "./CoursePayButton";
 
 const CourseDateSelector = ({
   data,
@@ -120,20 +121,7 @@ const CourseDateSelector = ({
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-        <div
-          style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "10vh" }}
-        >
-          <ProceedToPayButton
-            data={data}
-            setSubmitted={setSubmitted}
-            setSubmittedId={setSubmittedId}
-            setTotalAmount={setTotalAmount}
-            totalAmount={totalAmount}
-            frontEndTotal={frontEndTotal}
-            selectedDates={selectedDates}
-            selectedChild={selectedChild}
-          />
-        </div>
+
       </Grid>
       <Grid item xs={12}>
         <FormControl variant="standard" fullWidth>
@@ -187,6 +175,30 @@ const CourseDateSelector = ({
           </Paper>
         </Grid>
       ))}
+        <Box 
+        sx={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          backgroundColor: 'white',
+          borderTop: '1px solid #E5E7EB',
+          padding: 2,
+          zIndex: 1000,
+        }}
+      >
+          <CoursePayButton
+            data={data}
+            setSubmitted={setSubmitted}
+            setSubmittedId={setSubmittedId}
+            setTotalAmount={setTotalAmount}
+            totalAmount={totalAmount}
+            frontEndTotal={frontEndTotal}
+            selectedDates={selectedDates}
+            selectedChild={selectedChild}
+          />
+             </Box>
+
     </Grid>
   );
 };

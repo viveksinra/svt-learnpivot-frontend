@@ -58,7 +58,6 @@ export default function OneClassBuy({ params }) {
     
     </Container>
   
-    <Footer />
 
     </main>
   );
