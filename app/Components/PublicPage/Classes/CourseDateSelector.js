@@ -10,20 +10,24 @@ import {
   Select,
   MenuItem,
   Box,
+  Button,
 } from "@mui/material";
 import { FcApproval } from "react-icons/fc"; // Import the approval icon
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import CoursePayButton from "./CoursePayButton";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const CourseDateSelector = ({
-  data,
-  setSubmitted,
-  setSubmittedId,
-  setTotalAmount,
-  totalAmount,
+  isMobile,
+  data, 
+  setStep,
+  setSubmitted, 
+  setSubmittedId, 
+  selectedChild, 
+  setTotalAmount, 
+  totalAmount, 
   selectedDates,
   setSelectedDates,
-  selectedChild,
 }) => {
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [startDate, setStartDate] = useState("");
@@ -121,7 +125,23 @@ const CourseDateSelector = ({
   return (
     <Grid container spacing={2}>
       <Grid item xs={12}>
-
+      <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => setStep(2)}
+            sx={{ 
+              width: isMobile?"30%":'20%',
+              minWidth: 'auto',
+              color: 'white', 
+              marginRight: '10px',
+              backgroundColor: '#fc7658', 
+              '&:hover': { backgroundColor: 'darkred' }
+            }}
+          >
+            Back
+          </Button>
+          <Typography variant="h7" sx={{ width: isMobile?"70%":'80%', fontWeight: 400 }}>
+       Book Courses for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+          </Typography>
       </Grid>
       <Grid item xs={12}>
         <FormControl variant="standard" fullWidth>

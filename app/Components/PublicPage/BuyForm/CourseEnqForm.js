@@ -61,12 +61,15 @@ function CourseEnqForm({
             <CourseDateSelector
               isMobile={isMobile}
               data={data}
+              setStep={setStep}
+              selectedChild={selectedChild}
               selectedDates={selectedDates}
               setSelectedDates={setSelectedDates}
               setSubmitted={setSubmitted}
               setSubmittedId={setSubmittedId}
               setTotalAmount={setTotalAmount}
-              selectedChild={selectedChild}
+             totalAmount={totalAmount}             
+
             />
           ) : (
               <CourseStripePay 
