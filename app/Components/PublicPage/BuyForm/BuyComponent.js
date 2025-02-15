@@ -35,7 +35,17 @@ const BuyComponent = ({ data }) => {
           {!isMobile && (
             <Grid item xs={12} lg={6}>
               {submitted ? (
-                <CourseStripePay submittedId={submittedId} />
+                <CourseStripePay 
+                isMobile={isMobile}
+                data={data} 
+     
+                setSubmitted={setSubmitted}
+                  setSubmittedId={setSubmittedId}
+                  setStep={setStep}
+                  selectedChild={selectedChild}
+                  selectedDates={selectedDates}
+                  submittedId={submittedId} totalAmount={totalAmount}
+                />
               ) : (
                 <CourseEnqForm 
                   isMobile={false}

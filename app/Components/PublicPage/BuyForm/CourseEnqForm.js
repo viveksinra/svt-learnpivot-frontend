@@ -69,10 +69,17 @@ function CourseEnqForm({
               selectedChild={selectedChild}
             />
           ) : (
-            <CourseStripePay 
-              submittedId={submittedId}
-              totalAmount={totalAmount}
-            />
+              <CourseStripePay 
+                       isMobile={isMobile}
+                       data={data} 
+            
+                       setSubmitted={setSubmitted}
+                         setSubmittedId={setSubmittedId}
+                         setStep={setStep}
+                         selectedChild={selectedChild}
+                         selectedDates={selectedDates}
+                         submittedId={submittedId} totalAmount={totalAmount} />
+         
           )}
         </>
       )}
