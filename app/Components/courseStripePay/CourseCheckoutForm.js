@@ -6,8 +6,56 @@ import {
 } from "@stripe/react-stripe-js";
 import "./stripePayStyle.css";
 import { FRONT_ENDPOINT } from "@/app/utils";
+import { Box, Button, Typography } from "@mui/material";
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
-export default function CheckoutForm({ buyCourseId }) {
+// Internal styles
+const styles = {
+  paymentSummary: {
+    background: '#f8fafc',
+    border: '1px solid #e2e8f0',
+    borderRadius: '4px',
+    padding: '8px 12px',
+    marginBottom: '1px',
+  },
+  summaryRow: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: '1.875rem',
+    color: '#64748b',
+  },
+  amount: {
+    fontSize: '2rem',
+    fontWeight: 600,
+    color: '#0f172a',
+  },
+  buttonText: {
+    minHeight: '20px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spinner: {
+    display: 'inline-block',
+    width: '20px',
+    height: '20px',
+    borderRadius: '50%',
+    border: '3px solid #ffffff',
+    borderTopColor: 'transparent',
+    animation: 'spin 1s linear infinite',
+  },
+  message: {
+    color: '#dc2626',
+    fontSize: '0.875rem',
+    textAlign: 'center',
+    marginTop: '8px',
+  },
+};
+
+export default function CourseCheckoutForm({data, setClientSecret, selectedChild, buyCourseId, totalAmount, isMobile }) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -94,50 +142,57 @@ export default function CheckoutForm({ buyCourseId }) {
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      <form id="payment-form" onSubmit={handleSubmit}>
+    <>
+      <form 
+        id="payment-form" 
+        style={{ 
+          width: isMobile ? '100%' : 'auto' 
+        }} 
+        onSubmit={handleSubmit}
+      >
+        <Box sx={{ display: 'flex',  alignItems: 'center', mb: 3, gap: 2 }}>
+          <Button
+            startIcon={<ArrowBackIcon />}
+            onClick={() => setClientSecret("")}
+            sx={{ 
+              width: isMobile?"30%":'20%',
+              minWidth: 'auto',
+              color: 'white', 
+              backgroundColor: '#fc7658', 
+              '&:hover': { backgroundColor: 'darkred' }
+            }}
+          >
+            Back
+          </Button>
+          <Typography variant="h7" sx={{ width: isMobile?"70%":'80%', fontWeight: 400 }}>
+            Book {data.courseType?.label} Course for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+          </Typography>
+        </Box>
         <PaymentElement id="payment-element" options={paymentElementOptions} />
-        <button
-          disabled={isLoading || !stripe || !elements}
+        <button 
+          disabled={isLoading || !stripe || !elements} 
           id="submit"
-          type="submit"
         >
-          <span id="button-text">
+          <span style={styles.buttonText}>
             {isLoading ? (
-              <div className="spinner" id="spinner"></div>
+              <div style={styles.spinner}></div>
             ) : (
-              "Pay now"
+              `Pay £${totalAmount.toFixed(2)}`
             )}
           </span>
         </button>
-        {/* Show payment status message */}
-        {message && <div id="payment-message">{message}</div>}
+        
+        {/* Error/Success Message */}
+        {message && <div style={styles.message}>{message}</div>}
       </form>
 
-      {/* Full-screen overlay splash screen during payment processing */}
-      {isLoading && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100vw",
-            height: "100vh",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-            textAlign: "center",
-            padding: "1rem",
-          }}
-        >
-          <div style={{ fontSize: "1.5rem", color: "#555" }}>
-            Please do not close the window or press the back button while your
-            payment is processing.
-          </div>
-        </div>
-      )}
-    </div>
+      <style jsx>{`
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
+    </>
   );
 }
