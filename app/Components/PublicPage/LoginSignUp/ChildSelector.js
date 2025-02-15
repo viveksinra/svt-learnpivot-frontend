@@ -43,7 +43,10 @@ const initialChildState = {
   childYear: '',
 };
 
-const ChildSelector = memo(({ isMobile, title, setTotalAmount, setSelectedBatch, selectedChild, setSelectedChild, setStep }) => {
+const ChildSelector = memo(({ 
+  isMobile, title, setTotalAmount,
+   setSelectedBatch, selectedChild, 
+   setSelectedChild, setStep }) => {
   const [allChildren, setAllChildren] = useState([]);
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);

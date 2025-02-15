@@ -49,7 +49,7 @@ function CourseEnqForm({
           isMobile={isMobile}
           title={data.courseTitle} 
           setTotalAmount={setTotalAmount}
-          setSelectedDates={setSelectedDates}
+          setSelectedBatch={setSelectedDates}
           selectedChild={selectedChild} 
           setSelectedChild={setSelectedChild} 
           setStep={setStep}
