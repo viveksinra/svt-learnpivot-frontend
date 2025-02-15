@@ -241,19 +241,21 @@ const MultiImageUpload = ({
     };
 
     const handleDelete = (index) => {
-        const newImageUrls = [...imageUrls];
-        newImageUrls.splice(index, 1);
+        if (window.confirm('Are you sure you want to delete this image?')) {
+            const newImageUrls = [...imageUrls];
+            newImageUrls.splice(index, 1);
 
-        // Ensure we always have at least one slot and add an empty slot if needed
-        if (newImageUrls.length === 0 || 
-            (newImageUrls.length < maxImages && newImageUrls[newImageUrls.length - 1] !== "")) {
-            newImageUrls.push("");
+            // Ensure we always have at least one slot and add an empty slot if needed
+            if (newImageUrls.length === 0 || 
+                (newImageUrls.length < maxImages && newImageUrls[newImageUrls.length - 1] !== "")) {
+                newImageUrls.push("");
+            }
+
+            setImageUrls(newImageUrls);
+            setLoadingStates(Array(newImageUrls.length).fill(false));
+            onImagesChange(newImageUrls.filter(url => url !== ""));
+            setError(null);
         }
-
-        setImageUrls(newImageUrls);
-        setLoadingStates(Array(newImageUrls.length).fill(false));
-        onImagesChange(newImageUrls.filter(url => url !== ""));
-        setError(null);
     };
 
     const handleView = (url) => {

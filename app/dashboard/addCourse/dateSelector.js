@@ -23,23 +23,27 @@ const DateSelector = ({dates, setDates}) => {
   };
 
   const handleRemoveDate = (batchIndex, dateIndex) => {
-    const newDates = [...dates];
-    const removedDate = newDates[batchIndex][dateIndex];
-    newDates[batchIndex].splice(dateIndex, 1);
-    setDates(newDates);
-    // Remove the selected date from the set of selected dates
-    setSelectedDates((prevSelectedDates) => {
-      const updatedSet = new Set(prevSelectedDates);
-      updatedSet.delete(removedDate);
-      return updatedSet;
-    });
+    if (window.confirm('Are you sure you want to delete this date?')) {
+      const newDates = [...dates];
+      const removedDate = newDates[batchIndex][dateIndex];
+      newDates[batchIndex].splice(dateIndex, 1);
+      setDates(newDates);
+      // Remove the selected date from the set of selected dates
+      setSelectedDates((prevSelectedDates) => {
+        const updatedSet = new Set(prevSelectedDates);
+        updatedSet.delete(removedDate);
+        return updatedSet;
+      });
+    }
   };
 
   const handleDeleteBatch = (batchIndex) => {
     if (dates.length === 1) return; // Don't delete if there is only one batch
-    const newDates = [...dates];
-    newDates.splice(batchIndex, 1);
-    setDates(newDates);
+    if (window.confirm('Are you sure you want to delete this batch?')) {
+      const newDates = [...dates];
+      newDates.splice(batchIndex, 1);
+      setDates(newDates);
+    }
   };
 
   const isAddDateDisabled = (batchIndex, dateIndex) => {

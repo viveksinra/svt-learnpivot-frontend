@@ -4,7 +4,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { FcNoIdea, FcOk, FcExpand } from "react-icons/fc";
 import { MdDeleteForever } from "react-icons/md";
 import MySnackbar from "../../Components/MySnackbar/MySnackbar";
-import { myCourseService } from "../../services";
+import { dashboardService, myCourseService } from "../../services";
 import { useImgUpload } from "@/app/hooks/auth/useImgUpload";
 import DateSelector from './dateSelector';
 import MultiImageUpload from '@/app/Components/Common/MultiImageUpload';
@@ -28,6 +28,22 @@ const EntryArea = forwardRef((props, ref) => {
     const [filledSeat, setFilledSeats] = useState("");
     const [showRemaining, setShowRemaining] = useState(false);
     const [imageUrls, setImageUrls] = useState([""]); // Start with one empty slot
+    const [selectedUser, setSelectedUser] = useState([]);
+    const [allUsers, setAllUsers] = useState([]);
+    const [onlySelectedParent, setOnlySelectedParent] = useState(false);
+
+    const getAllUsers = async () => {
+        let res = await dashboardService.getAllUserForDropDown();
+        if (res.variant === "success") {
+            setAllUsers(res.data);
+        } else {
+            snackRef.current.handleSnack(res);
+        }
+    };
+
+    useEffect(() => {
+        getAllUsers();
+    }, []);
 
     const [PAccordion, setPAccordion] = useState(false);
     const allClass = [
@@ -59,10 +75,10 @@ const EntryArea = forwardRef((props, ref) => {
             try {
                 let res = await myCourseService.getOne(props.id);
                 if (res.variant === "success") {
-                    const { _id, isPublished,dates,startTime,
-                        endTime,courseTitle,courseLink,shortDescription,oneClassPrice,discountOnFullClass,
-                        courseClass,courseType,duration,imageUrls,fullDescription,totalSeat,filledSeat,showRemaining,
-                         } = res.data;
+                    const { _id, isPublished, dates, startTime,
+                        endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
+                        courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
+                        onlySelectedParent: selectedParent, selectedUsers } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setDates(dates);               
@@ -82,6 +98,9 @@ const EntryArea = forwardRef((props, ref) => {
                     setFilledSeats(filledSeat);
                     setShowRemaining(showRemaining);
                     setPAccordion(true);
+                    setOnlySelectedParent(selectedParent || false);
+                    setSelectedUser(selectedUsers || []);
+                    setPAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
                     snackRef.current.handleSnack(res);
@@ -97,6 +116,10 @@ const EntryArea = forwardRef((props, ref) => {
     }, [props.id]);
 
     const handleClear = () => {
+        if (props.id || courseTitle || shortDescription || imageUrls.some(url => url !== "")) {
+            let yes = window.confirm("Are you sure you want to clear all fields? This will reset the form.");
+            if (!yes) return;
+        }
         props.setId("");
         setIsPublished(false);
         setDates([['']]);
@@ -116,6 +139,8 @@ const EntryArea = forwardRef((props, ref) => {
         setShowRemaining(false);
         setImageUrls([""]);
         setPAccordion(true);
+        setSelectedUser([]);
+        setOnlySelectedParent(false);
     };
     
 
@@ -136,9 +161,13 @@ const EntryArea = forwardRef((props, ref) => {
                     courseType,
                     duration,
                     fullDescription,
-                    totalSeat,filledSeat,showRemaining,
+                    totalSeat,
+                    filledSeat,
+                    showRemaining,
                     imageUrls,
-                    isPublished
+                    isPublished,
+                    onlySelectedParent,
+                    selectedUsers: selectedUser // Add selected users to the submission
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -146,7 +175,6 @@ const EntryArea = forwardRef((props, ref) => {
                     snackRef.current.handleSnack(response);
                     handleClear();
                 } else {              
-
                     snackRef.current.handleSnack(response);
                 }
             } catch (error) {
@@ -174,7 +202,8 @@ const EntryArea = forwardRef((props, ref) => {
 
     const handleDelete = async () => {
         try {
-            let yes = window.confirm(`Do you really want to permanently delete ${courseTitle}?`);
+            let courseDisplayName = courseTitle || 'this course'; // Fallback if title is empty
+            let yes = window.confirm(`Are you sure you want to permanently delete "${courseDisplayName}"?\n\nThis action cannot be undone.`);
             if (yes) {
                 let response = await myCourseService.deleteCourse(`api/v1/publicMaster/myCourse/addMyCourse/deleteOne/${props.id}`);
                 if (response.variant === "success") {
@@ -199,6 +228,63 @@ const EntryArea = forwardRef((props, ref) => {
         if (imageUrls) {
             window.open(imageUrls, '_blank'); // Open the image URL in a new tab
         }
+    };
+
+    // Replace the findUserDetails function
+    const findUserDetails = (userId) => {
+        const user = allUsers.find(user => user._id === userId);
+        return user || { 
+            name: 'User not found', 
+            email: 'No email', 
+            mobile: 'No mobile',
+            _id: userId 
+        };
+    };
+
+    // Replace the renderUserSelect function
+    const renderUserSelect = () => {
+        if (!onlySelectedParent) return null;
+
+        return (
+            <Grid item xs={12} md={8}>
+                <Autocomplete
+                    multiple
+                    id="user-select"
+                    options={allUsers}
+                    value={selectedUser.map(userId => findUserDetails(userId))}
+                    onChange={(event, newValue) => {
+                        setSelectedUser(newValue.map(user => user._id));
+                    }}
+                    getOptionLabel={(option) => 
+                        `${option.name || ''} (${option.email || ''}) (${option.mobile || ''})`
+                    }
+                    filterOptions={(options, { inputValue }) => {
+                        const searchTerms = inputValue.toLowerCase().split(' ');
+                        return options.filter(option => 
+                            searchTerms.every(term =>
+                                option.name?.toLowerCase().includes(term) ||
+                                option.email?.toLowerCase().includes(term) ||
+                                option.mobile?.toLowerCase().includes(term)
+                            )
+                        );
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            variant="outlined"
+                            label="Select Users"
+                            placeholder="Search by name, email or mobile"
+                        />
+                    )}
+                    renderOption={(props, option) => (
+                        <li {...props} key={option._id}>
+                            {option.name} ({option.mobile}) ({option.email})
+                        </li>
+                    )}
+                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                />
+            </Grid>
+        );
     };
 
     return (
@@ -327,8 +413,6 @@ const EntryArea = forwardRef((props, ref) => {
                 
          
             </Grid>
-            <DateSelector dates={dates} setDates={setDates} />
-            <br/> <br/>
             <Accordion expanded={PAccordion} style={{marginBottom:"30px"}}>
                 <AccordionSummary
                     expandIcon={<IconButton > <FcExpand /> </IconButton>}
@@ -339,7 +423,22 @@ const EntryArea = forwardRef((props, ref) => {
                     <Typography>Additional Optional Information</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Grid container spacing={2}>
+                <Grid container spacing={2}>
+                        <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={onlySelectedParent}
+                           onChange={() => setOnlySelectedParent(!onlySelectedParent)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Only Selected Parent`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={8}>
+                {renderUserSelect()}
+                        </Grid>                     
+                        </Grid>
+                  {"ab"==="bb" &&  <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <TextField label="Full Description" value={fullDescription} inputProps={{ maxLength: "4000" }} onChange={(e) => setFullDescription(e.target.value)} placeholder="Write the Long Description about the coursees" fullWidth multiline rows={4} variant="outlined" />
                         </Grid>
@@ -371,9 +470,12 @@ const EntryArea = forwardRef((props, ref) => {
                      } label={`Show Remaining:  ${totalSeat-filledSeat}   Seats`} />
                   
                 </Grid>
-                    </Grid>
+                    </Grid>}
                 </AccordionDetails>
             </Accordion>
+            <DateSelector dates={dates} setDates={setDates} />
+            <br/> <br/>
+         
             <MySnackbar ref={snackRef} />
         </main>
     );

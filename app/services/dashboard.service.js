@@ -33,5 +33,12 @@ export class DashboardService {
       .then((res) => res.data)
       .catch((err) => err);
   };
-
+  getAllUserForDropDown = async () => {
+    return this.instance
+      .get(`/api/v1/publicMaster/otherApi/admin/getAllUserForDropDown`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data)
+      .catch((err) => err);
+  };
 }
