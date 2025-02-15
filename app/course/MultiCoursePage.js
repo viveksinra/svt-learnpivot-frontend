@@ -1,22 +1,15 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
 import "./classes.css";
-import { Container, Typography, Grid, Breadcrumbs, Divider, Tabs, Tab, TablePagination, CircularProgress } from "@mui/material";
-import Footer from "../Components/Footer/Footer";
-import { useRouter } from "next/navigation";
-import Enquiry from "@/app/Components/Enquiry/Enquiry";
+import { Container, Typography, Grid, TablePagination, CircularProgress } from "@mui/material";
+import { useMediaQuery, useTheme } from "@mui/material";
 import OneClass from "../Components/PublicPage/Classes/OneClass";
-import { Dialog, useMediaQuery, useTheme, Button, DialogActions, DialogContent } from "@mui/material";
-import Slide from '@mui/material/Slide';
 import { myCourseService } from "../services";
-import Loading from "../Components/Loading/Loading";
 import NoResult from "../Components/NoResult/NoResult";
-import Navbar from "../Components/ITStartup/Common/Navbar/Navbar";
-import FilterComponent from "../Components/PublicPage/ClassMockComm/FilterComponent";
 import FilterDialog from "../Components/PublicPage/ClassMockComm/FilterDialog";
+import FilterComponent from "../Components/PublicPage/ClassMockComm/FilterComponent";
 
 function MultiCoursePage() {
-
   const [filterData, setFilterData] = useState([
     {
       title: "Class",
@@ -62,19 +55,15 @@ function MultiCoursePage() {
 
   ]);
 
-
-
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [sortBy, setSort]= useState("newToOld");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [searchText, setSearchText] = useState("");
-  const [totalCount,setTotalCount] = useState(0)
+  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
-
-
 
   useEffect(() => {
     async function fetchAllData() {
@@ -94,42 +83,59 @@ function MultiCoursePage() {
 
   return (
     <>
-          <Grid container spacing={3}>
-  {rows.length === 0 && <>      {fullScreen? (
-       
-        <FilterDialog filterData={filterData} selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter}/>
-     
-      ):(
-        <Grid item xs={2}>
-        <FilterComponent filterData={filterData} selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter}/>
-      </Grid>
-      )}</>}
-          <Grid item xs={fullScreen ? 12 : 10}>
-
-        {loading ? 
-        <div className="center" style={{flexDirection:"column"}}><CircularProgress size={30}/> <Typography color="slateblue" style={{fontFamily: 'Courgette'}} variant='h6' align='center'>Loading Courses...</Typography>  </div> : rows.length === 0 ? <NoResult label="Currently, there are no courses available."/> :  
-            rows &&
-              rows.map((p, j) => (
-                <OneClass data={p} key={p._id} />
-              ))
-          }
-</Grid>
+      <Grid container>
+        {fullScreen ? (
+          <FilterDialog 
+            filterData={filterData} 
+            selectedFilter={selectedFilter} 
+            setSelectedFilter={setSelectedFilter}
+          />
+        ) : (
+          <Grid item xs={2}>
+            <FilterComponent 
+              filterData={filterData} 
+              selectedFilter={selectedFilter} 
+              setSelectedFilter={setSelectedFilter}
+            />
+          </Grid>
+        )}
+        <Grid item xs={fullScreen ? 12 : 10}>
+          {loading ? (
+            <div className="center" style={{flexDirection:"column"}}>
+              <CircularProgress size={30}/>
+              <Typography 
+                color="slateblue" 
+                style={{fontFamily: 'Courgette'}} 
+                variant='h6' 
+                align='center'
+              >
+                Loading Courses...
+              </Typography>
+            </div>
+          ) : rows.length === 0 ? (
+            <NoResult label="No Courses Available"/>
+          ) : (
+            rows.map((p) => (
+              <OneClass data={p} key={p._id} />
+            ))
+          )}
         </Grid>
-        <TablePagination
-                rowsPerPageOptions={[5,10,15,100]}
-                component="div"
-                count={totalCount}
-                sx={{overflowX:"hidden"}}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={(e,v)=>setPage(v)}
-                onRowsPerPageChange={e=>{
-                  setRowsPerPage(parseInt(e.target.value, 10));
-                  setPage(0)
-                }}
-              />
+      </Grid>
+      
+      <TablePagination
+        rowsPerPageOptions={[5,10,15,100]}
+        component="div"
+        count={totalCount}
+        sx={{overflowX:"hidden"}}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={(e,v) => setPage(v)}
+        onRowsPerPageChange={e => {
+          setRowsPerPage(parseInt(e.target.value, 10));
+          setPage(0);
+        }}
+      />
     </>
-    
   );
 }
 
