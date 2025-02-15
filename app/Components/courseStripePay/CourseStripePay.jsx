@@ -25,13 +25,7 @@ import CourseCheckoutForm from "./CourseCheckoutForm";
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
 // const stripePromise = loadStripe("pk_test_51OutBL02jxqBr0ev5h0jPo7PWCsg0z3dDaAtKPF3fm8flUipuFtX7GFTWO2eLwVe6JzsJOZJ0f2tQ392tCgDWwdt00iCW9Qo66");
 
-const StyledPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(3),
-  margin: theme.spacing(2),
-  backgroundColor: theme.palette.background.paper,
-  borderRadius: theme.shape.borderRadius,
-  boxShadow: theme.shadows[3],
-}));
+
 // this is for course
 export default function CourseStripePay({ isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount, setSubmitted, setSubmittedId  }) {
   console.log({ isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount, setSubmitted, setSubmittedId  })
@@ -97,14 +91,9 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
   };
 
   return (
-    <Container maxWidth="sm">
-      <StyledPaper elevation={3}>
-        <Box sx={{ 
-          display: "flex", 
-          flexDirection: "column", 
-          alignItems: "center",
-          gap: 2 
-        }}>
+    <>
+          
+
           {!clientSecret ? (
             <>
               <Box sx={{ 
@@ -254,8 +243,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
               />
             </Elements>
           )}
-        </Box>
-      </StyledPaper>
-    </Container>
+
+    </>
   );
 }
