@@ -1,10 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { useMediaQuery, Container, useTheme, Grid } from '@mui/material/';
+import { useMediaQuery, Container, useTheme, Grid, Dialog, DialogContent, DialogTitle } from '@mui/material/';
+import CloseIcon from '@mui/icons-material/Close';
 import SmallOneClass from "../Classes/SmallOneClass";
 import MySnackbar from "../../MySnackbar/MySnackbar";
 import CourseEnqForm from "./CourseEnqForm";
 import CourseStripePay from "../../courseStripePay/CourseStripePay";
+import AnimatedButton from "../../Common/AnimatedButton";
 
 const BuyComponent = ({ data }) => {
   const snackRef = useRef();  
@@ -14,6 +16,15 @@ const BuyComponent = ({ data }) => {
   const [submittedId, setSubmittedId] = useState("");
   const [selectedChild, setSelectedChild] = useState(null);
   const [step, setStep] = useState(1);
+  const [openDialog, setOpenDialog] = useState(true);
+
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+  };
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -36,15 +47,15 @@ const BuyComponent = ({ data }) => {
             <Grid item xs={12} lg={6}>
               {submitted ? (
                 <CourseStripePay 
-                isMobile={isMobile}
-                data={data} 
-     
-                setSubmitted={setSubmitted}
+                  isMobile={isMobile}
+                  data={data} 
+                  setSubmitted={setSubmitted}
                   setSubmittedId={setSubmittedId}
                   setStep={setStep}
                   selectedChild={selectedChild}
                   selectedDates={selectedDates}
-                  submittedId={submittedId} totalAmount={totalAmount}
+                  submittedId={submittedId} 
+                  totalAmount={totalAmount}
                 />
               ) : (
                 <CourseEnqForm 
@@ -70,7 +81,17 @@ const BuyComponent = ({ data }) => {
       {isMobile && (
         <>
           {submitted ? (
-            <StripePay submittedId={submittedId} />
+            <CourseStripePay 
+              isMobile={isMobile}
+              data={data} 
+              setSubmitted={setSubmitted}
+              setSubmittedId={setSubmittedId}
+              setStep={setStep}
+              selectedChild={selectedChild}
+              selectedDates={selectedDates}
+              submittedId={submittedId} 
+              totalAmount={totalAmount}
+            />
           ) : (
             <CourseEnqForm 
               isMobile={true}
