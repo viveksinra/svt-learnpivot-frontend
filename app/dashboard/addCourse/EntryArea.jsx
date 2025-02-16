@@ -12,7 +12,11 @@ import MultiImageUpload from '@/app/Components/Common/MultiImageUpload';
 const EntryArea = forwardRef((props, ref) => {
     const snackRef = useRef();
     const [isPublished, setIsPublished] = useState(false);
-    const [dates, setDates] = useState([['']]);
+    const [allBatch, setAllBatch] = useState([{
+        oneBatch: [''],
+        hide: false,
+        bookingFull: false
+    }]);
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
     const [courseTitle, setCourseTitle] = useState("");
@@ -75,13 +79,17 @@ const EntryArea = forwardRef((props, ref) => {
             try {
                 let res = await myCourseService.getOne(props.id);
                 if (res.variant === "success") {
-                    const { _id, isPublished, dates, startTime,
+                    const { _id, isPublished, allBatch, startTime,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
                         onlySelectedParent: selectedParent, selectedUsers } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
-                    setDates(dates);               
+                    setAllBatch(allBatch || [{
+                        oneBatch: [''],
+                        hide: false,
+                        bookingFull: false
+                    }]);               
                     setStartTime(startTime);               
                     setEndTime(endTime);   
                     setCourseTitle(courseTitle);
@@ -122,7 +130,11 @@ const EntryArea = forwardRef((props, ref) => {
         }
         props.setId("");
         setIsPublished(false);
-        setDates([['']]);
+        setAllBatch([{
+            oneBatch: [''],
+            hide: false,
+            bookingFull: false
+        }]);
         setStartTime("");
         setEndTime("");
         setCourseTitle("");
@@ -149,7 +161,7 @@ const EntryArea = forwardRef((props, ref) => {
             try {
                 let myCourseData = {
                     _id: props.id,
-                    dates,
+                    allBatch,
                     startTime,
                     endTime,
                     courseTitle,
@@ -473,7 +485,7 @@ const EntryArea = forwardRef((props, ref) => {
                     </Grid>}
                 </AccordionDetails>
             </Accordion>
-            <DateSelector dates={dates} setDates={setDates} />
+            <DateSelector allBatch={allBatch} setAllBatch={setAllBatch} />
             <br/> <br/>
          
             <MySnackbar ref={snackRef} />

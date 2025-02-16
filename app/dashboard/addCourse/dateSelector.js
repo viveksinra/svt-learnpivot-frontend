@@ -1,111 +1,123 @@
 import React, { useState } from 'react';
-import { Button, TextField, Grid, Box, Typography } from '@mui/material';
+import { Button, TextField, Grid, Box, Typography, FormControlLabel, Checkbox } from '@mui/material';
 
-const DateSelector = ({dates, setDates}) => {
-  const [selectedDates, setSelectedDates] = useState(new Set());
+const DateSelector = ({allBatch, setAllBatch}) => {
+    const [selectedDates, setSelectedDates] = useState(new Set());
 
-  const handleAddBatch = () => {
-    setDates([...dates, ['']]);
-  };
+    const handleAddBatch = () => {
+        setAllBatch([...allBatch, {
+            oneBatch: [''],
+            hide: false,
+            bookingFull: false
+        }]);
+    };
 
-  const handleAddTextField = (batchIndex) => {
-    const newDates = [...dates];
-    newDates[batchIndex] = [...newDates[batchIndex], ''];
-    setDates(newDates);
-  };
+    const handleAddTextField = (batchIndex) => {
+        const newBatches = [...allBatch];
+        newBatches[batchIndex].oneBatch = [...newBatches[batchIndex].oneBatch, ''];
+        setAllBatch(newBatches);
+    };
 
-  const handleDateChange = (batchIndex, dateIndex, value) => {
-    const newDates = [...dates];
-    newDates[batchIndex][dateIndex] = value;
-    setDates(newDates);
-    // Add the selected date to the set of selected dates
-    setSelectedDates((prevSelectedDates) => new Set([...prevSelectedDates, value]));
-  };
+    const handleDateChange = (batchIndex, dateIndex, value) => {
+        const newBatches = [...allBatch];
+        newBatches[batchIndex].oneBatch[dateIndex] = value;
+        setAllBatch(newBatches);
+        setSelectedDates(prev => new Set([...prev, value]));
+    };
 
-  const handleRemoveDate = (batchIndex, dateIndex) => {
-    if (window.confirm('Are you sure you want to delete this date?')) {
-      const newDates = [...dates];
-      const removedDate = newDates[batchIndex][dateIndex];
-      newDates[batchIndex].splice(dateIndex, 1);
-      setDates(newDates);
-      // Remove the selected date from the set of selected dates
-      setSelectedDates((prevSelectedDates) => {
-        const updatedSet = new Set(prevSelectedDates);
-        updatedSet.delete(removedDate);
-        return updatedSet;
-      });
-    }
-  };
+    const handleBatchPropertyChange = (batchIndex, property) => {
+        const newBatches = [...allBatch];
+        newBatches[batchIndex][property] = !newBatches[batchIndex][property];
+        setAllBatch(newBatches);
+    };
 
-  const handleDeleteBatch = (batchIndex) => {
-    if (dates.length === 1) return; // Don't delete if there is only one batch
-    if (window.confirm('Are you sure you want to delete this batch?')) {
-      const newDates = [...dates];
-      newDates.splice(batchIndex, 1);
-      setDates(newDates);
-    }
-  };
+    const handleRemoveDate = (batchIndex, dateIndex) => {
+        if (window.confirm('Are you sure you want to delete this date?')) {
+            const newBatches = [...allBatch];
+            const removedDate = newBatches[batchIndex].oneBatch[dateIndex];
+            newBatches[batchIndex].oneBatch.splice(dateIndex, 1);
+            setAllBatch(newBatches);
+            setSelectedDates(prev => {
+                const updated = new Set(prev);
+                updated.delete(removedDate);
+                return updated;
+            });
+        }
+    };
 
-  const isAddDateDisabled = (batchIndex, dateIndex) => {
-    return dateIndex > 0 && !dates[batchIndex][dateIndex - 1];
-  };
+    const handleDeleteBatch = (batchIndex) => {
+        if (allBatch.length === 1) return;
+        if (window.confirm('Are you sure you want to delete this batch?')) {
+            const newBatches = [...allBatch];
+            newBatches.splice(batchIndex, 1);
+            setAllBatch(newBatches);
+        }
+    };
 
-  const isAddBatchDisabled = (batchIndex) => {
-    return dates[batchIndex].some(date => !date);
-  };
-
-  const isDateUnique = (batchIndex, dateIndex, date) => {
-return true
-  };
-  
-
-  return (
-    <div>
-      {dates.map((batch, batchIndex) => (
-        <Box key={batchIndex} mb={2} border={1} p={2}>
-          <Typography variant="h6" gutterBottom>
-            Batch {batchIndex + 1}
-            {dates.length > 1 && (
-              <Button variant="contained" color="error" onClick={() => handleDeleteBatch(batchIndex)} sx={{ marginLeft: '10px' }}>
-                Delete Batch
-              </Button>
-            )}
-          </Typography>
-          <Grid container spacing={2}>
-            {batch.map((date, dateIndex) => (
-              <Grid item xs={3} key={dateIndex}>
-                <TextField
-                  label={`Date ${dateIndex + 1}`}
-                  variant="outlined"
-                  value={date}
-                  type='date'
-                  focused
-                  onChange={(e) => handleDateChange(batchIndex, dateIndex, e.target.value)}
-                  error={!isDateUnique(batchIndex, dateIndex, date)}
-                  helperText={!isDateUnique(batchIndex, dateIndex, date) && "Date already selected in another batch"}
-                />
-                <Button variant="outlined" color="error" onClick={() => handleRemoveDate(batchIndex, dateIndex)} sx={{ marginTop: '10px' }}>
-                  Remove
-                </Button>
-              </Grid>
+    return (
+        <div>
+            {allBatch.map((batch, batchIndex) => (
+                <Box key={batchIndex} mb={2} border={1} p={2}>
+                    <Typography variant="h6" gutterBottom>
+                        Batch {batchIndex + 1}
+                        {allBatch.length > 1 && (
+                            <Button variant="contained" color="error" onClick={() => handleDeleteBatch(batchIndex)} sx={{ marginLeft: '10px' }}>
+                                Delete Batch
+                            </Button>
+                        )}
+                    </Typography>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={batch.hide}
+                                        onChange={() => handleBatchPropertyChange(batchIndex, 'hide')}
+                                    />
+                                }
+                                label="Hide Batch"
+                            />
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={batch.bookingFull}
+                                        onChange={() => handleBatchPropertyChange(batchIndex, 'bookingFull')}
+                                    />
+                                }
+                                label="Booking Full"
+                            />
+                        </Grid>
+                        {batch.oneBatch.map((date, dateIndex) => (
+                            <Grid item xs={3} key={dateIndex}>
+                                <TextField
+                                    label={`Date ${dateIndex + 1}`}
+                                    variant="outlined"
+                                    value={date}
+                                    type='date'
+                                    focused
+                                    onChange={(e) => handleDateChange(batchIndex, dateIndex, e.target.value)}
+                                />
+                                <Button variant="outlined" color="error" onClick={() => handleRemoveDate(batchIndex, dateIndex)} sx={{ marginTop: '10px' }}>
+                                    Remove
+                                </Button>
+                            </Grid>
+                        ))}
+                        <Grid item xs={3}>
+                            <Button
+                                variant="contained" color="success"
+                                onClick={() => handleAddTextField(batchIndex)}
+                            >
+                                Add Date
+                            </Button>
+                        </Grid>
+                    </Grid>
+                </Box>
             ))}
-            <Grid item xs={3}>
-              <Button
-                variant="contained" color="success"
-                onClick={() => handleAddTextField(batchIndex)}
-                disabled={isAddDateDisabled(batchIndex, batch.length)}
-              >
-                Add Date
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
-      ))}
-      <Button variant="contained" onClick={handleAddBatch} disabled={isAddBatchDisabled(dates.length - 1)}>
-        Add Batch
-      </Button>
-    </div>
-  );
+            <Button variant="contained" onClick={handleAddBatch}>
+                Add Batch
+            </Button>
+        </div>
+    );
 };
 
 export default DateSelector;

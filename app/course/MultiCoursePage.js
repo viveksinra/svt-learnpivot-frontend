@@ -59,7 +59,7 @@ function MultiCoursePage() {
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [sortBy, setSort]= useState("newToOld");
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(20);
   const [searchText, setSearchText] = useState("");
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -122,7 +122,7 @@ function MultiCoursePage() {
         </Grid>
       </Grid>
       
-      <TablePagination
+      {/* <TablePagination
         rowsPerPageOptions={[5,10,15,100]}
         component="div"
         count={totalCount}
@@ -134,7 +134,7 @@ function MultiCoursePage() {
           setRowsPerPage(parseInt(e.target.value, 10));
           setPage(0);
         }}
-      />
+      /> */}
     </>
   );
 }

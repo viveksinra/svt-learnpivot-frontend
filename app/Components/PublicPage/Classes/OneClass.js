@@ -63,6 +63,15 @@ const InfoButton = styled(Button)({
   },
 });
 
+// Add this helper function at the top level
+const formatDate = (dateString) => {
+  return new Date(dateString).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  });
+};
+
 const OneClass = ({ data }) => {
   const [openFAQModal, setOpenFAQModal] = useState(false);
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
@@ -104,7 +113,22 @@ const OneClass = ({ data }) => {
                   {data.courseTitle}
                 </Typography>
               </Link>
-              <Typography
+           
+            </div>
+
+            <div style={{
+              backgroundColor: '#FCD34D',
+              padding: '16px',
+              borderRadius: '8px',
+              transform: 'rotate(12deg)',
+            }}>
+              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
+                £{data.oneClassPrice }
+              </Typography>
+            </div>
+          </div>
+
+          <Typography
                 sx={{
                   backgroundColor: '#10B981',
                   color: 'white',
@@ -116,41 +140,9 @@ const OneClass = ({ data }) => {
               >
                 {data.shortDescription || 'Full Course'}
               </Typography>
-            </div>
-
-            <div style={{
-              backgroundColor: '#FCD34D',
-              padding: '16px',
-              borderRadius: '8px',
-              transform: 'rotate(12deg)',
-            }}>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                £{data.price || '299'}
-              </Typography>
-            </div>
-          </div>
-
-          {/* <div style={{ marginTop: '16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <AccessTimeIcon sx={{ color: 'text.secondary' }} />
-              <Typography color="text.secondary">
-                {data.startTime} - {data.endTime}
-              </Typography>
-            </div>
-          </div>
-
-          <Typography
-            sx={{
-              mt: 2,
-              color: '#4B5563',
-              fontSize: '0.875rem',
-              lineHeight: 1.5
-            }}
-          >
-            {data.shortDescription}
-          </Typography> */}
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            
             {data.courseClass?.label && (
               <Chip
                 label={`Class ${data.courseClass.label}`}
@@ -255,10 +247,102 @@ const OneClass = ({ data }) => {
       <Dialog 
         open={openDetailsModal} 
         onClose={() => setOpenDetailsModal(false)}
-        maxWidth="sm"
+        maxWidth="md"
         fullWidth
       >
-        {/* Add course details modal content similar to batch details in OneMockTest */}
+        <DialogTitle sx={{ 
+          backgroundColor: '#F3F4F6',
+          color: '#1F2937',
+          fontWeight: 'bold',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
+        }}>
+          Course Batches and Dates
+          <CloseIcon 
+            onClick={() => setOpenDetailsModal(false)} 
+            sx={{ cursor: 'pointer', color: '#1F2937' }} 
+          />
+        </DialogTitle>
+        <DialogContent>
+          <div style={{ marginTop: '16px' }}>
+            {data.dates.map((batchDates, batchIndex) => (
+              <div key={batchIndex} style={{ 
+                backgroundColor: '#F9FAFB',
+                padding: '16px',
+                borderRadius: '8px',
+                marginBottom: '16px'
+              }}>
+                <Typography 
+                  variant="h6" 
+                  sx={{ 
+                    color: '#1F2937',
+                    fontWeight: 'bold',
+                    marginBottom: '12px'
+                  }}
+                >
+                  Batch {batchIndex + 1}
+                </Typography>
+                <Grid container spacing={2}>
+                  {batchDates.map((date, dateIndex) => (
+                    <Grid item xs={12} sm={6} md={3} key={dateIndex}>
+                      <div style={{
+                        backgroundColor: 'white',
+                        padding: '12px',
+                        borderRadius: '4px',
+                        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <CalendarMonthIcon sx={{ color: '#6B7280', fontSize: '1rem' }} />
+                          <Typography variant="body2" sx={{ color: '#4B5563' }}>
+                            Class {dateIndex + 1}
+                          </Typography>
+                        </div>
+                        <Typography 
+                          variant="body2" 
+                          sx={{ 
+                            color: '#1F2937',
+                            fontWeight: 'medium',
+                            marginTop: '4px',
+                            marginLeft: '28px'
+                          }}
+                        >
+                          {formatDate(date)}
+                        </Typography>
+                      </div>
+                    </Grid>
+                  ))}
+                </Grid>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+        <DialogActions sx={{ padding: '16px', display: 'flex', justifyContent: 'space-between' }}>
+          <Button 
+            onClick={() => setOpenDetailsModal(false)}
+            sx={{ 
+              color: 'white', 
+              backgroundColor: '#EF4444', 
+              '&:hover': { backgroundColor: '#DC2626' },
+              flex: 1,
+              marginRight: '8px'
+            }}
+          >
+            Close
+          </Button>
+          <Link href={"/course/buy/" + data._id} style={{ flex: 1 }}>
+            <Button 
+              sx={{ 
+                color: 'white', 
+                backgroundColor: '#059669', 
+                '&:hover': { backgroundColor: '#047857' },
+                width: '100%'
+              }}
+            >
+              Enroll Now
+            </Button>
+          </Link>
+        </DialogActions>
       </Dialog>
     </>
   );
