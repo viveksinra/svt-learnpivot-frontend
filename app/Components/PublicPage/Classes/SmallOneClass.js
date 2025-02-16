@@ -137,20 +137,12 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
               transform: !totalAmount && 'rotate(12deg)',
             }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                { `Total: ${totalAmount}`}
+                { `Total: £${totalAmount}`}
               </Typography>
             </Box>}
           </Box>
 
-          {/* Location */}
-          {data.location && (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <LocationOnIcon sx={{ color: 'text.secondary', fontSize: '1.25rem' }} />
-              <Typography color="text.secondary" variant="body2">
-                {data.location.label}
-              </Typography>
-            </Box>
-          )}
+
 
           {/* Class Information Chips */}
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
