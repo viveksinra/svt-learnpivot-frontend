@@ -79,16 +79,18 @@ const CourseDateSelector = ({
         const batchDates = selectedBatch.oneBatch.filter(date => new Date(date) > today);
         setAvailableDates(batchDates);
         if (batchDates.length > 0) {
+          if(!startDate || new Date(startDate) < new Date(batchDates[0])) {
           setStartDate(batchDates[0]);
+        }
         }
         const allSelectedDates = selectedBatches
           .map(batchId => data.allBatch.find(b => b._id === batchId))
           .filter(batch => batch && !batch.hide && !batch.bookingFull)
           .flatMap(batch => batch.oneBatch.filter(date => new Date(date) > today));
-        
         if (allSelectedDates.length > 0) {
           setSelectedDates(allSelectedDates);
         }
+        handleStartDateChange({ target: { value: startDate } });
       }
     }
   }, [selectedBatches, data]);
