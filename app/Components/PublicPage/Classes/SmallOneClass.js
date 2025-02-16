@@ -130,16 +130,16 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
                 </Typography>
               )}
             </Box>
-            <Box sx={{
+ {    totalAmount &&       <Box sx={{
               backgroundColor: totalAmount ? '#a0ff69' : '#FCD34D',
               padding: '8px 16px',
               borderRadius: '8px',
               transform: !totalAmount && 'rotate(12deg)',
             }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-                { `Total: '299'}`}
+                { `Total: ${totalAmount}`}
               </Typography>
-            </Box>
+            </Box>}
           </Box>
 
           {/* Location */}
