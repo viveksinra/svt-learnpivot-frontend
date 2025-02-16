@@ -29,7 +29,7 @@ const MtBuyComponent = ({data}) => {
   };
 
   return (
-    <section style={{ marginBottom: "10px", paddingTop:isMobile? "0px":"20px" }} id="enquiry">
+    <section style={{ marginBottom: "10px", paddingTop:isMobile? "0px":"20px", paddingBottom:100 }} id="enquiry">
       <Container maxWidth="xl" style={{   marginTop:"40px"  }}>
         <Grid container>
           <Grid style={{  paddingRight: isMobile? "0px":"20px"}} item xs={12} lg={6}>

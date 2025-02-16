@@ -25,7 +25,6 @@ const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9Qa
 
 // this is for course
 export default function CourseStripePay({ isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount, setSubmitted, setSubmittedId  }) {
-  console.log({ isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount, setSubmitted, setSubmittedId  })
   
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
@@ -103,7 +102,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
                   <Button
                     startIcon={<ArrowBackIcon />}
-                    onClick={() => { setSubmitted(false); setStep(3); }}
+                    onClick={() => setSubmitted(false)}
                     sx={{ 
                       width: isMobile ? "30%" : '20%',
                       minWidth: 'auto',

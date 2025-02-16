@@ -51,22 +51,11 @@ const CourseDateSelector = ({
   }, [selectedDates]);
 
   useEffect(() => {
-    // Find the first available batch and date
-    if (data?.allBatch) {
-      for (let batch of data.allBatch) {
-        if (!batch.hide && !batch.bookingFull) {
-          for (let date of batch.oneBatch) {
-            if (new Date(date) > today) {
-              setSelectedBatches([batch._id]);
-              setStartDate(date);
-              setAvailableDates(batch.oneBatch.filter(d => new Date(d) > today));
-              setSelectedDates(batch.oneBatch.filter(d => new Date(d) > today));
-              return;
-            }
-          }
-        }
-      }
-    }
+    // Remove default selection - component will start with empty selection
+    setSelectedBatches([]);
+    setStartDate("");
+    setAvailableDates([]);
+    setSelectedDates([]);
   }, [data]);
 
   const handleBatchSelect = (batchId) => {
@@ -137,7 +126,7 @@ const CourseDateSelector = ({
       <Grid item xs={12}>
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={() => setStep(2)}
+          onClick={() => setStep(2)}  // Simply go back to step 2 without clearing data
           sx={{ 
             width: isMobile ? "30%" : '20%',
             minWidth: 'auto',

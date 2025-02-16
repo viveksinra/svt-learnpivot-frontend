@@ -41,6 +41,13 @@ function CourseEnqForm({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [submitted, step]);
 
+  // Add a handler for child selection
+  const handleChildSelect = (child) => {
+    setSelectedChild(child);
+    setSelectedDates([]);  // Clear dates when child changes
+    setStep(3);
+  };
+
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
@@ -49,9 +56,8 @@ function CourseEnqForm({
           isMobile={isMobile}
           title={data.courseTitle} 
           setTotalAmount={setTotalAmount}
-          setSelectedBatch={setSelectedDates}
           selectedChild={selectedChild} 
-          setSelectedChild={setSelectedChild} 
+          setSelectedChild={handleChildSelect}  // Use the new handler
           setStep={setStep}
         />
       )}
