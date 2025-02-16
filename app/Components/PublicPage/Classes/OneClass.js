@@ -115,17 +115,16 @@ const OneClass = ({ data }) => {
               </Link>
            
             </div>
-
             <div style={{
               backgroundColor: '#FCD34D',
               padding: '16px',
               borderRadius: '8px',
-              transform: 'rotate(12deg)',
             }}>
               <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
                 £{data.oneClassPrice }
               </Typography>
             </div>
+
           </div>
 
           <Typography
@@ -139,6 +138,18 @@ const OneClass = ({ data }) => {
                 }}
               >
                 {data.shortDescription || 'Full Course'}
+              </Typography>
+          <Typography
+                sx={{
+                  backgroundColor: '#FCD34D',
+                  color: 'white',
+                  p: 1,
+                  borderRadius: '4px',
+                  fontSize: '0.875rem',
+                  maxWidth: 'fit-content'
+                }}
+              >
+                  £{data.oneClassPrice }
               </Typography>
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>

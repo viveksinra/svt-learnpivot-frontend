@@ -186,8 +186,26 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
       autoComplete: "new-password",
       'data-lpignore': "true",
       'data-form-type': "other",
+      'data-private': "true",
+      'role': "presentation",
+      style: { 
+        // Disable password manager icons
+        'webkitTextSecurity': 'disc',
+      }
     }
   };
+
+  // Add a dummy hidden field to trick password managers
+  const dummyFields = (
+    <div style={{ display: 'none', opacity: 0, position: 'absolute', left: '-9999px' }}>
+      <input type="text" name="username" />
+      <input type="password" name="password" />
+      <input type="email" name="email" />
+    </div>
+  );
+
+  // Create random password field name on each render to prevent recognition
+  const randomPasswordName = `pass_${Math.random().toString(36).slice(2)}_unique`;
 
   return (
     <Container>
@@ -328,33 +346,56 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  type={showPassword ? "text" : "password"}
-                  name="password_unique"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  label="Password"
-                  required
-                  error={!!errors.password}
-                  helperText={errors.password}
-                  disabled={otpSent}
-                  InputProps={{
-                    ...commonTextFieldProps.inputProps,
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          onClick={() => setShowPassword(!showPassword)}
-                          edge="end"
-                          aria-label={showPassword ? "Hide password" : "Show password"}
-                        >
-                          {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
-                        </IconButton>
-                      </InputAdornment>
-                    ),
-                  }}
-                />
+                <div className="password-wrapper" style={{ position: 'relative' }}>
+                  <TextField
+                    {...commonTextFieldProps}
+                    fullWidth
+                    type={showPassword ? "text" : "password"}
+                    name={randomPasswordName}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    label="Password"
+                    required
+                    error={!!errors.password}
+                    helperText={errors.password}
+                    disabled={otpSent}
+                    onFocus={(e) => {
+                      // Clear any autofilled value on focus
+                      const value = e.target.value;
+                      e.target.value = '';
+                      e.target.value = value;
+                    }}
+                    InputProps={{
+                      ...commonTextFieldProps.inputProps,
+                      autoComplete: "new-password",
+                      'data-private': "true",
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            onMouseDown={(e) => e.preventDefault()}
+                          >
+                            {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                  {/* Add a transparent overlay to prevent password manager icons */}
+                  <div 
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      right: 0,
+                      bottom: 0,
+                      left: 0,
+                      zIndex: 1,
+                      pointerEvents: 'none'
+                    }}
+                  />
+                </div>
               </Grid>
 
               <Grid item xs={12} md={6}>
