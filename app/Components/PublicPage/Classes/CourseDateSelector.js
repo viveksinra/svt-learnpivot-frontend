@@ -192,7 +192,7 @@ const CourseDateSelector = ({
                 disabled={batch.bookingFull}
               />
               <Typography variant="h6" sx={{ mr: 2 }}>
-                Batch {batchIndex + 1}
+                Set {batchIndex + 1}
               </Typography>
               {batch.bookingFull && (
                 <Chip
