@@ -115,15 +115,7 @@ const OneClass = ({ data }) => {
               </Link>
            
             </div>
-            <div style={{
-              backgroundColor: '#FCD34D',
-              padding: '16px',
-              borderRadius: '8px',
-            }}>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                £{data.oneClassPrice }
-              </Typography>
-            </div>
+ 
 
           </div>
 
@@ -139,18 +131,7 @@ const OneClass = ({ data }) => {
               >
                 {data.shortDescription || 'Full Course'}
               </Typography>
-          <Typography
-                sx={{
-                  backgroundColor: '#FCD34D',
-                  color: 'white',
-                  p: 1,
-                  borderRadius: '4px',
-                  fontSize: '0.875rem',
-                  maxWidth: 'fit-content'
-                }}
-              >
-                  £{data.oneClassPrice }
-              </Typography>
+        
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
             
@@ -186,6 +167,31 @@ const OneClass = ({ data }) => {
               />
             )}
           </div>
+          <Typography
+            sx={{
+              backgroundColor: '#F8FAFC',
+              color: '#0F172A',
+              p: '12px 16px',
+              mt: 2,
+              borderRadius: '8px',
+              fontSize: '1rem',
+              maxWidth: 'fit-content',
+              fontWeight: '600',
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              '&::before': {
+                content: '"£"',
+                color: '#059669',
+                fontWeight: '700',
+                marginRight: '4px',
+                fontSize: '1.1rem'
+              }
+            }}
+          >
+            {data.oneClassPrice} Per Class
+          </Typography>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
             <button 

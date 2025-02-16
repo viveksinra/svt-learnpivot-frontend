@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import {
   Container,
   Grid,
@@ -52,7 +52,7 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
   const [alert, setAlert] = useState(null);
   const [acceptedTnC, setAcceptedTnC] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-
+  const [passwordFieldId, setPasswordFieldId] = useState('');
   const router = useRouter();
   const { dispatch } = useContext(MainContext);
 
@@ -177,39 +177,149 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
     "Blog or Publication",
   ];
 
+  useEffect(() => {
+    const generateId = () => {
+      setPasswordFieldId(`pass_${Math.random().toString(36).slice(2)}_${Date.now()}`);
+    };
+    
+    generateId();
+    const interval = setInterval(generateId, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   const commonTextFieldProps = {
     autoComplete: "off",
     autoCorrect: "off",
     autoCapitalize: "off",
     spellCheck: "false",
     inputProps: {
-      autoComplete: "new-password",
+      autoComplete: "chrome-off",
       'data-lpignore': "true",
       'data-form-type': "other",
       'data-private': "true",
       'role': "presentation",
+      'autocorrect': "off",
+      'autocapitalize': "off",
+      'aria-hidden': "true",
       style: { 
-        // Disable password manager icons
         'webkitTextSecurity': 'disc',
       }
     }
   };
 
-  // Add a dummy hidden field to trick password managers
-  const dummyFields = (
-    <div style={{ display: 'none', opacity: 0, position: 'absolute', left: '-9999px' }}>
-      <input type="text" name="username" />
-      <input type="password" name="password" />
-      <input type="email" name="email" />
+
+// Enhanced dummy fields component with more honeypots
+const DummyFields = () => (
+  <div style={{ opacity: 0, position: 'absolute', left: '-9999px', pointerEvents: 'none' }}>
+    {/* Multiple sets of dummy fields to confuse autofill */}
+    <input type="text" name="username" autoComplete="off" tabIndex="-1" />
+    <input type="password" name="password" autoComplete="off" tabIndex="-1" />
+    <input type="email" name="email" autoComplete="off" tabIndex="-1" />
+    <input type="text" name="firstname" autoComplete="off" tabIndex="-1" />
+    <input type="text" name="lastname" autoComplete="off" tabIndex="-1" />
+    <input type="text" name="postcode" autoComplete="off" tabIndex="-1" />
+    {/* Additional honeypot fields */}
+    <input type="text" name="address" autoComplete="off" tabIndex="-1" />
+    <input type="text" name="phone" autoComplete="off" tabIndex="-1" />
+  </div>
+);
+
+// Enhanced secure input field component
+const SecureTextField = ({ name, label, type = "text", value, onChange, ...props }) => {
+  const fieldId = `${name}_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+  
+  return (
+    <TextField
+      {...commonTextFieldProps}
+      fullWidth
+      type={type}
+      name={fieldId}
+      id={fieldId}
+      label={label}
+      value={value}
+      onChange={onChange}
+      onFocus={(e) => {
+        // Clear and restore value to prevent autofill
+        const currentValue = e.target.value;
+        e.target.value = '';
+        setTimeout(() => {
+          e.target.value = currentValue;
+        }, 0);
+      }}
+      InputProps={{
+        ...commonTextFieldProps.inputProps,
+        autoComplete: "new-password",
+        style: {
+          backgroundColor: '#ffffff'
+        }
+      }}
+      sx={{
+        '& .MuiInputBase-input': {
+          '&:-webkit-autofill': {
+            WebkitBoxShadow: '0 0 0 100px #fff inset !important',
+            WebkitTextFillColor: '#000 !important',
+            transition: 'background-color 5000s ease-in-out 0s',
+          },
+        },
+      }}
+      {...props}
+    />
+  );
+};
+
+// Enhanced password field component
+const PasswordField = () => {
+  const [localPassword, setLocalPassword] = useState('');
+  const fieldId = `pass_${Math.random().toString(36).slice(2)}_${Date.now()}`;
+  
+  useEffect(() => {
+    setPassword(localPassword);
+  }, [localPassword]);
+
+  return (
+    <div className="password-wrapper" style={{ position: 'relative' }}>
+      <SecureTextField
+        type={showPassword ? "text" : "password"}
+        name={fieldId}
+        label="Password"
+        value={localPassword}
+        onChange={(e) => setLocalPassword(e.target.value)}
+        required
+        error={!!errors.password}
+        helperText={errors.password}
+        disabled={otpSent}
+        InputProps={{
+          ...commonTextFieldProps.inputProps,
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                onMouseDown={(e) => e.preventDefault()}
+                edge="end"
+                tabIndex="-1"
+              >
+                {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
     </div>
   );
-
-  // Create random password field name on each render to prevent recognition
-  const randomPasswordName = `pass_${Math.random().toString(36).slice(2)}_unique`;
+};
 
   return (
     <Container>
-      <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+      <form 
+      autoComplete="off" 
+      onSubmit={(e) => e.preventDefault()} 
+      data-lpignore="true"
+      autoCorrect="off"
+      autoCapitalize="off"
+      spellCheck="false"
+      >
+         <DummyFields />
         {alert && (
           <Box mb={2}>
             <Alert severity={alert.severity}>{alert.message}</Alert>
@@ -220,13 +330,11 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
           {!otpSent ? (
             <>
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="firstName_unique"
+                <SecureTextField
+                  name="firstName"
+                  label="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  label="First Name"
                   required
                   error={!!errors.firstName}
                   helperText={errors.firstName}
@@ -235,13 +343,11 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="lastName_unique"
+                <SecureTextField
+                  name="lastName"
+                  label="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  label="Last Name"
                   required
                   error={!!errors.lastName}
                   helperText={errors.lastName}
@@ -250,14 +356,11 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="email_unique"
-                  type="text"
+                <SecureTextField
+                  name="email"
+                  label="Email"
                   value={formData.email}
                   onChange={handleChange}
-                  label="Email"
                   required
                   error={!!errors.email}
                   helperText={errors.email}
@@ -266,21 +369,20 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="mobile_unique"
+                <SecureTextField
+                  name="mobile"
+                  label="WhatsApp Number"
                   value={formData.mobile}
                   onChange={handleChange}
-                  label="WhatsApp Number"
-                  placeholder="e.g. 07123456789"
                   required
                   error={!!errors.mobile}
                   helperText={errors.mobile}
                   disabled={otpSent}
+                  placeholder="e.g. 07123456789"
                 />
               </Grid>
 
+              {/* Address fields using SecureTextField */}
               <Grid item xs={12}>
                 <AddressSelect
                   value={formData.address1}
@@ -290,112 +392,55 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
                   disabled={otpSent}
                   inputProps={{
                     ...commonTextFieldProps.inputProps,
-                    name: "address1_unique"
+                    name: `address1_${Math.random().toString(36).slice(2)}`
                   }}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="address2_unique"
+                <SecureTextField
+                  name="address2"
+                  label="Address Line 2"
                   value={formData.address2}
                   onChange={handleChange}
-                  label="Address Line 2"
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="address3_unique"
+                <SecureTextField
+                  name="address3"
+                  label="Address Line 3"
                   value={formData.address3}
                   onChange={handleChange}
-                  label="Address Line 3"
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  name="city_unique"
-                  required
+                <SecureTextField
+                  name="city"
+                  label="City/Town"
                   value={formData.city}
                   onChange={handleChange}
-                  label="City/Town"
-                  error={errors.city}
+                  required
+                  error={!!errors.city}
                   helperText={errors.city}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <TextField
-                  {...commonTextFieldProps}
-                  fullWidth
-                  required
-                  name="postcode_unique"
+                <SecureTextField
+                  name="postcode"
+                  label="Postcode"
                   value={formData.postcode}
                   onChange={handleChange}
-                  label="Postcode"
-                  error={errors.postcode}
+                  required
+                  error={!!errors.postcode}
                   helperText={errors.postcode}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <div className="password-wrapper" style={{ position: 'relative' }}>
-                  <TextField
-                    {...commonTextFieldProps}
-                    fullWidth
-                    type={showPassword ? "text" : "password"}
-                    name={randomPasswordName}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    label="Password"
-                    required
-                    error={!!errors.password}
-                    helperText={errors.password}
-                    disabled={otpSent}
-                    onFocus={(e) => {
-                      // Clear any autofilled value on focus
-                      const value = e.target.value;
-                      e.target.value = '';
-                      e.target.value = value;
-                    }}
-                    InputProps={{
-                      ...commonTextFieldProps.inputProps,
-                      autoComplete: "new-password",
-                      'data-private': "true",
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton
-                            onClick={() => setShowPassword(!showPassword)}
-                            edge="end"
-                            aria-label={showPassword ? "Hide password" : "Show password"}
-                            onMouseDown={(e) => e.preventDefault()}
-                          >
-                            {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                  {/* Add a transparent overlay to prevent password manager icons */}
-                  <div 
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      bottom: 0,
-                      left: 0,
-                      zIndex: 1,
-                      pointerEvents: 'none'
-                    }}
-                  />
-                </div>
+                <PasswordField />
               </Grid>
 
               <Grid item xs={12} md={6}>
