@@ -258,7 +258,7 @@ const OneClass = ({ data }) => {
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          Course Batches and Dates
+          {data.courseTitle}
           <CloseIcon 
             onClick={() => setOpenDetailsModal(false)} 
             sx={{ cursor: 'pointer', color: '#1F2937' }} 
@@ -267,8 +267,14 @@ const OneClass = ({ data }) => {
         <DialogContent>
           <div style={{ marginTop: '16px' }}>
             {data.allBatch
-              .filter(batch => !batch.hide) // Only show non-hidden batches
-              .map((batch, batchIndex) => (
+              .filter(batch => !batch.hide)
+              .map((batch, batchIndex) => {
+              // Calculate starting class number for this batch
+              const previousClassesCount = data.allBatch
+                .filter((b, idx) => !b.hide && idx < batchIndex)
+                .reduce((sum, b) => sum + b.oneBatch.length, 0);
+
+              return (
               <div key={batch._id} style={{ 
                 backgroundColor: '#F9FAFB',
                 padding: '16px',
@@ -289,7 +295,7 @@ const OneClass = ({ data }) => {
                       fontWeight: 'bold',
                     }}
                   >
-                    Batch {batchIndex + 1}
+                    Set {batchIndex + 1}
                   </Typography>
                   {batch.bookingFull && (
                     <Chip
@@ -315,7 +321,7 @@ const OneClass = ({ data }) => {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <CalendarMonthIcon sx={{ color: '#6B7280', fontSize: '1rem' }} />
                           <Typography variant="body2" sx={{ color: '#4B5563' }}>
-                            Class {dateIndex + 1}
+                            Class {previousClassesCount + dateIndex + 1}
                           </Typography>
                         </div>
                         <Typography 
@@ -334,7 +340,7 @@ const OneClass = ({ data }) => {
                   ))}
                 </Grid>
               </div>
-            ))}
+            )})}
           </div>
         </DialogContent>
         <DialogActions sx={{ padding: '16px', display: 'flex', justifyContent: 'space-between' }}>

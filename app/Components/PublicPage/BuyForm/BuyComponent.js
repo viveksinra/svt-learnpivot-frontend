@@ -17,6 +17,10 @@ const BuyComponent = ({ data }) => {
   const [selectedChild, setSelectedChild] = useState(null);
   const [step, setStep] = useState(1);
   const [openDialog, setOpenDialog] = useState(true);
+  const [selectedBatches, setSelectedBatches] = useState([]);
+  const [startDate, setStartDate] = useState("");
+  const [availableDates, setAvailableDates] = useState([]);
+  const [frontEndTotal, setFrontEndTotal] = useState(null);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -38,7 +42,7 @@ const BuyComponent = ({ data }) => {
               <SmallOneClass 
                 data={data} 
                 selectedChild={selectedChild}
-                totalAmount={totalAmount} 
+                totalAmount={frontEndTotal || totalAmount} 
                 selectedDates={selectedDates} 
               />
             )}
@@ -71,7 +75,15 @@ const BuyComponent = ({ data }) => {
                   selectedDates={selectedDates}
                   setSelectedDates={setSelectedDates}
                   selectedChild={selectedChild} 
-                  setSelectedChild={setSelectedChild} 
+                  setSelectedChild={setSelectedChild}
+                  selectedBatches={selectedBatches}
+                  setSelectedBatches={setSelectedBatches}
+                  startDate={startDate}
+                  setStartDate={setStartDate}
+                  availableDates={availableDates}
+                  setAvailableDates={setAvailableDates}
+                  frontEndTotal={frontEndTotal}
+                  setFrontEndTotal={setFrontEndTotal}
                 />
               )}
             </Grid>
@@ -106,7 +118,15 @@ const BuyComponent = ({ data }) => {
               selectedDates={selectedDates}
               setSelectedDates={setSelectedDates}
               selectedChild={selectedChild} 
-              setSelectedChild={setSelectedChild} 
+              setSelectedChild={setSelectedChild}
+              selectedBatches={selectedBatches}
+              setSelectedBatches={setSelectedBatches}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              availableDates={availableDates}
+              setAvailableDates={setAvailableDates}
+              frontEndTotal={frontEndTotal}
+              setFrontEndTotal={setFrontEndTotal}
             />
           )}
         </>

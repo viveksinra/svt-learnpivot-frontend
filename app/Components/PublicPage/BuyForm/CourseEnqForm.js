@@ -5,7 +5,6 @@ import MySnackbar from "../../MySnackbar/MySnackbar";
 import ComLogSigForm from "../LoginSignUp/ComLogSigForm";
 import MainContext from "../../Context/MainContext";
 import Cookies from "js-cookie";
-import ChildSelector from "../LoginSignUp/ChildSelector";
 import CourseDateSelector from "../Classes/CourseDateSelector";
 import CourseStripePay from "../../courseStripePay/CourseStripePay";
 import CourseChildSelector from "../LoginSignUp/CourseChildSelector";
@@ -24,7 +23,16 @@ function CourseEnqForm({
   selectedDates, 
   setSelectedDates, 
   selectedChild, 
-  setSelectedChild 
+  setSelectedChild,
+  // Add new props
+  selectedBatches,
+  setSelectedBatches,
+  startDate,
+  setStartDate,
+  availableDates,
+  setAvailableDates,
+  frontEndTotal,
+  setFrontEndTotal
 }) {
   const snackRef = useRef();
   const { state } = useContext(MainContext);
@@ -77,8 +85,16 @@ function CourseEnqForm({
               setSubmitted={setSubmitted}
               setSubmittedId={setSubmittedId}
               setTotalAmount={setTotalAmount}
-             totalAmount={totalAmount}             
-
+              totalAmount={totalAmount}
+              // Add new props
+              selectedBatches={selectedBatches}
+              setSelectedBatches={setSelectedBatches}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              availableDates={availableDates}
+              setAvailableDates={setAvailableDates}
+              frontEndTotal={frontEndTotal}
+              setFrontEndTotal={setFrontEndTotal}
             />
           ) : (
               <CourseStripePay 
