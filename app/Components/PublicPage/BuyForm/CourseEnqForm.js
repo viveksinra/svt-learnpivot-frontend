@@ -31,11 +31,13 @@ function CourseEnqForm({
   const currentUser = Cookies.get("currentUser");
 
   useEffect(() => {
+    if(step !== 3) {
     if (state?.isAuthenticated && currentUser) {
       setStep(2);
     } else {
       setStep(1);
     } 
+  } 
   }, [state, currentUser]);
 
   useEffect(() => {

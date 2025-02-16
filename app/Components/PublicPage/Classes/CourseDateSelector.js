@@ -50,13 +50,6 @@ const CourseDateSelector = ({
     }
   }, [selectedDates]);
 
-  useEffect(() => {
-    // Remove default selection - component will start with empty selection
-    setSelectedBatches([]);
-    setStartDate("");
-    setAvailableDates([]);
-    setSelectedDates([]);
-  }, [data]);
 
   const handleBatchSelect = (batchId) => {
     let updatedBatches;
