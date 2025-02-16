@@ -180,8 +180,10 @@ const AddressSelect = ({
           helperText={helperText}
           placeholder="Start typing to get address suggestions..."
           required
+          autoComplete="off"
           InputProps={{
             ...params.InputProps,
+            autoComplete: "off", // Add this to ensure it works in all browsers
             endAdornment: (
               <>
                 {(loadingSuggestions || loadingFullAddress) && (

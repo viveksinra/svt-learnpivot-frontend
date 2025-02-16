@@ -25,7 +25,7 @@ import { useRouter } from "next/navigation";
 import MainContext from "../../Context/MainContext";
 import { LOGIN_USER } from "../../Context/types";
 import { authService } from "@/app/services";
-import AddressInput from "./AddressInput"; // Ensure AddressInput is updated per your address suggestion code
+import AddressSelect from "./AddressInput"; // Update the import name to match the component
 
 const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
   // Updated initial state with separate address fields:
@@ -266,12 +266,10 @@ console.log("i passed this point")
 
             {/* Address Section */}
             <Grid item xs={12}>
-              {/* Address Line 1: Searchable field via AddressInput */}
-              <AddressInput
-                name="address1"
+              <AddressSelect
                 value={formData.address1}
                 onChange={handleChange}
-                error={errors.address1}
+                error={!!errors.address1}
                 helperText={errors.address1}
                 disabled={otpSent}
               />
