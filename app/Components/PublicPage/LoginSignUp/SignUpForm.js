@@ -279,12 +279,16 @@ console.log("i passed this point")
             <Grid item xs={12} md={6}>
               <TextField
                 fullWidth
-                
                 name="address2"
                 value={formData.address2}
                 onChange={handleChange}
                 label="Address Line 2"
-                autoComplete="off"
+                autoComplete="new-address"
+                aria-autocomplete="none"
+                inputProps={{
+                  'data-lpignore': true,
+                  'data-form-type': "other",
+                }}
               />
             </Grid>
 

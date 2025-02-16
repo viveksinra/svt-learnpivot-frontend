@@ -180,10 +180,13 @@ const AddressSelect = ({
           helperText={helperText}
           placeholder="Start typing to get address suggestions..."
           required
-          autoComplete="off"
+          autoComplete="new-address" // Changed from "off" to "new-address"
+          aria-autocomplete="none"
           InputProps={{
             ...params.InputProps,
-            autoComplete: "off", // Add this to ensure it works in all browsers
+            autoComplete: "new-address", // Changed from "off" to "new-address"
+            'data-lpignore': true, // Prevents LastPass from autofilling
+            'data-form-type': "other", // Additional browser hint
             endAdornment: (
               <>
                 {(loadingSuggestions || loadingFullAddress) && (
