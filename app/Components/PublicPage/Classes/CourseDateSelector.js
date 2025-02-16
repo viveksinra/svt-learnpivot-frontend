@@ -28,11 +28,15 @@ const CourseDateSelector = ({
   totalAmount, 
   selectedDates = [], // Add default value
   setSelectedDates,
+  selectedBatches,
+  setSelectedBatches,
+  startDate,
+  setStartDate,
+  availableDates,
+  setAvailableDates,
+  frontEndTotal,
+  setFrontEndTotal
 }) => {
-  const [selectedBatches, setSelectedBatches] = useState([]);
-  const [startDate, setStartDate] = useState("");
-  const [availableDates, setAvailableDates] = useState([]);
-  const [frontEndTotal, setFrontEndTotal] = useState(null);
   const today = new Date();
 
   useEffect(() => {
@@ -48,7 +52,7 @@ const CourseDateSelector = ({
     } else {
       setFrontEndTotal(null);
     }
-  }, [selectedDates]);
+  }, [selectedDates, data?.oneClassPrice, setFrontEndTotal]);
 
 
   const handleBatchSelect = (batchId) => {
