@@ -266,31 +266,51 @@ const OneClass = ({ data }) => {
         </DialogTitle>
         <DialogContent>
           <div style={{ marginTop: '16px' }}>
-            {data.dates.map((batchDates, batchIndex) => (
-              <div key={batchIndex} style={{ 
+            {data.allBatch
+              .filter(batch => !batch.hide) // Only show non-hidden batches
+              .map((batch, batchIndex) => (
+              <div key={batch._id} style={{ 
                 backgroundColor: '#F9FAFB',
                 padding: '16px',
                 borderRadius: '8px',
-                marginBottom: '16px'
+                marginBottom: '16px',
+                position: 'relative'
               }}>
-                <Typography 
-                  variant="h6" 
-                  sx={{ 
-                    color: '#1F2937',
-                    fontWeight: 'bold',
-                    marginBottom: '12px'
-                  }}
-                >
-                  Batch {batchIndex + 1}
-                </Typography>
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  marginBottom: '12px'
+                }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: '#1F2937',
+                      fontWeight: 'bold',
+                    }}
+                  >
+                    Batch {batchIndex + 1}
+                  </Typography>
+                  {batch.bookingFull && (
+                    <Chip
+                      label="Fully Booked"
+                      sx={{
+                        backgroundColor: '#FEE2E2',
+                        color: '#DC2626',
+                        fontWeight: 'bold'
+                      }}
+                    />
+                  )}
+                </div>
                 <Grid container spacing={2}>
-                  {batchDates.map((date, dateIndex) => (
+                  {batch.oneBatch.map((date, dateIndex) => (
                     <Grid item xs={12} sm={6} md={3} key={dateIndex}>
                       <div style={{
                         backgroundColor: 'white',
                         padding: '12px',
                         borderRadius: '4px',
                         boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                        opacity: batch.bookingFull ? 0.7 : 1
                       }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                           <CalendarMonthIcon sx={{ color: '#6B7280', fontSize: '1rem' }} />

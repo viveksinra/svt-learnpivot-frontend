@@ -143,11 +143,40 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                     <Typography variant="subtitle1" color="text.secondary" gutterBottom>
                       Selected Course Dates
                     </Typography>
-                    {selectedDates.map((date, index) => (
-                      <Typography key={index} variant="body1" color="text.primary" sx={{ fontWeight: 500 }}>
-                        {date}
-                      </Typography>
-                    ))}
+                    <Box sx={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap', 
+                      gap: 2,
+                      '& > *': {
+                        flex: '0 1 auto',
+                      }
+                    }}>
+                      {selectedDates.map((date, index) => {
+                        // Convert date string to desired format (assuming input date is in valid format)
+                        const formattedDate = new Date(date).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        });
+                        
+                        return (
+                          <Typography 
+                            key={index} 
+                            variant="body1" 
+                            color="text.primary" 
+                            sx={{ 
+                              fontWeight: 500,
+                              backgroundColor: '#e3f2fd',
+                              padding: '4px 12px',
+                              borderRadius: '16px',
+                              fontSize: '0.9rem'
+                            }}
+                          >
+                            {formattedDate}
+                          </Typography>
+                        );
+                      })}
+                    </Box>
                   </Box>
                 )}
 
@@ -183,11 +212,12 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                         checked={termsAccepted}
                         onChange={(e) => setTermsAccepted(e.target.checked)}
                         color="primary"
+                        sx={{ padding: 0, marginRight: 1 }}
                       />
                     }
                     label={
                       <Typography variant="body2">
-                        Please confirm if you accept our terms, including the{" "}
+                           Please confirm if you accept our terms, including the{" "}
                         <a 
                           href="/policy/privacyPolicy" 
                           target="_blank" 
@@ -203,6 +233,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                         </a>.
                       </Typography>
                     }
+                    sx={{ alignItems: 'flex-start' }}
                   />
                 </Box>
 
@@ -217,6 +248,11 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                     py: 1.5,
                     textTransform: "none",
                     fontSize: "1rem",
+                    backgroundColor: (buttonDisabled || loading || !termsAccepted) ? '#fc7658' : 'primary.main',
+                    '&:disabled': {
+                      backgroundColor: '#fc7658',
+                      color: 'white'
+                    }
                   }}
                 >
                   {loading ? "Processing..." : `Pay £${totalAmount?.toFixed(2)} with Debit Card`}
