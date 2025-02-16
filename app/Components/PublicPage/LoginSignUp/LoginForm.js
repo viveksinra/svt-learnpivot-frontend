@@ -68,6 +68,7 @@ function LoginForm({ isRedirectToDashboard }) {
             <TextField
               id="loginEmail"
               fullWidth
+              focused
               required
               type="email"
               value={email}
@@ -81,6 +82,7 @@ function LoginForm({ isRedirectToDashboard }) {
             <TextField
               id="loginPass"
               fullWidth
+              focused
               required
               type={showPassword ? "text" : "password"}
               value={password}
