@@ -136,7 +136,7 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
               borderRadius: '8px',
             }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-             { totalAmount?  `${ `Total: £${totalAmount}`}`:`${data.oneClassPrice} Per Class`}
+             { totalAmount?  `${ `Total: £${totalAmount}`}`:`£${data.oneClassPrice} Per Class`}
               </Typography>
             </Box>
           </Box>

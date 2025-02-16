@@ -478,6 +478,7 @@ const PasswordField = () => {
                         href="/policy/termandcondition"
                         target="_blank"
                         rel="noopener noreferrer"
+                        style={{ color: '#1976d2', textDecoration: 'underline' }}
                       >
                         Terms and Conditions
                       </a>
