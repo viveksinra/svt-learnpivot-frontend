@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import ChildSelector from "../LoginSignUp/ChildSelector";
 import CourseDateSelector from "../Classes/CourseDateSelector";
 import CourseStripePay from "../../courseStripePay/CourseStripePay";
+import CourseChildSelector from "../LoginSignUp/CourseChildSelector";
 
 function CourseEnqForm({ 
   isMobile, 
@@ -45,17 +46,17 @@ function CourseEnqForm({
   const handleChildSelect = (child) => {
     setSelectedChild(child);
     setSelectedDates([]);  // Clear dates when child changes
-    setStep(3);
   };
 
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
       {step === 2 && (
-        <ChildSelector 
+        <CourseChildSelector 
           isMobile={isMobile}
           title={data.courseTitle} 
           setTotalAmount={setTotalAmount}
+          setSelectedDates={setSelectedDates}
           selectedChild={selectedChild} 
           setSelectedChild={handleChildSelect}  // Use the new handler
           setStep={setStep}
