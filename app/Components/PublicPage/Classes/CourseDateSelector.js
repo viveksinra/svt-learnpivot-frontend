@@ -160,6 +160,12 @@ const CourseDateSelector = ({
                 value={startDate}
                 onChange={handleStartDateChange}
                 displayEmpty
+                renderValue={(selected) => {
+                  // if (!selected) {
+                    return "Update start date";
+                  // }
+                  // return formatDateToShortMonth(selected);
+                }}
                 sx={{ backgroundColor: 'white' }}
               >
                 {availableDates.map((date) => (
