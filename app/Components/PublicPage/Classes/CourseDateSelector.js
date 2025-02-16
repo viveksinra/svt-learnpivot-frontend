@@ -91,7 +91,7 @@ const CourseDateSelector = ({
           setSelectedDates(allSelectedDates);
         }
         if (startDate) {
-          handleStartDateChange(startDate);
+          handleStartDateChange({ target: { value: startDate } });
         }
       }
     }
