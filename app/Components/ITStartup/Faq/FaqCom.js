@@ -262,7 +262,7 @@ const faqData = [
   {
     id: "12",
     question: "How do I find out more?",
-    answer: `<p>Feel free to reach out to us directly through our website or by emailing us at <a href="mailto:info@chelmsford11plus.com">info@chelmsford11plus.com</a>. We're here to discuss your child's needs and how we can support them in their 11+ journey to success.</p>`
+    answer: `<p>Feel free to reach out to us directly through our website or by emailing us at <a href="mailto:support@chelmsford11plus.com">support@chelmsford11plus.com</a>. We're here to discuss your child's needs and how we can support them in their 11+ journey to success.</p>`
   },
   {
       id: "13",

@@ -207,7 +207,7 @@ const PrivacyPolicyCom = () => {
                 </Typography>
                 <Typography
                   component="a"
-                  href="mailto:info@chelmsford11plus.com"
+                  href="mailto:support@chelmsford11plus.com"
                   sx={{
                     color: "primary.main",
                     textDecoration: "none",
@@ -216,7 +216,7 @@ const PrivacyPolicyCom = () => {
                     },
                   }}
                 >
-                  info@chelmsford11plus.com
+                  support@chelmsford11plus.com
                 </Typography>
               </StyledSection>
             </StyledPaper>

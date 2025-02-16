@@ -65,7 +65,7 @@ const Enquiry = () => {
                     <Typography gutterBottom color="#333" sx={{fontSize:"20px"}}>Reach us by E-mail</Typography>
                     <Divider light sx={{maxWidth:"200px",marginBottom:"10px"}}/> 
                     <Typography color="#333" sx={{fontSize:"14px"}}>Write to us at</Typography>
-                    <Link href="mailto:info@chelmsford11plus.com"><Typography color="#007bff" sx={{fontSize:"14px"}}>info@chelmsford11plus.com</Typography></Link> 
+                    <Link href="mailto:support@chelmsford11plus.com"><Typography color="#007bff" sx={{fontSize:"14px"}}>support@chelmsford11plus.com</Typography></Link> 
                     </div>
                     </Grid> 
                 
