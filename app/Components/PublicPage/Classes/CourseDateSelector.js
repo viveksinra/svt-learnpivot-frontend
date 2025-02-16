@@ -79,7 +79,10 @@ const CourseDateSelector = ({
         const batchDates = selectedBatch.oneBatch.filter(date => new Date(date) > today);
         setAvailableDates(batchDates);
         if (batchDates.length > 0) {
+          console.log('batchDates', batchDates);
           if(!startDate || new Date(startDate) < new Date(batchDates[0])) {
+            console.log("startDate", startDate);
+            console.log('settingDate', batchDates[0]);
           setStartDate(batchDates[0]);
         }
         }
@@ -90,7 +93,9 @@ const CourseDateSelector = ({
         if (allSelectedDates.length > 0) {
           setSelectedDates(allSelectedDates);
         }
+        if(startDate) {
         handleStartDateChange({ target: { value: startDate } });
+        }
       }
     }
   }, [selectedBatches, data]);
@@ -143,7 +148,7 @@ const CourseDateSelector = ({
       </Grid>
 
       {/* Start date selector */}
-      <Grid item xs={12}>
+    {  availableDates?.length>0 && <Grid item xs={12}>
         <FormControl variant="standard" fullWidth>
           <InputLabel id="start-date-label">Start Date</InputLabel>
           <Select
@@ -160,7 +165,7 @@ const CourseDateSelector = ({
             ))}
           </Select>
         </FormControl>
-      </Grid>
+      </Grid>}
 
       {/* Batch selection */}
       {data?.allBatch
