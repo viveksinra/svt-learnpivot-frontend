@@ -1,5 +1,5 @@
 "use client";
-import { useState, useContext, useEffect } from "react";
+import { useState, useContext } from "react";
 import {
   Container,
   Grid,
@@ -25,25 +25,29 @@ import { useRouter } from "next/navigation";
 import MainContext from "../../Context/MainContext";
 import { LOGIN_USER } from "../../Context/types";
 import { authService } from "@/app/services";
-import AddressSelect from "./AddressInput";
+import AddressInput from "./AddressInput"; // Ensure AddressInput is updated per your address suggestion code
 
 const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
+  // Updated initial state with separate address fields:
   const [formData, setFormData] = useState({
     enquiryFor: "self",
     firstName: "",
     lastName: "",
     email: "",
     mobile: "",
+    // 'address1' is the searchable field used by AddressInput.
     address1: "",
+    // These fields will be populated when a suggestion is selected
+    // but remain visible and editable.
     address2: "",
     address3: "",
     city: "",
     postcode: "",
+   
     marketing: "",
     message: "",
     selectedDates: [],
   });
-
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [otpSent, setOtpSent] = useState(false);
@@ -52,25 +56,26 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
   const [alert, setAlert] = useState(null);
   const [acceptedTnC, setAcceptedTnC] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [passwordFieldId, setPasswordFieldId] = useState('');
+
   const router = useRouter();
   const { dispatch } = useContext(MainContext);
 
+  // Modified handleChange: It merges any extra keys coming from the AddressInput
+  // so that when AddressInput returns { name:"address1", value:"...", address2:"...", city:"...", ... }
+  // all those keys get merged into formData.
   const handleChange = (e) => {
     const { name, value, ...extra } = e.target;
-    // Remove _unique suffix from field names
-    const actualFieldName = name.replace('_unique', '');
-    
     setFormData((prev) => ({
       ...prev,
-      [actualFieldName]: value,
+      [name]: value,
       ...extra,
     }));
-
-    if (errors[actualFieldName]) {
-      setErrors((prev) => ({ ...prev, [actualFieldName]: undefined }));
+  
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
   };
+  
 
   const validateForm = () => {
     const newErrors = {};
@@ -83,11 +88,13 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
     if (!formData.postcode.trim()) newErrors.postcode = "PostCode is required";
     if (!password.trim()) newErrors.password = "Password is required";
 
+    // Email format validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (formData.email && !emailRegex.test(formData.email)) {
       newErrors.email = "Invalid email format";
     }
 
+    // Phone number validation: must be 11 digits and start with 0
     const phoneRegex = /^0\d{10}$/;
     if (formData.mobile && !phoneRegex.test(formData.mobile)) {
       newErrors.mobile = "Phone number must be 11 digits and start with 0";
@@ -97,30 +104,36 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
   };
 
   const handleSendOtpClick = async () => {
+    // Ensure Terms & Conditions are accepted
+console.log("got clocked")
+
     if (!acceptedTnC) {
       setAlert({ message: "Please accept the Terms and Conditions", severity: "error" });
       return;
     }
-
+console.log("i passed this point")
     if (!validateForm()) {
       return;
     }
+    console.log("i passed this point2")
 
     const emailOtpData = {
       email: formData.email,
       mobile: formData.mobile,
-      password: password,
+      password:password,
+
       purpose: "signup",
     };
 
     try {
       const res = await authService.sendOtp(emailOtpData);
+      console.log(res)
       if (res.variant === "success") {
         setOtpSent(true);
         setAlert({ message: `OTP Sent to ${formData.email}`, severity: "success" });
       } else {
         setAlert({
-          message: res?.message || "Failed to send you OTP. Please try again later.",
+          message: res?.message? res.message : "Failed to send you OTP. Please try again later.",
           severity: "error",
         });
       }
@@ -146,7 +159,6 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
       const res = await authService.signUp(signUpData);
       if (res.success && res.token) {
         setOpenDialog(true);
-        dispatch({ type: LOGIN_USER, payload: res });
       } else {
         setAlert({ message: res.message || "Registration failed. Please try again.", severity: "error" });
       }
@@ -159,6 +171,8 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
   const handleDialogClose = () => {
     setOpenDialog(false);
     setIsLogin(true);
+    dispatch({ type: LOGIN_USER, payload: res });
+    setAlert({ message: "Registration successful!", severity: "success" });
     if (isRedirectToDashboard) {
       router.push("/userDash");
       window.location.reload();
@@ -177,149 +191,9 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
     "Blog or Publication",
   ];
 
-  useEffect(() => {
-    const generateId = () => {
-      setPasswordFieldId(`pass_${Math.random().toString(36).slice(2)}_${Date.now()}`);
-    };
-    
-    generateId();
-    const interval = setInterval(generateId, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
-
-  const commonTextFieldProps = {
-    autoComplete: "off",
-    autoCorrect: "off",
-    autoCapitalize: "off",
-    spellCheck: "false",
-    inputProps: {
-      autoComplete: "chrome-off",
-      'data-lpignore': "true",
-      'data-form-type': "other",
-      'data-private': "true",
-      'role': "presentation",
-      'autocorrect': "off",
-      'autocapitalize': "off",
-      'aria-hidden': "true",
-      style: { 
-        'webkitTextSecurity': 'disc',
-      }
-    }
-  };
-
-
-// Enhanced dummy fields component with more honeypots
-const DummyFields = () => (
-  <div style={{ opacity: 0, position: 'absolute', left: '-9999px', pointerEvents: 'none' }}>
-    {/* Multiple sets of dummy fields to confuse autofill */}
-    <input type="text" name="username" autoComplete="off" tabIndex="-1" />
-    <input type="password" name="password" autoComplete="off" tabIndex="-1" />
-    <input type="email" name="email" autoComplete="off" tabIndex="-1" />
-    <input type="text" name="firstname" autoComplete="off" tabIndex="-1" />
-    <input type="text" name="lastname" autoComplete="off" tabIndex="-1" />
-    <input type="text" name="postcode" autoComplete="off" tabIndex="-1" />
-    {/* Additional honeypot fields */}
-    <input type="text" name="address" autoComplete="off" tabIndex="-1" />
-    <input type="text" name="phone" autoComplete="off" tabIndex="-1" />
-  </div>
-);
-
-// Enhanced secure input field component
-const SecureTextField = ({ name, label, type = "text", value, onChange, ...props }) => {
-  const fieldId = `${name}_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-  
   return (
-    <TextField
-      {...commonTextFieldProps}
-      fullWidth
-      type={type}
-      name={fieldId}
-      id={fieldId}
-      label={label}
-      value={value}
-      onChange={onChange}
-      onFocus={(e) => {
-        // Clear and restore value to prevent autofill
-        const currentValue = e.target.value;
-        e.target.value = '';
-        setTimeout(() => {
-          e.target.value = currentValue;
-        }, 0);
-      }}
-      InputProps={{
-        ...commonTextFieldProps.inputProps,
-        autoComplete: "new-password",
-        style: {
-          backgroundColor: '#ffffff'
-        }
-      }}
-      sx={{
-        '& .MuiInputBase-input': {
-          '&:-webkit-autofill': {
-            WebkitBoxShadow: '0 0 0 100px #fff inset !important',
-            WebkitTextFillColor: '#000 !important',
-            transition: 'background-color 5000s ease-in-out 0s',
-          },
-        },
-      }}
-      {...props}
-    />
-  );
-};
-
-// Enhanced password field component
-const PasswordField = () => {
-  const [localPassword, setLocalPassword] = useState('');
-  const fieldId = `pass_${Math.random().toString(36).slice(2)}_${Date.now()}`;
-  
-  useEffect(() => {
-    setPassword(localPassword);
-  }, [localPassword]);
-
-  return (
-    <div className="password-wrapper" style={{ position: 'relative' }}>
-      <SecureTextField
-        type={showPassword ? "text" : "password"}
-        name={fieldId}
-        label="Password"
-        value={localPassword}
-        onChange={(e) => setLocalPassword(e.target.value)}
-        required
-        error={!!errors.password}
-        helperText={errors.password}
-        disabled={otpSent}
-        InputProps={{
-          ...commonTextFieldProps.inputProps,
-          endAdornment: (
-            <InputAdornment position="end">
-              <IconButton
-                onClick={() => setShowPassword(!showPassword)}
-                onMouseDown={(e) => e.preventDefault()}
-                edge="end"
-                tabIndex="-1"
-              >
-                {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
-              </IconButton>
-            </InputAdornment>
-          ),
-        }}
-      />
-    </div>
-  );
-};
-
-  return (
-    <Container>
-      <form 
-      autoComplete="off" 
-      onSubmit={(e) => e.preventDefault()} 
-      data-lpignore="true"
-      autoCorrect="off"
-      autoCapitalize="off"
-      spellCheck="false"
-      >
-         <DummyFields />
+    <form autoComplete="off">
+      <Container>
         {alert && (
           <Box mb={2}>
             <Alert severity={alert.severity}>{alert.message}</Alert>
@@ -330,129 +204,172 @@ const PasswordField = () => {
           {!otpSent ? (
             <>
               <Grid item xs={12} md={6}>
-                <SecureTextField
+                <TextField
+                  fullWidth
                   name="firstName"
-                  label="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
+                  label="First Name"
                   required
                   error={!!errors.firstName}
                   helperText={errors.firstName}
                   disabled={otpSent}
+                  autoComplete="off"
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <SecureTextField
+                <TextField
+                  fullWidth
                   name="lastName"
-                  label="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
+                  label="Last Name"
                   required
                   error={!!errors.lastName}
                   helperText={errors.lastName}
                   disabled={otpSent}
+                  autoComplete="off"
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <SecureTextField
+                <TextField
+                  fullWidth
                   name="email"
-                  label="Email"
+                  type="email"
                   value={formData.email}
                   onChange={handleChange}
+                  label="Email"
                   required
                   error={!!errors.email}
                   helperText={errors.email}
                   disabled={otpSent}
+                  autoComplete="off"
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <SecureTextField
+                <TextField
+                  fullWidth
                   name="mobile"
-                  label="WhatsApp Number"
                   value={formData.mobile}
                   onChange={handleChange}
+                  label="WhatsApp Number"
+                  placeholder="e.g. 07123456789"
                   required
                   error={!!errors.mobile}
                   helperText={errors.mobile}
                   disabled={otpSent}
-                  placeholder="e.g. 07123456789"
+                  autoComplete="off"
                 />
               </Grid>
 
-              {/* Address fields using SecureTextField */}
+              {/* Address Section */}
               <Grid item xs={12}>
-                <AddressSelect
+                {/* Address Line 1: Searchable field via AddressInput */}
+                <AddressInput
+                  name="address1"
                   value={formData.address1}
                   onChange={handleChange}
-                  error={!!errors.address1}
+                  error={errors.address1}
                   helperText={errors.address1}
                   disabled={otpSent}
-                  inputProps={{
-                    ...commonTextFieldProps.inputProps,
-                    name: `address1_${Math.random().toString(36).slice(2)}`
+                />
+              </Grid>
+
+              {/* Other address fields remain visible and editable */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  
+                  name="address2"
+                  value={formData.address2}
+                  onChange={handleChange}
+                  label="Address Line 2"
+                  autoComplete="off"
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  name="address3"
+                  value={formData.address3}
+                  onChange={handleChange}
+                  label="Address Line 3"
+                  autoComplete="off"
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  name="city"
+                  required
+                  value={formData.city}
+                  onChange={handleChange}
+                  label="City/Town"
+                  autoComplete="off"
+                  error={errors.city}
+                  helperText={errors.city}
+
+                />
+              </Grid>
+
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  required
+                  name="postcode"
+                  value={formData.postcode}
+                  onChange={handleChange}
+                  label="Postcode"
+                  autoComplete="postal-code"
+                  error={errors.postcode}
+                  helperText={errors.postcode}
+
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  label="Password"
+                  required
+                  error={!!errors.password}
+                  helperText={errors.password}
+                  disabled={otpSent}
+                  autoComplete="off"
+
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                    <IconButton
+                          onClick={() => setShowPassword(!showPassword)}
+                          edge="end"
+                          aria-label={showPassword ? "Hide password" : "Show password"} // Added accessible label
+                        >
+                          {showPassword ? <BsEyeSlashFill /> : <BsEyeFill />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
                   }}
                 />
               </Grid>
 
               <Grid item xs={12} md={6}>
-                <SecureTextField
-                  name="address2"
-                  label="Address Line 2"
-                  value={formData.address2}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <SecureTextField
-                  name="address3"
-                  label="Address Line 3"
-                  value={formData.address3}
-                  onChange={handleChange}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <SecureTextField
-                  name="city"
-                  label="City/Town"
-                  value={formData.city}
-                  onChange={handleChange}
-                  required
-                  error={!!errors.city}
-                  helperText={errors.city}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <SecureTextField
-                  name="postcode"
-                  label="Postcode"
-                  value={formData.postcode}
-                  onChange={handleChange}
-                  required
-                  error={!!errors.postcode}
-                  helperText={errors.postcode}
-                />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <PasswordField />
-              </Grid>
-
-              <Grid item xs={12} md={6}>
                 <TextField
-                  {...commonTextFieldProps}
                   fullWidth
                   select
-                  name="marketing_unique"
+                  name="marketing"
                   value={formData.marketing}
                   onChange={handleChange}
                   label="How did you hear about us?"
                   disabled={otpSent}
+                  autoComplete="off"
                 >
                   {allMarketing.map((option) => (
                     <MenuItem key={option} value={option}>
@@ -478,7 +395,6 @@ const PasswordField = () => {
                         href="/policy/termandcondition"
                         target="_blank"
                         rel="noopener noreferrer"
-                        style={{ color: '#1976d2', textDecoration: 'underline' }}
                       >
                         Terms and Conditions
                       </a>
@@ -498,13 +414,12 @@ const PasswordField = () => {
             <>
               <Grid item xs={12} md={6} sx={{ mx: "auto" }}>
                 <TextField
-                  {...commonTextFieldProps}
                   fullWidth
-                  name="otp_unique"
                   value={otp}
                   onChange={(e) => setOtp(e.target.value)}
                   label="Enter Email OTP"
                   required
+                  autoComplete="off"
                 />
               </Grid>
 
@@ -523,22 +438,22 @@ const PasswordField = () => {
             </>
           )}
         </Grid>
-      </form>
 
-      <Dialog open={openDialog} onClose={handleDialogClose}>
-        <DialogTitle>Registration Successful!</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Your registration was successful. Click the button below to login.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDialogClose} color="primary" style={{ backgroundColor: "#3f51b5", color: "#fff" }}>
-            Login
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+        <Dialog open={openDialog} onClose={handleDialogClose}>
+          <DialogTitle>Registration Successful!</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Your registration was successful. Click the button below to login.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary" style={{ backgroundColor: "#3f51b5", color: "#fff" }}>
+              Login
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
+    </form>
   );
 };
 
