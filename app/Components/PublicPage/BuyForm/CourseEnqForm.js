@@ -114,7 +114,7 @@ function CourseEnqForm({
               setFrontEndTotal={setFrontEndTotal}
             />
           ) : (
-              <CourseStripePay 
+       <CourseStripePay 
                        isMobile={isMobile}
                        data={data} 
             
@@ -124,11 +124,12 @@ function CourseEnqForm({
                          selectedChild={selectedChild}
                          selectedDates={selectedDates}
                          submittedId={submittedId} totalAmount={totalAmount} />
+                        
          
           )}
         </>
       )}
-      </> : <CourseBookingFullMessage />
+      </> :  <>  {  (step == 2 || step == 3 || submitted)   && <CourseBookingFullMessage />} </>
       }
       <MySnackbar ref={snackRef} />
     </>
