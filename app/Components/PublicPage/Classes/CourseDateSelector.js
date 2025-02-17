@@ -146,11 +146,38 @@ const CourseDateSelector = ({
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="subtitle1"  fontWeight="bold">
-                Start Date: {startDate ? formatDateToShortMonth(startDate) : 'Not Selected'}
-              </Typography>
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                bgcolor: startDate ? '#e3f2fd' : '#ffebee',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                border: '1px solid',
+                borderColor: startDate ? '#90caf9' : '#ffcdd2',
+                transition: 'all 0.3s ease'
+              }}>
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight="bold"
+                  sx={{
+                    color: startDate ? '#1976d2' : '#d32f2f',
+                  }}
+                >
+                  Start Date: {startDate ? formatDateToShortMonth(startDate) : 'Not Selected'}
+                </Typography>
+              </Box>
               {frontEndTotal && (
-                <Typography variant="subtitle1" fontWeight="bold">
+                <Typography 
+                  variant="subtitle1" 
+                  fontWeight="bold"
+                  sx={{
+                    bgcolor: '#e8f5e9',
+                    color: '#2e7d32',
+                    padding: '8px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid #a5d6a7'
+                  }}
+                >
                   Total: ${frontEndTotal}
                 </Typography>
               )}
