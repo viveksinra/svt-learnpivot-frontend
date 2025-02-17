@@ -42,8 +42,10 @@ if (response.variant === 'success') {
 }
       // i want date in dd/mm/yyyy format
       const finalReceiptDate = formatMyDate(payData?.date);
+      console.log(payData)
+      const proName = payData?.mockTestId?.mockTestTitle ? payData?.mockTestId?.mockTestTitle : payData?.courseId?.courseTitle ? payData?.courseId?.courseTitle : "Purchase"
 
-      const productName = payData?.mockTestId?.mockTestTitle + " for " + payData?.childId?.childName || payData?.courseId?.courseTitle + " for " + payData?.childId?.childName || 'N/A';
+      const productName = proName + " for " + payData?.childId?.childName || payData?.courseId?.courseTitle + " for " + payData?.childId?.childName || 'N/A';
 
 
       // Load the existing PDF from local path

@@ -246,7 +246,8 @@ const EntryArea = forwardRef((props, ref) => {
     const findUserDetails = (userId) => {
         const user = allUsers.find(user => user._id === userId);
         return user || { 
-            name: 'User not found', 
+            firstName: 'User',
+            lastName: 'not found', 
             email: 'No email', 
             mobile: 'No mobile',
             _id: userId 
@@ -268,13 +269,15 @@ const EntryArea = forwardRef((props, ref) => {
                         setSelectedUser(newValue.map(user => user._id));
                     }}
                     getOptionLabel={(option) => 
-                        `${option.name || ''} (${option.email || ''}) (${option.mobile || ''})`
+                        `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) (${option.mobile || ''})`
                     }
+                    disableCloseOnSelect
                     filterOptions={(options, { inputValue }) => {
                         const searchTerms = inputValue.toLowerCase().split(' ');
                         return options.filter(option => 
                             searchTerms.every(term =>
-                                option.name?.toLowerCase().includes(term) ||
+                                option.firstName?.toLowerCase().includes(term) ||
+                                option.lastName?.toLowerCase().includes(term) ||
                                 option.email?.toLowerCase().includes(term) ||
                                 option.mobile?.toLowerCase().includes(term)
                             )
@@ -288,11 +291,23 @@ const EntryArea = forwardRef((props, ref) => {
                             placeholder="Search by name, email or mobile"
                         />
                     )}
-                    renderOption={(props, option) => (
-                        <li {...props} key={option._id}>
-                            {option.name} ({option.mobile}) ({option.email})
-                        </li>
-                    )}
+                    renderOption={(props, option) => {
+                        const isSelected = selectedUser.includes(option._id);
+                        return (
+                            <li {...props} key={option._id}>
+                                <Checkbox
+                                    checked={isSelected}
+                                    style={{ marginRight: 8 }}
+                                />
+                                <Typography>
+                                    {option.firstName} {option.lastName}
+                                    <Typography component="span" color="textSecondary" sx={{ ml: 1 }}>
+                                        ({option.mobile}) • {option.email}
+                                    </Typography>
+                                </Typography>
+                            </li>
+                        );
+                    }}
                     isOptionEqualToValue={(option, value) => option._id === value._id}
                 />
             </Grid>
