@@ -190,7 +190,7 @@ const OneClass = ({ data }) => {
               }
             }}
           >
-            £{data.oneClassPrice} Per Class
+            {data.oneClassPrice} Per Class
           </Typography>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
