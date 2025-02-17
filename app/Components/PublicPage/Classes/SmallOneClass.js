@@ -130,15 +130,7 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
                 </Typography>
               )}
             </Box>
-      <Box sx={{
-              backgroundColor: totalAmount ? '#a0ff69' : '#FCD34D',
-              padding: '8px 16px',
-              borderRadius: '8px',
-            }}>
-              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-             { totalAmount?  `${ `Total: £${totalAmount}`}`:`£${data.oneClassPrice} Per Class`}
-              </Typography>
-            </Box>
+   
           </Box>
 
 
@@ -175,6 +167,15 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
                 }}
               />
             )}
+               <Box sx={{
+              backgroundColor: totalAmount ? '#a0ff69' : '#FCD34D',
+              padding: '8px 16px',
+              borderRadius: '8px',
+            }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+             { totalAmount?  `${ `Total: £${totalAmount}`}`:`${data.oneClassPrice} Per Class`}
+              </Typography>
+            </Box>
           </Box>
 
           {/* Selected Schedules Button */}

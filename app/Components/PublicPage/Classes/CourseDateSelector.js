@@ -146,7 +146,7 @@ const CourseDateSelector = ({
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="subtitle1" color="textSecondary">
+              <Typography variant="subtitle1"  fontWeight="bold">
                 Start Date: {startDate ? formatDateToShortMonth(startDate) : 'Not Selected'}
               </Typography>
               {frontEndTotal && (
