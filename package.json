@@ -45,6 +45,7 @@
     "react-date-range": "^1.4.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
+    "react-quill": "^2.0.0",
     "swiper": "^11.1.1",
     "uuid": "^9.0.0"
   }

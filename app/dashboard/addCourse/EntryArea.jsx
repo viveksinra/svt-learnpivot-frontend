@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { TextField, Grid, ButtonGroup, Button, Typography, Accordion, AccordionSummary, AccordionDetails, IconButton, InputAdornment, CircularProgress, Stack, Checkbox, FormControlLabel, FormControl, InputLabel, OutlinedInput, FilledInput } from '@mui/material';
+import { TextField, Grid, ButtonGroup, Button, Typography, Accordion, AccordionSummary, AccordionDetails, IconButton, InputAdornment, CircularProgress, Stack, Checkbox, FormControlLabel, FormControl, InputLabel, OutlinedInput, FilledInput, Switch } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { FcNoIdea, FcOk, FcExpand } from "react-icons/fc";
 import { MdDeleteForever } from "react-icons/md";
@@ -8,6 +8,10 @@ import { dashboardService, myCourseService } from "../../services";
 import { useImgUpload } from "@/app/hooks/auth/useImgUpload";
 import DateSelector from './dateSelector';
 import MultiImageUpload from '@/app/Components/Common/MultiImageUpload';
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
 
 const EntryArea = forwardRef((props, ref) => {
     const snackRef = useRef();
@@ -35,6 +39,8 @@ const EntryArea = forwardRef((props, ref) => {
     const [selectedUser, setSelectedUser] = useState([]);
     const [allUsers, setAllUsers] = useState([]);
     const [onlySelectedParent, setOnlySelectedParent] = useState(false);
+    const [restrictOnTotalSeat, setRestrictOnTotalSeat] = useState(false);
+    const [viewMode, setViewMode] = useState('editor'); // 'editor', 'html', or 'preview'
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -49,7 +55,8 @@ const EntryArea = forwardRef((props, ref) => {
         getAllUsers();
     }, []);
 
-    const [PAccordion, setPAccordion] = useState(false);
+    const [privateAccordion, setPrivateAccordion] = useState(false);
+    const [descriptionAccordion, setDescriptionAccordion] = useState(false);
     const allClass = [
         { label: "Class 4", id: "4" },
          { label: "Class 5", id: "5" },
@@ -82,7 +89,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -105,10 +112,11 @@ const EntryArea = forwardRef((props, ref) => {
                     setTotalSeat(totalSeat);
                     setFilledSeats(filledSeat);
                     setShowRemaining(showRemaining);
-                    setPAccordion(true);
+                    setPrivateAccordion(true);
                     setOnlySelectedParent(selectedParent || false);
                     setSelectedUser(selectedUsers || []);
-                    setPAccordion(true);
+                    setRestrictOnTotalSeat(restrictSeat || false);
+                    setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
                     snackRef.current.handleSnack(res);
@@ -150,9 +158,10 @@ const EntryArea = forwardRef((props, ref) => {
         setFilledSeats("");
         setShowRemaining(false);
         setImageUrls([""]);
-        setPAccordion(true);
+        setPrivateAccordion(true);
         setSelectedUser([]);
         setOnlySelectedParent(false);
+        setRestrictOnTotalSeat(false);
     };
     
 
@@ -174,6 +183,7 @@ const EntryArea = forwardRef((props, ref) => {
                     duration,
                     fullDescription,
                     totalSeat,
+                    restrictOnTotalSeat,
                     filledSeat,
                     showRemaining,
                     imageUrls,
@@ -314,6 +324,27 @@ const EntryArea = forwardRef((props, ref) => {
         );
     };
 
+    const modules = {
+        toolbar: [
+            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'align': [] }],
+            ['link', 'image'],
+            ['clean']
+        ],
+    };
+
+    const formats = [
+        'header',
+        'bold', 'italic', 'underline', 'strike',
+        'list', 'bullet',
+        'color', 'background',
+        'align',
+        'link', 'image'
+    ];
+
     return (
         <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20 }}>
             <Grid sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between" }}>
@@ -440,18 +471,38 @@ const EntryArea = forwardRef((props, ref) => {
                 
          
             </Grid>
-            <Accordion expanded={PAccordion} style={{marginBottom:"30px"}}>
+            <Accordion expanded={privateAccordion} style={{marginBottom:"30px"}}>
                 <AccordionSummary
                     expandIcon={<IconButton > <FcExpand /> </IconButton>}
-                    aria-controls="ProspectInformation"
-                    id="ProspectInformation"
-                    onClick={() => setPAccordion(!PAccordion)}
+                    aria-controls="PrivateInformation"
+                    id="PrivateInformation"
+                    onClick={() => setPrivateAccordion(!privateAccordion)}
                 >
-                    <Typography>Additional Optional Information</Typography>
+                    <Typography>Make it Private or Public</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                <Grid container spacing={2}>
-                        <Grid item xs={12} md={4}>
+         <Grid container spacing={2}>
+                <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={restrictOnTotalSeat}
+                           onChange={() => setRestrictOnTotalSeat(!restrictOnTotalSeat)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Restrict On Total-Seat`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={8}>
+                    <TextField 
+                    fullWidth
+                     label="Total Seat" 
+                     value={totalSeat} 
+                     onChange={(e) => setTotalSeat(e.target.value)} 
+                     inputProps={{ minLength: "1", maxLength: "5" }} 
+                     placeholder='Total Seat' variant="outlined" 
+                     />
+                </Grid>                     
+                <Grid item xs={12} md={4}>
                      <FormControlLabel control={
                            <Checkbox
                            checked={onlySelectedParent}
@@ -463,41 +514,109 @@ const EntryArea = forwardRef((props, ref) => {
                 </Grid>
                 <Grid item xs={12} md={8}>
                 {renderUserSelect()}
-                        </Grid>                     
-                        </Grid>
-                  {"ab"==="bb" &&  <Grid container spacing={2}>
+                </Grid>                     
+         </Grid>
+       
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={descriptionAccordion} style={{marginBottom:"30px"}}>
+                <AccordionSummary
+                    expandIcon={<IconButton > <FcExpand /> </IconButton>}
+                    aria-controls="DescriptionInformation"
+                    id="DescriptionInformation"
+                    onClick={() => setDescriptionAccordion(!descriptionAccordion)}
+                >
+                    <Typography>Long Rich Text Description</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <TextField label="Full Description" value={fullDescription} inputProps={{ maxLength: "4000" }} onChange={(e) => setFullDescription(e.target.value)} placeholder="Write the Long Description about the coursees" fullWidth multiline rows={4} variant="outlined" />
+                            <FormControl component="fieldset">
+                                <RadioGroup
+                                    row
+                                    value={viewMode}
+                                    onChange={(e) => setViewMode(e.target.value)}
+                                >
+                                    <FormControlLabel 
+                                        value="editor" 
+                                        control={<Radio />} 
+                                        label="Editor" 
+                                    />
+                                    <FormControlLabel 
+                                        value="html" 
+                                        control={<Radio />} 
+                                        label="HTML" 
+                                    />
+                                    <FormControlLabel 
+                                        value="preview" 
+                                        control={<Radio />} 
+                                        label="Preview" 
+                                    />
+                                </RadioGroup>
+                            </FormControl>
                         </Grid>
-                     <Grid item xs={12} md={4}>
-                    <TextField 
-                    label="Total Seat" variant="filled"
-                     color="success" focused 
-                     type="Number"
-                     value={totalSeat}
-                     onChange={(e) => setTotalSeat(e.target.value)}
-                     />                   
-                </Grid>
-                     <Grid item xs={12} md={4}>
-                    <TextField 
-                    label="Filled Seats" variant="filled"
-                     color="success" focused 
-                     type="Number"
-                     value={filledSeat}
-                     onChange={(e) => setFilledSeats(e.target.value)}
-                     />                   
-                </Grid>
-                     <Grid item xs={12} md={4}>
-                     <FormControlLabel control={
-                           <Checkbox
-                           checked={showRemaining}
-                           onChange={() => setShowRemaining(!showRemaining)}
-                           inputProps={{ 'aria-label': 'controlled' }}
-                         />               
-                     } label={`Show Remaining:  ${totalSeat-filledSeat}   Seats`} />
-                  
-                </Grid>
-                    </Grid>}
+                        <Grid item xs={12}>
+                            {viewMode === 'editor' && (
+                                <div style={{ backgroundColor: '#f8f9fa' }}>
+                                    <ReactQuill
+                                        theme="snow"
+                                        value={fullDescription}
+                                        onChange={setFullDescription}
+                                        modules={modules}
+                                        formats={formats}
+                                        style={{ 
+                                            height: '300px', 
+                                            marginBottom: '50px',
+                                            backgroundColor: '#fff'
+                                        }}
+                                        placeholder="Write the Long Description about the courses..."
+                                    />
+                                </div>
+                            )}
+                            {viewMode === 'html' && (
+                                <TextField
+                                    fullWidth
+                                    multiline
+                                    rows={12}
+                                    value={fullDescription}
+                                    onChange={(e) => setFullDescription(e.target.value)}
+                                    variant="outlined"
+                                    InputProps={{
+                                        style: { 
+                                            fontFamily: 'monospace',
+                                            backgroundColor: '#282c34',
+                                            color: '#abb2bf',
+                                        }
+                                    }}
+                                    sx={{
+                                        '& .MuiOutlinedInput-root': {
+                                            '& fieldset': {
+                                                borderColor: '#3e4451',
+                                            },
+                                            '&:hover fieldset': {
+                                                borderColor: '#528bff',
+                                            },
+                                            '&.Mui-focused fieldset': {
+                                                borderColor: '#528bff',
+                                            },
+                                        },
+                                    }}
+                                />
+                            )}
+                            {viewMode === 'preview' && (
+                                <div 
+                                    style={{ 
+                                        border: '1px solid #ddd', 
+                                        borderRadius: '4px', 
+                                        padding: '16px',
+                                        minHeight: '300px',
+                                        backgroundColor: '#fff'
+                                    }}
+                                    dangerouslySetInnerHTML={{ __html: fullDescription }}
+                                />
+                            )}
+                        </Grid>
+                    </Grid>
                 </AccordionDetails>
             </Accordion>
             <DateSelector allBatch={allBatch} setAllBatch={setAllBatch} />
