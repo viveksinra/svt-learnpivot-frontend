@@ -20,6 +20,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { styled } from '@mui/material/styles';
 import FaqCom from "../../ITStartup/Faq/FaqCom";
 import CloseIcon from '@mui/icons-material/Close';
+import DOMPurify from 'dompurify';
 
 // Styled button with animation
 const AnimatedButton = styled('button')(({ theme }) => ({
@@ -115,17 +116,8 @@ const OneClass = ({ data }) => {
               </Link>
            
             </div>
+ 
 
-            <div style={{
-              backgroundColor: '#FCD34D',
-              padding: '16px',
-              borderRadius: '8px',
-              transform: 'rotate(12deg)',
-            }}>
-              <Typography variant="h5" sx={{ fontWeight: 'bold' }}>
-                £{data.oneClassPrice }
-              </Typography>
-            </div>
           </div>
 
           <Typography
@@ -140,6 +132,7 @@ const OneClass = ({ data }) => {
               >
                 {data.shortDescription || 'Full Course'}
               </Typography>
+        
 
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
             
@@ -175,6 +168,31 @@ const OneClass = ({ data }) => {
               />
             )}
           </div>
+          <Typography
+            sx={{
+              backgroundColor: '#F8FAFC',
+              color: '#0F172A',
+              p: '12px 16px',
+              mt: 2,
+              borderRadius: '8px',
+              fontSize: '1rem',
+              maxWidth: 'fit-content',
+              fontWeight: '600',
+              border: '1px solid #E2E8F0',
+              display: 'flex',
+              alignItems: 'center',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+              '&::before': {
+                content: '"£"',
+                color: '#059669',
+                fontWeight: '700',
+                marginRight: '4px',
+                fontSize: '1.1rem'
+              }
+            }}
+          >
+            {data.oneClassPrice} Per Class
+          </Typography>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
             <button 
@@ -265,6 +283,44 @@ const OneClass = ({ data }) => {
           />
         </DialogTitle>
         <DialogContent>
+          <div 
+            className="course-description"
+            dangerouslySetInnerHTML={{ 
+              __html: DOMPurify.sanitize(data.fullDescription) 
+            }}
+            style={{
+              padding: '16px',
+              '& h1': {
+                fontSize: '1.5rem',
+                fontWeight: 'bold',
+                marginBottom: '1rem',
+                color: '#1F2937'
+              },
+              '& h2': {
+                fontSize: '1.25rem',
+                fontWeight: 'bold',
+                marginBottom: '0.75rem',
+                color: '#374151'
+              },
+              '& p': {
+                marginBottom: '1rem',
+                lineHeight: '1.6',
+                color: '#4B5563'
+              },
+              '& ul, & ol': {
+                marginLeft: '1.5rem',
+                marginBottom: '1rem'
+              },
+              '& li': {
+                marginBottom: '0.5rem'
+              },
+              '& a': {
+                color: '#2563EB',
+                textDecoration: 'underline'
+              }
+            }}
+          />
+          
           <div style={{ marginTop: '16px' }}>
             {data.allBatch
               .filter(batch => !batch.hide)
