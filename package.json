@@ -25,6 +25,7 @@
     "axios": "^1.4.0",
     "bcrypt": "^5.0.1",
     "date-fns": "^2.30.0",
+    "dompurify": "^3.2.4",
     "downloadjs": "^1.4.7",
     "fslightbox-react": "^1.7.6",
     "ideal-postcodes-core": "^1.0.0",
