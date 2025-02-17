@@ -1,15 +1,16 @@
 "use client"
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import BuyComponent from '../../../Components/PublicPage/BuyForm/BuyComponent';
 import { CircularProgress, Container } from '@mui/material';
 import NoResult from '@/app/Components/NoResult/NoResult';
 import { myCourseService } from "../../../services";
-import Footer from '@/app/Components/Footer/Footer';
 import Navbar from "../../../Components/ITStartup/Common/Navbar/Navbar";
+import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
 
 export default function OneClassBuy({ params }) {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState({});
+  const snackRef = useRef();
 
   useEffect(() => {
     // Getting date from Voucher in URL
@@ -58,6 +59,7 @@ export default function OneClassBuy({ params }) {
     
     </Container>
   
+    <MySnackbar ref={snackRef} />
 
     </main>
   );

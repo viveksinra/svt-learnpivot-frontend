@@ -8,6 +8,7 @@ import Cookies from "js-cookie";
 import CourseDateSelector from "../Classes/CourseDateSelector";
 import CourseStripePay from "../../courseStripePay/CourseStripePay";
 import CourseChildSelector from "../LoginSignUp/CourseChildSelector";
+import CourseBookingFullMessage from "./CourseBookingFullMessage";
 
 function CourseEnqForm({ 
   isMobile, 
@@ -37,6 +38,7 @@ function CourseEnqForm({
   const snackRef = useRef();
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
+  const [canBuy, setCanBuy] = useState(!data.onlySelectedParent);
 
   useEffect(() => {
     if(step !== 3) {
@@ -49,6 +51,22 @@ function CourseEnqForm({
   }, [state, currentUser]);
 
   useEffect(() => {
+    if (state?.isAuthenticated && currentUser && state.id) {
+      // check if user can buy course by checking data.selectedUsers contain state.id
+      if ( data.onlySelectedParent != true ||  data.selectedUsers.includes(state.id)) {
+      setCanBuy(true);
+      }else {
+        setCanBuy(false);
+      }
+
+      console.log("canBuy", canBuy);
+      console.log("data.onlySelectedParent", data.onlySelectedParent);
+      console.log("data.selectedUsers", data.selectedUsers);
+      console.log("state.id", state.id);
+    } 
+  }, [state, currentUser,data]);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [submitted, step]);
 
@@ -57,11 +75,10 @@ function CourseEnqForm({
     setSelectedChild(child);
     setSelectedDates([]);  // Clear dates when child changes
   };
-
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
-      {step === 2 && (
+{canBuy ? <>      {step === 2 && (
         <CourseChildSelector 
           isMobile={isMobile}
           title={data.courseTitle} 
@@ -111,6 +128,8 @@ function CourseEnqForm({
           )}
         </>
       )}
+      </> : <CourseBookingFullMessage />
+      }
       <MySnackbar ref={snackRef} />
     </>
   );
