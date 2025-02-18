@@ -40,6 +40,23 @@ const CourseDateSelector = ({
 }) => {
   const today = new Date();
 console.log("CourseDateSelector",data);
+  
+  const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
+    data.allBatch[0].oneBatch.length === 1 && 
+    !data.allBatch[0].hide && 
+    !data.allBatch[0].bookingFull;
+
+  useEffect(() => {
+    if (singleBatchWithOneDate) {
+      const batch = data.allBatch[0];
+      const date = batch.oneBatch[0];
+      setSelectedBatches([batch._id]);
+      setSelectedDates([date]);
+      setStartDate(date);
+      setAvailableDates([date]);
+    }
+  }, [data?.allBatch]);
+
   useEffect(() => {
     const selectedDatesCount = selectedDates?.length || 0;
     let total = 0;
@@ -158,7 +175,7 @@ console.log("CourseDateSelector",data);
       </Grid>
 
       {/* Start Date Selector */}
-      {!data.restrictStartDateChange && availableDates?.length > 0 && (
+      {!data.restrictStartDateChange && availableDates?.length > 0 && !singleBatchWithOneDate && (
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -223,9 +240,24 @@ console.log("CourseDateSelector",data);
       )}
 
       {/* Batch Selection */}
-      {data?.allBatch
-        .filter(batch => !batch.hide)
-        .map((batch, batchIndex) => (
+      {singleBatchWithOneDate ? (
+        <Grid item xs={12}>
+          <Paper elevation={2} sx={{ p: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Typography variant="h6">
+                Selected Class Date
+              </Typography>
+              <CheckCircleIcon color="success" />
+            </Box>
+            <Typography variant="body1" sx={{ mt: 1 }}>
+              {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}
+            </Typography>
+          </Paper>
+        </Grid>
+      ) : (
+        data?.allBatch
+          .filter(batch => !batch.hide)
+          .map((batch, batchIndex) => (
         <Grid item xs={12} key={batch._id}>
           <Paper elevation={2} sx={{ p: 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -271,11 +303,12 @@ console.log("CourseDateSelector",data);
             </Grid>
           </Paper>
         </Grid>
-      ))}
+      )))}
 
       {/* Legend - Shown once at the bottom */}
-      <Grid item xs={12}>
-        <Paper elevation={1} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
+      {!singleBatchWithOneDate && (
+        <Grid item xs={12}>
+          <Paper elevation={1} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
   
           <Grid container spacing={2}>
             <Grid item xs={4}>
@@ -299,6 +332,7 @@ console.log("CourseDateSelector",data);
           </Grid>
         </Paper>
       </Grid>
+      )}
 
       {/* Payment Button */}
       <Box
