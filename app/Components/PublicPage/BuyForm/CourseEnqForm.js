@@ -9,6 +9,7 @@ import CourseDateSelector from "../Classes/CourseDateSelector";
 import CourseStripePay from "../../courseStripePay/CourseStripePay";
 import CourseChildSelector from "../LoginSignUp/CourseChildSelector";
 import CourseBookingFullMessage from "./CourseBookingFullMessage";
+import { myCourseService } from "@/app/services";
 
 function CourseEnqForm({ 
   isMobile, 
@@ -39,6 +40,7 @@ function CourseEnqForm({
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
   const [canBuy, setCanBuy] = useState(!data.onlySelectedParent);
+  const [isAvailable, setIsAvailable] = useState(true);
 
   useEffect(() => {
     if(step !== 3) {
@@ -53,18 +55,23 @@ function CourseEnqForm({
   useEffect(() => {
     if (state?.isAuthenticated && currentUser && state.id) {
       // check if user can buy course by checking data.selectedUsers contain state.id
+      checkForAvailableSeat();
       if ( data.onlySelectedParent != true ||  data.selectedUsers.includes(state.id)) {
       setCanBuy(true);
       }else {
         setCanBuy(false);
       }
 
-      console.log("canBuy", canBuy);
-      console.log("data.onlySelectedParent", data.onlySelectedParent);
-      console.log("data.selectedUsers", data.selectedUsers);
-      console.log("state.id", state.id);
     } 
   }, [state, currentUser,data]);
+
+  const checkForAvailableSeat = async() => {
+    let res = await myCourseService.checkIfSeatAvailable(`${data._id}`);
+    console.log(res);
+    if (res?.isAvailable === false) {
+      setIsAvailable(false);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -78,7 +85,9 @@ function CourseEnqForm({
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
-{canBuy ? <>      {step === 2 && (
+{((!canBuy || !isAvailable) && step !==1  ) &&  <CourseBookingFullMessage /> 
+      }  
+  {(canBuy && isAvailable && step === 2) && (
         <CourseChildSelector 
           isMobile={isMobile}
           title={data.courseTitle} 
@@ -89,7 +98,7 @@ function CourseEnqForm({
           setStep={setStep}
         />
       )}
-      {step === 3 && (
+      {(canBuy && isAvailable && step === 3) && (
         <>
           {!submitted ? (
             <CourseDateSelector
@@ -129,8 +138,7 @@ function CourseEnqForm({
           )}
         </>
       )}
-      </> :  <>  {  (step == 2 || step == 3 || submitted)   && <CourseBookingFullMessage />} </>
-      }
+      
       <MySnackbar ref={snackRef} />
     </>
   );
