@@ -7,89 +7,74 @@ import {
   AccordionItemButton
 } from "react-accessible-accordion";
 
-const courseFaqData = [
+const courseFaqData = [ 
   {
       id: "1",
-      question: "What subjects are covered in the courses?",
-      answer: `<p>Our courses cover core subjects like Mathematics and English.</p>
-      <p>Each course is designed to help students develop a strong foundation and prepare for exams effectively.</p>`
+      question: "When are the courses held?",
+      answer: `<p>Please refer to the course information for specific dates and times.</p>`
   },
   {
       id: "2",
-      question: "When and how will I receive course materials?",
-      answer: `<p>Course materials, including notes and practice exercises, will be shared weekly.</p>
-      <p>They will be sent via email and uploaded to our online learning platform.</p>`
+      question: "Where are the courses held?",
+      answer: `<p>All courses are conducted online via the Zoom platform.</p>
+               <p>This ensures an interactive learning environment with personalized attention and support for every student.</p>`
   },
   {
       id: "3",
-      question: "Are the classes online or in-person?",
-      answer: `<p>All classes are conducted online via Zoom.</p>
-      <p>Students will receive Zoom links before each class session.</p>`
+      question: "Can participants leave the course at any time?",
+      answer: `<p><strong>Withdrawal Policy</strong></p>
+               <p>Yes, participants can withdraw from the course at any time with a 6-working-day notice. 
+               A refund will be issued for all remaining classes. However, breaks in between the course are not permitted.</p>`
   },
   {
       id: "4",
-      question: "What should students bring for the classes?",
-      answer: `<p>Students should have the following items ready:</p>
-      <ul>
-        <li>A notebook and pen/pencil</li>
-        <li>A stable internet connection</li>
-        <li>A device with Zoom installed</li>
-      </ul>`
+      question: "What are the rules for the courses?",
+      answer: `<p>To maintain a productive and interactive learning environment, the following rules apply:</p>
+               <ul>
+                 <li><strong>Device Requirement:</strong> Students must log in using a laptop. Tablets and phones are strictly prohibited.</li>
+                 <li><strong>Internet Connectivity:</strong> A stable and high-speed internet connection is required.</li>
+                 <li><strong>Camera & Microphone:</strong> Both must be fully functional to ensure active participation.</li>
+                 <li><strong>Quiet Environment:</strong> Students should be seated alone in a quiet room, free from background noise.</li>
+                 <li><strong>Punctuality:</strong> Students must join on time as the Zoom classes will be locked after the scheduled start.</li>
+               </ul>`
   },
   {
       id: "5",
-      question: "Is there a refund policy?",
-      answer: `<p>We have a <strong>strict no-refund policy</strong>.</p>
-      <p>Once payment is made, no cancellations or refunds will be processed.</p>`
+      question: "What are the weekly responsibilities for parents?",
+      answer: `<p>To ensure a smooth learning experience, parents are responsible for:</p>
+               <ul>
+                 <li><strong>Checking Equipment:</strong> Ensure the laptop and internet connection are functioning properly.</li>
+                 <li><strong>Printing Materials:</strong> Print the required worksheets posted in the WhatsApp group a day before class.</li>
+                 <li><strong>Monitoring Homework:</strong> Ensure homework is completed on time and submit the child’s score within 3 days.</li>
+                 <li><strong>Communication:</strong> General questions should be posted in the WhatsApp group; personal concerns should be directed to the tutor privately.</li>
+               </ul>`
   },
   {
       id: "6",
-      question: "Are the sessions recorded?",
-      answer: `<p>Yes, all sessions are recorded and will be available for students to review.</p>
-      <p>Recordings will be accessible for a limited time after each session.</p>`
+      question: "Whom and where should I contact in case of questions related to the course?",
+      answer: `<p>Once the course starts, parents will be added to a designated WhatsApp group where they can post questions.</p>
+               <p>For personal concerns, parents can reach out to the tutor privately.</p>`
   },
   {
       id: "7",
-      question: "How is student progress tracked?",
-      answer: `<p>Regular assessments and quizzes will be conducted.</p>
-      <p>Feedback and performance reports will be provided periodically.</p>`
+      question: "Privacy & Data Protection",
+      answer: `<p>At Chelmsford 11 Plus, we prioritize your privacy and the security of your personal information.</p>
+               <ul>
+                 <li>Any personal data collected is strictly confidential and used only for service delivery.</li>
+                 <li>We do not share, sell, or disclose your data to third parties unless required by law.</li>
+                 <li>Industry-standard security measures are in place to prevent unauthorized access, misuse, or disclosure.</li>
+               </ul>
+               <p>For further details, please refer to our Privacy Policy.</p>`
   },
   {
       id: "8",
-      question: "What if a student misses a class?",
-      answer: `<p>If a student misses a class, they can access the recorded session later.</p>
-      <p>No make-up classes will be offered.</p>`
-  },
-  {
-      id: "9",
-      question: "How can I contact the instructor?",
-      answer: `<p>Students and parents can reach out via email or WhatsApp for any queries.</p>
-      <p>Office hours for queries will be shared at the beginning of the course.</p>`
-  },
-  {
-      id: "10",
-      question: "What is the course schedule and duration?",
-      answer: `<p>Each course follows a structured schedule, with specific start and end dates.</p>
-      <p>Classes are held once a week for a set number of weeks.</p>`
-  },
-  {
-      id: "11",
-      question: "When is the payment due?",
-      answer: `<p>Payments must be made before the course begins.</p>
-      <p>Specific payment deadlines will be communicated during enrollment.</p>`
-  },
-  {
-      id: "12",
-      question: "Do you provide special accommodations?",
-      answer: `<p>We strive to accommodate students with special needs.</p>
-      <p>Please contact us in advance to discuss any required adjustments.</p>`
-  },
-  {
-      id: "13",
-      question: "What if I have further questions?",
-      answer: `<p>For any additional questions, feel free to reach out via email or WhatsApp.</p>`
+      question: "Copyright Policy",
+      answer: `<p>To protect our educational materials, all participants must sign a Copyright Agreement.</p>
+               <p>Any violation of our copyright policies will result in legal action and severe penalties.</p>
+               <p>A declaration form will be provided, which must be printed, signed, and returned before the course begins.</p>`
   }
 ];
+
 
 const csseMockFaqData = [
   {
