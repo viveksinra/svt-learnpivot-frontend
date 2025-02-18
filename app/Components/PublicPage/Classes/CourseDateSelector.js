@@ -39,7 +39,7 @@ const CourseDateSelector = ({
   setFrontEndTotal
 }) => {
   const today = new Date();
-
+console.log("CourseDateSelector",data);
   useEffect(() => {
     const selectedDatesCount = selectedDates?.length || 0;
     let total = 0;
@@ -55,7 +55,17 @@ const CourseDateSelector = ({
     }
   }, [selectedDates, data?.oneClassPrice, setFrontEndTotal]);
 
+  useEffect(() => {
+    if (data.forcefullBuyCourse && data?.allBatch) {
+      const availableBatchIds = data.allBatch
+        .filter(b => !b.hide && !b.bookingFull)
+        .map(b => b._id);
+      setSelectedBatches(availableBatchIds);
+    }
+  }, [data.forcefullBuyCourse, data?.allBatch]);
+
   const handleBatchSelect = (batchId) => {
+    if (data.forcefullBuyCourse) return;
     let updatedBatches;
     if (selectedBatches.includes(batchId)) {
       updatedBatches = selectedBatches.filter((id) => id !== batchId);
@@ -142,7 +152,7 @@ const CourseDateSelector = ({
       </Grid>
 
       {/* Start Date Selector */}
-      {availableDates?.length > 0 && (
+      {!data.restrictStartDateChange && availableDates?.length > 0 && (
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -216,7 +226,7 @@ const CourseDateSelector = ({
               <Checkbox
                 checked={selectedBatches.includes(batch._id)}
                 onChange={() => handleBatchSelect(batch._id)}
-                disabled={batch.bookingFull}
+                disabled={batch.bookingFull || data.forcefullBuyCourse}
               />
               <Typography variant="h6" sx={{ mr: 2 }}>
                 Set {batchIndex + 1}
