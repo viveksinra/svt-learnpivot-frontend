@@ -175,7 +175,7 @@ console.log("CourseDateSelector",data);
       </Grid>
 
       {/* Start Date Selector */}
-      {!data.restrictStartDateChange && availableDates?.length > 0 && !singleBatchWithOneDate && (
+      { availableDates?.length > 0 && !singleBatchWithOneDate && (
         <Grid item xs={12}>
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
@@ -215,7 +215,7 @@ console.log("CourseDateSelector",data);
                 </Typography>
               )}
             </Box>
-            <FormControl fullWidth variant="outlined" size="small">
+       {  (!data.restrictStartDateChange && !data.forcefullBuyCourse) &&   <FormControl fullWidth variant="outlined" size="small">
               <Select
                 value={startDate}
                 onChange={handleStartDateChange}
@@ -234,7 +234,7 @@ console.log("CourseDateSelector",data);
                   </MenuItem>
                 ))}
               </Select>
-            </FormControl>
+            </FormControl>}
           </Paper>
         </Grid>
       )}
