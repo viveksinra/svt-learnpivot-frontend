@@ -12,12 +12,14 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Divider
+  Divider,
+  IconButton
 } from '@mui/material';
 import {
   ErrorOutline,
   Email,
-  FiberManualRecord
+  FiberManualRecord,
+  Close
 } from '@mui/icons-material';
 
 const CourseBookingFullMessage = () => {
@@ -25,9 +27,13 @@ const CourseBookingFullMessage = () => {
     window.location.href = 'mailto:support@chelmsford11plus.com';
   };
 
+  const handleCloseClick = () => {
+    window.location.href = '/course';
+  };
+
   return (
     <Box sx={{ maxWidth: 500, margin: '0 auto', p: 2 }}>
-      <Card elevation={3}>
+      <Card elevation={3} sx={{ position: 'relative' }}>
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <ErrorOutline color="warning" sx={{ mr: 1 }} />
@@ -60,13 +66,15 @@ const CourseBookingFullMessage = () => {
         <Divider />
 
         <CardActions sx={{ padding: 2 }}>
-          <Box sx={{ width: '100%' }}>
+          <Box sx={{ width: '100%', display: 'flex', gap: 2 }}>
             <Button
               variant="contained"
               startIcon={<Email />}
               fullWidth
               onClick={handleEmailClick}
               sx={{
+                backgroundColor: 'green',
+                '&:hover': { backgroundColor: 'darkgreen' },
                 whiteSpace: 'nowrap',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
@@ -89,20 +97,25 @@ const CourseBookingFullMessage = () => {
               >
                 Contact Support
               </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  display: 'block',
-                  width: '100%',
-                  textAlign: 'center',
-                  color: 'inherit'
-                }}
-              >
-                support@chelmsford11plus.com
-              </Typography>
+         
+            </Button>
+            <Button
+              onClick={handleCloseClick}
+              sx={{
+                color: 'white',
+                backgroundColor: 'red',
+                '&:hover': { backgroundColor: 'darkred' }
+              }}
+            >
+              Close
             </Button>
           </Box>
         </CardActions>
+        <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
+          <IconButton aria-label="close" onClick={handleCloseClick}>
+            <Close />
+          </IconButton>
+        </Box>
       </Card>
     </Box>
   );

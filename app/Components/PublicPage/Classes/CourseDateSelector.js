@@ -131,7 +131,7 @@ console.log("CourseDateSelector",data);
   return (
     <Grid container spacing={2}>
       {/* Header */}
-      <Grid item xs={12}>
+      <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' , marginTop: '10px'}}>
         <Button
           startIcon={<ArrowBackIcon />}
           onClick={() => setStep(2)}
@@ -147,7 +147,8 @@ console.log("CourseDateSelector",data);
           Back
         </Button>
         <Typography variant="h7" sx={{ width: isMobile ? "70%" : '80%', fontWeight: 400 }}>
-          Book Courses for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+        Book {data.courseTitle} for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+
         </Typography>
       </Grid>
 

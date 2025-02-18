@@ -165,7 +165,7 @@ export default function CourseCheckoutForm({data, setClientSecret, selectedChild
             Back
           </Button>
           <Typography variant="h7" sx={{ width: isMobile?"70%":'80%', fontWeight: 400 }}>
-            Book {data.courseType?.label} Course for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+            Book {data.courseTitle} for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
           </Typography>
         </Box>
         <PaymentElement id="payment-element" options={paymentElementOptions} />
