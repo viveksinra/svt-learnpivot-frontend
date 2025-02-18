@@ -344,7 +344,8 @@ const OneClass = ({ data }) => {
                   alignItems: 'center',
                   marginBottom: '12px'
                 }}>
-                  <Typography 
+           {  data.allBatch.length > 1 &&    
+            <Typography 
                     variant="h6" 
                     sx={{ 
                       color: '#1F2937',
@@ -353,6 +354,7 @@ const OneClass = ({ data }) => {
                   >
                     Set {batchIndex + 1}
                   </Typography>
+                  }
                   {batch.bookingFull && (
                     <Chip
                       label="Fully Booked"
