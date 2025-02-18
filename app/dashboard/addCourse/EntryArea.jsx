@@ -41,6 +41,8 @@ const EntryArea = forwardRef((props, ref) => {
     const [onlySelectedParent, setOnlySelectedParent] = useState(false);
     const [restrictOnTotalSeat, setRestrictOnTotalSeat] = useState(false);
     const [viewMode, setViewMode] = useState('editor'); // 'editor', 'html', or 'preview'
+    const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
+    const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -89,7 +91,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -116,6 +118,8 @@ const EntryArea = forwardRef((props, ref) => {
                     setOnlySelectedParent(selectedParent || false);
                     setSelectedUser(selectedUsers || []);
                     setRestrictOnTotalSeat(restrictSeat || false);
+                    setRestrictStartDateChange(restrictStartDateChange || false);
+                    setForcefullBuyCourse(forcefullBuyCourse || false);
                     setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
@@ -162,6 +166,8 @@ const EntryArea = forwardRef((props, ref) => {
         setSelectedUser([]);
         setOnlySelectedParent(false);
         setRestrictOnTotalSeat(false);
+        setRestrictStartDateChange(false);
+        setForcefullBuyCourse(false);
     };
     
 
@@ -189,7 +195,9 @@ const EntryArea = forwardRef((props, ref) => {
                     imageUrls,
                     isPublished,
                     onlySelectedParent,
-                    selectedUsers: selectedUser // Add selected users to the submission
+                    selectedUsers: selectedUser, // Add selected users to the submission
+                    restrictStartDateChange,
+                    forcefullBuyCourse,
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -206,20 +214,6 @@ const EntryArea = forwardRef((props, ref) => {
         },
         handleClear: () => handleClear()
     }));
-    const imgUpload  = async (e) => {
-        setLoadingDoc(true);
-        let url = await useImgUpload(e);
-        if (url) {
-          setImageUrls(url);
-          setLoadingDoc(false);
-        } else {
-          snackRef.current.handleSnack({
-            message: "Image Not Selected",
-            info: "warning",
-          });
-          setLoadingDoc(false);
-        }
-      };
 
 
     const handleDelete = async () => {
@@ -241,16 +235,7 @@ const EntryArea = forwardRef((props, ref) => {
         }
     };
 
-    const deleteImage = () => {
-        // Your delete image logic here
-        setImageUrls([""]); // Clear the URL to remove the image from display
-    };
 
-    const showImage = () => {
-        if (imageUrls) {
-            window.open(imageUrls, '_blank'); // Open the image URL in a new tab
-        }
-    };
 
     // Replace the findUserDetails function
     const findUserDetails = (userId) => {
@@ -398,7 +383,7 @@ const EntryArea = forwardRef((props, ref) => {
         </FormControl>
             
                 </Grid>
-                <Grid item xs={12} md={3}>
+                {/* <Grid item xs={12} md={3}>
                 <FormControl fullWidth sx={{ m: 1 }} variant="filled">
           <InputLabel htmlFor="filled-adornment-amount">Discount On Full Course</InputLabel>
           <FilledInput
@@ -411,7 +396,7 @@ const EntryArea = forwardRef((props, ref) => {
                     placeholder='Enter Discount Price' 
           />
         </FormControl>
-                </Grid>
+                </Grid> */}
                 <Grid item xs={12} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
@@ -482,6 +467,30 @@ const EntryArea = forwardRef((props, ref) => {
                 </AccordionSummary>
                 <AccordionDetails>
          <Grid container spacing={2}>
+        
+                <Grid item xs={12} md={3}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={restrictStartDateChange}
+                           onChange={() => setRestrictStartDateChange(!restrictStartDateChange)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Restrict Start Date Change`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={3}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={forcefullBuyCourse}
+                           onChange={() => setForcefullBuyCourse(!forcefullBuyCourse)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Force Full Buy Course`} />
+                  
+                </Grid>
+                <Grid item xs={0} md={6}></Grid>
+{/* make a line here */}
+    {/* <div style={{borderBottom: '1px solid #000', width: '100%'}}></div> */}
                 <Grid item xs={12} md={4}>
                      <FormControlLabel control={
                            <Checkbox
