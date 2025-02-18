@@ -309,25 +309,61 @@ console.log("CourseDateSelector",data);
                 />
               )}
             </Box>
-            <Grid container spacing={2}>
-              {batch.oneBatch.map((date) => (
-                <Grid item xs={4} key={date}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    color: new Date(date) <= today ? '#9CA3AF' : 'inherit'
-                  }}>
-                    <Typography variant="body2" sx={{ mr: 1 }}>
-                      {formatDateToShortMonth(date)}
-                    </Typography>
-                    {new Date(date) > today && (
-                      isDateSelected(date) 
-                        ? <CheckCircleIcon color="success" sx={{ fontSize: 16 }} />
-                        : <CancelIcon color="error" sx={{ fontSize: 16 }} />
-                    )}
-                  </Box>
-                </Grid>
-              ))}
+            <Grid container spacing={1.5}>
+              {batch.oneBatch.map((date) => {
+                const isPastDate = new Date(date) <= today;
+                const isSelected = isDateSelected(date);
+                let bgColor = '#F3F4F6'; // default/past date color
+                let textColor = '#9CA3AF'; // past date text color
+                
+                if (!isPastDate) {
+                  if (isSelected) {
+                    bgColor = '#E8F5E9'; // light green for selected
+                    textColor = '#2E7D32'; // dark green text
+                  } else {
+                    bgColor = '#FEE2E2'; // light red for not selected
+                    textColor = '#DC2626'; // dark red text
+                  }
+                }
+
+                return (
+                  <Grid item xs={6} sm={4} key={date}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        backgroundColor: bgColor,
+                        color: textColor,
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        border: '1px solid',
+                        borderColor: isPastDate ? '#E5E7EB' : (isSelected ? '#A5D6A7' : '#FECACA'),
+                        transition: 'all 0.2s ease',
+                        '&:hover': !isPastDate && {
+                          transform: 'translateY(-1px)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                        }
+                      }}
+                    >
+                      <Typography 
+                        variant="body2" 
+                        sx={{ 
+                          fontWeight: 500,
+                          flex: 1
+                        }}
+                      >
+                        {formatDateToShortMonth(date)}
+                      </Typography>
+                      {!isPastDate && (
+                        isSelected ? 
+                          <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                          <CancelIcon sx={{ fontSize: 18, ml: 1 }} />
+                      )}
+                    </Box>
+                  </Grid>
+                );
+              })}
             </Grid>
           </Paper>
         </Grid>
