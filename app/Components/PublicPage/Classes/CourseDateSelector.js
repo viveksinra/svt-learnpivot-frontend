@@ -178,7 +178,7 @@ const CourseDateSelector = ({
                     border: '1px solid #a5d6a7'
                   }}
                 >
-                  Total: ${frontEndTotal}
+                  Total: £{frontEndTotal}
                 </Typography>
               )}
             </Box>

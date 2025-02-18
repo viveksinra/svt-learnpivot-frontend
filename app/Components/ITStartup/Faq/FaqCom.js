@@ -7,6 +7,90 @@ import {
   AccordionItemButton
 } from "react-accessible-accordion";
 
+const courseFaqData = [
+  {
+      id: "1",
+      question: "What subjects are covered in the courses?",
+      answer: `<p>Our courses cover core subjects like Mathematics and English.</p>
+      <p>Each course is designed to help students develop a strong foundation and prepare for exams effectively.</p>`
+  },
+  {
+      id: "2",
+      question: "When and how will I receive course materials?",
+      answer: `<p>Course materials, including notes and practice exercises, will be shared weekly.</p>
+      <p>They will be sent via email and uploaded to our online learning platform.</p>`
+  },
+  {
+      id: "3",
+      question: "Are the classes online or in-person?",
+      answer: `<p>All classes are conducted online via Zoom.</p>
+      <p>Students will receive Zoom links before each class session.</p>`
+  },
+  {
+      id: "4",
+      question: "What should students bring for the classes?",
+      answer: `<p>Students should have the following items ready:</p>
+      <ul>
+        <li>A notebook and pen/pencil</li>
+        <li>A stable internet connection</li>
+        <li>A device with Zoom installed</li>
+      </ul>`
+  },
+  {
+      id: "5",
+      question: "Is there a refund policy?",
+      answer: `<p>We have a <strong>strict no-refund policy</strong>.</p>
+      <p>Once payment is made, no cancellations or refunds will be processed.</p>`
+  },
+  {
+      id: "6",
+      question: "Are the sessions recorded?",
+      answer: `<p>Yes, all sessions are recorded and will be available for students to review.</p>
+      <p>Recordings will be accessible for a limited time after each session.</p>`
+  },
+  {
+      id: "7",
+      question: "How is student progress tracked?",
+      answer: `<p>Regular assessments and quizzes will be conducted.</p>
+      <p>Feedback and performance reports will be provided periodically.</p>`
+  },
+  {
+      id: "8",
+      question: "What if a student misses a class?",
+      answer: `<p>If a student misses a class, they can access the recorded session later.</p>
+      <p>No make-up classes will be offered.</p>`
+  },
+  {
+      id: "9",
+      question: "How can I contact the instructor?",
+      answer: `<p>Students and parents can reach out via email or WhatsApp for any queries.</p>
+      <p>Office hours for queries will be shared at the beginning of the course.</p>`
+  },
+  {
+      id: "10",
+      question: "What is the course schedule and duration?",
+      answer: `<p>Each course follows a structured schedule, with specific start and end dates.</p>
+      <p>Classes are held once a week for a set number of weeks.</p>`
+  },
+  {
+      id: "11",
+      question: "When is the payment due?",
+      answer: `<p>Payments must be made before the course begins.</p>
+      <p>Specific payment deadlines will be communicated during enrollment.</p>`
+  },
+  {
+      id: "12",
+      question: "Do you provide special accommodations?",
+      answer: `<p>We strive to accommodate students with special needs.</p>
+      <p>Please contact us in advance to discuss any required adjustments.</p>`
+  },
+  {
+      id: "13",
+      question: "What if I have further questions?",
+      answer: `<p>For any additional questions, feel free to reach out via email or WhatsApp.</p>`
+  }
+];
+
 const csseMockFaqData = [
   {
       id: "1",
@@ -293,6 +377,17 @@ const FaqCom = ({dataType}) => {
           <div className="col-lg-12">
             <div className="faq-accordion">
               <Accordion allowZeroExpanded preExpanded={["a"]}>
+                {dataType === "courseFaqData" && courseFaqData.map((faq) => (
+                  <AccordionItem key={faq.id} uuid={faq.id}>
+                    <AccordionItemHeading>
+                      <AccordionItemButton>{faq.question}</AccordionItemButton>
+                    </AccordionItemHeading>
+                    <AccordionItemPanel>
+                    <p className="accordion-content" dangerouslySetInnerHTML={{ __html: faq.answer }}></p>
+
+                    </AccordionItemPanel>
+                  </AccordionItem>
+                ))}
                 {dataType === "faqData" && faqData.map((faq) => (
                   <AccordionItem key={faq.id} uuid={faq.id}>
                     <AccordionItemHeading>
