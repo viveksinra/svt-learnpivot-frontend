@@ -101,31 +101,38 @@ console.log("CourseDateSelector",data);
 
   useEffect(() => {
     if (selectedBatches.length > 0 && data?.allBatch) {
-      // Get all dates from selected batches that are in the future
+      // For availableDates, only show dates from the first selected batch
+      const firstSelectedBatchId = selectedBatches[0];
+      const firstSelectedBatch = data.allBatch.find(b => b._id === firstSelectedBatchId);
+      
+      const availableFutureDates = firstSelectedBatch && !firstSelectedBatch.hide && !firstSelectedBatch.bookingFull
+        ? firstSelectedBatch.oneBatch.filter(date => new Date(date) > today)
+        : [];
+
+      // Sort available dates chronologically
+      const sortedAvailableDates = [...new Set(availableFutureDates)].sort((a, b) => new Date(a) - new Date(b));
+      setAvailableDates(sortedAvailableDates);
+
+      // For selectedDates, include dates from all selected batches
       const allSelectedDates = selectedBatches
         .map(batchId => data.allBatch.find(b => b._id === batchId))
         .filter(batch => batch && !batch.hide && !batch.bookingFull)
         .flatMap(batch => batch.oneBatch.filter(date => new Date(date) > today));
 
-      // Sort dates chronologically
-      const sortedDates = [...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b));
+      // Sort selected dates chronologically
+      const sortedSelectedDates = [...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b));
+      setSelectedDates(sortedSelectedDates);
 
-      // Update available dates
-      setAvailableDates(sortedDates);
-
-      // Always set the start date to the first available date
-      if (sortedDates.length > 0) {
-        setStartDate(sortedDates[0]);
-        // Update selected dates based on the new start date
-        setSelectedDates(sortedDates);
+      // Set start date from available dates (first batch only)
+      if (sortedAvailableDates.length > 0) {
+        setStartDate(sortedAvailableDates[0]);
       } else {
         setStartDate("");
-        setSelectedDates([]);
       }
     } else {
       setAvailableDates([]);
-      setStartDate("");
       setSelectedDates([]);
+      setStartDate("");
     }
   }, [selectedBatches, data]);
 
