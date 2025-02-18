@@ -85,7 +85,7 @@ function CourseEnqForm({
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
-{((!canBuy || !isAvailable) && step !==1  ) &&  <CourseBookingFullMessage /> 
+{((!canBuy || !isAvailable) && step !==1  ) &&  <CourseBookingFullMessage userInfo={state} data={data}/> 
       }  
   {(canBuy && isAvailable && step === 2) && (
         <CourseChildSelector 

@@ -22,9 +22,14 @@ import {
   Close
 } from '@mui/icons-material';
 
-const CourseBookingFullMessage = () => {
+const CourseBookingFullMessage = ({userInfo, data}) => {
+  console.log({userInfo,data});
   const handleEmailClick = () => {
-    window.location.href = 'mailto:support@chelmsford11plus.com';
+    const subject = encodeURIComponent(`Booking Inquiry - ${data?.courseTitle || ''}`);
+    const body = encodeURIComponent(
+      `Hello Support,\n\nI am ${userInfo?.firstName || 'User'} ${userInfo?.lastName || ''} and I'm interested in booking the course (${data?.courseTitle || ''}) but I see it is full. Can you please update me on this?\n\nThank you,\n${userInfo?.firstName || 'User'}`
+    );
+    window.location.href = `mailto:support@chelmsford11plus.com?subject=${subject}&body=${body}`;
   };
 
   const handleCloseClick = () => {
