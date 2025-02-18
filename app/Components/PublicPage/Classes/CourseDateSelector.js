@@ -242,16 +242,37 @@ console.log("CourseDateSelector",data);
       {/* Batch Selection */}
       {singleBatchWithOneDate ? (
         <Grid item xs={12}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography variant="h6">
-                Selected Class Date
+          <Paper elevation={2} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 600 }}>
+                Class Date
               </Typography>
-              <CheckCircleIcon color="success" />
+              <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center',
+                bgcolor: '#e3f2fd',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                border: '1px solid #90caf9',
+              }}>
+                <Typography 
+                  variant="body1" 
+                  sx={{ 
+                    color: '#1976d2',
+                    fontWeight: 500,
+                    marginRight: '8px'
+                  }}
+                >
+                  {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}
+                </Typography>
+                <CheckCircleIcon 
+                  sx={{ 
+                    color: '#2e7d32',
+                    fontSize: '20px'
+                  }} 
+                />
+              </Box>
             </Box>
-            <Typography variant="body1" sx={{ mt: 1 }}>
-              {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}
-            </Typography>
           </Paper>
         </Grid>
       ) : (
