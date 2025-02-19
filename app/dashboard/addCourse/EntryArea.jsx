@@ -400,11 +400,19 @@ const EntryArea = forwardRef((props, ref) => {
                     </Typography>                    
                 </Grid>
                 
-                {/* Add Sort Date display */}
+                {/* Replace the Typography with an editable DateTime field */}
                 <Grid item xs={12} md={4}>
-                    <Typography variant="subtitle2" color="textSecondary">
-                        Sort Date: {new Date(sortDate).toLocaleString()}
-                    </Typography>
+                    <TextField
+                        fullWidth
+                        label="Sort Date"
+                        type="datetime-local"
+                        value={sortDate.slice(0, 16)} // Format date-time for input
+                        onChange={(e) => setSortDate(new Date(e.target.value).toISOString())}
+                        variant="standard"
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
                 </Grid>
       
                 <Grid item xs={12} md={12}>
