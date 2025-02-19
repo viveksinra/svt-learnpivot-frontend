@@ -21,6 +21,16 @@ function   MyCourse () {
   const [viewTabular,toggleView] = useState(true);
   const [id, setId] =useState("");
   const entryRef = useRef();
+  const updateToggle = () => {
+    if(!viewTabular) {
+      entryRef.current.handleClear()
+    toggleView(!viewTabular);
+
+    } else {
+    toggleView(!viewTabular);
+
+    }
+  }
   return (
     <main> 
       {viewTabular ? <Suspense fallback={<Loading/>}><SearchArea handleEdit={(id)=>{toggleView(false); setId(id)}} />  </Suspense>  : <Suspense fallback={null}><EntryArea ref={entryRef} id={id} setId={id=>setId(id)} /></Suspense>}
@@ -32,7 +42,7 @@ function   MyCourse () {
           </Button> }
         <span style={{flexGrow:0.3}}/>
         <Tooltip arrow title={viewTabular ? "Add MyCourse" : "Show All"}>
-        <ToggleFab onClick={()=>toggleView(!viewTabular)} color="secondary" size="medium">
+        <ToggleFab onClick={()=> updateToggle()} color="secondary" size="medium">
         {viewTabular ?   <FaUserPlus style={{fontSize:24}}/> : <BsTable style={{fontSize:24}}/>}
         </ToggleFab>
         </Tooltip>
