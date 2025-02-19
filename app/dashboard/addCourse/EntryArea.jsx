@@ -222,7 +222,7 @@ const EntryArea = forwardRef((props, ref) => {
             let courseDisplayName = courseTitle || 'this course'; // Fallback if title is empty
             let yes = window.confirm(`Are you sure you want to permanently delete "${courseDisplayName}"?\n\nThis action cannot be undone.`);
             if (yes) {
-                let response = await myCourseService.deleteCourse(`api/v1/publicMaster/myCourse/addMyCourse/deleteOne/${props.id}`);
+                let response = await myCourseService.deleteClass(`api/v1/publicMaster/myCourse/addMyCourse/deleteOne/${props.id}`);
                 if (response.variant === "success") {
                     snackRef.current.handleSnack(response);
                     handleClear();
