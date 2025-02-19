@@ -91,7 +91,7 @@ const EntryArea = forwardRef((props, ref) => {
             try {
                 let res = await myCourseService.getOne(props.id);
                 if (res.variant === "success") {
-                    const { _id, isPublished, allBatch, startTime,
+                    const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
                         onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse } = res.data;
@@ -101,7 +101,8 @@ const EntryArea = forwardRef((props, ref) => {
                         oneBatch: [''],
                         hide: false,
                         bookingFull: false
-                    }]);               
+                    }]);     
+                    setSortDate(sortDate);          
                     setStartTime(startTime);               
                     setEndTime(endTime);   
                     setCourseTitle(courseTitle);
@@ -150,6 +151,7 @@ const EntryArea = forwardRef((props, ref) => {
             hide: false,
             bookingFull: false
         }]);
+        setSortDate(new Date().toISOString());
         setStartTime("");
         setEndTime("");
         setCourseTitle("");
@@ -180,6 +182,7 @@ const EntryArea = forwardRef((props, ref) => {
                 let myCourseData = {
                     _id: props.id,
                     allBatch,
+                    sortDate,
                     startTime,
                     endTime,
                     courseTitle,
