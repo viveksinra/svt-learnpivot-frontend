@@ -19,6 +19,7 @@ import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import MulSelCom from "./MulSelCom";
 import { TabContext, TabList } from "@mui/lab";
 import EmptyContent from '@/app/Components/EmptyContent';
+import { FcOk } from "react-icons/fc";
 
 const SendEmailCom = lazy(() => import("./SendEmailCom"));
 
@@ -51,7 +52,7 @@ function MyCourse() {
           {selectedItems.length >= 1 && (
             <Tooltip arrow title={viewTabular ? "Send Email to selected" : "Show List"}>
               <ToggleFab onClick={() => toggleView(!viewTabular)} color="secondary" size="medium">
-                {viewTabular ? <MdOutlineMail style={{ fontSize: 24 }} /> : <BsTable style={{ fontSize: 24 }} />}
+              <MdOutlineMail style={{ fontSize: 24 }} /> 
               </ToggleFab>
             </Tooltip>
           )}

@@ -254,13 +254,21 @@ const EntryArea = forwardRef((props, ref) => {
     const renderUserSelect = () => {
         if (!onlySelectedParent) return null;
 
+        // Sort users by firstName
+        const sortedUsers = [...allUsers].sort((a, b) => {
+            const nameA = (a.firstName || '').toLowerCase();
+            const nameB = (b.firstName || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
         return (
             <Grid item xs={12} md={8}>
                 <Autocomplete
                     multiple
                     id="user-select"
-                    options={allUsers}
-                    value={selectedUser.map(userId => findUserDetails(userId))}
+                    options={sortedUsers}
+                    value={selectedUser.map(userId => findUserDetails(userId))
+                        .sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''))}
                     onChange={(event, newValue) => {
                         setSelectedUser(newValue.map(user => user._id));
                     }}
