@@ -357,8 +357,12 @@ export default function PaymentsPage() {
               <DataGrid
                 rows={filteredPayments}
                 columns={columns}
-                pageSize={10}
-                rowsPerPageOptions={[10]}
+                initialState={{
+                  pagination: {
+                    paginationModel: { pageSize: 25, page: 0 },
+                  },
+                }}
+                pageSizeOptions={[10, 25, 50, 100]}
                 disableSelectionOnClick
                 className="border-none"
                 sx={{
