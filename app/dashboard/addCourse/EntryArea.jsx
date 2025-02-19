@@ -341,7 +341,7 @@ const EntryArea = forwardRef((props, ref) => {
             </Grid>
             <Grid container spacing={2} style={{marginBottom:"20px"}}>
                 <Grid item xs={12} md={4}>
-                    <TextField fullWidth label="Course Title" value={courseTitle} onChange={(e) => onTitleChange(e.target.value)} inputProps={{ minLength: "2", maxLength: "30" }} placeholder='Course Title' variant="standard" />
+                    <TextField fullWidth label="Course Title" value={courseTitle} onChange={(e) => onTitleChange(e.target.value)} inputProps={{ minLength: "2", maxLength: "50" }} placeholder='Course Title' variant="standard" />
                     <Typography variant="subtitle2" gutterBottom>
                     Link- {courseLink}
       </Typography>                    
