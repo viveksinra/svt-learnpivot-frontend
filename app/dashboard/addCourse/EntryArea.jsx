@@ -44,6 +44,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState('editor'); // 'editor', 'html', or 'preview'
     const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
     const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
+    const [sortDate, setSortDate] = useState(new Date().toISOString());
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -200,6 +201,7 @@ const EntryArea = forwardRef((props, ref) => {
                     selectedUsers: selectedUser, // Add selected users to the submission
                     restrictStartDateChange,
                     forcefullBuyCourse,
+                    sortDate: new Date().toISOString(), // Always use current date when saving
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -227,7 +229,7 @@ const EntryArea = forwardRef((props, ref) => {
             let courseDisplayName = courseTitle || 'this course'; // Fallback if title is empty
             let yes = window.confirm(`Are you sure you want to permanently delete "${courseDisplayName}"?\n\nThis action cannot be undone.`);
             if (yes) {
-                let response = await myCourseService.deleteClass(`api/v1/publicMaster/course/myCourse/deleteOne/${props.id}`);
+                let response = await myCourseService.deleteClass(`api/v1/publicMaster/course/addCourse/deleteOne/${props.id}`);
                 if (response.variant === "success") {
                     snackRef.current.handleSnack(response);
                     handleClear();
@@ -353,6 +355,8 @@ const EntryArea = forwardRef((props, ref) => {
         setCourseTitle(`Copy of ${courseTitle}`);
         // Update the course link based on new title
         setCourseLink(convertToSlug(`Copy of ${courseTitle}`));
+        // Reset the sortDate to current date
+        setSortDate(new Date().toISOString());
         // Remove the _id by setting it to empty
         props.setId("");
         // Show success message
@@ -393,7 +397,14 @@ const EntryArea = forwardRef((props, ref) => {
                     <TextField fullWidth label="Course Title" value={courseTitle} onChange={(e) => onTitleChange(e.target.value)} inputProps={{ minLength: "2", maxLength: "50" }} placeholder='Course Title' variant="standard" />
                     <Typography variant="subtitle2" gutterBottom>
                     Link- {courseLink}
-      </Typography>                    
+                    </Typography>                    
+                </Grid>
+                
+                {/* Add Sort Date display */}
+                <Grid item xs={12} md={4}>
+                    <Typography variant="subtitle2" color="textSecondary">
+                        Sort Date: {new Date(sortDate).toLocaleString()}
+                    </Typography>
                 </Grid>
       
                 <Grid item xs={12} md={12}>
