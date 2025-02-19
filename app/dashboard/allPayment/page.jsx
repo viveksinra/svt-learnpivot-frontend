@@ -192,16 +192,9 @@ const columns = [
   },
   {
     field: 'paymentDate',
-    headerName: 'Date',
-    width: 160,
-    valueGetter: (params) => moment(params.value).format('DD MMM YYYY'),
-  },
-  {
-    field: 'paymentTime',
-    headerName: 'Time',
-    width: 160,
-    valueGetter: (params) => 
-  moment(params.value).format('HH:mm:ss')
+    headerName: 'Date & Time',
+    width: 180,
+    valueGetter: (params) => moment(params.value).format('DD MMM YYYY, HH:mm:ss'),
   },
   {
     field: 'amountPaid',
