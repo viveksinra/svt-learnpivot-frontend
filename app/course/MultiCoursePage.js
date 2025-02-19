@@ -33,9 +33,10 @@ function MultiCoursePage() {
       title: "Duration",
       link:"duration",
       tags: [
-        { label: "3 Months", id: "3months" },
-        { label: "6 Months", id: "6months" },
-        { label: "1 Years", id: "1years" },
+        { label: "Less than 1 Month", id: "lessThan1Month" },
+        { label: "1-3 Months", id: "1to3Months" },
+        { label: "3-6 Months", id: "3to6Months" },
+        { label: "6+ Months", id: "moreThan6Months" },
       ]
     },
   ]);
