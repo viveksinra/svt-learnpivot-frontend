@@ -44,7 +44,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [viewMode, setViewMode] = useState('editor'); // 'editor', 'html', or 'preview'
     const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
     const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
-    const [sortDate, setSortDate] = useState(new Date().toISOString());
+    const [sortDate, setSortDate] = useState("");
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -151,7 +151,7 @@ const EntryArea = forwardRef((props, ref) => {
             hide: false,
             bookingFull: false
         }]);
-        setSortDate(new Date().toISOString());
+        setSortDate("");
         setStartTime("");
         setEndTime("");
         setCourseTitle("");
@@ -182,7 +182,7 @@ const EntryArea = forwardRef((props, ref) => {
                 let myCourseData = {
                     _id: props.id,
                     allBatch,
-                    sortDate,
+                    sortDate,  // Remove the override, use the user-set date
                     startTime,
                     endTime,
                     courseTitle,
@@ -204,7 +204,6 @@ const EntryArea = forwardRef((props, ref) => {
                     selectedUsers: selectedUser, // Add selected users to the submission
                     restrictStartDateChange,
                     forcefullBuyCourse,
-                    sortDate: new Date().toISOString(), // Always use current date when saving
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -359,7 +358,7 @@ const EntryArea = forwardRef((props, ref) => {
         // Update the course link based on new title
         setCourseLink(convertToSlug(`Copy of ${courseTitle}`));
         // Reset the sortDate to current date
-        setSortDate(new Date().toISOString());
+        setSortDate("");
         // Remove the _id by setting it to empty
         props.setId("");
         // Show success message
@@ -409,8 +408,11 @@ const EntryArea = forwardRef((props, ref) => {
                         fullWidth
                         label="Sort Date"
                         type="datetime-local"
-                        value={sortDate.slice(0, 16)} // Format date-time for input
-                        onChange={(e) => setSortDate(new Date(e.target.value).toISOString())}
+                        value={sortDate ? new Date(sortDate).toISOString().slice(0, 16) : ''} // Better date handling
+                        onChange={(e) => {
+                            const date = e.target.value ? new Date(e.target.value).toISOString() : '';
+                            setSortDate(date);
+                        }}
                         variant="standard"
                         InputLabelProps={{
                             shrink: true,
