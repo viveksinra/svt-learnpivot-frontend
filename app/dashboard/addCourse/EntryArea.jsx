@@ -12,6 +12,7 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
+import { FiCopy } from "react-icons/fi"; // Add this import at the top
 
 const EntryArea = forwardRef((props, ref) => {
     const snackRef = useRef();
@@ -205,6 +206,10 @@ const EntryArea = forwardRef((props, ref) => {
                 if (response.variant === "success") {
                     snackRef.current.handleSnack(response);
                     handleClear();
+                    // Call the onSaveSuccess callback after successful save
+                    if (props.onSaveSuccess) {
+                        props.onSaveSuccess();
+                    }
                 } else {              
                     snackRef.current.handleSnack(response);
                 }
@@ -222,10 +227,14 @@ const EntryArea = forwardRef((props, ref) => {
             let courseDisplayName = courseTitle || 'this course'; // Fallback if title is empty
             let yes = window.confirm(`Are you sure you want to permanently delete "${courseDisplayName}"?\n\nThis action cannot be undone.`);
             if (yes) {
-                let response = await myCourseService.deleteClass(`api/v1/publicMaster/myCourse/addMyCourse/deleteOne/${props.id}`);
+                let response = await myCourseService.deleteClass(`api/v1/publicMaster/course/myCourse/deleteOne/${props.id}`);
                 if (response.variant === "success") {
                     snackRef.current.handleSnack(response);
                     handleClear();
+                    // Call the onSaveSuccess callback after successful deletion
+                    if (props.onSaveSuccess) {
+                        props.onSaveSuccess();
+                    }
                 } else {
                     snackRef.current.handleSnack(response?.response?.data);
                 }
@@ -339,13 +348,44 @@ const EntryArea = forwardRef((props, ref) => {
         'link', 'image'
     ];
 
+    const handleCopy = () => {
+        // Prepend "Copy of " to the course title
+        setCourseTitle(`Copy of ${courseTitle}`);
+        // Update the course link based on new title
+        setCourseLink(convertToSlug(`Copy of ${courseTitle}`));
+        // Remove the _id by setting it to empty
+        props.setId("");
+        // Show success message
+        snackRef.current.handleSnack({
+            message: "Course copied! You can now save this as a new course.",
+            variant: "success"
+        });
+    };
+
     return (
         <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20 }}>
             <Grid sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between" }}>
                 <Typography color="secondary" style={{ fontFamily: 'Courgette' }} align='center' variant='h6'>Create Course</Typography>
                 <ButtonGroup variant="text" aria-label="text button group">
                     <Button startIcon={isPublished ? <FcOk /> : <FcNoIdea />} onClick={() => setIsPublished(!isPublished)}>{isPublished ? "Published" : "Un-Publish"}</Button>
-                    <Button endIcon={<MdDeleteForever />} onClick={handleDelete} disabled={!props.id} color="error">Delete</Button>
+                    {props.id && (
+                        <>
+                            <Button 
+                                startIcon={<FiCopy />} 
+                                onClick={handleCopy} 
+                                color="primary"
+                            >
+                                Copy Course
+                            </Button>
+                            <Button 
+                                endIcon={<MdDeleteForever />} 
+                                onClick={handleDelete} 
+                                color="error"
+                            >
+                                Delete
+                            </Button>
+                        </>
+                    )}
                 </ButtonGroup>
             </Grid>
             <Grid container spacing={2} style={{marginBottom:"20px"}}>

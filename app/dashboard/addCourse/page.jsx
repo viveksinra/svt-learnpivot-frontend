@@ -17,23 +17,37 @@ import Loading from "../../Components/Loading/Loading";
 import LiveAvatar from "@/app/Components/Common/LiveAvatar";
 const EntryArea = lazy(() => import("./EntryArea"));
 
-function   MyCourse () {
-  const [viewTabular,toggleView] = useState(true);
-  const [id, setId] =useState("");
+function MyCourse() {
+  const [viewTabular, toggleView] = useState(true);
+  const [id, setId] = useState("");
   const entryRef = useRef();
+  
   const updateToggle = () => {
     if(!viewTabular) {
-      entryRef.current.handleClear()
-    toggleView(!viewTabular);
-
-    } else {
-    toggleView(!viewTabular);
-
+      entryRef.current.handleClear();
     }
+    toggleView(!viewTabular);
   }
+
+  const handleSaveSuccess = () => {
+    toggleView(true); // Toggle back to list view after successful save
+  }
+
   return (
     <main> 
-      {viewTabular ? <Suspense fallback={<Loading/>}><SearchArea handleEdit={(id)=>{toggleView(false); setId(id)}} />  </Suspense>  : <Suspense fallback={null}><EntryArea ref={entryRef} id={id} setId={id=>setId(id)} /></Suspense>}
+      {viewTabular ? 
+        <Suspense fallback={<Loading/>}>
+          <SearchArea handleEdit={(id)=>{toggleView(false); setId(id)}} />  
+        </Suspense> : 
+        <Suspense fallback={null}>
+          <EntryArea 
+            ref={entryRef} 
+            id={id} 
+            setId={id=>setId(id)} 
+            onSaveSuccess={handleSaveSuccess}
+          />
+        </Suspense>
+      }
       <AppBar position="fixed" sx={{ top: 'auto', bottom: 0,background:"#d6f9f7"}}>
       <Toolbar variant="dense">
         <span style={{flexGrow:0.2}}/>
