@@ -106,8 +106,21 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
   };
 
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>{editMode ? 'Edit Child' : 'Add Child'}</DialogTitle>
+    <Dialog 
+      open={open} 
+      onClose={onClose} 
+      fullWidth 
+      maxWidth="xs"
+      PaperProps={{
+        sx: {
+          borderRadius: 3,
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50'
+        }
+      }}
+    >
+      <DialogTitle sx={{ color: 'primary.main', fontWeight: 600 }}>
+        {editMode ? 'Edit Child' : 'Add Child'}
+      </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
           <TextField
@@ -164,9 +177,33 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
           </TextField>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="error">Cancel</Button>
-        <Button onClick={handleSave} variant="contained">
+      <DialogActions sx={{ p: 2.5, display: 'flex', gap: 1 }}>
+        <Button 
+          onClick={onClose} 
+          sx={{ 
+            color: 'white', 
+            backgroundColor: 'error.main',
+            '&:hover': { backgroundColor: 'error.dark' },
+            flex: 1,
+            py: 1,
+            textTransform: 'none',
+            borderRadius: 2
+          }}
+        >
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleSave} 
+          sx={{ 
+            color: 'white', 
+            backgroundColor: 'success.main',
+            '&:hover': { backgroundColor: 'success.dark' },
+            flex: 1,
+            py: 1,
+            textTransform: 'none',
+            borderRadius: 2
+          }}
+        >
           {editMode ? 'Update' : 'Add'}
         </Button>
       </DialogActions>

@@ -36,6 +36,7 @@ import Loading from "../Components/Loading/Loading";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
 import Link from "next/link";
+import { FaChild } from "react-icons/fa";
 
 const drawerWidth = 240;
 
@@ -46,6 +47,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
     { title: "Dashboard", active: true, link: "/userDash", icon: <FcComboChart /> },
     { title: "Transaction", active: false, link: "/userDash/allPayment", icon: <FcContacts /> },
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <CgProfile size={24} /> },
+    { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild size={24} /> },
   ]);
 
   const handleLink = (item, index, listType) => {
