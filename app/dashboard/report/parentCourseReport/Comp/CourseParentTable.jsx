@@ -108,6 +108,20 @@ const Row = ({ row }) => {
 
 const CourseParentTable = ({ data }) => {
   return (
+        <Box sx={{ width: '100%', height: '100%' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            mb: 3,
+            flexWrap: 'wrap',
+            gap: 2
+          }}>
+            <Typography variant="h5" sx={{ fontWeight: 600 }}>
+              Course Parent Report
+            </Typography>
+      
+          </Box>
     <TableContainer component={Paper}>
       <Table>
         <TableHead>
@@ -127,6 +141,7 @@ const CourseParentTable = ({ data }) => {
         </TableBody>
       </Table>
     </TableContainer>
+    </Box>
   );
 };
 
