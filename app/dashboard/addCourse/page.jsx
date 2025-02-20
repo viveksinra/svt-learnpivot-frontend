@@ -161,6 +161,7 @@ export function SearchArea({handleEdit}) {
               <TableCell align="left">Price</TableCell>
               <TableCell align="left">Seats</TableCell>
               <TableCell align="left">Schedule</TableCell>
+              <TableCell align="left">Sort Date</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
@@ -199,6 +200,9 @@ export function SearchArea({handleEdit}) {
               </TableCell>
               <TableCell align="left">
                 <Typography variant="caption" display="block">{r.startTime} - {r.endTime}</Typography>
+              </TableCell>
+              <TableCell align="left">
+                {r.sortDate ? new Date(r.sortDate).toLocaleDateString() : 'Not set'}
               </TableCell>
               <TableCell align="center">
                 <Button onClick={()=>handleEdit(r._id)} variant="text" startIcon={<MdModeEdit />}>Edit</Button>
@@ -299,6 +303,12 @@ export function SearchArea({handleEdit}) {
                       <Typography variant="caption" color="text.secondary">Schedule</Typography>
                       <Typography variant="body2" fontWeight={500}>
                         ⏰ {c.startTime} - {c.endTime}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                      <Typography variant="caption" color="text.secondary">Sort Date</Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {c.sortDate ? new Date(c.sortDate).toLocaleDateString() : 'Not set'}
                       </Typography>
                     </Grid>
         
