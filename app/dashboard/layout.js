@@ -88,6 +88,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/report/mockBatchReport",
       icon: <FcStatistics />
     },
+    { 
+      title: "Course Batch Report",
+      active: false,
+      link: "/dashboard/report/courseBatchReport",
+      icon: <FcStatistics />
+    },
   ]);
 
   const handleLink = (v, n, Ar) => {

@@ -41,7 +41,13 @@ const quickLinks = [
       title: "Mock Batch Report",
       link: "/dashboard/report/mockBatchReport",
       icon: <CalendarToday sx={{ fontSize: 40, color: 'warning.main' }} /> // Updated icon to Payment
-    }
+    },
+    {
+      id: 5,
+      title: "Course Batch Report",
+      link: "/dashboard/report/courseBatchReport",
+      icon: <CalendarToday sx={{ fontSize: 40, color: 'warning.main' }} /> // Updated icon to Payment
+    },
   ];
 
 export const AdminQuickLinks = () => {
