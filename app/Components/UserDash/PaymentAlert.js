@@ -469,7 +469,7 @@ export const PaymentAlert = ({ selectedChild }) => {
             fontSize: isMobile ? '1.25rem' : '1.5rem'
           }}
         >
-          Payment Alerts
+        Upcomming Payment Alerts
         </Typography>
         {courseData.length > 0 && (
           <Chip 
