@@ -51,56 +51,7 @@ const Dashboard = () => {
     }
   ];
 
-  const upcomingClasses = [
-    {
-      id: 1,
-      title: 'Advanced Mathematics',
-      date: '2024-12-28',
-      time: '10:00 AM',
-      teacher: 'Dr. Johnson',
-      subject: 'Mathematics'
-    },
-    {
-      id: 2,
-      title: 'Physics Fundamentals',
-      date: '2024-12-29',
-      time: '2:00 PM',
-      teacher: 'Prof. Williams',
-      subject: 'Physics'
-    },
-    {
-      id: 3,
-      title: 'Chemistry Lab',
-      date: '2024-12-30',
-      time: '3:00 PM',
-      teacher: 'Dr. Miller',
-      subject: 'Science'
-    }
-  ];
 
-  const mockTests = [
-    {
-      id: 1,
-      subject: 'Science',
-      date: '2024-12-30',
-      duration: '2 hours',
-      totalQuestions: 50
-    },
-    {
-      id: 2,
-      subject: 'Mathematics',
-      date: '2024-12-31',
-      duration: '1.5 hours',
-      totalQuestions: 40
-    },
-    {
-      id: 3,
-      subject: 'Physics',
-      date: '2025-01-02',
-      duration: '2 hours',
-      totalQuestions: 45
-    }
-  ];
 
   const moreClasses = [
     {
@@ -183,17 +134,23 @@ const Dashboard = () => {
             <QuickLinks />
           </Grid>
           <Grid item xs={12} md={12}>
+          <PaymentAlert selectedChild={selectedChild} />
+
+          </Grid>
+          <Grid item xs={12} md={12}>
             <UpcomingEvents selectedChild={selectedChild} />
           </Grid>
         </Grid>
 
         {/* Conditional Rendering for Optional Sections */}
-        {/* {showPaymentAlert && <PaymentAlert payment={paymentDues[0]} />} */}
-        {/* {showMoreContent && <MoreContent 
+   
+         {/* {showMoreContent &&
+         <MoreContent 
           classes={moreClasses} 
           tests={moreMockTests} 
           getSubjectColor={getSubjectColor} 
-        />} */}
+        />
+         }   */}
       </Container>
     </Box>
   );

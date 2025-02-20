@@ -26,6 +26,15 @@ export class ReportService {
       })
       .then((res) => res.data);
   };
+  getUpcomingPayment = async ( data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/report/parent/getNextCoursePayment`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+
 
   getAdminAllPayment = async ( data) => {
     return this.instance
