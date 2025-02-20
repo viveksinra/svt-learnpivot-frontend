@@ -1,10 +1,10 @@
 "use client";
 import { registrationService } from '@/app/services';
 import React, { useState, useEffect } from 'react';
-import CourseTestTable from './Comp/CourseTestTable';
+import CourseParentTable from './Comp/CourseParentTable';
 import { Alert, Box, Container, Skeleton, Paper } from '@mui/material';
 
-const CourseParentTable = () => {
+const parentCourseReportPage = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -43,11 +43,11 @@ const CourseParentTable = () => {
             <Skeleton height={400} />
           </Box>
         ) : (
-          <CourseTestTable data={rows} />
+          <CourseParentTable data={rows} />
         )}
       </Paper>
     </Container>
   );
 };
 
-export default CourseParentTable;
+export default parentCourseReportPage;
