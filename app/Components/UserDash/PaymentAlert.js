@@ -90,7 +90,6 @@ const CoursePaymentCard = ({ courseData }) => {
     .sort((a, b) => new Date(a.date) - new Date(b.date));
   
   // Find next upcoming unpaid date
-  const nextUnpaidDate = upcomingUnpaidDates[0];
   
   const handleNavigateToPayment = () => {
     router.push(`/course/${courseData.courseLink}/payment`);
@@ -111,6 +110,39 @@ const CoursePaymentCard = ({ courseData }) => {
       }))
     };
   });
+
+  // Modified date grouping logic
+  const getNextUnpaidDate = () => {
+    // First, find if any set has a paid date
+    const setsWithPaidDates = courseData.courseDateSets.filter(set => 
+      set.dates.some(date => date.purchased)
+    );
+
+    let relevantDates = allDates;
+    
+    // If there are sets with paid dates, we need to skip earlier unpaid dates
+    if (setsWithPaidDates.length > 0) {
+      const lastPaidSetIndex = courseData.courseDateSets.findIndex(set => 
+        set.dates.some(date => date.purchased)
+      );
+      
+      // Get dates only from sets after the last paid set
+      relevantDates = courseData.courseDateSets
+        .slice(lastPaidSetIndex)
+        .flatMap(set => set.dates);
+    }
+
+    // Filter unpaid dates that are in the future and not in skipped sets
+    const validUnpaidDates = relevantDates
+      .filter(date => !date.purchased)
+      .filter(date => new Date(date.date) >= new Date())
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    return validUnpaidDates[0];
+  };
+
+  // Get the next valid unpaid date
+  const nextUnpaidDate = getNextUnpaidDate();
   
   return (
     <Card sx={{ 
@@ -137,60 +169,85 @@ const CoursePaymentCard = ({ courseData }) => {
     }}>
       <Stack spacing={2}>
         {/* Child Info Section */}
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Avatar 
-            sx={{ 
-              bgcolor: child.childGender === 'Boy' ? 'primary.light' : 'secondary.light',
-              width: 40,
-              height: 40
-            }}
-          >
-            <Person />
-          </Avatar>
-          <Box>
-            <Typography variant="subtitle1" fontWeight={600}>
-              {child.childName}
-            </Typography>
-            <Typography variant="caption" color="text.secondary">
-              {child.childYear} • {child.childGender}
-            </Typography>
-          </Box>
-        </Stack>
-        
-        <Divider />
-        
-        <Box>
-          <Stack direction="row" alignItems="center" justifyContent="space-between">
-            <Typography 
-              variant="subtitle1" 
-              sx={{ 
-                fontWeight: 700, 
-                lineHeight: 1.3,
-              }}
-            >
-              {courseData.courseTitle}
-            </Typography>
-            <Chip 
-              label={`${purchasedDates}/${totalDates} Paid`}
-              size="small"
-              color={purchasedDates === totalDates ? "success" : "warning"}
-              sx={{ 
-                fontWeight: 600,
-                fontSize: '0.75rem'
-              }}
-            />
-          </Stack>
-          
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 0.5 }}>
-            <AccessTime sx={{ fontSize: 16, color: 'text.secondary' }} />
-            <Typography variant="body2" color="text.secondary">
-              {courseData.batchTime}
-            </Typography>
+        <Box sx={{ bgcolor: 'background.default', p: 2, borderRadius: 1 }}>
+          <Grid container spacing={2}>
+            <Grid item xs={12}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <School sx={{ color: 'primary.main', fontSize: 20 }} />
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 700, 
+                      fontSize: '1.1rem',
+                      color: 'primary.main'
+                    }}
+                  >
+                    {courseData.courseTitle}
+                  </Typography>
+                </Stack>
+                <Chip 
+                  label={`${purchasedDates}/${totalDates} Paid`}
+                  size="small"
+                  color={purchasedDates === totalDates ? "success" : "warning"}
+                  sx={{ 
+                    fontWeight: 600,
+                    fontSize: '0.75rem',
+                    borderRadius: '4px'
+                  }}
+                />
+              </Stack>
+            </Grid>
             
-          </Stack>
+            <Grid item xs={12}>
+              <Stack 
+                direction={{ xs: 'column', sm: 'row' }} 
+                spacing={2} 
+                alignItems={{ xs: 'flex-start', sm: 'center' }}
+                justifyContent="space-between"
+              >
+                <Stack direction="row" alignItems="center" spacing={1.5}>
+                  <Avatar 
+                    sx={{ 
+                      bgcolor: 'primary.lighter',
+                      width: 36,
+                      height: 36
+                    }}
+                  >
+                    <Person sx={{ color: 'primary.main', fontSize: 20 }} />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="subtitle1" fontWeight={600} color="text.primary">
+                      {child.childName}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+                      {child.childYear} • {child.childGender}
+                    </Typography>
+                  </Box>
+                </Stack>
+                
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <AccessTime sx={{ fontSize: 16, color: 'text.secondary' }} />
+                  <Typography 
+                    variant="body2" 
+                    color="text.secondary"
+                    sx={{
+                      bgcolor: 'grey.100',
+                      px: 1.5,
+                      py: 0.5,
+                      borderRadius: 1,
+                      fontWeight: 500
+                    }}
+                  >
+                    {courseData.batchTime}
+                  </Typography>
+                </Stack>
+              </Stack>
+            </Grid>
+          </Grid>
         </Box>
-        
-   
+
+        <Divider />
         
         {nextUnpaidDate && (
           <Alert 
@@ -212,7 +269,7 @@ const CoursePaymentCard = ({ courseData }) => {
             
           </Alert>
         )}
-        
+
       <Accordion>
         <AccordionSummary
           expandIcon={<ArrowDropDownIcon />}
