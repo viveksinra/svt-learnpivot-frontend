@@ -95,7 +95,7 @@ const CourseTestTable = ({ data }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Course Schedule
+          Course Report
         </Typography>
   
       </Box>
