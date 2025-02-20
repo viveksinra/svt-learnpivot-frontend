@@ -97,7 +97,19 @@ const CoursePaymentCard = ({ courseData }) => {
 
   const child = courseData.childInfo;
   
-  // Process sets - mark dates as skipped if any date in the set is paid
+  // Find the current active set (the one with unpaid dates)
+  const getCurrentActiveSetIndex = () => {
+    for (let i = 0; i < courseData.courseDateSets.length; i++) {
+      const set = courseData.courseDateSets[i];
+      const hasUnpaidDates = set.dates.some(date => !date.purchased);
+      if (hasUnpaidDates) {
+        return i;
+      }
+    }
+    return -1; // All sets are paid
+  };
+
+  // Process sets - keep original skipped logic
   const processedDateSets = courseData.courseDateSets.map((set, setIndex) => {
     const hasPaidDate = set.dates.some(date => date.purchased);
     
@@ -111,37 +123,24 @@ const CoursePaymentCard = ({ courseData }) => {
     };
   });
 
-  // Modified date grouping logic
+  // New method to get next payment date
   const getNextUnpaidDate = () => {
-    // First, find if any set has a paid date
-    const setsWithPaidDates = courseData.courseDateSets.filter(set => 
-      set.dates.some(date => date.purchased)
-    );
-
-    let relevantDates = allDates;
-    
-    // If there are sets with paid dates, we need to skip earlier unpaid dates
-    if (setsWithPaidDates.length > 0) {
-      const lastPaidSetIndex = courseData.courseDateSets.findIndex(set => 
-        set.dates.some(date => date.purchased)
-      );
-      
-      // Get dates only from sets after the last paid set
-      relevantDates = courseData.courseDateSets
-        .slice(lastPaidSetIndex)
-        .flatMap(set => set.dates);
-    }
-
-    // Filter unpaid dates that are in the future and not in skipped sets
-    const validUnpaidDates = relevantDates
-      .filter(date => !date.purchased)
-      .filter(date => new Date(date.date) >= new Date())
+    // Get all dates with their processed status
+    const allProcessedDates = processedDateSets
+      .flatMap(set => set.dates)
+      .filter(date => 
+        // Must be unpaid
+        !date.purchased && 
+        // Must not be skipped
+        !date.skipped &&
+        // Must be in the future
+        new Date(date.date) >= new Date()
+      )
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    return validUnpaidDates[0];
+    return allProcessedDates[0];
   };
 
-  // Get the next valid unpaid date
   const nextUnpaidDate = getNextUnpaidDate();
   
   return (
