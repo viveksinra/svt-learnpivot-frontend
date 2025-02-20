@@ -14,7 +14,7 @@ const CourseBatchReportPage = () => {
       setLoading(true);
       setError(null);
       try {
-        let response = await registrationService.getMockTestNumbersApi();
+        let response = await registrationService.getCourseTestNumbersApi();
         if (response.variant === "success") {
           setRows(response.data);
         } else {

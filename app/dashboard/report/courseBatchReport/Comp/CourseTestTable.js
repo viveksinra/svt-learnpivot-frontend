@@ -21,7 +21,7 @@ const CourseTestTable = ({ data }) => {
       field: 'title', 
       headerName: 'Title', 
       flex: 1,
-      minWidth: 200,
+      minWidth: 300,
       renderCell: (params) => (
         <Tooltip title={params.value}>
           <span>{params.value}</span>
@@ -95,7 +95,7 @@ const CourseTestTable = ({ data }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Mock Test Schedule
+          Course Schedule
         </Typography>
   
       </Box>

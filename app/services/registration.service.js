@@ -49,6 +49,13 @@ export class RegistrationService {
       })
       .then((res) => res.data);
   };
+  getCourseTestNumbersApi = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/admin/getCourseTestNumbers`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
   
 
