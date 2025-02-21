@@ -182,16 +182,10 @@ const OneClass = ({ data }) => {
               display: 'flex',
               alignItems: 'center',
               boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              '&::before': {
-                content: '"£"',
-                color: '#059669',
-                fontWeight: '700',
-                marginRight: '4px',
-                fontSize: '1.1rem'
-              }
+     
             }}
           >
-            {data.oneClassPrice} Per Class
+            £ {data.oneClassPrice} Per Class
           </Typography>
 
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
