@@ -10,6 +10,7 @@ import {
   FormControl,
   Select,
   MenuItem,
+  Tooltip,
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -43,6 +44,7 @@ const CourseDateSelector = ({
   const [loading, setLoading] = useState(false);
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
+  const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
@@ -90,12 +92,41 @@ console.log("CourseDateSelector",data);
     }
   }, [data.forcefullBuyCourse, data?.allBatch]);
 
+  const findSetIndexForDate = (date) => {
+    return data?.allBatch?.findIndex(batch => 
+      batch.oneBatch.includes(date)
+    );
+  };
+
   const isValidBatchSelection = (batchId, allBatches) => {
     const validBatches = allBatches.filter(batch => !batch.hide && !batch.bookingFull);
     const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
-    
+    const currentBatch = validBatches[batchIndex];
+    const currentBatchIndex = data.allBatch.findIndex(b => b._id === currentBatch._id);
+
+    // If user has purchased sets before
+    if (lastPurchasedSetIndex >= 0) {
+      // Allow selection of current batch if:
+      // 1. It's before or equal to the last purchased set
+      // 2. It's the next set after the last purchased set
+      // 3. Previous set is selected (for sets after lastPurchasedSetIndex + 1)
+      if (currentBatchIndex <= lastPurchasedSetIndex) {
+        return true;
+      } else if (currentBatchIndex === lastPurchasedSetIndex + 1) {
+        return true;
+      } else if (currentBatchIndex === lastPurchasedSetIndex + 2) {
+        // Allow Set 3 if Set 2 is selected (when last purchased was Set 1)
+        return selectedBatches.some(id => {
+          const batch = validBatches.find(b => b._id === id);
+          const index = data.allBatch.findIndex(b => b._id === batch?._id);
+          return index === currentBatchIndex - 1;
+        });
+      }
+      return false;
+    }
+
+    // Original logic for when no sets have been purchased
     if (selectedBatches.length === 0) {
-      // Can select any batch when none are selected
       return true;
     }
 
@@ -105,7 +136,6 @@ console.log("CourseDateSelector",data);
     const minSelected = Math.min(...selectedIndices);
     const maxSelected = Math.max(...selectedIndices);
 
-    // Allow selecting adjacent batch only
     return batchIndex === minSelected - 1 || batchIndex === maxSelected + 1;
   };
 
@@ -223,10 +253,15 @@ console.log("CourseDateSelector",data);
           setAlreadyBoughtDate(res.boughtDates);
           if(res.boughtDates.length > 0){
            setHideStartDateSelector(true);
+           const maxDate = new Date(Math.max(...res.boughtDates.map(d => new Date(d))));
+           const maxDateStr = maxDate.toISOString().split('T')[0];
+           const setIndex = findSetIndexForDate(maxDateStr);
+           setLastPurchasedSetIndex(setIndex);
           }
        
         } else {
           setAlreadyBoughtDate([]);
+          setLastPurchasedSetIndex(-1);
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -237,6 +272,52 @@ console.log("CourseDateSelector",data);
     useEffect(() => {
       getBoughtBatch();
     }, [selectedChild]);
+
+  const isCheckboxDisabled = (batch, batchIndex) => {
+    if (batch.bookingFull || data.forcefullBuyCourse) {
+      return true;
+    }
+
+    const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
+    const selectedIndices = selectedBatches.map(id => 
+      validBatches.findIndex(b => b._id === id)
+    );
+
+    if (selectedIndices.length === 0) {
+      return !isValidBatchSelection(batch._id, data.allBatch);
+    }
+
+    const maxSelectedIndex = Math.max(...selectedIndices);
+    
+    // If this batch is selected
+    if (selectedBatches.includes(batch._id)) {
+      // If there's a selected batch after this one, prevent unchecking
+      const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
+      return maxSelectedIndex > currentBatchIndex;
+    }
+
+    // If not selected, use original validation logic
+    return !isValidBatchSelection(batch._id, data.allBatch);
+  };
+
+  const getTooltipTitle = (batch, batchIndex, isDisabled) => {
+    if (batch.bookingFull) {
+      return "Fully Booked";
+    }
+    if (isDisabled && selectedBatches.length > 0) {
+      const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
+      const selectedIndices = selectedBatches.map(id => 
+        validBatches.findIndex(b => b._id === id)
+      );
+      const maxSelectedIndex = Math.max(...selectedIndices);
+      const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
+      
+      if (maxSelectedIndex > currentBatchIndex) {
+        return "Cannot uncheck when later sets are selected";
+      }
+    }
+    return isDisabled ? "Must purchase sets in order" : "";
+  };
 
   return (
     <Grid container spacing={2}>
@@ -331,101 +412,107 @@ console.log("CourseDateSelector",data);
       ) : (
         data?.allBatch
           .filter(batch => !batch.hide)
-          .map((batch, batchIndex) => (
-        <Grid item xs={12} key={batch._id}>
-          <Paper elevation={2} sx={{ p: 2 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-              <Checkbox
-                checked={selectedBatches.includes(batch._id)}
-                onChange={() => handleBatchSelect(batch._id)}
-                disabled={
-                  batch.bookingFull || 
-                  data.forcefullBuyCourse || 
-                  (!selectedBatches.includes(batch._id) && !isValidBatchSelection(batch._id, data.allBatch))
-                }
-              />
-              <Typography variant="h6" sx={{ mr: 2 }}>
-                Set {batchIndex + 1}
-              </Typography>
-              {batch.bookingFull && (
-                <Chip
-                  label="Fully Booked"
-                  size="small"
-                  sx={{
-                    backgroundColor: '#FEE2E2',
-                    color: '#DC2626',
-                    fontWeight: 'bold'
-                  }}
-                />
-              )}
-            </Box>
-            <Grid container spacing={1.5}>
-              {batch.oneBatch.map((date) => {
-                const isPastDate = new Date(date) <= effectiveDate;
-                const isSelected = isDateSelected(date);
-                const isPurchased = isDateAlreadyPurchased(date);
-                let bgColor = '#F3F4F6'; // default/past date color
-                let textColor = '#9CA3AF'; // past date text color
-                
-                if (!isPastDate) {
-                  if (isPurchased) {
-                    bgColor = '#FFF3CD'; // light yellow for purchased
-                    textColor = '#f0ad4e'; // darker yellow text
-                  } else if (isSelected) {
-                    bgColor = '#E8F5E9'; // light green for selected
-                    textColor = '#2E7D32'; // dark green text
-                  } else {
-                    bgColor = '#FEE2E2'; // light red for not selected
-                    textColor = '#DC2626'; // dark red text
-                  }
-                }
+          .map((batch, batchIndex) => {
+            const isDisabled = isCheckboxDisabled(batch, batchIndex);
+            const tooltipTitle = getTooltipTitle(batch, batchIndex, isDisabled);
 
-                return (
-                  <Grid item xs={6} sm={4} key={date}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        backgroundColor: bgColor,
-                        color: textColor,
-                        padding: '8px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid',
-                        borderColor: isPastDate ? '#E5E7EB' : 
-                                    (isPurchased ? '#ffeeba' :
-                                    (isSelected ? '#A5D6A7' : '#FECACA')),
-                        transition: 'all 0.2s ease',
-                        '&:hover': !isPastDate && !isPurchased && {
-                          transform: 'translateY(-1px)',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                        }
-                      }}
-                    >
-                      <Typography 
-                        variant="body2" 
-                        sx={{ 
-                          fontWeight: 500,
-                          flex: 1
+            return (
+              <Grid item xs={12} key={batch._id}>
+                <Paper elevation={2} sx={{ p: 2 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                    <Tooltip title={tooltipTitle} placement="top">
+                      <span> {/* Wrapper needed for disabled elements */}
+                        <Checkbox
+                          checked={selectedBatches.includes(batch._id)}
+                          onChange={() => handleBatchSelect(batch._id)}
+                          disabled={isDisabled}
+                        />
+                      </span>
+                    </Tooltip>
+                    <Typography variant="h6" sx={{ mr: 2 }}>
+                      Set {batchIndex + 1}
+                    </Typography>
+                    {batch.bookingFull && (
+                      <Chip
+                        label="Fully Booked"
+                        size="small"
+                        sx={{
+                          backgroundColor: '#FEE2E2',
+                          color: '#DC2626',
+                          fontWeight: 'bold'
                         }}
-                      >
-                        {formatDateToShortMonth(date)}
-                      </Typography>
-                      {!isPastDate && (
-                        isPurchased ? 
-                          <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                          (isSelected ? 
-                            <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                            <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
-                      )}
-                    </Box>
+                      />
+                    )}
+                  </Box>
+                  <Grid container spacing={1.5}>
+                    {batch.oneBatch.map((date) => {
+                      const isPastDate = new Date(date) <= effectiveDate;
+                      const isSelected = isDateSelected(date);
+                      const isPurchased = isDateAlreadyPurchased(date);
+                      let bgColor = '#F3F4F6'; // default/past date color
+                      let textColor = '#9CA3AF'; // past date text color
+                      
+                      if (!isPastDate) {
+                        if (isPurchased) {
+                          bgColor = '#FFF3CD'; // light yellow for purchased
+                          textColor = '#f0ad4e'; // darker yellow text
+                        } else if (isSelected) {
+                          bgColor = '#E8F5E9'; // light green for selected
+                          textColor = '#2E7D32'; // dark green text
+                        } else {
+                          bgColor = '#FEE2E2'; // light red for not selected
+                          textColor = '#DC2626'; // dark red text
+                        }
+                      }
+
+                      return (
+                        <Grid item xs={6} sm={4} key={date}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              backgroundColor: bgColor,
+                              color: textColor,
+                              padding: '8px 12px',
+                              borderRadius: '8px',
+                              border: '1px solid',
+                              borderColor: isPastDate ? '#E5E7EB' : 
+                                          (isPurchased ? '#ffeeba' :
+                                          (isSelected ? '#A5D6A7' : '#FECACA')),
+                              transition: 'all 0.2s ease',
+                              '&:hover': !isPastDate && !isPurchased && {
+                                transform: 'translateY(-1px)',
+                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                              }
+                            }}
+                          >
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                fontWeight: 500,
+                                flex: 1
+                              }}
+                            >
+                              {formatDateToShortMonth(date)}
+                            </Typography>
+                            {!isPastDate && (
+                              isPurchased ? 
+                                <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                                (isSelected ? 
+                                  <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                                  <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
+                            )}
+                          </Box>
+                        </Grid>
+                      );
+                    })}
                   </Grid>
-                );
-              })}
-            </Grid>
-          </Paper>
-        </Grid>
-      )))}
+                </Paper>
+              </Grid>
+            );
+          })
+      )}
 
       {/* Legend - Shown once at the bottom */}
   {/* Legend */}
