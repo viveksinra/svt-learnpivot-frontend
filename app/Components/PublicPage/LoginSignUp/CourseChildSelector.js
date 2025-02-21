@@ -317,7 +317,7 @@ const CourseChildSelector = memo(({
           style={{ marginTop: 16 }}
           onClick={() => setStep(3)}
         >
-          {isMobile ? 'Proceed' : 'Proceed to Select Batch'}
+          {isMobile ? 'Proceed' : 'Proceed'}
         </Button>
       )}
     </div>

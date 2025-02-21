@@ -138,7 +138,7 @@ const OneClass = ({ data }) => {
             
             {data.courseClass?.label && (
               <Chip
-                label={`Class ${data.courseClass.label}`}
+                label={`${data.courseClass.label}`}
                 sx={{
                   backgroundColor: '#E0F2FE',
                   color: '#0369A1',
@@ -149,7 +149,7 @@ const OneClass = ({ data }) => {
 
             {data.courseType?.label && (
               <Chip
-                label={`Class ${data.courseType?.label}`}
+                label={`${data.courseType?.label}`}
                 sx={{
                   backgroundColor: '#F3E8FF',
                   color: '#7E22CE',
