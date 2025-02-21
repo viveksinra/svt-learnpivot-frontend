@@ -63,9 +63,10 @@ const EntryArea = forwardRef((props, ref) => {
 
     const [privateAccordion, setPrivateAccordion] = useState(false);
     const [descriptionAccordion, setDescriptionAccordion] = useState(false);
-    const allClass = [
-        { label: "Class 4", id: "4" },
-         { label: "Class 5", id: "5" },
+    const allYear = [
+        { label: "Year 4", id: "4" },
+        { label: "Year 5", id: "5" },
+        { label: "Year 6", id: "6" },
         ];
     const allCourseType = [
         { label: "Full Course", id: "fullCourse" },
@@ -481,7 +482,7 @@ const EntryArea = forwardRef((props, ref) => {
                 <Grid item xs={12} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
-                        options={allClass}
+                        options={allYear}
                         value={courseClass}
                         onChange={(e, v) => {
                             setCourseClass(v);

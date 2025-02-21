@@ -12,12 +12,12 @@ import FilterComponent from "../Components/PublicPage/ClassMockComm/FilterCompon
 function MultiCoursePage() {
   const [filterData, setFilterData] = useState([
     {
-      title: "Class",
+      title: "Year",
       link:"courseClass",
       tags: [
-        { label: "Class 4", id: "4" },
-        { label: "Class 5", id: "5" },
-        { label: "Class 6", id: "6" },
+        { label: "Year 4", id: "4" },
+        { label: "Year 5", id: "5" },
+        { label: "Year 6", id: "6" },
       ]
     },
     {
