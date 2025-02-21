@@ -14,7 +14,6 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
-import InfoIcon from '@mui/icons-material/Info';
 import CoursePayButton from "./CoursePayButton";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import DateLegend from "./DateLegend";
@@ -43,6 +42,7 @@ const CourseDateSelector = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
+  const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
@@ -207,6 +207,10 @@ console.log("CourseDateSelector",data);
     return selectedDates?.includes(date) || false;
   };
 
+  const isDateAlreadyPurchased = (date) => {
+    return alreadyBoughtDate?.includes(date) || false;
+  };
+
     async function getBoughtBatch() {
       setLoading(true);
       try {
@@ -217,6 +221,9 @@ console.log("CourseDateSelector",data);
       
         if (res.variant === "success") {
           setAlreadyBoughtDate(res.boughtDates);
+          if(res.boughtDates.length > 0){
+           setHideStartDateSelector(true);
+          }
        
         } else {
           setAlreadyBoughtDate([]);
@@ -261,7 +268,7 @@ console.log("CourseDateSelector",data);
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
          <StartDateShowCase   startDate={startDate} frontEndTotal={frontEndTotal}
    />
-       {  (!data.restrictStartDateChange && !data.forcefullBuyCourse) &&   <FormControl fullWidth variant="outlined" size="small">
+       {  (!data.restrictStartDateChange && !data.forcefullBuyCourse && !hideStartDateSelector) &&   <FormControl fullWidth variant="outlined" size="small">
               <Select
                 value={startDate}
                 onChange={handleStartDateChange}
@@ -356,11 +363,15 @@ console.log("CourseDateSelector",data);
               {batch.oneBatch.map((date) => {
                 const isPastDate = new Date(date) <= effectiveDate;
                 const isSelected = isDateSelected(date);
+                const isPurchased = isDateAlreadyPurchased(date);
                 let bgColor = '#F3F4F6'; // default/past date color
                 let textColor = '#9CA3AF'; // past date text color
                 
                 if (!isPastDate) {
-                  if (isSelected) {
+                  if (isPurchased) {
+                    bgColor = '#FFF3CD'; // light yellow for purchased
+                    textColor = '#f0ad4e'; // darker yellow text
+                  } else if (isSelected) {
                     bgColor = '#E8F5E9'; // light green for selected
                     textColor = '#2E7D32'; // dark green text
                   } else {
@@ -381,9 +392,11 @@ console.log("CourseDateSelector",data);
                         padding: '8px 12px',
                         borderRadius: '8px',
                         border: '1px solid',
-                        borderColor: isPastDate ? '#E5E7EB' : (isSelected ? '#A5D6A7' : '#FECACA'),
+                        borderColor: isPastDate ? '#E5E7EB' : 
+                                    (isPurchased ? '#ffeeba' :
+                                    (isSelected ? '#A5D6A7' : '#FECACA')),
                         transition: 'all 0.2s ease',
-                        '&:hover': !isPastDate && {
+                        '&:hover': !isPastDate && !isPurchased && {
                           transform: 'translateY(-1px)',
                           boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
                         }
@@ -399,9 +412,11 @@ console.log("CourseDateSelector",data);
                         {formatDateToShortMonth(date)}
                       </Typography>
                       {!isPastDate && (
-                        isSelected ? 
+                        isPurchased ? 
                           <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                          <CancelIcon sx={{ fontSize: 18, ml: 1 }} />
+                          (isSelected ? 
+                            <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                            <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
                       )}
                     </Box>
                   </Grid>
