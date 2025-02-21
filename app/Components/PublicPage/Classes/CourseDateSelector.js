@@ -41,6 +41,9 @@ const CourseDateSelector = ({
   setFrontEndTotal
 }) => {
   const today = new Date();
+  const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
+    ? new Date(today.getTime() - (data.backDayCount * 24 * 60 * 60 * 1000))
+    : today;
 console.log("CourseDateSelector",data);
   
   const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
@@ -143,7 +146,7 @@ console.log("CourseDateSelector",data);
       const firstSelectedBatch = data.allBatch.find(b => b._id === firstSelectedBatchId);
       
       const availableFutureDates = firstSelectedBatch && !firstSelectedBatch.hide && !firstSelectedBatch.bookingFull
-        ? firstSelectedBatch.oneBatch.filter(date => new Date(date) > today)
+        ? firstSelectedBatch.oneBatch.filter(date => new Date(date) > effectiveDate)
         : [];
 
       // Sort available dates chronologically
@@ -154,7 +157,7 @@ console.log("CourseDateSelector",data);
       const allSelectedDates = selectedBatches
         .map(batchId => data.allBatch.find(b => b._id === batchId))
         .filter(batch => batch && !batch.hide && !batch.bookingFull)
-        .flatMap(batch => batch.oneBatch.filter(date => new Date(date) > today));
+        .flatMap(batch => batch.oneBatch.filter(date => new Date(date) > effectiveDate));
 
       // Sort selected dates chronologically
       const sortedSelectedDates = [...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b));
@@ -323,7 +326,7 @@ console.log("CourseDateSelector",data);
             </Box>
             <Grid container spacing={1.5}>
               {batch.oneBatch.map((date) => {
-                const isPastDate = new Date(date) <= today;
+                const isPastDate = new Date(date) <= effectiveDate;
                 const isSelected = isDateSelected(date);
                 let bgColor = '#F3F4F6'; // default/past date color
                 let textColor = '#9CA3AF'; // past date text color

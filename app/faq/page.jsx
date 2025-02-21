@@ -74,48 +74,7 @@ function MyFaq() {
           }}
         >
           <Suspense fallback={<Loading />}>
-            {/* Hero Section */}
-            <Box 
-              sx={{ 
-                py: { xs: 4, md: 6 },
-                bgcolor: alpha(theme.palette.primary.main, 0.08),
-                borderBottom: `1px solid ${alpha(theme.palette.primary.main, 0.1)}`,
-              }}
-            >
-              <Container maxWidth="lg">
-                <Stack spacing={2} alignItems="center" textAlign="center">
-                  <Chip 
-                    label="HELP CENTER" 
-                    color="primary" 
-                    size="small"
-                    sx={{ 
-                      fontWeight: 600,
-                      mb: 1
-                    }}
-                  />
-                  <Typography 
-                    variant="h3" 
-                    component="h1" 
-                    fontWeight="bold"
-                    sx={{
-                      fontSize: { xs: '1.75rem', sm: '2.25rem', md: '2.75rem' }
-                    }}
-                  >
-                    {getFaqTitle()}
-                  </Typography>
-                  <Typography 
-                    variant="body1" 
-                    color="text.secondary"
-                    sx={{
-                      maxWidth: '800px',
-                      mb: 2
-                    }}
-                  >
-                    Find answers to your questions about our services, courses, and mock tests. Can't find what you're looking for? Use the enquiry form below.
-                  </Typography>
-                </Stack>
-              </Container>
-            </Box>
+          
 
             {/* FAQ Section */}
             <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
