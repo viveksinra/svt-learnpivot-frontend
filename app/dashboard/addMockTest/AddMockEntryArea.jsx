@@ -157,8 +157,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
     };
 
     const removeBatchEntry = (index) => {
-        const updatedBatch = batch.filter((_, i) => i !== index);
-        setBatch(updatedBatch);
+        if (window.confirm('Are you sure you want to delete this batch?')) {
+            const updatedBatch = batch.filter((_, i) => i !== index);
+            setBatch(updatedBatch);
+        }
     };
 
     useImperativeHandle(ref, () => ({
