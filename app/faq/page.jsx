@@ -45,18 +45,6 @@ function MyFaq() {
     setCurrentFaqType(faqTypes[newValue].value);
   };
 
-  const getFaqTitle = () => {
-    switch(currentFaqType) {
-      case "courseFaqData": 
-        return "Course-Related Questions";
-      case "csseMockFaqData":
-        return "CSSE Mock Test Questions";
-      case "fsseMockFaqData":
-        return "FSSE Mock Test Questions";
-      default:
-        return "Frequently Asked Questions";
-    }
-  };
 
   return (
     <Fragment>

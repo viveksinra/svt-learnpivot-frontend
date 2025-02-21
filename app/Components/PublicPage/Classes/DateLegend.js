@@ -24,7 +24,7 @@ const DateLegend = () => {
           <Grid item xs={4}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
               <InfoIcon color="disabled" sx={{ fontSize: 16 }} />
-              <Typography variant="body2">Past Date</Typography>
+              <Typography variant="body2">Booking Closed</Typography>
             </Box>
           </Grid>
         </Grid>
