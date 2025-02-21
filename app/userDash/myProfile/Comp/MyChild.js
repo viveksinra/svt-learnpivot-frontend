@@ -51,92 +51,142 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
         border: '1px solid',
         borderColor: 'divider',
         transition: 'all 0.3s ease',
+        bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50',
         '&:hover': {
-          transform: 'translateY(-4px)',
+          transform: { xs: 'none', sm: 'translateY(-4px)' },
           boxShadow: (theme) => theme.shadows[4],
           borderColor: 'primary.main'
         }
       }}
     >
-      <CardContent>
-        <Stack direction="row" spacing={3} alignItems="center">
-          <Avatar
-            sx={{
-              width: 56,
-              height: 56,
-              bgcolor: 'primary.main',
-              fontSize: '1.5rem',
-              fontWeight: 'bold'
-            }}
+      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+        {/* Main Content Stack */}
+        <Stack 
+          direction="column" 
+          spacing={2}
+        >
+          {/* Header with Avatar and Actions */}
+          <Stack 
+            direction="row" 
+            justifyContent="space-between" 
+            alignItems="center"
+            spacing={2}
           >
-            {child.childName.charAt(0)}
-          </Avatar>
-
-          <Box flex={1}>
-            <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
-              {child.childName}
-            </Typography>
-
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-              <Box
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Avatar
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  bgcolor: 'primary.lighter',
-                  color: 'primary.main',
-                  py: 0.5,
-                  px: 1.5,
-                  borderRadius: 2,
-                  fontSize: '0.875rem'
+                  width: { xs: 48, sm: 56 },
+                  height: { xs: 48, sm: 56 },
+                  bgcolor: 'primary.main',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                  fontWeight: 'bold'
                 }}
               >
-                <School fontSize="small" />
-                {child.childYear}
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  bgcolor: 'grey.100',
-                  color: 'grey.700',
-                  py: 0.5,
-                  px: 1.5,
-                  borderRadius: 2,
-                  fontSize: '0.875rem'
+                {child.childName.charAt(0)}
+              </Avatar>
+              <Typography 
+                variant="h6" 
+                sx={{ 
+                  fontWeight: 600,
+                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
                 }}
               >
-                <Cake fontSize="small" />
-                {formatDate(child.childDob)}
-              </Box>
-
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 1,
-                  bgcolor: 'grey.100',
-                  color: 'grey.700',
-                  py: 0.5,
-                  px: 1.5,
-                  borderRadius: 2,
-                  fontSize: '0.875rem'
-                }}
-              >
-                <Person fontSize="small" />
-                {child.childGender}
-              </Box>
+                {child.childName}
+              </Typography>
             </Stack>
-          </Box>
-          <Stack direction="row">
-            <IconButton onClick={() => onEdit(child)}>
-              <EditIcon />
-            </IconButton>
-            <IconButton onClick={() => onDelete(child)} color="error">
-              <DeleteIcon />
-            </IconButton>
+
+            {/* Action Buttons */}
+            <Stack 
+              direction="row" 
+              spacing={1}
+              sx={{
+                '& .MuiIconButton-root': {
+                  width: { xs: 40, sm: 44 },
+                  height: { xs: 40, sm: 44 }
+                }
+              }}
+            >
+              <IconButton 
+                onClick={() => onEdit(child)}
+                sx={{ 
+                  bgcolor: 'action.selected',
+                  '&:hover': { bgcolor: 'action.hover' }
+                }}
+              >
+                <EditIcon fontSize="small" />
+              </IconButton>
+              <IconButton 
+                onClick={() => onDelete(child)} 
+                color="error"
+                sx={{ 
+                  bgcolor: 'error.lighter',
+                  '&:hover': { bgcolor: 'error.light' }
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Stack>
+          </Stack>
+
+          {/* Info Chips */}
+          <Stack 
+            direction={{ xs: 'column', sm: 'row' }} 
+            spacing={{ xs: 1, sm: 2 }}
+            sx={{ mt: { xs: 2, sm: 1 } }}
+          >
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                bgcolor: 'primary.lighter',
+                color: 'primary.main',
+                py: 1,
+                px: 2,
+                borderRadius: 2,
+                fontSize: '0.875rem',
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
+              <School fontSize="small" />
+              {child.childYear}
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                bgcolor: 'grey.100',
+                color: 'grey.700',
+                py: 1,
+                px: 2,
+                borderRadius: 2,
+                fontSize: '0.875rem',
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
+              <Cake fontSize="small" />
+              {formatDate(child.childDob)}
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                bgcolor: 'grey.100',
+                color: 'grey.700',
+                py: 1,
+                px: 2,
+                borderRadius: 2,
+                fontSize: '0.875rem',
+                width: { xs: '100%', sm: 'auto' }
+              }}
+            >
+              <Person fontSize="small" />
+              {child.childGender}
+            </Box>
           </Stack>
         </Stack>
       </CardContent>
@@ -389,15 +439,29 @@ const ChildrenList = () => {
           borderRadius: 4,
           border: '1px solid',
           borderColor: 'divider',
-          height: '100%'
+          height: '100%',
+          bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50'
         }}
       >
         <CardContent sx={{ p: 4 }}>
-          <Typography variant="h5" sx={{ fontWeight: 600, mb: 3 }}>
-            Children
+          <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: 'primary.main' }}>
+           My Childrens
           </Typography>
           <Box sx={{ textAlign: 'right', mb: 2 }}>
-            <Button variant="contained" onClick={() => handleOpenChildDialog()}>
+            <Button
+              variant="contained"
+              onClick={() => handleOpenChildDialog()}
+              sx={{
+                borderRadius: 2,
+                textTransform: 'none',
+                px: 3,
+                py: 1,
+                bgcolor: 'primary.main',
+                '&:hover': {
+                  bgcolor: 'primary.dark',
+                }
+              }}
+            >
               Add Child
             </Button>
           </Box>
