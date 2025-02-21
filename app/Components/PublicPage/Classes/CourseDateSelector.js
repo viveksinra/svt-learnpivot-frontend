@@ -191,7 +191,9 @@ console.log("CourseDateSelector",data);
       const allSelectedDates = selectedBatches
         .map(batchId => data.allBatch.find(b => b._id === batchId))
         .filter(batch => batch && !batch.hide && !batch.bookingFull)
-        .flatMap(batch => batch.oneBatch.filter(date => new Date(date) > effectiveDate));
+        .flatMap(batch => batch.oneBatch.filter(date => 
+          new Date(date) > effectiveDate && !alreadyBoughtDate.includes(date)
+        ));
 
       // Sort selected dates chronologically
       const sortedSelectedDates = [...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b));
@@ -224,10 +226,12 @@ console.log("CourseDateSelector",data);
     const allSelectedDates = selectedBatches
       .map(batchId => data?.allBatch?.find(b => b._id === batchId))
       .filter(batch => batch && !batch.hide && !batch.bookingFull)
-      .flatMap(batch => batch.oneBatch.filter(date => new Date(date) >= selectedStartDate));
+      .flatMap(batch => batch.oneBatch.filter(date => 
+        new Date(date) >= selectedStartDate && !alreadyBoughtDate.includes(date)
+      ));
 
     if (allSelectedDates?.length > 0) {
-      setSelectedDates(allSelectedDates);
+      setSelectedDates([...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b)));
     } else {
       setSelectedDates([]);
     }
@@ -280,7 +284,7 @@ console.log("CourseDateSelector",data);
 
     const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
     const selectedIndices = selectedBatches.map(id => 
-      validBatches.findIndex(b => b._id === id)
+      validBatches.findIndex(batch => batch._id === id)
     );
 
     if (selectedIndices.length === 0) {
