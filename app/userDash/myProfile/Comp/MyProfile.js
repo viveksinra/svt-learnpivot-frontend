@@ -165,12 +165,12 @@ const UserProfile = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, ...extra } = e.target;
     setProfile((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      ...extra
     }));
-
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
