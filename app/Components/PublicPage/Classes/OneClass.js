@@ -10,7 +10,8 @@ import {
   DialogActions,
   Button,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Box
 } from "@mui/material";
 import Link from "next/link";
 import ImageCarousel from "../../Common/ImageCarousel";
@@ -168,26 +169,18 @@ const OneClass = ({ data }) => {
               />
             )}
           </div>
-          <Typography
-            sx={{
-              backgroundColor: '#F8FAFC',
-              color: '#0F172A',
-              p: '12px 16px',
-              mt: 2,
+ 
+          <Box sx={{
+              backgroundColor:  '#FCD34D',
+              padding: '4px 8px',
               borderRadius: '8px',
-              fontSize: '1rem',
               maxWidth: 'fit-content',
-              fontWeight: '600',
-              border: '1px solid #E2E8F0',
-              display: 'flex',
-              alignItems: 'center',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-     
-            }}
-          >
-            £ {data.oneClassPrice} Per Class
-          </Typography>
-
+              marginTop: '16px'
+            }}>
+              <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+              £ {data.oneClassPrice} Per Class
+              </Typography>
+            </Box>
           <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
             <button 
               style={{
