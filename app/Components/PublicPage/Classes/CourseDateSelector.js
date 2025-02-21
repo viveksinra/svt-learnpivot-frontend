@@ -17,6 +17,7 @@ import CancelIcon from '@mui/icons-material/Cancel';
 import InfoIcon from '@mui/icons-material/Info';
 import CoursePayButton from "./CoursePayButton";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
+import DateLegend from "./DateLegend";
 
 const CourseDateSelector = ({
   isMobile,
@@ -383,33 +384,8 @@ console.log("CourseDateSelector",data);
       )))}
 
       {/* Legend - Shown once at the bottom */}
-      {!singleBatchWithOneDate && (
-        <Grid item xs={12}>
-          <Paper elevation={1} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
-  
-          <Grid container spacing={2}>
-            <Grid item xs={4}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CheckCircleIcon color="success" sx={{ fontSize: 16 }} />
-                <Typography variant="body2">Selected Date</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={4}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CancelIcon color="error" sx={{ fontSize: 16 }} />
-                <Typography variant="body2">Not Selected</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={4}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <InfoIcon color="disabled" sx={{ fontSize: 16 }} />
-                <Typography variant="body2">Past Date</Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        </Paper>
-      </Grid>
-      )}
+  {/* Legend */}
+  {!singleBatchWithOneDate && <DateLegend />}
 
       {/* Payment Button */}
       <Box
