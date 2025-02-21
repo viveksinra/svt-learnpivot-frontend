@@ -19,6 +19,7 @@ import CoursePayButton from "./CoursePayButton";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import DateLegend from "./DateLegend";
 import StartDateShowCase from "./StartDateShowCase";
+import { myCourseService } from "@/app/services";
 
 const CourseDateSelector = ({
   isMobile,
@@ -40,6 +41,9 @@ const CourseDateSelector = ({
   frontEndTotal,
   setFrontEndTotal
 }) => {
+  const [loading, setLoading] = useState(false);
+  const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
+
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
     ? new Date(today.getTime() - (data.backDayCount * 24 * 60 * 60 * 1000))
@@ -202,6 +206,30 @@ console.log("CourseDateSelector",data);
   const isDateSelected = (date) => {
     return selectedDates?.includes(date) || false;
   };
+
+    async function getBoughtBatch() {
+      setLoading(true);
+      try {
+        let res = await myCourseService.alreadyBoughtDate({
+          childId: selectedChild._id, 
+          id: `${data._id}`
+        });
+      
+        if (res.variant === "success") {
+          setAlreadyBoughtDate(res.boughtDates);
+       
+        } else {
+          setAlreadyBoughtDate([]);
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }   
+      setLoading(false);
+    }
+  
+    useEffect(() => {
+      getBoughtBatch();
+    }, [selectedChild]);
 
   return (
     <Grid container spacing={2}>
