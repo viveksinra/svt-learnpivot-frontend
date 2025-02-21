@@ -7,6 +7,11 @@ import {
   AccordionItemButton
 } from "react-accessible-accordion";
 
+// courseFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const courseFaqData = [ 
   {
       id: "1",
@@ -75,7 +80,11 @@ const courseFaqData = [
   }
 ];
 
-
+// csseMockFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const csseMockFaqData = [
   {
       id: "1",
@@ -165,6 +174,11 @@ const csseMockFaqData = [
   }
 ];
 
+// fsseMockFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const fsseMockFaqData = [
   {
       id: "1",
@@ -247,7 +261,11 @@ const fsseMockFaqData = [
   }
 ];
 
-
+// faqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const faqData = [
   {
     id: "1",
