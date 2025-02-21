@@ -579,7 +579,7 @@ const EntryArea = forwardRef((props, ref) => {
                            onChange={() => setAllowBackDateBuy(!allowBackDateBuy)}
                            inputProps={{ 'aria-label': 'controlled' }}
                          />               
-                     } label={`All Back Date Buy`} />
+                     } label={`Allow Back Date Buy`} />
                   
                 </Grid>
                 <Grid item xs={12} md={8}>
