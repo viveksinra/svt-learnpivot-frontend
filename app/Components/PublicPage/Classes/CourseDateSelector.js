@@ -83,12 +83,47 @@ console.log("CourseDateSelector",data);
     }
   }, [data.forcefullBuyCourse, data?.allBatch]);
 
+  const isValidBatchSelection = (batchId, allBatches) => {
+    const validBatches = allBatches.filter(batch => !batch.hide && !batch.bookingFull);
+    const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
+    
+    if (selectedBatches.length === 0) {
+      // Can select any batch when none are selected
+      return true;
+    }
+
+    const selectedIndices = selectedBatches.map(id => 
+      validBatches.findIndex(batch => batch._id === id)
+    );
+    const minSelected = Math.min(...selectedIndices);
+    const maxSelected = Math.max(...selectedIndices);
+
+    // Allow selecting adjacent batch only
+    return batchIndex === minSelected - 1 || batchIndex === maxSelected + 1;
+  };
+
   const handleBatchSelect = (batchId) => {
     if (data.forcefullBuyCourse) return;
+
     let updatedBatches;
     if (selectedBatches.includes(batchId)) {
-      updatedBatches = selectedBatches.filter((id) => id !== batchId);
+      // When deselecting, only allow if it's at the end of the sequence
+      const validBatches = data.allBatch.filter(batch => !batch.hide && !batch.bookingFull);
+      const selectedIndices = selectedBatches.map(id => 
+        validBatches.findIndex(batch => batch._id === id)
+      );
+      const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
+      
+      if (batchIndex === Math.max(...selectedIndices) || batchIndex === Math.min(...selectedIndices)) {
+        updatedBatches = selectedBatches.filter((id) => id !== batchId);
+      } else {
+        return; // Cannot deselect from middle of sequence
+      }
     } else {
+      // When selecting, only allow if it's adjacent to current selection
+      if (!isValidBatchSelection(batchId, data.allBatch)) {
+        return;
+      }
       updatedBatches = [...selectedBatches, batchId].sort();
     }
 
@@ -265,7 +300,11 @@ console.log("CourseDateSelector",data);
               <Checkbox
                 checked={selectedBatches.includes(batch._id)}
                 onChange={() => handleBatchSelect(batch._id)}
-                disabled={batch.bookingFull || data.forcefullBuyCourse}
+                disabled={
+                  batch.bookingFull || 
+                  data.forcefullBuyCourse || 
+                  (!selectedBatches.includes(batch._id) && !isValidBatchSelection(batch._id, data.allBatch))
+                }
               />
               <Typography variant="h6" sx={{ mr: 2 }}>
                 Set {batchIndex + 1}
