@@ -65,7 +65,7 @@ const EmptyState = () => {
           No Payment Alerts Found
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          You're all set! There are no pending payments for upcoming classes.
+          You're all set! There are no pending payments for upcoming Courses.
         </Typography>
       </Box>
     </Card>
@@ -262,7 +262,7 @@ const CoursePaymentCard = ({ courseData }) => {
                 Payment Due
               </Typography>
               <Typography variant="body2">
-                Next class on {moment(nextUnpaidDate.date).format('dddd, MMMM D, YYYY')} requires payment
+                Next Course on {moment(nextUnpaidDate.date).format('dddd, MMMM D, YYYY')} requires payment
               </Typography>
             </Stack>
             
@@ -303,7 +303,7 @@ const CoursePaymentCard = ({ courseData }) => {
         {processedDateSets.map((set, setIndex) => (
           <Box key={setIndex} sx={{ mt: setIndex > 0 ? 2 : 0 }}>
             <Typography variant="subtitle2" gutterBottom>
-              Set {set.setNumber} Classes:
+              Set {set.setNumber} Courses:
             </Typography>
             
             <Grid container spacing={1}>
