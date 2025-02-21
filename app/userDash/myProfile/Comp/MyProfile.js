@@ -315,7 +315,7 @@ const UserProfile = () => {
           color: 'white'
         }}>
           <Typography variant="h5" fontWeight="600">
-            User Profile
+            My Profile
           </Typography>
         </Box>
         

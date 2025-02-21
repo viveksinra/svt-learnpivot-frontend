@@ -119,7 +119,7 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
       }}
     >
       <DialogTitle sx={{ color: 'primary.main', fontWeight: 600 }}>
-        {editMode ? 'Edit Child' : 'Add Child'}
+        {editMode ? 'Edit Child' : 'Add New Child'}
       </DialogTitle>
       <DialogContent>
         <Box sx={{ mt: 2 }}>
