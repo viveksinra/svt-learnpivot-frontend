@@ -139,7 +139,7 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {data.courseClass?.label && (
               <Chip
-                label={`Class ${data.courseClass.label}`}
+                label={`${data.courseClass.label}`}
                 sx={{
                   backgroundColor: '#E0F2FE',
                   color: '#0369A1',
