@@ -18,6 +18,16 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
     childGender: '',
     childYear: ''
   });
+
+  // Add this new useEffect to reset errors when dialog opens/closes
+  useEffect(() => {
+    setErrors({
+      childName: '',
+      childDob: '',
+      childGender: '',
+      childYear: ''
+    });
+  }, [open]);
   
   useEffect(() => {
     if (editMode && initialData) {
@@ -50,6 +60,13 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
         childYear: ''
       });
     }
+    // Reset errors when switching between add/edit modes
+    setErrors({
+      childName: '',
+      childDob: '',
+      childGender: '',
+      childYear: ''
+    });
   }, [editMode, initialData, open]); // Added 'open' as dependency
 
   const validateForm = () => {
@@ -105,10 +122,21 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
     onSubmit(childData);
   };
 
+  // Modify the onClose handler to wrap the original onClose
+  const handleClose = () => {
+    setErrors({
+      childName: '',
+      childDob: '',
+      childGender: '',
+      childYear: ''
+    });
+    onClose();
+  };
+
   return (
     <Dialog 
       open={open} 
-      onClose={onClose} 
+      onClose={handleClose} // Change this from onClose to handleClose
       fullWidth 
       maxWidth="xs"
       PaperProps={{
@@ -179,7 +207,7 @@ const ChildDialog = ({ open, onClose, onSubmit, editMode, initialData }) => {
       </DialogContent>
       <DialogActions sx={{ p: 2.5, display: 'flex', gap: 1 }}>
         <Button 
-          onClick={onClose} 
+          onClick={handleClose} 
           sx={{ 
             color: 'white', 
             backgroundColor: 'error.main',
