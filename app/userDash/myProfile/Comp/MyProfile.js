@@ -390,26 +390,6 @@ const UserProfile = () => {
                 helperText={errors.address3}
                 component={AddressInput}
               />
-              {isEditing && (
-                <>
-                  <ProfileInfo
-                    icon={LocationIcon}
-                    label="Address Line 2"
-                    value={profile?.address2}
-                    isEditing={isEditing}
-                    name="address2"
-                    onChange={handleChange}
-                  />
-                  <ProfileInfo
-                    icon={LocationIcon}
-                    label="Address Line 3"
-                    value={profile?.address3}
-                    isEditing={isEditing}
-                    name="address3"
-                    onChange={handleChange}
-                  />
-                </>
-              )}
               <ProfileInfo
                 icon={LocationIcon}
                 label="City"
