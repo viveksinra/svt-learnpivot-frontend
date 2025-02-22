@@ -359,13 +359,35 @@ const UserProfile = () => {
               />
               <ProfileInfo
                 icon={LocationIcon}
-                label="Address"
+                label="Address Line 1"
                 value={profile?.address1}
                 isEditing={isEditing}
                 name="address1"
                 onChange={handleChange}
                 error={!!errors.address1}
                 helperText={errors.address1}
+                component={AddressInput}
+              />
+              <ProfileInfo
+                icon={LocationIcon}
+                label="Address Line 2"
+                value={profile?.address2}
+                isEditing={isEditing}
+                name="address2"
+                onChange={handleChange}
+                error={!!errors.address2}
+                helperText={errors.address2}
+                component={AddressInput}
+              />
+              <ProfileInfo
+                icon={LocationIcon}
+                label="Address Line 3"
+                value={profile?.address3}
+                isEditing={isEditing}
+                name="address3"
+                onChange={handleChange}
+                error={!!errors.address3}
+                helperText={errors.address3}
                 component={AddressInput}
               />
               {isEditing && (
