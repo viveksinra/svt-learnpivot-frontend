@@ -56,6 +56,16 @@ const CourseChildSelector = memo(({
   const isInitialMount = useRef(true);
   const childrenLoaded = useRef(false);
 
+    // Add this new useEffect to reset errors when dialog opens/closes
+    useEffect(() => {
+      setErrors({
+        childName: '',
+        childDob: '',
+        childGender: '',
+        childYear: ''
+      });
+    }, [open]);
+
   const formatDate = useCallback((dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
