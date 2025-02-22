@@ -377,7 +377,6 @@ const UserProfile = () => {
                 onChange={handleChange}
                 error={!!errors.address2}
                 helperText={errors.address2}
-                component={AddressInput}
               />
               <ProfileInfo
                 icon={LocationIcon}
@@ -388,7 +387,6 @@ const UserProfile = () => {
                 onChange={handleChange}
                 error={!!errors.address3}
                 helperText={errors.address3}
-                component={AddressInput}
               />
               <ProfileInfo
                 icon={LocationIcon}
