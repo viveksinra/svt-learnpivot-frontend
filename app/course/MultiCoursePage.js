@@ -1,6 +1,5 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
-import "./classes.css";
 import { Container, Typography, Grid, TablePagination, CircularProgress } from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
 import OneClass from "../Components/PublicPage/Classes/OneClass";
