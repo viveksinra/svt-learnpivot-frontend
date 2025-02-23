@@ -10,7 +10,8 @@ import {
   DialogActions,
   Button,
   useMediaQuery,
-  useTheme
+  useTheme,
+  Stack
 } from "@mui/material";
 import Link from "next/link";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
@@ -57,13 +58,46 @@ const AnimatedButton = styled('button')(({ theme }) => ({
   }
 }));
 
-const BatchButton = styled(Button)({
+const BatchButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#EDE9FE',
   color: '#5B21B6',
+  padding: '8px 24px !important',
+  minWidth: 'fit-content !important',
+  maxWidth: 'max-content !important',
+  width: 'auto !important',
+  flex: '0 0 auto !important',
+  '&.MuiButton-root': {
+    padding: '8px 24px !important',
+    minWidth: 'fit-content !important',
+    width: 'auto !important'
+  },
   '&:hover': {
     backgroundColor: '#DDD6FE',
   },
-});
+  '& .MuiButton-startIcon': {
+    marginRight: '8px',
+    marginLeft: 0
+  }
+}));
+
+const FAQButton = styled(Button)(({ theme }) => ({
+  backgroundColor: '#FCD34D',
+  color: '#1F2937',
+  padding: '8px 24px !important',
+  minWidth: 'fit-content !important',
+  maxWidth: 'max-content !important',
+  width: 'auto !important',
+  flex: '0 0 auto !important',
+  fontWeight: 'bold',
+  '&.MuiButton-root': {
+    padding: '8px 24px !important',
+    minWidth: 'fit-content !important',
+    width: 'auto !important'
+  },
+  '&:hover': {
+    backgroundColor: '#F6B935',
+  }
+}));
 
 const OneMockTest = ({ data }) => {
   const [openBatchModal, setOpenBatchModal] = useState(false);
@@ -197,34 +231,41 @@ const OneMockTest = ({ data }) => {
           </div>
 
           {/* Action Buttons */}
-          <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
-            <button 
-              style={{
-                backgroundColor: '#FCD34D',
-                color: '#1F2937',
-                padding: '8px 24px',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              onClick={() => setOpenFAQModal(true)}
-            >
-              FAQS
-            </button>
-            <BatchButton
-              variant="contained"
-              onClick={() => setOpenBatchModal(true)}
-              startIcon={<CalendarMonthIcon />}
-            >
-               Batches
-            </BatchButton>
-            <Link href={"/mockTest/buy/" + data._id}>
-              <AnimatedButton>
-                BUY NOW
-              </AnimatedButton>
-            </Link>
-          </div>
+          <Stack 
+  direction="row" 
+  spacing={2} 
+  sx={{ 
+    mt: 2,
+    '& .MuiButton-root': {
+      padding: '8px 24px !important',
+      minWidth: 'fit-content',
+    },
+    '& a': {
+      margin: 0,
+      padding: 0,
+      display: 'flex'
+    }
+  }}
+>
+  <FAQButton
+    variant="contained"
+    onClick={() => setOpenFAQModal(true)}
+  >
+    FAQS
+  </FAQButton>
+  <BatchButton
+    variant="contained"
+    onClick={() => setOpenBatchModal(true)}
+    startIcon={<CalendarMonthIcon />}
+  >
+    Batches
+  </BatchButton>
+  <Link href={"/mockTest/buy/" + data._id} style={{ textDecoration: 'none' }}>
+    <AnimatedButton>
+      BUY NOW
+    </AnimatedButton>
+  </Link>
+</Stack>
         </Grid>
       </Grid>
 

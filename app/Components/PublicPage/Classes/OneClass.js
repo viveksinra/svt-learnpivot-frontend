@@ -11,7 +11,8 @@ import {
   Button,
   useMediaQuery,
   useTheme,
-  Box
+  Box,
+  Stack
 } from "@mui/material";
 import Link from "next/link";
 import ImageCarousel from "../../Common/ImageCarousel";
@@ -183,34 +184,38 @@ const OneClass = ({ data }) => {
               £ {data.oneClassPrice} Per Class
               </Typography>
             </Box>
-          <div style={{ display: 'flex', gap: '16px', marginTop: '16px' }}>
-            <button 
-              style={{
-                backgroundColor: '#FCD34D',
-                color: '#1F2937',
-                padding: '8px 24px',
-                borderRadius: '4px',
-                fontWeight: 'bold',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-              onClick={() => setOpenFAQModal(true)}
-            >
-              FAQS
-            </button>
-            <InfoButton
-              variant="contained"
-              onClick={() => setOpenDetailsModal(true)}
-              startIcon={<CalendarMonthIcon />}
-            >
-              Course Info
-            </InfoButton>
-            <Link href={"/course/buy/" + data._id}>
-              <AnimatedButton>
-                ENROLL NOW
-              </AnimatedButton>
-            </Link>
-          </div>
+<Stack 
+  direction="row" 
+  spacing={2} 
+  sx={{ mt: 2 }}
+>
+  <button 
+    style={{
+      backgroundColor: '#FCD34D',
+      color: '#1F2937',
+      padding: '8px 24px',
+      borderRadius: '4px',
+      fontWeight: 'bold',
+      border: 'none',
+      cursor: 'pointer'
+    }}
+    onClick={() => setOpenFAQModal(true)}
+  >
+    FAQS
+  </button>
+  <InfoButton
+    variant="contained"
+    onClick={() => setOpenDetailsModal(true)}
+    startIcon={<CalendarMonthIcon />}
+  >
+    Course Info
+  </InfoButton>
+  <Link href={"/course/buy/" + data._id}>
+    <AnimatedButton>
+      ENROLL NOW
+    </AnimatedButton>
+  </Link>
+</Stack>
         </Grid>
       </Grid>
 

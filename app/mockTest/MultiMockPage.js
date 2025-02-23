@@ -1,13 +1,9 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
-import "./classes.css";
 import { Container, Typography, Grid, Breadcrumbs, Divider, Tabs, Tab, TablePagination, CircularProgress } from "@mui/material";
-import Footer from "../Components/Footer/Footer";
 import OneMockTest from "../Components/PublicPage/MockTest/OneMockTest";
 import { Dialog, useMediaQuery, useTheme, Button, DialogActions, DialogContent } from "@mui/material";
-import Slide from '@mui/material/Slide';
 import { mockTestService, myCourseService } from "../services";
-import Loading from "../Components/Loading/Loading";
 import NoResult from "../Components/NoResult/NoResult";
 
 import FilterDialog from "../Components/PublicPage/ClassMockComm/FilterDialog";
