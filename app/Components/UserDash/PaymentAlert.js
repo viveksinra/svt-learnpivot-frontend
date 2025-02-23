@@ -220,7 +220,8 @@ const CoursePaymentCard = ({ courseData }) => {
                       {child.childName}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      {child.childYear} • {child.childGender}
+                      {child.childYear}
+                       {/* • {child.childGender} */}
                     </Typography>
                   </Box>
                 </Stack>
@@ -469,7 +470,7 @@ export const PaymentAlert = ({ selectedChild }) => {
             fontSize: isMobile ? '1.25rem' : '1.5rem'
           }}
         >
-        Upcomming Payment Alerts
+        Upcoming Payment Alerts
         </Typography>
         {courseData.length > 0 && (
           <Chip 

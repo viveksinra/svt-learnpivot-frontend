@@ -445,7 +445,7 @@ const ChildrenList = () => {
       >
         <CardContent sx={{ p: 4 }}>
           <Typography variant="h5" sx={{ fontWeight: 600, mb: 3, color: 'primary.main' }}>
-           My Childrens
+           My Children
           </Typography>
           <Box sx={{ textAlign: 'right', mb: 2 }}>
             <Button

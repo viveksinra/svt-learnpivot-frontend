@@ -186,7 +186,7 @@ const OneClass = ({ data }) => {
               marginTop: '16px'
             }}>
               <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-              £ {data.oneClassPrice} Per Class
+              £{data.oneClassPrice} Per Class
               </Typography>
             </Box>
           {/* Action Buttons */}
