@@ -24,11 +24,11 @@ import { styled } from '@mui/material/styles';
 import FaqCom from "../../ITStartup/Faq/FaqCom";
 import CloseIcon from '@mui/icons-material/Close';
 
-// Styled button with animation
-const AnimatedButton = styled('button')(({ theme }) => ({
-  backgroundColor: '#F97316',
-  color: 'white',
-  padding: '8px 24px',
+// Update AnimatedButton to accept custom colors
+const AnimatedButton = styled('button')(({ theme, bgcolor, hovercolor, textcolor = 'white' }) => ({
+  backgroundColor: bgcolor || '#F97316',
+  color: textcolor,
+  padding: '8px 20px', // Reduced padding
   borderRadius: '4px',
   fontWeight: 'bold',
   border: 'none',
@@ -36,9 +36,14 @@ const AnimatedButton = styled('button')(({ theme }) => ({
   transition: 'all 0.3s ease',
   position: 'relative',
   overflow: 'hidden',
+  minWidth: 'fit-content',
+  maxWidth: 'max-content',
+  whiteSpace: 'nowrap', // Prevent text wrapping
+  flex: '0 0 auto',
   '&:hover': {
     transform: 'translateY(-2px)',
     boxShadow: '0 5px 15px rgba(0,0,0,0.4)',
+    backgroundColor: hovercolor || '#E85D04',
   },
   '&:active': {
     transform: 'translateY(0)',
@@ -55,47 +60,6 @@ const AnimatedButton = styled('button')(({ theme }) => ({
   },
   '&:hover::after': {
     left: '100%',
-  }
-}));
-
-const BatchButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#EDE9FE',
-  color: '#5B21B6',
-  padding: '8px 24px !important',
-  minWidth: 'fit-content !important',
-  maxWidth: 'max-content !important',
-  width: 'auto !important',
-  flex: '0 0 auto !important',
-  '&.MuiButton-root': {
-    padding: '8px 24px !important',
-    minWidth: 'fit-content !important',
-    width: 'auto !important'
-  },
-  '&:hover': {
-    backgroundColor: '#DDD6FE',
-  },
-  '& .MuiButton-startIcon': {
-    marginRight: '8px',
-    marginLeft: 0
-  }
-}));
-
-const FAQButton = styled(Button)(({ theme }) => ({
-  backgroundColor: '#FCD34D',
-  color: '#1F2937',
-  padding: '8px 24px !important',
-  minWidth: 'fit-content !important',
-  maxWidth: 'max-content !important',
-  width: 'auto !important',
-  flex: '0 0 auto !important',
-  fontWeight: 'bold',
-  '&.MuiButton-root': {
-    padding: '8px 24px !important',
-    minWidth: 'fit-content !important',
-    width: 'auto !important'
-  },
-  '&:hover': {
-    backgroundColor: '#F6B935',
   }
 }));
 
@@ -232,40 +196,45 @@ const OneMockTest = ({ data }) => {
 
           {/* Action Buttons */}
           <Stack 
-  direction="row" 
-  spacing={2} 
-  sx={{ 
-    mt: 2,
-    '& .MuiButton-root': {
-      padding: '8px 24px !important',
-      minWidth: 'fit-content',
-    },
-    '& a': {
-      margin: 0,
-      padding: 0,
-      display: 'flex'
-    }
-  }}
->
-  <FAQButton
-    variant="contained"
-    onClick={() => setOpenFAQModal(true)}
-  >
-    FAQS
-  </FAQButton>
-  <BatchButton
-    variant="contained"
-    onClick={() => setOpenBatchModal(true)}
-    startIcon={<CalendarMonthIcon />}
-  >
-    Batches
-  </BatchButton>
-  <Link href={"/mockTest/buy/" + data._id} style={{ textDecoration: 'none' }}>
-    <AnimatedButton>
-      BUY NOW
-    </AnimatedButton>
-  </Link>
-</Stack>
+            direction="row"  // Always keep row direction
+            spacing={1}      // Reduced spacing between buttons
+            sx={{ 
+              mt: 2,
+              pr: { xs: 2, sm: 0 },
+              flexWrap: 'nowrap', // Prevent wrapping
+              '& a': {
+                margin: 0,
+                padding: 0,
+                display: 'flex',
+                flexShrink: 0 // Prevent shrinking
+              },
+              '& button': {
+                flexShrink: 0 // Prevent shrinking
+              }
+            }}
+          >
+            <AnimatedButton
+              onClick={() => setOpenFAQModal(true)}
+              bgcolor="#FCD34D"
+              hovercolor="#F6B935"
+              textcolor="#1F2937"
+            >
+              FAQS
+            </AnimatedButton>
+            <AnimatedButton
+              onClick={() => setOpenBatchModal(true)}
+              bgcolor="#EDE9FE"
+              hovercolor="#DDD6FE"
+              textcolor="#5B21B6"
+            >
+              Batches
+            </AnimatedButton>
+            <Link href={"/mockTest/buy/" + data._id} style={{ textDecoration: 'none' }}>
+              <AnimatedButton>
+                BUY NOW
+              </AnimatedButton>
+            </Link>
+          </Stack>
         </Grid>
       </Grid>
 
