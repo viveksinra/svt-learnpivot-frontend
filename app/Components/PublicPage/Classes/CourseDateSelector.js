@@ -277,7 +277,20 @@ console.log("CourseDateSelector",data);
       getBoughtBatch();
     }, [selectedChild]);
 
+  const hasAvailableDatesInBatch = (batch) => {
+    return batch.oneBatch.some(date => {
+      const isDateAvailable = new Date(date) > effectiveDate;
+      const isNotPurchased = !alreadyBoughtDate.includes(date);
+      return isDateAvailable && isNotPurchased;
+    });
+  };
+
   const isCheckboxDisabled = (batch, batchIndex) => {
+    // First check if the batch has any available dates
+    if (!hasAvailableDatesInBatch(batch)) {
+      return true;
+    }
+
     if (batch.bookingFull || data.forcefullBuyCourse) {
       return true;
     }
@@ -305,20 +318,23 @@ console.log("CourseDateSelector",data);
   };
 
   const getTooltipTitle = (batch, batchIndex, isDisabled) => {
+    if (!hasAvailableDatesInBatch(batch)) {
+      return "No available dates in this set";
+    }
+    
     if (batch.bookingFull) {
       return "Fully Booked";
     }
-    if (isDisabled && selectedBatches.length > 0) {
-      const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
-      const selectedIndices = selectedBatches.map(id => 
-        validBatches.findIndex(b => b._id === id)
-      );
-      const maxSelectedIndex = Math.max(...selectedIndices);
-      const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
-      
-      if (maxSelectedIndex > currentBatchIndex) {
-        return "Cannot uncheck when later sets are selected";
-      }
+
+    const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
+    const selectedIndices = selectedBatches.map(id => 
+      validBatches.findIndex(batch => batch._id === id)
+    );
+    const maxSelectedIndex = Math.max(...selectedIndices);
+    const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
+    
+    if (maxSelectedIndex > currentBatchIndex) {
+      return "Cannot uncheck when later sets are selected";
     }
     return isDisabled ? "Must purchase sets in order" : "";
   };
