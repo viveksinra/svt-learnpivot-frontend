@@ -418,7 +418,33 @@ export const PaymentAlert = ({ selectedChild }) => {
         setLoading(true);
         const response = await reportService.getUpcomingPayment({ childId: selectedChild });
         if (response.variant === "success") {
-          setCourseData(response.data);
+          // Filter courses to only include those with unpaid dates
+          const filteredCourses = response.data.filter(course => {
+            // Find the latest paid date for this course
+            const allPaidDates = course.courseDateSets
+              .flatMap(set => set.dates)
+              .filter(date => date.purchased)
+              .map(date => new Date(date.date));
+            
+            const latestPaidDate = allPaidDates.length > 0 
+              ? new Date(Math.max(...allPaidDates))
+              : new Date(0); // If no paid dates, use epoch time
+            
+            const today = new Date();
+
+            // Check for any unpaid dates between latest paid date and today
+            const hasUnpaidDates = course.courseDateSets.some(set => 
+              set.dates.some(date => {
+                const dateObj = new Date(date.date);
+                return !date.purchased && 
+                       dateObj > latestPaidDate && 
+                       dateObj >= today;
+              })
+            );
+
+            return hasUnpaidDates;
+          });
+          setCourseData(filteredCourses);
         } else {
           setError("Failed to fetch payment data");
         }
