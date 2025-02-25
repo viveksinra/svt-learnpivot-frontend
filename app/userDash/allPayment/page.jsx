@@ -140,9 +140,9 @@ const PaymentListItem = ({ payment, expanded, onToggle }) => (
               <Typography variant="body2">
                 {payment.childName}
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              {/* <Typography variant="body2" color="text.secondary">
                 {payment.parentName} • {payment.email}
-              </Typography>
+              </Typography> */}
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary" display="block" gutterBottom>

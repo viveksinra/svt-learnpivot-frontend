@@ -222,7 +222,7 @@ const OneClass = ({ data }) => {
               hovercolor="#DDD6FE"
               textcolor="#5B21B6"
             >
-              Batches
+              COURSE INFO
             </AnimatedButton>
             <Link href={"/course/buy/" + data._id} style={{ textDecoration: 'none' }}>
               <AnimatedButton>
