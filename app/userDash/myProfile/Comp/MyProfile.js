@@ -253,8 +253,20 @@ const UserProfile = () => {
         </Box>
         
         <CardContent sx={{ p: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-            <Stack direction="row" spacing={3} alignItems="center">
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' }, 
+            justifyContent: 'space-between',
+            alignItems: { xs: 'center', md: 'flex-start' },
+            mb: 4,
+            gap: 2
+          }}>
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={3} 
+              alignItems="center"
+              width="100%"
+            >
               {isLoading ? (
                 <>
                   <Skeleton variant="circular" width={80} height={80} />
@@ -276,7 +288,7 @@ const UserProfile = () => {
                   >
                     {profile?.firstName?.charAt(0)}
                   </Avatar>
-                  <Box>
+                  <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
                     {isEditing ? (
                       <Stack spacing={2}>
                         <TextField
@@ -302,10 +314,13 @@ const UserProfile = () => {
                       </Stack>
                     ) : (
                       <>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        <Typography variant="h4" sx={{ 
+                          fontWeight: 700, 
+                          mb: 0.5,
+                          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                        }}>
                           {`${profile?.firstName} ${profile?.lastName}`}
                         </Typography>
-                  
                       </>
                     )}
                   </Box>
@@ -317,7 +332,10 @@ const UserProfile = () => {
                 onClick={handleEdit} 
                 startIcon={<EditIcon />}
                 variant="outlined"
-                sx={{ height: 'fit-content' }}
+                sx={{ 
+                  height: 'fit-content',
+                  width: { xs: '100%', sm: 'auto' }
+                }}
               >
                 Edit Profile
               </Button>
