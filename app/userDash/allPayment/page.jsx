@@ -2,8 +2,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import {
   Box,
-  Tab,
-  Tabs,
   Typography,
   Card,
   CardContent,
@@ -11,7 +9,6 @@ import {
   Chip,
   List,
   ListItem,
-  ListItemText,
   IconButton,
   useTheme,
   useMediaQuery,
@@ -54,20 +51,6 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
   );
 };
 
-const StatusChip = ({ status }) => {
-  const displayStatus = status.toLowerCase() === 'formfilled' ? 'Failed' : status;
-  return (
-    <Chip
-      label={displayStatus}
-      size="small"
-      sx={{
-        backgroundColor: status.toLowerCase() === 'succeeded' ? '#e3f2fd' : '#fff3e0',
-        color: status.toLowerCase() === 'succeeded' ? '#1976d2' : '#ed6c02',
-        fontWeight: 500
-      }}
-    />
-  );
-};
 
 const PaymentListItem = ({ payment, expanded, onToggle }) => {
   const handleReceiptClick = (e) => {
@@ -208,12 +191,7 @@ const columns = [
     width: 120,
     valueGetter: (params) => `£${params.value.toFixed(2)}`,
   },
-  // {
-  //   field: 'paymentStatus',
-  //   headerName: 'Status',
-  //   width: 140,
-  //   renderCell: (params) => <StatusChip status={params.value} />,
-  // },
+
   {
     field: 'courseName',
     headerName: 'Course/Test',
@@ -233,11 +211,7 @@ const columns = [
       </Stack>
     ),
   },
-  // {
-  //   field: 'paymentIntent',
-  //   headerName: 'Payment ID',
-  //   width: 220,
-  // },
+
   {
     field: 'invoiceLink',
     headerName: 'Invoice',
