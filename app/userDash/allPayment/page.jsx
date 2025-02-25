@@ -71,7 +71,7 @@ const StatusChip = ({ status }) => {
 
 const PaymentListItem = ({ payment, expanded, onToggle }) => {
   const handleReceiptClick = (e) => {
-    e.stopPropagation(); // Prevent the collapse toggle
+    e.stopPropagation(); // Prevent the collapse toggle from triggering
   };
 
   return (
@@ -158,7 +158,10 @@ const PaymentListItem = ({ payment, expanded, onToggle }) => {
                 </Typography>
               </Box>
               {payment.invoiceLink && (
-                <Box onClick={handleReceiptClick}>
+                <Box 
+                  onClick={handleReceiptClick}
+                  sx={{ '& button': { width: { xs: '100%', sm: 'auto' } } }}
+                >
                   <DownReceipt data={payment.invoiceLink} />
                 </Box>
               )}
