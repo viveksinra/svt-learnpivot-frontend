@@ -69,105 +69,113 @@ const StatusChip = ({ status }) => {
   );
 };
 
-const PaymentListItem = ({ payment, expanded, onToggle }) => (
-  <Card className="mb-2 shadow-sm">
-    <ListItem
-      button
-      onClick={onToggle}
-      className="hover:bg-gray-50"
-      sx={{ flexDirection: 'column', alignItems: 'stretch' }}
-    >
-      <Box className="w-full">
-        <Stack direction="row" spacing={2} alignItems="center" className="mb-2">
-          {payment.type === 'course' ? (
-            <SchoolIcon color="primary" />
-          ) : (
-            <AssignmentIcon color="secondary" />
-          )}
-          <Box flex={1}>
-            <Typography variant="subtitle1" className="font-semibold">
-              {payment.courseName}
-            </Typography>
-       
-          </Box>
-          {/* <StatusChip status={payment.paymentStatus} /> */}
-        </Stack>
-        
-        <Stack direction="row" justifyContent="space-between" alignItems="center">
-          <Typography variant="body2" color="text.secondary">
-            {moment(payment.paymentDate).format('DD MMM YYYY')}
-          </Typography>
-          <Typography variant="subtitle2" className="font-semibold">
-            £{payment.amountPaid.toFixed(2)}
-          </Typography>
-        </Stack>
+const PaymentListItem = ({ payment, expanded, onToggle }) => {
+  const handleReceiptClick = (e) => {
+    e.stopPropagation(); // Prevent the collapse toggle
+  };
 
-        <Collapse in={expanded} timeout="auto" unmountOnExit className="mt-4">
-          <Stack spacing={2} className="px-2 py-3">
-            {payment.type === 'course' && (
-              <>
-                {payment.description && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                      Description
-                    </Typography>
-                    <Typography variant="body2">{payment.description}</Typography>
-                  </Box>
-                )}
-                {payment.dates && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                      Class Dates
-                    </Typography>
-                    <Typography variant="body2">{payment.dates}</Typography>
-                  </Box>
-                )}
-                {payment.duration && (
-                  <Box>
-                    <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                      Duration
-                    </Typography>
-                    <Typography variant="body2">{payment.duration}</Typography>
-                  </Box>
-                )}
-                <Divider />
-              </>
-            )}
-            <Box>
-              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                Student Details
-              </Typography>
-              <Typography variant="body2">
-                {payment.childName}
-              </Typography>
-              {/* <Typography variant="body2" color="text.secondary">
-                {payment.parentName} • {payment.email}
-              </Typography> */}
-            </Box>
-            <Box>
-              <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
-                Payment ID
-              </Typography>
-              <Typography variant="body2" className="break-all font-mono">
-                {payment.paymentIntent}
-              </Typography>
-            </Box>
-            {payment.invoiceLink && (
-              <DownReceipt data={payment.invoiceLink} />
-            )}
-          </Stack>
-        </Collapse>
-      </Box>
-      <IconButton 
-        edge="end" 
+  return (
+    <Card className="mb-2 shadow-sm">
+      <ListItem
+        button
         onClick={onToggle}
-        className="absolute right-2 top-2"
+        className="hover:bg-gray-50"
+        sx={{ flexDirection: 'column', alignItems: 'stretch' }}
       >
-        {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-      </IconButton>
-    </ListItem>
-  </Card>
-);
+        <Box className="w-full">
+          <Stack direction="row" spacing={2} alignItems="center" className="mb-2">
+            {payment.type === 'course' ? (
+              <SchoolIcon color="primary" />
+            ) : (
+              <AssignmentIcon color="secondary" />
+            )}
+            <Box flex={1}>
+              <Typography variant="subtitle1" className="font-semibold">
+                {payment.courseName}
+              </Typography>
+         
+            </Box>
+            {/* <StatusChip status={payment.paymentStatus} /> */}
+          </Stack>
+          
+          <Stack direction="row" justifyContent="space-between" alignItems="center">
+            <Typography variant="body2" color="text.secondary">
+              {moment(payment.paymentDate).format('DD MMM YYYY')}
+            </Typography>
+            <Typography variant="subtitle2" className="font-semibold">
+              £{payment.amountPaid.toFixed(2)}
+            </Typography>
+          </Stack>
+
+          <Collapse in={expanded} timeout="auto" unmountOnExit className="mt-4">
+            <Stack spacing={2} className="px-2 py-3">
+              {payment.type === 'course' && (
+                <>
+                  {payment.description && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                        Description
+                      </Typography>
+                      <Typography variant="body2">{payment.description}</Typography>
+                    </Box>
+                  )}
+                  {payment.dates && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                        Class Dates
+                      </Typography>
+                      <Typography variant="body2">{payment.dates}</Typography>
+                    </Box>
+                  )}
+                  {payment.duration && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                        Duration
+                      </Typography>
+                      <Typography variant="body2">{payment.duration}</Typography>
+                    </Box>
+                  )}
+                  <Divider />
+                </>
+              )}
+              <Box>
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                  Student Details
+                </Typography>
+                <Typography variant="body2">
+                  {payment.childName}
+                </Typography>
+                {/* <Typography variant="body2" color="text.secondary">
+                  {payment.parentName} • {payment.email}
+                </Typography> */}
+              </Box>
+              <Box>
+                <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                  Payment ID
+                </Typography>
+                <Typography variant="body2" className="break-all font-mono">
+                  {payment.paymentIntent}
+                </Typography>
+              </Box>
+              {payment.invoiceLink && (
+                <Box onClick={handleReceiptClick}>
+                  <DownReceipt data={payment.invoiceLink} />
+                </Box>
+              )}
+            </Stack>
+          </Collapse>
+        </Box>
+        <IconButton 
+          edge="end" 
+          onClick={onToggle}
+          className="absolute right-2 top-2"
+        >
+          {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        </IconButton>
+      </ListItem>
+    </Card>
+  );
+};
 
 const columns = [
   {
