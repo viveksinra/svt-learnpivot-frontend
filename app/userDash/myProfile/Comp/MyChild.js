@@ -53,13 +53,13 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
         transition: 'all 0.3s ease',
         bgcolor: (theme) => theme.palette.mode === 'dark' ? 'grey.800' : 'grey.50',
         '&:hover': {
-          transform: { xs: 'none', sm: 'translateY(-4px)' },
+          transform: { xs: 'none', md: 'translateY(-4px)' },
           boxShadow: (theme) => theme.shadows[4],
           borderColor: 'primary.main'
         }
       }}
     >
-      <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+      <CardContent sx={{ p: { xs: 2, md: 3 } }}>
         {/* Main Content Stack */}
         <Stack 
           direction="column" 
@@ -75,10 +75,10 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
             <Stack direction="row" spacing={2} alignItems="center">
               <Avatar
                 sx={{
-                  width: { xs: 48, sm: 56 },
-                  height: { xs: 48, sm: 56 },
+                  width: { xs: 48, md: 56 },
+                  height: { xs: 48, md: 56 },
                   bgcolor: 'primary.main',
-                  fontSize: { xs: '1.25rem', sm: '1.5rem' },
+                  fontSize: { xs: '1.25rem', md: '1.5rem' },
                   fontWeight: 'bold'
                 }}
               >
@@ -88,7 +88,7 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
                 variant="h6" 
                 sx={{ 
                   fontWeight: 600,
-                  fontSize: { xs: '1.1rem', sm: '1.25rem' }
+                  fontSize: { xs: '1.1rem', md: '1.25rem' }
                 }}
               >
                 {child.childName}
@@ -101,8 +101,8 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
               spacing={1}
               sx={{
                 '& .MuiIconButton-root': {
-                  width: { xs: 40, sm: 44 },
-                  height: { xs: 40, sm: 44 }
+                  width: { xs: 40, md: 44 },
+                  height: { xs: 40, md: 44 }
                 }
               }}
             >
@@ -130,9 +130,9 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
 
           {/* Info Chips */}
           <Stack 
-            direction={{ xs: 'column', sm: 'row' }} 
-            spacing={{ xs: 1, sm: 2 }}
-            sx={{ mt: { xs: 2, sm: 1 } }}
+            direction={{ xs: 'column', md: 'row' }} 
+            spacing={{ xs: 1, md: 2 }}
+            sx={{ mt: { xs: 2, md: 1 } }}
           >
             <Box
               sx={{
@@ -145,7 +145,7 @@ const ChildCard = ({ child, onEdit, onDelete }) => {
                 px: 2,
                 borderRadius: 2,
                 fontSize: '0.875rem',
-                width: { xs: '100%', sm: 'auto' }
+                width: { xs: '100%', md: 'auto' }
               }}
             >
               <School fontSize="small" />
