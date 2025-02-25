@@ -114,7 +114,7 @@ const DownReceipt = ({ data }) => {
         disabled={loading}
         startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
       >
-        {loading ? 'Downloading...' : 'View Receipt'}
+        {loading ? 'Downloading...' : 'Download Receipt'}
       </Button>
       
       <Snackbar 
