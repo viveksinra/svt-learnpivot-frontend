@@ -30,7 +30,7 @@ import CourseInfoModal from './Modals/CourseInfoModal';
 const AnimatedButton = styled('button')(({ theme, bgcolor, hovercolor, textcolor = 'white' }) => ({
   backgroundColor: bgcolor || '#F97316',
   color: textcolor,
-  padding: '8px 20px', // Reduced padding
+  padding: '12px 15px', // Reduced padding
   borderRadius: '4px',
   fontWeight: 'bold',
   border: 'none',
@@ -82,6 +82,8 @@ const OneClass = ({ data }) => {
         marginTop: fullScreen ? "1px" : "16px",
         marginBottom: { xs: '16px', md: '0' }, // Add margin bottom for mobile
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+        paddingLeft: '3px',
+        paddingRight: '3px',
       }}>
         <Grid item xs={12} md={4} sx={{ p: 0 }}>
           <ImageCarousel
@@ -207,7 +209,7 @@ const OneClass = ({ data }) => {
               hovercolor="#DDD6FE"
               textcolor="#5B21B6"
             >
-              INFO
+              COURSE INFO
             </AnimatedButton>
             <Link href={"/course/buy/" + data._id} style={{ textDecoration: 'none' }}>
               <AnimatedButton>
