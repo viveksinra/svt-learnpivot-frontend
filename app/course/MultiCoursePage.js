@@ -1,6 +1,5 @@
 "use client";
 import React, { Suspense, useEffect, useState } from "react";
-import "./classes.css";
 import { Container, Typography, Grid, TablePagination, CircularProgress } from "@mui/material";
 import { useMediaQuery, useTheme } from "@mui/material";
 import OneClass from "../Components/PublicPage/Classes/OneClass";
@@ -12,12 +11,12 @@ import FilterComponent from "../Components/PublicPage/ClassMockComm/FilterCompon
 function MultiCoursePage() {
   const [filterData, setFilterData] = useState([
     {
-      title: "Class",
+      title: "Year",
       link:"courseClass",
       tags: [
-        { label: "Class 4", id: "4" },
-        { label: "Class 5", id: "5" },
-        { label: "Class 6", id: "6" },
+        { label: "Year 4", id: "4" },
+        { label: "Year 5", id: "5" },
+        { label: "Year 6", id: "6" },
       ]
     },
     {
@@ -33,7 +32,7 @@ function MultiCoursePage() {
       title: "Duration",
       link:"duration",
       tags: [
-        { label: "Less than 1 Month", id: "lessThan1Month" },
+        { label: "< 1 Month", id: "lessThan1Month" },
         { label: "1-3 Months", id: "1to3Months" },
         { label: "3-6 Months", id: "3to6Months" },
         { label: "6+ Months", id: "moreThan6Months" },
@@ -84,7 +83,7 @@ function MultiCoursePage() {
 
   return (
     <>
-      <Grid container>
+      <Grid container >
         {fullScreen ? (
           <FilterDialog 
             filterData={filterData} 
@@ -100,7 +99,7 @@ function MultiCoursePage() {
             />
           </Grid>
         )}
-        <Grid item xs={fullScreen ? 12 : 10}>
+        <Grid item xs={fullScreen ? 12 : 10} >
           {loading ? (
             <div className="center" style={{flexDirection:"column"}}>
               <CircularProgress size={30}/>

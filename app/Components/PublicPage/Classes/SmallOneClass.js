@@ -20,6 +20,8 @@ import SchoolIcon from '@mui/icons-material/School';
 import CloseIcon from '@mui/icons-material/Close';
 import moment from 'moment';
 import ImageCarousel from '../../Common/ImageCarousel';
+import FaqModal from './Modals/FaqModal';
+import CourseInfoModal from './Modals/CourseInfoModal';
 
 // Reuse the same styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -78,10 +80,20 @@ const ActionButton = styled(Button)(({ variant }) => ({
   }),
 }));
 
+const InfoButton = styled(Button)({
+  backgroundColor: '#EDE9FE',
+  color: '#5B21B6',
+  '&:hover': {
+    backgroundColor: '#DDD6FE',
+  },
+});
+
 const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [openScheduleModal, setOpenScheduleModal] = useState(false);
+  const [openFAQModal, setOpenFAQModal] = useState(false);
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
 
   const formatDate = (dateString) => moment(dateString).format('Do MMM YYYY');
   const formatTime = (time) => moment(time, 'HH:mm').format('h:mm A');
@@ -139,7 +151,7 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
           <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
             {data.courseClass?.label && (
               <Chip
-                label={`Class ${data.courseClass.label}`}
+                label={`${data.courseClass.label}`}
                 sx={{
                   backgroundColor: '#E0F2FE',
                   color: '#0369A1',
@@ -178,9 +190,9 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
             </Box>
           </Box>
 
-          {/* Selected Schedules Button */}
-          {selectedSchedules && selectedSchedules.length > 0 && (
-            <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
+          {/* Buttons Section */}
+          <Box sx={{ display: 'flex', gap: 2, mt: 2, flexWrap: 'wrap' }}>
+            {selectedSchedules && selectedSchedules.length > 0 && (
               <ActionButton
                 variant="secondary"
                 startIcon={<CalendarMonthIcon />}
@@ -188,8 +200,30 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
               >
                 Selected Schedules for {selectedChild?.childName}
               </ActionButton>
-            </Box>
-          )}
+            )}
+            
+            <button 
+              style={{
+                backgroundColor: '#FCD34D',
+                color: '#1F2937',
+                padding: '8px 24px',
+                borderRadius: '4px',
+                fontWeight: 'bold',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+              onClick={() => setOpenFAQModal(true)}
+            >
+              FAQS
+            </button>
+            <InfoButton
+              variant="contained"
+              onClick={() => setOpenDetailsModal(true)}
+              startIcon={<CalendarMonthIcon />}
+            >
+              Course Info
+            </InfoButton>
+          </Box>
         </Box>
       </StyledCard>
 
@@ -264,6 +298,17 @@ const ClassCard = ({ data, selectedChild, totalAmount=0, selectedSchedules }) =>
           </Button>
         </DialogActions>
       </Dialog>
+
+      <FaqModal 
+        open={openFAQModal}
+        onClose={() => setOpenFAQModal(false)}
+      />
+
+      <CourseInfoModal 
+        open={openDetailsModal}
+        onClose={() => setOpenDetailsModal(false)}
+        courseData={data}
+      />
     </>
   );
 };

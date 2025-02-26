@@ -106,7 +106,7 @@ const PrivacyPolicyCom = () => {
               <Typography paragraph>
                 Welcome to Chelmsford 11 Plus. Your privacy is important to us, and we are
                 committed to protecting your personal information. This Privacy Policy explains how we
-                collect, use, store, and protect your data when you visit our website
+                collect, use, store, and protect your data when you visit our website {' '}
                 <Link href="https://www.chelmsford11plus.com" target="_blank" rel="noopener" color="primary" underline="hover">
                   www.chelmsford11plus.com
                 </Link> or use our services.

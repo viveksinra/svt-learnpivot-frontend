@@ -42,7 +42,7 @@ const CourseBookingFullMessage = ({userInfo, data}) => {
         <CardContent>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
             <ErrorOutline color="warning" sx={{ mr: 1 }} />
-            <Typography variant="h5" component="h2">
+            <Typography variant="h6" component="h2">
               Course Fully Booked
             </Typography>
           </Box>
@@ -80,11 +80,10 @@ const CourseBookingFullMessage = ({userInfo, data}) => {
               sx={{
                 backgroundColor: 'green',
                 '&:hover': { backgroundColor: 'darkgreen' },
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
                 height: 'auto',
+                minHeight: { xs: '60px', sm: '48px' },
                 py: 1.5,
+                px: { xs: 1, sm: 2 },
                 flexDirection: { xs: 'column', sm: 'row' },
                 gap: { xs: 1, sm: 0.5 },
                 '& .MuiButton-startIcon': {
@@ -97,12 +96,14 @@ const CourseBookingFullMessage = ({userInfo, data}) => {
                 sx={{
                   display: 'block',
                   width: '100%',
-                  textAlign: 'center'
+                  textAlign: 'center',
+                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                  lineHeight: 1.2,
+                  wordBreak: 'break-word'
                 }}
               >
                 Contact Support
               </Typography>
-         
             </Button>
             <Button
               onClick={handleCloseClick}

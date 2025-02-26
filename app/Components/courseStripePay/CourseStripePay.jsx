@@ -219,7 +219,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                       <Typography variant="body2">
                            Please confirm if you accept our terms, including the{" "}
                         <a 
-                          href="/policy/privacyPolicy" 
+                          href="/policy/cancellationPolicy" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           style={{ 

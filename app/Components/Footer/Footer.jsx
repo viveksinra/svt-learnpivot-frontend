@@ -21,6 +21,7 @@ const Footer = () => {
     { label: "Contact Us", link: "contact" },
     { label: "Terms & Conditions", link: "policy/termandcondition" },
     { label: "Privacy Policy", link: "policy/privacyPolicy" },
+    { label: "Cancellation Policy", link: "policy/cancellationPolicy" },
   ];
 
   return (

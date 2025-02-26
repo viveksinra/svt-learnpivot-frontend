@@ -1,4 +1,6 @@
-export const protectedRoutes = ["/dashboard","/dashboard/allBuyMock", "/dashboard/allBuyCourse","/dashboard/addCourse","/dashboard/addMockTest","/dashboard/allPayment"];
+export const protectedRoutes = ["/dashboard","/dashboard/allBuyMock", "/dashboard/allBuyCourse","/dashboard/addCourse",
+    "/dashboard/addMockTest","/dashboard/allPayment","/dashboard/report/parentCourseReport","/dashboard/report/courseBatchReport","/dashboard/report/mockBatchReport"
+];
 export const userProtectedRoutes = ["/userDash","/userDash/dashCourse","/userDash/dashMock","/userDash/allPayment","/userDash/myProfile","/userDash/myProfile/myChild"];
 export const authRoutes = ["/login"];
 export const publicRoutes = ["/","/login", "/course","/mockTest","/contact"];

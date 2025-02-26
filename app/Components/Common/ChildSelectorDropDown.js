@@ -27,26 +27,52 @@ const ChildSelectorDropDown = ({ selectedChild, setSelectedChild }) => {
   };
 
   return (
-    <FormControl sx={{ minWidth: 220 }}>
+    <FormControl sx={{ width: 220 }}>
       <InputLabel>Select Child</InputLabel>
       <Select
         value={selectedChild}
         label="Select Child"
         onChange={(e) => setSelectedChild(e.target.value)}
         sx={{ '& .MuiSelect-select': { py: 1.5 } }}
+        MenuProps={{
+          disableScrollLock: true,
+          disablePortal: true,
+          PaperProps: {
+            sx: {
+              width: 220,
+              maxHeight: 300,
+              p: 0,
+              m: 0
+            }
+          },
+          MenuListProps: {
+            sx: {
+              p: 0,
+              m: 0
+            }
+          },
+          anchorOrigin: {
+            vertical: 'bottom',
+            horizontal: 'left'
+          },
+          transformOrigin: {
+            vertical: 'top',
+            horizontal: 'left'
+          }
+        }}
       >
         <MenuItem value="all">All Children</MenuItem>
         {allChildren.map((child) => (
           <MenuItem key={child._id} value={child._id}>
-          <Box
-  sx={{
-    display: 'flex',
-    alignItems: 'center',
-    gap: 1,
-    whiteSpace: 'normal', // Allow wrapping
-    wordBreak: 'break-word', // Break words if necessary
-  }}
->
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                whiteSpace: 'normal',
+                wordBreak: 'break-word'
+              }}
+            >
               <PersonOutline color="primary" />
               {child.childName} - {child.childYear}
             </Box>

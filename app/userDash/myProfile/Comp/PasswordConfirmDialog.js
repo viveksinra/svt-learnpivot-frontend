@@ -45,9 +45,35 @@ const PasswordConfirmDialog = ({ open, onConfirm, onCancel }) => {
           helperText={error}
         />
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleConfirm} variant="contained">Confirm</Button>
+      <DialogActions sx={{ padding: '16px', display: 'flex' }}>
+        <Button 
+          onClick={handleClose}
+          sx={{ 
+            color: 'white', 
+            backgroundColor: 'red', 
+            '&:hover': { 
+              backgroundColor: 'darkred' 
+            }, 
+            flex: 1,
+            marginRight: '8px'
+          }}
+        >
+          Cancel
+        </Button>
+        <Button 
+          onClick={handleConfirm}
+          sx={{ 
+            color: 'white', 
+            backgroundColor: 'green', 
+            '&:hover': { 
+              backgroundColor: 'darkgreen' 
+            }, 
+            flex: 1
+          }}
+          variant="contained"
+        >
+          Confirm
+        </Button>
       </DialogActions>
     </Dialog>
   );

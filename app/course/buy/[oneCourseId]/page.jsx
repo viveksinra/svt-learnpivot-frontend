@@ -26,8 +26,6 @@ export default function OneClassBuy({ params }) {
     
       if (res.variant === "success") {
         setData(res.data)
-        console.log(res.data)
-        snackRef.current.handleSnack(res);
       } else {
         snackRef.current.handleSnack(res);
         console.log(res);
@@ -48,7 +46,7 @@ export default function OneClassBuy({ params }) {
 
     <br />
   
-    <Container style={{ marginTop:"50px" }}>
+    <Container style={{ marginTop:"50px", paddingBottom:"100px" }}>
        {loading ? (
                 <div className="center">
                   <CircularProgress size={30} />{" "}

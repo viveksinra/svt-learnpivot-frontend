@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { use, useEffect, useState } from 'react';
 import { 
   Card, Box, Chip, Typography, Stack, Button, 
   Skeleton, Container, useTheme, useMediaQuery, Grid,
@@ -17,9 +17,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+import { set } from 'date-fns';
 const LoadingSkeleton = () => {
   const theme = useTheme();
-  
   return (
     <Grid container spacing={2}>
       {[1, 2].map((item) => (
@@ -108,18 +108,42 @@ const CoursePaymentCard = ({ courseData }) => {
     }
     return -1; // All sets are paid
   };
+  const [earliestPaidDate, setEarliestPaidDate] = useState(null);
 
-  // Process sets - keep original skipped logic
+  useEffect(() => {
+    // Flatten all dates from all courseDateSets
+    const allPaidDates = courseData.courseDateSets
+      .flatMap(set => set.dates) // Get all dates from all sets
+      .filter(date => date.purchased) // Filter only purchased dates
+      .map(date => new Date(date.date)); // Convert to Date objects
+  
+    // Find the earliest date if there are any paid dates
+    const earliestPaidDate = allPaidDates.length > 0 
+      ? new Date(Math.min(...allPaidDates))
+      : null;
+  
+    setEarliestPaidDate(earliestPaidDate);
+  }, [courseData]);
+
+  // Process sets with updated skipped logic
   const processedDateSets = courseData.courseDateSets.map((set, setIndex) => {
-    const hasPaidDate = set.dates.some(date => date.purchased);
+    // Find the earliest paid date in the set
+
+    const today = new Date();
     
     return {
       ...set,
       setNumber: setIndex + 1,
-      dates: set.dates.map(date => ({
-        ...date,
-        skipped: hasPaidDate && !date.purchased
-      }))
+      dates: set.dates.map(date => {
+        const currentDate = new Date(date.date);
+        return {
+          ...date,
+          skipped: !date.purchased && // 1. Not purchased
+                  currentDate > today && // 2. In the future
+                  earliestPaidDate && // Ensure earliestPaidDate exists
+                  currentDate < earliestPaidDate // 3. Before earliest paid date
+        };
+      })
     };
   });
 
@@ -220,7 +244,8 @@ const CoursePaymentCard = ({ courseData }) => {
                       {child.childName}
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      {child.childYear} • {child.childGender}
+                      {child.childYear}
+                       {/* • {child.childGender} */}
                     </Typography>
                   </Box>
                 </Stack>
@@ -393,7 +418,33 @@ export const PaymentAlert = ({ selectedChild }) => {
         setLoading(true);
         const response = await reportService.getUpcomingPayment({ childId: selectedChild });
         if (response.variant === "success") {
-          setCourseData(response.data);
+          // Filter courses to only include those with unpaid dates
+          const filteredCourses = response.data.filter(course => {
+            // Find the latest paid date for this course
+            const allPaidDates = course.courseDateSets
+              .flatMap(set => set.dates)
+              .filter(date => date.purchased)
+              .map(date => new Date(date.date));
+            
+            const latestPaidDate = allPaidDates.length > 0 
+              ? new Date(Math.max(...allPaidDates))
+              : new Date(0); // If no paid dates, use epoch time
+            
+            const today = new Date();
+
+            // Check for any unpaid dates between latest paid date and today
+            const hasUnpaidDates = course.courseDateSets.some(set => 
+              set.dates.some(date => {
+                const dateObj = new Date(date.date);
+                return !date.purchased && 
+                       dateObj > latestPaidDate && 
+                       dateObj >= today;
+              })
+            );
+
+            return hasUnpaidDates;
+          });
+          setCourseData(filteredCourses);
         } else {
           setError("Failed to fetch payment data");
         }
@@ -469,7 +520,7 @@ export const PaymentAlert = ({ selectedChild }) => {
             fontSize: isMobile ? '1.25rem' : '1.5rem'
           }}
         >
-        Upcomming Payment Alerts
+        Payment Alerts
         </Typography>
         {courseData.length > 0 && (
           <Chip 

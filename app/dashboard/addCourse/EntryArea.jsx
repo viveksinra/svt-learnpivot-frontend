@@ -45,6 +45,8 @@ const EntryArea = forwardRef((props, ref) => {
     const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
     const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
     const [sortDate, setSortDate] = useState("");
+    const [allowBackDateBuy, setAllowBackDateBuy] = useState(false);
+    const [backDayCount, setBackDayCount] = useState("");
     const [countiniousSetBuy, setCountiniousSetBuy] = useState(false);
 
     const getAllUsers = async () => {
@@ -62,16 +64,17 @@ const EntryArea = forwardRef((props, ref) => {
 
     const [privateAccordion, setPrivateAccordion] = useState(false);
     const [descriptionAccordion, setDescriptionAccordion] = useState(false);
-    const allClass = [
-        { label: "Class 4", id: "4" },
-         { label: "Class 5", id: "5" },
+    const allYear = [
+        { label: "Year 4", id: "4" },
+        { label: "Year 5", id: "5" },
+        { label: "Year 6", id: "6" },
         ];
     const allCourseType = [
         { label: "Full Course", id: "fullCourse" },
          { label: "Crash Course", id: "crashCourse" },
         ];
     const allDuration = [
-        { label: "Less than 1 Month", id: "lessThan1Month" },
+        { label: "< 1 Month", id: "lessThan1Month" },
         { label: "1-3 Months", id: "1to3Months" },
         { label: "3-6 Months", id: "3to6Months" },
         { label: "6+ Months", id: "moreThan6Months" },
@@ -95,7 +98,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse,countiniousSetBuy } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,countiniousSetBuy } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -125,6 +128,8 @@ const EntryArea = forwardRef((props, ref) => {
                     setRestrictOnTotalSeat(restrictSeat || false);
                     setRestrictStartDateChange(restrictStartDateChange || false);
                     setForcefullBuyCourse(forcefullBuyCourse || false);
+                    setAllowBackDateBuy(backDateBuy || false);
+                    setBackDayCount(days || "");
                     setCountiniousSetBuy(countiniousSetBuy || false);
                     setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
@@ -175,6 +180,8 @@ const EntryArea = forwardRef((props, ref) => {
         setRestrictOnTotalSeat(false);
         setRestrictStartDateChange(false);
         setForcefullBuyCourse(false);
+        setAllowBackDateBuy(false);
+        setBackDayCount("");
         setCountiniousSetBuy(false);
     };
     
@@ -207,6 +214,8 @@ const EntryArea = forwardRef((props, ref) => {
                     selectedUsers: selectedUser, // Add selected users to the submission
                     restrictStartDateChange,
                     forcefullBuyCourse,
+                    allowBackDateBuy,
+                    backDayCount,
                     countiniousSetBuy,
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
@@ -477,7 +486,7 @@ const EntryArea = forwardRef((props, ref) => {
                 <Grid item xs={12} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
-                        options={allClass}
+                        options={allYear}
                         value={courseClass}
                         onChange={(e, v) => {
                             setCourseClass(v);
@@ -578,6 +587,26 @@ const EntryArea = forwardRef((props, ref) => {
                 <Grid item xs={0} md={2}></Grid>
 {/* make a line here */}
     {/* <div style={{borderBottom: '1px solid #000', width: '100%'}}></div> */}
+                <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={allowBackDateBuy}
+                           onChange={() => setAllowBackDateBuy(!allowBackDateBuy)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Allow Back Date Buy`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={8}>
+                    <TextField 
+                    fullWidth
+                     label="Back Days" 
+                     value={backDayCount} 
+                     onChange={(e) => setBackDayCount(e.target.value)} 
+                     inputProps={{ minLength: "1", maxLength: "5" }} 
+                     placeholder='Back Days' variant="outlined" 
+                     />
+                </Grid>                     
                 <Grid item xs={12} md={4}>
                      <FormControlLabel control={
                            <Checkbox

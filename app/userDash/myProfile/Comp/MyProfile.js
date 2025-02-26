@@ -26,76 +26,9 @@ import {
 import AddressInput from '@/app/Components/PublicPage/LoginSignUp/AddressInput';
 import { myProfileService } from '@/app/services';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
+import PasswordConfirmDialog from './PasswordConfirmDialog';
 
-const PasswordConfirmDialog = ({ open, onConfirm, onCancel }) => {
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
 
-  const handleConfirm = () => {
-    if (!password.trim()) {
-      setError('Password is required');
-      return;
-    }
-    onConfirm(password);
-    setPassword('');
-    setError('');
-  };
-
-  const handleClose = () => {
-    setPassword('');
-    setError('');
-    onCancel();
-  };
-
-  return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="xs">
-      <DialogTitle sx={{ fontWeight: 600 }}>Confirm Password</DialogTitle>
-      <DialogContent>
-        <Typography variant="body2" sx={{ mb: 2 }}>
-          Please enter your password to confirm these changes.
-        </Typography>
-        <TextField
-          autoFocus
-          fullWidth
-          type="password"
-          label="Password"
-          value={password}
-          onChange={(e) => {
-            setPassword(e.target.value);
-            if (error) setError('');
-          }}
-          error={!!error}
-          helperText={error}
-        />
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 3 }}>
-        <Button 
-          onClick={handleClose}
-          sx={{ 
-            color: 'white', 
-            backgroundColor: 'red', 
-            '&:hover': { backgroundColor: 'darkred' },
-            flex: 1,
-            marginRight: '8px'
-          }}
-        >
-          Cancel
-        </Button>
-        <Button 
-          onClick={handleConfirm} 
-          sx={{ 
-            color: 'white', 
-            backgroundColor: 'green', 
-            '&:hover': { backgroundColor: 'darkgreen' },
-            flex: 1
-          }}
-        >
-          Confirm
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-};
 
 const ProfileInfo = ({
   icon: Icon,
@@ -232,12 +165,12 @@ const UserProfile = () => {
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, ...extra } = e.target;
     setProfile((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
+      ...extra
     }));
-
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -315,13 +248,25 @@ const UserProfile = () => {
           color: 'white'
         }}>
           <Typography variant="h5" fontWeight="600">
-            User Profile
+            My Profile
           </Typography>
         </Box>
         
         <CardContent sx={{ p: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
-            <Stack direction="row" spacing={3} alignItems="center">
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: { xs: 'column', md: 'row' }, 
+            justifyContent: 'space-between',
+            alignItems: { xs: 'center', md: 'flex-start' },
+            mb: 4,
+            gap: 2
+          }}>
+            <Stack 
+              direction={{ xs: 'column', sm: 'row' }} 
+              spacing={3} 
+              alignItems="center"
+              width="100%"
+            >
               {isLoading ? (
                 <>
                   <Skeleton variant="circular" width={80} height={80} />
@@ -343,7 +288,7 @@ const UserProfile = () => {
                   >
                     {profile?.firstName?.charAt(0)}
                   </Avatar>
-                  <Box>
+                  <Box sx={{ textAlign: { xs: 'center', sm: 'left' } }}>
                     {isEditing ? (
                       <Stack spacing={2}>
                         <TextField
@@ -369,10 +314,13 @@ const UserProfile = () => {
                       </Stack>
                     ) : (
                       <>
-                        <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+                        <Typography variant="h4" sx={{ 
+                          fontWeight: 700, 
+                          mb: 0.5,
+                          fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' }
+                        }}>
                           {`${profile?.firstName} ${profile?.lastName}`}
                         </Typography>
-                  
                       </>
                     )}
                   </Box>
@@ -384,7 +332,10 @@ const UserProfile = () => {
                 onClick={handleEdit} 
                 startIcon={<EditIcon />}
                 variant="outlined"
-                sx={{ height: 'fit-content' }}
+                sx={{ 
+                  height: 'fit-content',
+                  width: { xs: '100%', sm: 'auto' }
+                }}
               >
                 Edit Profile
               </Button>
@@ -426,7 +377,7 @@ const UserProfile = () => {
               />
               <ProfileInfo
                 icon={LocationIcon}
-                label="Address"
+                label="Address Line 1"
                 value={profile?.address1}
                 isEditing={isEditing}
                 name="address1"
@@ -435,26 +386,26 @@ const UserProfile = () => {
                 helperText={errors.address1}
                 component={AddressInput}
               />
-              {isEditing && (
-                <>
-                  <ProfileInfo
-                    icon={LocationIcon}
-                    label="Address Line 2"
-                    value={profile?.address2}
-                    isEditing={isEditing}
-                    name="address2"
-                    onChange={handleChange}
-                  />
-                  <ProfileInfo
-                    icon={LocationIcon}
-                    label="Address Line 3"
-                    value={profile?.address3}
-                    isEditing={isEditing}
-                    name="address3"
-                    onChange={handleChange}
-                  />
-                </>
-              )}
+              <ProfileInfo
+                icon={LocationIcon}
+                label="Address Line 2"
+                value={profile?.address2}
+                isEditing={isEditing}
+                name="address2"
+                onChange={handleChange}
+                error={!!errors.address2}
+                helperText={errors.address2}
+              />
+              <ProfileInfo
+                icon={LocationIcon}
+                label="Address Line 3"
+                value={profile?.address3}
+                isEditing={isEditing}
+                name="address3"
+                onChange={handleChange}
+                error={!!errors.address3}
+                helperText={errors.address3}
+              />
               <ProfileInfo
                 icon={LocationIcon}
                 label="City"
@@ -505,7 +456,7 @@ const UserProfile = () => {
                   py: 1
                 }}
               >
-                Save Changes
+                Update Changes
               </Button>
             </Box>
           )}

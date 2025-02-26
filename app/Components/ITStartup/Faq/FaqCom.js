@@ -7,6 +7,11 @@ import {
   AccordionItemButton
 } from "react-accessible-accordion";
 
+// courseFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const courseFaqData = [ 
   {
       id: "1",
@@ -39,6 +44,16 @@ const courseFaqData = [
                </ul>`
   },
   {
+      id: "4.5",
+      question: "Can my child continue with other tuitions?",
+      answer: `<p>No. Children should not attend other tuition for the following reasons:</p>
+               <ul>
+                 <li><strong>Conflict in methods:</strong> Every tutor has a different style of teaching. Putting the child in multiple tuition would have a severe impact in learning ability as it will cause confusion.</li>
+                 <li><strong>Excessive workload:</strong> You don't want to overload your child with work.</li>
+                 <li><strong>Our confidence:</strong> We are very confident that our teaching methods, resources, guidance and support are more than enough for a child to excel to full potential.</li>
+               </ul>`
+  },
+  {
       id: "5",
       question: "What are the weekly responsibilities for parents?",
       answer: `<p>To ensure a smooth learning experience, parents are responsible for:</p>
@@ -64,7 +79,7 @@ const courseFaqData = [
                  <li>We do not share, sell, or disclose your data to third parties unless required by law.</li>
                  <li>Industry-standard security measures are in place to prevent unauthorized access, misuse, or disclosure.</li>
                </ul>
-               <p>For further details, please refer to our Privacy Policy.</p>`
+               <p>For further details, please refer to our <a href='/policy/privacyPolicy'>Privacy Policy</a>.</p>`
   },
   {
       id: "8",
@@ -75,7 +90,11 @@ const courseFaqData = [
   }
 ];
 
-
+// csseMockFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const csseMockFaqData = [
   {
       id: "1",
@@ -165,6 +184,11 @@ const csseMockFaqData = [
   }
 ];
 
+// fsseMockFaqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const fsseMockFaqData = [
   {
       id: "1",
@@ -247,7 +271,11 @@ const fsseMockFaqData = [
   }
 ];
 
-
+// faqData = [{
+  //     id: "1",
+  //     question: "",
+  //     answer: ``
+  // },]
 const faqData = [
   {
     id: "1",

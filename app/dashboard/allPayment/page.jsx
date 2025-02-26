@@ -211,7 +211,7 @@ const columns = [
   {
     field: 'courseName',
     headerName: 'Course/Test Name',
-    width: 200,
+    width: 250,
     valueGetter: (params) => params.value || 'Mock Test',
   },
   {

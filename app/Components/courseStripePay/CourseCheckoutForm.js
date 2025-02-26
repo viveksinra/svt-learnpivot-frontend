@@ -94,21 +94,6 @@ export default function CourseCheckoutForm({data, setClientSecret, selectedChild
     });
   }, [stripe]);
 
-  // Prevent user from leaving the page while loading
-  useEffect(() => {
-    const handleBeforeUnload = (e) => {
-      if (isLoading) {
-        e.preventDefault();
-        e.returnValue = "";
-      }
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
-  }, [isLoading]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
