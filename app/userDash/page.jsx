@@ -121,11 +121,17 @@ const Dashboard = () => {
               Track your children's educational journey
             </Typography>
           </Grid>
-          <Grid item xs={12} md={4} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <ChildSelectorDropDown 
-              selectedChild={selectedChild} 
-              setSelectedChild={setSelectedChild} 
-            />
+          <Grid item xs={12} md={4} sx={{ 
+            display: 'flex', 
+            justifyContent: { xs: 'flex-start', md: 'flex-end' },
+            paddingRight: { xs: 0, md: 2 }
+          }}>
+            <Box sx={{ width: 220 }}>
+              <ChildSelectorDropDown 
+                selectedChild={selectedChild} 
+                setSelectedChild={setSelectedChild} 
+              />
+            </Box>
           </Grid>
         </Grid>
 
