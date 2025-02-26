@@ -50,7 +50,7 @@ const CourseDateSelector = ({
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
     ? new Date(today.getTime() - (data.backDayCount * 24 * 60 * 60 * 1000))
     : today;
-console.log("CourseDateSelector",data);
+console.log("stopSkipSet",data.stopSkipSet);
   
   const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
     data.allBatch[0].oneBatch.length === 1 && 
@@ -99,45 +99,50 @@ console.log("CourseDateSelector",data);
   };
 
   const isValidBatchSelection = (batchId, allBatches) => {
+    // New stopSkipSet logic: Force selection of the first available set if not already selected.
+    if (data.stopSkipSet) {
+        const firstAvailableSetIndex = data.allBatch.findIndex(b => !b.hide && !b.bookingFull && hasAvailableDatesInBatch(b));
+        if (firstAvailableSetIndex !== -1) {
+            const firstAvailableBatchId = data.allBatch[firstAvailableSetIndex]._id;
+            if (!selectedBatches.includes(firstAvailableBatchId) && batchId !== firstAvailableBatchId) {
+                return false;
+            }
+        }
+    }
+
+    // ...existing logic...
     const validBatches = allBatches.filter(batch => !batch.hide && !batch.bookingFull);
     const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
     const currentBatch = validBatches[batchIndex];
     const currentBatchIndex = data.allBatch.findIndex(b => b._id === currentBatch._id);
 
-    // If user has purchased sets before
     if (lastPurchasedSetIndex >= 0) {
-      // Allow selection of current batch if:
-      // 1. It's before or equal to the last purchased set
-      // 2. It's the next set after the last purchased set
-      // 3. Previous set is selected (for sets after lastPurchasedSetIndex + 1)
-      if (currentBatchIndex <= lastPurchasedSetIndex) {
-        return true;
-      } else if (currentBatchIndex === lastPurchasedSetIndex + 1) {
-        return true;
-      } else if (currentBatchIndex === lastPurchasedSetIndex + 2) {
-        // Allow Set 3 if Set 2 is selected (when last purchased was Set 1)
-        return selectedBatches.some(id => {
-          const batch = validBatches.find(b => b._id === id);
-          const index = data.allBatch.findIndex(b => b._id === batch?._id);
-          return index === currentBatchIndex - 1;
-        });
-      }
-      return false;
+        if (currentBatchIndex <= lastPurchasedSetIndex) {
+            return true;
+        } else if (currentBatchIndex === lastPurchasedSetIndex + 1) {
+            return true;
+        } else if (currentBatchIndex === lastPurchasedSetIndex + 2) {
+            return selectedBatches.some(id => {
+                const batch = validBatches.find(b => b._id === id);
+                const index = data.allBatch.findIndex(b => b._id === batch?._id);
+                return index === currentBatchIndex - 1;
+            });
+        }
+        return false;
     }
 
-    // Original logic for when no sets have been purchased
     if (selectedBatches.length === 0) {
-      return true;
+        return true;
     }
 
-    const selectedIndices = selectedBatches.map(id => 
-      validBatches.findIndex(batch => batch._id === id)
+    const selectedIndices = selectedBatches.map(id =>
+        validBatches.findIndex(batch => batch._id === id)
     );
     const minSelected = Math.min(...selectedIndices);
     const maxSelected = Math.max(...selectedIndices);
 
     return batchIndex === minSelected - 1 || batchIndex === maxSelected + 1;
-  };
+};
 
   const handleBatchSelect = (batchId) => {
     if (data.forcefullBuyCourse) return;

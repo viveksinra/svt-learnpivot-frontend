@@ -47,7 +47,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [sortDate, setSortDate] = useState("");
     const [allowBackDateBuy, setAllowBackDateBuy] = useState(false);
     const [backDayCount, setBackDayCount] = useState("");
-    const [countiniousSetBuy, setCountiniousSetBuy] = useState(false);
+    const [stopSkipSet, setStopSkipSet] = useState(false);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -98,7 +98,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,countiniousSetBuy } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,stopSkipSet } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -130,7 +130,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setForcefullBuyCourse(forcefullBuyCourse || false);
                     setAllowBackDateBuy(backDateBuy || false);
                     setBackDayCount(days || "");
-                    setCountiniousSetBuy(countiniousSetBuy || false);
+                    setStopSkipSet(stopSkipSet || false);
                     setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
@@ -182,7 +182,7 @@ const EntryArea = forwardRef((props, ref) => {
         setForcefullBuyCourse(false);
         setAllowBackDateBuy(false);
         setBackDayCount("");
-        setCountiniousSetBuy(false);
+        setStopSkipSet(false);
     };
     
 
@@ -216,7 +216,7 @@ const EntryArea = forwardRef((props, ref) => {
                     forcefullBuyCourse,
                     allowBackDateBuy,
                     backDayCount,
-                    countiniousSetBuy,
+                    stopSkipSet,
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -577,8 +577,8 @@ const EntryArea = forwardRef((props, ref) => {
                 <Grid item xs={12} md={4}>
                      <FormControlLabel control={
                            <Checkbox
-                           checked={countiniousSetBuy}
-                           onChange={() => setCountiniousSetBuy(!countiniousSetBuy)}
+                           checked={stopSkipSet}
+                           onChange={() => setStopSkipSet(!stopSkipSet)}
                            inputProps={{ 'aria-label': 'controlled' }}
                          />               
                      } label={`Force Continuous Set Buy`} />
