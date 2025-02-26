@@ -1,7 +1,7 @@
 'use client';
 import "./prospectStyle.css";
 import React, { lazy, Suspense, useEffect } from 'react'
-import {Typography, Fab,styled,Avatar,CircularProgress,Rating,Badge,ToggleButtonGroup,ToggleButton,Tab, Grid,ButtonGroup,AppBar,Toolbar, Button,Tooltip, Chip, Table,TableRow,TableCell,TableBody, TableHead, IconButton,TablePagination} from '@mui/material/';
+import {Typography, Fab,styled,Avatar,CircularProgress,Rating,Badge,ToggleButtonGroup,ToggleButton,Tab, Grid,ButtonGroup,AppBar,Toolbar, Button,Tooltip, Chip, Table,TableRow,TableCell,TableBody, TableHead, IconButton,TablePagination, Stack} from '@mui/material/';
 import { useState,useRef} from 'react';
 import {TabContext,TabList } from '@mui/lab/';
 import { myCourseService } from "../../services";
@@ -170,13 +170,40 @@ export function SearchArea({handleEdit}) {
               sx={{ backgroundColor: r.isPublished ? 'rgba(227, 255, 234, 0.1)' : 'rgba(255, 255, 230, 0.1)' }}
             > 
               <TableCell align="left" padding="none">
-                <Chip
-                  size="small"
-                  icon={r.isPublished ? <FcOk /> : <FcNoIdea />}
-                  label={r.isPublished ? "Published" : "Draft"}
-                  color={r.isPublished ? "success" : "warning"}
-                  variant="outlined"
-                />
+                <Stack direction="row" spacing={1} flexWrap="wrap">
+                  <Chip
+                    size="small"
+                    icon={r.isPublished ? <FcOk /> : <FcNoIdea />}
+                    label={r.isPublished ? "Published" : "Draft"}
+                    color={r.isPublished ? "success" : "warning"}
+                    variant="outlined"
+                  />
+                  {r.restrictStartDateChange && (
+                    <Tooltip title="Course dates are fixed and cannot be changed">
+                      <Chip size="small" label="Fixed Dates" color="info" variant="outlined" />
+                    </Tooltip>
+                  )}
+                  {r.forcefullBuyCourse && (
+                    <Tooltip title="Students must enroll for the complete course">
+                      <Chip size="small" label="Full Course Only" color="warning" variant="outlined" />
+                    </Tooltip>
+                  )}
+                  {r.onlySelectedParent && (
+                    <Tooltip title="Limited to selected parents only">
+                      <Chip size="small" label="Selected Parents" color="secondary" variant="outlined" />
+                    </Tooltip>
+                  )}
+                  {r.allowBackDateBuy && (
+                    <Tooltip title={`Allows backdated enrollment up to ${r.backDayCount} days`}>
+                      <Chip size="small" label={`${r.backDayCount}d Backdate`} color="default" variant="outlined" />
+                    </Tooltip>
+                  )}
+                  {r.stopSkipSet && (
+                    <Tooltip title="Class skipping is not allowed">
+                      <Chip size="small" label="No Skip" color="error" variant="outlined" />
+                    </Tooltip>
+                  )}
+                </Stack>
               </TableCell>
               <TableCell align="left">{r.courseTitle}</TableCell>
               <TableCell align="left">
@@ -191,12 +218,14 @@ export function SearchArea({handleEdit}) {
                 )}
               </TableCell>
               <TableCell align="left">
-                {r.restrictOnTotalSeat ? (
-                  <Typography variant="body2">
-                    {r.filledSeat}/{r.totalSeat}
-                    {r.showRemaining && ` (${r.totalSeat - r.filledSeat} left)`}
-                  </Typography>
-                ) : 'Unlimited'}
+                <Typography variant="body2">
+                  {r.restrictOnTotalSeat ? (
+                    <>
+                      {r.filledSeat || 0}/{r.totalSeat}
+                      {r.showRemaining && ` (${r.totalSeat - (r.filledSeat || 0)} left)`}
+                    </>
+                  ) : 'Unlimited'}
+                </Typography>
               </TableCell>
               <TableCell align="left">
                 <Typography variant="caption" display="block">{r.startTime} - {r.endTime}</Typography>
@@ -315,16 +344,41 @@ export function SearchArea({handleEdit}) {
                   </Grid>
                 </div>
 
-                {(c.restrictStartDateChange || c.forcefullBuyCourse || c.onlySelectedParent) && (
+                {(c.restrictStartDateChange || c.forcefullBuyCourse || c.onlySelectedParent || c.allowBackDateBuy || c.stopSkipSet) && (
                   <Grid container spacing={1} sx={{ mb: 2 }}>
+                    {c.restrictStartDateChange && (
+                      <Grid item>
+                        <Tooltip title="Course dates are fixed and cannot be changed">
+                          <Chip label="Fixed Dates" size="small" color="info" variant="outlined" />
+                        </Tooltip>
+                      </Grid>
+                    )}
                     {c.forcefullBuyCourse && (
                       <Grid item>
-                        <Chip label="Full Course Only" size="small" color="warning" variant="outlined" />
+                        <Tooltip title="Students must enroll for the complete course">
+                          <Chip label="Full Course Only" size="small" color="warning" variant="outlined" />
+                        </Tooltip>
                       </Grid>
                     )}
                     {c.onlySelectedParent && (
                       <Grid item>
-                        <Chip label="Selected Parents Only" size="small" color="info" variant="outlined" />
+                        <Tooltip title="Limited to selected parents only">
+                          <Chip label="Selected Parents" size="small" color="secondary" variant="outlined" />
+                        </Tooltip>
+                      </Grid>
+                    )}
+                    {c.allowBackDateBuy && (
+                      <Grid item>
+                        <Tooltip title={`Allows backdated enrollment up to ${c.backDayCount} days`}>
+                          <Chip label={`${c.backDayCount}d Backdate`} size="small" color="default" variant="outlined" />
+                        </Tooltip>
+                      </Grid>
+                    )}
+                    {c.stopSkipSet && (
+                      <Grid item>
+                        <Tooltip title="Class skipping is not allowed">
+                          <Chip label="No Skip" size="small" color="error" variant="outlined" />
+                        </Tooltip>
                       </Grid>
                     )}
                   </Grid>

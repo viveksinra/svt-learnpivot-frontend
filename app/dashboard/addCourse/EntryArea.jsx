@@ -33,7 +33,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [courseType, setCourseType] = useState(null);
     const [duration, setDuration] = useState(null);
     const [fullDescription, setFullDescription] = useState("");
-    const [totalSeat, setTotalSeat] = useState("");
+    const [totalSeat, setTotalSeat] = useState("0");
     const [filledSeat, setFilledSeats] = useState("");
     const [showRemaining, setShowRemaining] = useState(false);
     const [imageUrls, setImageUrls] = useState([""]); // Start with one empty slot
@@ -46,7 +46,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
     const [sortDate, setSortDate] = useState("");
     const [allowBackDateBuy, setAllowBackDateBuy] = useState(false);
-    const [backDayCount, setBackDayCount] = useState("");
+    const [backDayCount, setBackDayCount] = useState("0");
     const [stopSkipSet, setStopSkipSet] = useState(false);
 
     const getAllUsers = async () => {
@@ -129,7 +129,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setRestrictStartDateChange(restrictStartDateChange || false);
                     setForcefullBuyCourse(forcefullBuyCourse || false);
                     setAllowBackDateBuy(backDateBuy || false);
-                    setBackDayCount(days || "");
+                    setBackDayCount(days || "0");
                     setStopSkipSet(stopSkipSet || false);
                     setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
@@ -170,7 +170,7 @@ const EntryArea = forwardRef((props, ref) => {
         setCourseType(null);
         setDuration(null);
         setFullDescription("");
-        setTotalSeat("");
+        setTotalSeat("0");
         setFilledSeats("");
         setShowRemaining(false);
         setImageUrls([""]);
@@ -181,7 +181,7 @@ const EntryArea = forwardRef((props, ref) => {
         setRestrictStartDateChange(false);
         setForcefullBuyCourse(false);
         setAllowBackDateBuy(false);
-        setBackDayCount("");
+        setBackDayCount("0");
         setStopSkipSet(false);
     };
     
@@ -599,13 +599,17 @@ const EntryArea = forwardRef((props, ref) => {
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <TextField 
-                    fullWidth
-                     label="Back Days" 
-                     value={backDayCount} 
-                     onChange={(e) => setBackDayCount(e.target.value)} 
-                     inputProps={{ minLength: "1", maxLength: "5" }} 
-                     placeholder='Back Days' variant="outlined" 
-                     />
+                        fullWidth
+                        label="Back Days" 
+                        type="number"
+                        value={backDayCount} 
+                        onChange={(e) => {
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setBackDayCount(value.toString());
+                        }} 
+                        inputProps={{ min: "0", step: "1" }}
+                        variant="outlined" 
+                    />
                 </Grid>                     
                 <Grid item xs={12} md={4}>
                      <FormControlLabel control={
@@ -619,13 +623,22 @@ const EntryArea = forwardRef((props, ref) => {
                 </Grid>
                 <Grid item xs={12} md={8}>
                     <TextField 
-                    fullWidth
-                     label="Total Seat" 
-                     value={totalSeat} 
-                     onChange={(e) => setTotalSeat(e.target.value)} 
-                     inputProps={{ minLength: "1", maxLength: "5" }} 
-                     placeholder='Total Seat' variant="outlined" 
-                     />
+                        fullWidth
+                        label="Total Seat" 
+                        type="number"
+                        value={totalSeat} 
+                        onChange={(e) => {
+                            // Ensure value is never less than 0
+                            const value = Math.max(0, parseInt(e.target.value) || 0);
+                            setTotalSeat(value.toString());
+                        }}
+                        inputProps={{ 
+                            min: "0",
+                            step: "1"
+                        }} 
+                        placeholder='Total Seat'
+                        variant="outlined"
+                    />
                 </Grid>                     
                 <Grid item xs={12} md={4}>
                      <FormControlLabel control={
