@@ -26,8 +26,6 @@ export default function OneClassBuy({ params }) {
     
       if (res.variant === "success") {
         setData(res.data)
-        console.log(res.data)
-        snackRef.current.handleSnack(res);
       } else {
         snackRef.current.handleSnack(res);
         console.log(res);
