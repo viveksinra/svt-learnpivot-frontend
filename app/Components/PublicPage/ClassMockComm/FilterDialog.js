@@ -150,17 +150,33 @@ export default function FilterDialog({filterData, selectedFilter, setSelectedFil
             </Button>
           </Toolbar>
         </AnimatedAppBar>
-        <DialogContent style={{ padding: '16px' }}> {/* Add padding here */}
-              <FilterComponent filterData={filterData} selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter}/>
-            </DialogContent>
-        <DialogActions>
-              <Button variant="outlined" color="secondary" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button variant="contained" color="primary" onClick={handleClose}>
-                Apply
-              </Button>
-            </DialogActions>
+        <DialogContent style={{ padding: '16px' }}>
+          <FilterComponent filterData={filterData} selectedFilter={selectedFilter} setSelectedFilter={setSelectedFilter}/>
+        </DialogContent>
+        <DialogActions sx={{ padding: '16px', gap: '8px' }}>
+          <Button 
+            onClick={handleClose}
+            sx={{ 
+              color: 'white', 
+              backgroundColor: 'red', 
+              '&:hover': { backgroundColor: 'darkred' },
+              flex: 1
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleClose}
+            sx={{ 
+              color: 'white', 
+              backgroundColor: 'green', 
+              '&:hover': { backgroundColor: 'darkgreen' },
+              flex: 1
+            }}
+          >
+            Apply
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );
