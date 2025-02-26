@@ -332,13 +332,13 @@ console.log("stopSkipSet",data.stopSkipSet);
     }
 
     const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
-    const selectedIndices = selectedBatches.map(id => 
+    const selectedIndices = selectedBatches.map(id =>
       validBatches.findIndex(batch => batch._id === id)
     );
     const maxSelectedIndex = Math.max(...selectedIndices);
     const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
     
-    if (maxSelectedIndex > currentBatchIndex) {
+    if (selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
       return "Cannot uncheck when later sets are selected";
     }
     return isDisabled ? "Must purchase sets in order" : "";
