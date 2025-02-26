@@ -45,6 +45,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
     const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
     const [sortDate, setSortDate] = useState("");
+    const [countiniousSetBuy, setCountiniousSetBuy] = useState(false);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -94,7 +95,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse,countiniousSetBuy } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -124,6 +125,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setRestrictOnTotalSeat(restrictSeat || false);
                     setRestrictStartDateChange(restrictStartDateChange || false);
                     setForcefullBuyCourse(forcefullBuyCourse || false);
+                    setCountiniousSetBuy(countiniousSetBuy || false);
                     setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
@@ -173,6 +175,7 @@ const EntryArea = forwardRef((props, ref) => {
         setRestrictOnTotalSeat(false);
         setRestrictStartDateChange(false);
         setForcefullBuyCourse(false);
+        setCountiniousSetBuy(false);
     };
     
 
@@ -204,6 +207,7 @@ const EntryArea = forwardRef((props, ref) => {
                     selectedUsers: selectedUser, // Add selected users to the submission
                     restrictStartDateChange,
                     forcefullBuyCourse,
+                    countiniousSetBuy,
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -561,7 +565,17 @@ const EntryArea = forwardRef((props, ref) => {
                      } label={`Force Full Buy Course`} />
                   
                 </Grid>
-                <Grid item xs={0} md={6}></Grid>
+                <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={countiniousSetBuy}
+                           onChange={() => setCountiniousSetBuy(!countiniousSetBuy)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Force Continuous Set Buy`} />
+                  
+                </Grid>
+                <Grid item xs={0} md={2}></Grid>
 {/* make a line here */}
     {/* <div style={{borderBottom: '1px solid #000', width: '100%'}}></div> */}
                 <Grid item xs={12} md={4}>
