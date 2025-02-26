@@ -83,7 +83,7 @@ function MultiCoursePage() {
 
   return (
     <>
-      <Grid container>
+      <Grid container >
         {fullScreen ? (
           <FilterDialog 
             filterData={filterData} 
@@ -99,7 +99,7 @@ function MultiCoursePage() {
             />
           </Grid>
         )}
-        <Grid item xs={fullScreen ? 12 : 10}>
+        <Grid item xs={fullScreen ? 12 : 10} >
           {loading ? (
             <div className="center" style={{flexDirection:"column"}}>
               <CircularProgress size={30}/>

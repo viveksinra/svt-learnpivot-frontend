@@ -9,7 +9,7 @@ function page() {
     <Fragment style={{ backgroundColor: "#fff" }}>
     <Navbar />
   
-    <Container style={{ marginTop:"100px" }}>
+    <Container style={{ marginTop:"85px", backgroundColor: "red", alignItems: "center" }}>
 <MultiCoursePage />
     </Container>
     <Footer />

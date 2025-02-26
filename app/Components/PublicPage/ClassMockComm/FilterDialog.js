@@ -107,11 +107,13 @@ export default function FilterDialog({filterData, selectedFilter, setSelectedFil
   }));
 
   return (
-    <Box sx={{ display: 'flex', gap: 1 }}>
+    <Box sx={{ display: 'flex', gap: 1 }} >
       <AnimatedButton
         onClick={handleClickOpen}
         bgcolor="#1976d2"
         hovercolor="#1565c0"
+        style={{marginBottom: "6px"}}
+
       >
         Filter
       </AnimatedButton>

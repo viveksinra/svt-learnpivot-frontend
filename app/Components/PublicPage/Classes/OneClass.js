@@ -65,22 +65,6 @@ const AnimatedButton = styled('button')(({ theme, bgcolor, hovercolor, textcolor
   }
 }));
 
-const InfoButton = styled(Button)({
-  backgroundColor: '#EDE9FE',
-  color: '#5B21B6',
-  '&:hover': {
-    backgroundColor: '#DDD6FE',
-  },
-});
-
-// Add this helper function at the top level
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  });
-};
 
 const OneClass = ({ data }) => {
   const [openFAQModal, setOpenFAQModal] = useState(false);
@@ -96,6 +80,7 @@ const OneClass = ({ data }) => {
         boxShadow: '4px 4px 8px rgba(0,0,0,0.1)',
         overflow: 'hidden',
         marginTop: fullScreen ? "1px" : "16px",
+        marginBottom: { xs: '16px', md: '0' }, // Add margin bottom for mobile
         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
       }}>
         <Grid item xs={12} md={4} sx={{ p: 0 }}>
