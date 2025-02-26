@@ -215,7 +215,7 @@ const columns = [
   {
     field: 'invoiceLink',
     headerName: 'Invoice',
-    width: 140,
+    width: 200,
     renderCell: (params) => (
       params.value && (
         <DownReceipt data={params.value} />
@@ -226,7 +226,7 @@ const columns = [
 
 export default function PaymentsPage() {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const isMobile = useMediaQuery('(max-width:1465px)');
   const [tabValue, setTabValue] = useState('succeeded');
   const [selectedChild, setSelectedChild] = useState('all');
   const [payments, setPayments] = useState([]);
