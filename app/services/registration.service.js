@@ -70,6 +70,22 @@ export class RegistrationService {
       })
       .then((res) => res.data);
   };
+
+
+  getAllUser = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/user/getAllUser`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  getAllChild = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/user/getAllChild`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
   
 
