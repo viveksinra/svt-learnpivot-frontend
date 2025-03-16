@@ -239,13 +239,14 @@ const Row = ({ row, onSelectRow, isSelected }) => {
   );
 };
 
-const CourseParentTable = ({ data: initialData }) => {
+const CourseParentTable = ({ data: initialData, courseDropDown = [] }) => {
   const [processedData, setProcessedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [setPurchaseFilter, setSetPurchaseFilter] = useState("all");
   const [selectedRows, setSelectedRows] = useState([]);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [courseFilter, setCourseFilter] = useState("all");
 
   useEffect(() => {
     const processed = processData(initialData);
@@ -256,16 +257,22 @@ const CourseParentTable = ({ data: initialData }) => {
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    applyFilters(term, setPurchaseFilter);
+    applyFilters(term, setPurchaseFilter, courseFilter);
   };
 
   const handleSetFilter = (e) => {
     const filter = e.target.value;
     setSetPurchaseFilter(filter);
-    applyFilters(searchTerm, filter);
+    applyFilters(searchTerm, filter, courseFilter);
   };
 
-  const applyFilters = (term, setFilter) => {
+  const handleCourseFilter = (e) => {
+    const filter = e.target.value;
+    setCourseFilter(filter);
+    applyFilters(searchTerm, setPurchaseFilter, filter);
+  };
+
+  const applyFilters = (term, setFilter, course) => {
     let filtered = processedData;
 
     // Apply search term filter
@@ -288,6 +295,12 @@ const CourseParentTable = ({ data: initialData }) => {
         if (row.sortedDateSets.length <= idx) return false;
         return row.sortedDateSets[idx].isPurchased === isPurchased;
       });
+    }
+    // Apply course filter
+    if (course !== "all") {
+      filtered = filtered.filter(row => row.courseTitle === course);
+    } else {
+      filtered = filtered;
     }
 
     setFilteredData(filtered);
@@ -351,14 +364,22 @@ const CourseParentTable = ({ data: initialData }) => {
       </Box>
 
       <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-        <TextField
-          label="Search"
-          variant="outlined"
-          size="small"
-          value={searchTerm}
-          onChange={handleSearch}
-          sx={{ minWidth: '250px' }}
-        />
+
+        <FormControl size="small" sx={{ minWidth: '200px' }}>
+          <InputLabel>Filter by Course</InputLabel>
+          <Select
+            value={courseFilter}
+            onChange={handleCourseFilter}
+            label="Filter by Course"
+          >
+            <MenuItem value="all">All Courses</MenuItem>
+            {courseDropDown.map((course) => (
+              <MenuItem key={course.courseLink} value={course.courseTitle}>
+                {course.courseTitle}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <FormControl size="small" sx={{ minWidth: '200px' }}>
           <InputLabel>Filter by Set</InputLabel>
           <Select
@@ -375,6 +396,14 @@ const CourseParentTable = ({ data: initialData }) => {
             <MenuItem value="3-not">Set 3 - Not Purchased</MenuItem>
           </Select>
         </FormControl>
+        <TextField
+          label="Search"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={handleSearch}
+          sx={{ minWidth: '250px' }}
+        />
       </Box>
 
       <TableContainer component={Paper}>

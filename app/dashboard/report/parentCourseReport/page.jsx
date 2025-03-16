@@ -51,6 +51,7 @@ const parentCourseReportPage = () => {
       setLoading(false);
     }
   }
+
   async function fetchCourseDropDown() {
     setLoading(true);
     setError(null);
@@ -69,9 +70,7 @@ const parentCourseReportPage = () => {
     }
   }
 
-
   useEffect(() => {
- 
     fetchAllData();
     fetchCourseDropDown();
   }, []);
@@ -89,7 +88,7 @@ const parentCourseReportPage = () => {
             <Skeleton height={400} />
           </Box>
         ) : (
-          <CourseParentTable data={rows} />
+          <CourseParentTable data={rows} courseDropDown={courseDropDown} />
         )}
       </Paper>
     </Container>
