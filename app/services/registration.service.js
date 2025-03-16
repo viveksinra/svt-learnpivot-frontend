@@ -63,6 +63,13 @@ export class RegistrationService {
       })
       .then((res) => res.data);
   };
+  getCourseDropDown = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/course/getCourse/forDropDown`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
   
 

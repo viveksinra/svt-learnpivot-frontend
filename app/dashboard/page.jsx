@@ -4,11 +4,13 @@ import { Box, Container, Typography, Stack, useTheme } from '@mui/material';
 import { UpcomingEvents } from '../Components/UserDash/UpcomingEvents';
 import { dashboardService } from '../services';
 import { AdminQuickLinks } from '../Components/Dashboard/AdminQuickLinks';
+import { useRouter } from "next/navigation";
 
 
 const Dashboard = () => {
   const [selectedChild, setSelectedChild] = useState('all');
   const theme = useTheme();
+  const router = useRouter();
 
   const [heading, setHeading] = useState({msg: "Welcome",firstName: "Guest",lastName: "",designation:"Role"});
 
@@ -19,7 +21,7 @@ const Dashboard = () => {
       if(res.variant === "success"){
         setHeading(res.data)
       }else {
-        router.reload();
+        router.refresh();
       };    
      }
      getHeading()
