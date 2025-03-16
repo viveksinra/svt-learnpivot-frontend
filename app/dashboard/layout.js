@@ -95,6 +95,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       icon: <FcStatistics />
     },
     { 
+      title: "Course Date Report",
+      active: false,
+      link: "/dashboard/report/courseDateReport",
+      icon: <FcStatistics />
+    },
+    { 
       title: "Parent Course Report",
       active: false,
       link: "/dashboard/report/parentCourseReport",
