@@ -67,10 +67,10 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
     const { name, value, ...extra } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === 'email' ? value.toLowerCase() : value,
       ...extra,
     }));
-  
+
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }

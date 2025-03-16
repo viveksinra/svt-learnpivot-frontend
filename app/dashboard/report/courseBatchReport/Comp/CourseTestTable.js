@@ -95,7 +95,7 @@ const CourseTestTable = ({ data }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Course Report
+          Course Batch Report
         </Typography>
   
       </Box>
@@ -117,7 +117,7 @@ const CourseTestTable = ({ data }) => {
             quickFilterProps: { debounceMs: 500 },
           },
         }}
-        pageSizeOptions={[10, 25, 50]}
+        pageSizeOptions={[10, 25, 50, 100,1000,10000,50000]}
         sx={{
           '& .MuiDataGrid-cell': {
             py: 1.5

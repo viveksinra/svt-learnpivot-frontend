@@ -225,7 +225,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
               border: '1px solid #ccc'
             }}
           >
-            {[ 10, 25, 50, 100].map((size) => (
+            {[ 10, 25, 50, 100,1000,10000,50000].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
@@ -550,11 +550,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   setPageSize(newPageSize);
                   setPage(0);
                 }}
-                pageSizeOptions={[ 10, 25, 50, 100]}
+                pageSizeOptions={[ 10, 25, 50, 100,1000,10000,50000 ]}
                 checkboxSelection
-  disableRowSelectionOnClick // updated from disableSelectionOnClick
-  rowSelectionModel={selectedItems.map(item => item._id)} // updated from selectionModel
-  onRowSelectionModelChange={handleSelectionChange} 
+                disableRowSelectionOnClick
+                rowSelectionModel={selectedItems.map(item => item._id)}
+                onRowSelectionModelChange={handleSelectionChange}
                 loading={loading}
                 initialState={{
                   filter: {
@@ -580,8 +580,8 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   noResultsOverlay: () => <EmptyContent title="No results found" />,
                 }}
                 slots={{ 
-                  toolbar: GridToolbar,
-                  pagination: CustomPagination, // Add back the custom pagination
+                  toolbar: CustomToolbar,
+                  pagination: CustomPagination,
                 }}
                 slotProps={{
                   toolbar: {
@@ -589,14 +589,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                     quickFilterProps: { debounceMs: 500 },
                   },
                 }}
-                filterModel={{
-                  items: [],
-                }}
                 getRowClassName={(params) => `status-${params?.row?.status}`}
                 autoHeight
                 disableExtendRowFullWidth={false}
-                filterMode="server"
-                sortingMode="server"
+                filterMode="client"
+                sortingMode="client"
                 disableColumnFilter={false}
                 disableColumnSelector={false}
                 disableDensitySelector={false}
@@ -631,6 +628,16 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   },
                   borderRadius: 2,
                   border: '1px solid rgba(224, 224, 224, 1)',
+                  '& .MuiDataGrid-filterIcon': {
+                    color: 'primary.main',
+                  },
+                  '& .MuiDataGrid-columnHeaderTitleContainer': {
+                    padding: '0 8px',
+                  },
+                  '& .MuiDataGrid-toolbarContainer': {
+                    padding: '8px',
+                    gap: '8px',
+                  }
                 }}
               />
             </Grid>

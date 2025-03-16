@@ -117,7 +117,7 @@ const MockTestTable = ({ data }) => {
             quickFilterProps: { debounceMs: 500 },
           },
         }}
-        pageSizeOptions={[10, 25, 50]}
+        pageSizeOptions={[10, 25, 50, 100,1000,10000,50000]}
         sx={{
           '& .MuiDataGrid-cell': {
             py: 1.5

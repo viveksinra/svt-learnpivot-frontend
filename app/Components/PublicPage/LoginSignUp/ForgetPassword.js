@@ -106,7 +106,7 @@ function ForgetPassword({ setIsForget }) {
               required
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value.toLowerCase())}
               placeholder="Email Address"
               label="Email Address"
               variant="outlined"

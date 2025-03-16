@@ -19,13 +19,15 @@ import {
   Stack,
   Divider,
   Alert,
-  CircularProgress
+  CircularProgress,
+  Button,
 } from '@mui/material';
 import { DataGrid } from '@mui/x-data-grid';
 import SchoolIcon from '@mui/icons-material/School';
 import QuizIcon from '@mui/icons-material/Quiz';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import moment from 'moment';
 import ChildSelectorDropDown from '../../Components/Common/ChildSelectorDropDown';
 import { reportService } from '@/app/services';
@@ -53,6 +55,46 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
   return [...coursePayments, ...mockPayments].sort((a, b) => 
     new Date(b.paymentDate) - new Date(a.paymentDate)
   );
+};
+
+const exportToCSV = (payments) => {
+  const headers = [
+    'Type',
+    'Date & Time',
+    'Amount',
+    'Status',
+    'Course/Test Name',
+    'Student',
+    'Parent Name',
+    'Email',
+    'Payment ID'
+  ];
+
+  const csvData = payments.map(payment => [
+    payment.type === 'course' ? 'Course' : 'Mock Test',
+    moment(payment.paymentDate).format('DD MMM YYYY, HH:mm:ss'),
+    `£${payment.amountPaid.toFixed(2)}`,
+    payment.paymentStatus,
+    payment.courseName || 'Mock Test',
+    payment.childName,
+    payment.parentName,
+    payment.email,
+    payment.paymentIntent
+  ]);
+
+  const csvContent = [
+    headers.join(','),
+    ...csvData.map(row => row.join(','))
+  ].join('\n');
+
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  link.setAttribute('href', url);
+  link.setAttribute('download', `payment_history_${moment().format('YYYY-MM-DD')}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 };
 
 const StatusChip = ({ status }) => {
@@ -229,7 +271,7 @@ const columns = [
   {
     field: 'paymentIntent',
     headerName: 'Payment ID',
-    width: 220,
+    width: 300,
   },
   {
     field: 'invoiceLink',
@@ -311,14 +353,18 @@ export default function PaymentsPage() {
                 Payment History
               </Typography>
             </Grid>
-            {/* <Grid item xs={12} md={6}>
-              <Box className="flex justify-center md:justify-end">
-                <ChildSelectorDropDown
-                  selectedChild={selectedChild}
-                  setSelectedChild={setSelectedChild}
-                />
+            <Grid item xs={12} md={6}>
+              <Box className="flex justify-end">
+                <Button
+                  variant="outlined"
+                  startIcon={<FileDownloadIcon />}
+                  onClick={() => exportToCSV(filteredPayments)}
+                  disabled={loading || filteredPayments.length === 0}
+                >
+                  Export
+                </Button>
               </Box>
-            </Grid> */}
+            </Grid>
           </Grid>
 
           <Tabs
@@ -362,7 +408,7 @@ export default function PaymentsPage() {
                     paginationModel: { pageSize: 25, page: 0 },
                   },
                 }}
-                pageSizeOptions={[10, 25, 50, 100]}
+                pageSizeOptions={[10, 25, 50, 100,1000,10000,50000]}
                 disableSelectionOnClick
                 className="border-none"
                 sx={{

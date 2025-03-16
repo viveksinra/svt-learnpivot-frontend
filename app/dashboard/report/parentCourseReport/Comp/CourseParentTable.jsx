@@ -20,11 +20,16 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Grid
+  Grid,
+  Checkbox,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import EmailIcon from '@mui/icons-material/Email';
+import SendEmailParentReport from './SendEmailParentReport';
 
 // Process data to add set purchase information
 const processData = (data) => {
@@ -120,7 +125,7 @@ const exportToCSV = (data) => {
   document.body.removeChild(link);
 };
 
-const Row = ({ row }) => {
+const Row = ({ row, onSelectRow, isSelected }) => {
   const [open, setOpen] = useState(false);
 
   const renderSetStatus = (set, index) => {
@@ -157,10 +162,11 @@ const Row = ({ row }) => {
   return (
     <>
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-        <TableCell>
-          <IconButton size="small" onClick={() => setOpen(!open)}>
-            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </IconButton>
+        <TableCell padding="checkbox">
+          <Checkbox
+            checked={isSelected}
+            onChange={(e) => onSelectRow(row, e.target.checked)}
+          />
         </TableCell>
         <TableCell component="th" scope="row">
           <Typography variant="subtitle1">{row.courseTitle}</Typography>
@@ -238,6 +244,8 @@ const CourseParentTable = ({ data: initialData }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [setPurchaseFilter, setSetPurchaseFilter] = useState("all");
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   useEffect(() => {
     const processed = processData(initialData);
@@ -285,6 +293,31 @@ const CourseParentTable = ({ data: initialData }) => {
     setFilteredData(filtered);
   };
 
+  const handleSelectRow = (row, isSelected) => {
+    setSelectedRows(prev => {
+      if (isSelected) {
+        return [...prev, row];
+      }
+      return prev.filter(item => item !== row);
+    });
+  };
+
+  const handleSelectAll = (event) => {
+    if (event.target.checked) {
+      setSelectedRows(filteredData);
+    } else {
+      setSelectedRows([]);
+    }
+  };
+
+  const isAllSelected = filteredData.length > 0 && selectedRows.length === filteredData.length;
+
+  const handleSendEmail = () => {
+    if (selectedRows.length > 0) {
+      setEmailDialogOpen(true);
+    }
+  };
+
   return (
     <Box sx={{ width: '100%', height: '100%' }}>
       <Box sx={{ 
@@ -296,9 +329,17 @@ const CourseParentTable = ({ data: initialData }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Course Parent Report
+        Parent Course Report
         </Typography>
         <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<EmailIcon />}
+            onClick={handleSendEmail}
+            disabled={selectedRows.length === 0}
+          >
+            Send Email ({selectedRows.length})
+          </Button>
           <Button
             variant="contained"
             startIcon={<FileDownloadIcon />}
@@ -340,7 +381,13 @@ const CourseParentTable = ({ data: initialData }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell />
+              <TableCell padding="checkbox">
+                <Checkbox
+                  checked={isAllSelected}
+                  indeterminate={selectedRows.length > 0 && selectedRows.length < filteredData.length}
+                  onChange={handleSelectAll}
+                />
+              </TableCell>
               <TableCell>Course Details</TableCell>
               <TableCell>Parent Email</TableCell>
               <TableCell align="center">Purchased Classes</TableCell>
@@ -352,7 +399,12 @@ const CourseParentTable = ({ data: initialData }) => {
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((row, index) => (
-                <Row key={index} row={row} />
+                <Row 
+                  key={index} 
+                  row={row} 
+                  onSelectRow={handleSelectRow}
+                  isSelected={selectedRows.includes(row)}
+                />
               ))
             ) : (
               <TableRow>
@@ -366,6 +418,36 @@ const CourseParentTable = ({ data: initialData }) => {
           </TableBody>
         </Table>
       </TableContainer>
+
+      <Dialog
+        open={emailDialogOpen}
+        onClose={() => setEmailDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogContent>
+          <SendEmailParentReport
+            selectedItems={selectedRows.map(row => ({
+              user: {
+                email: row.parentEmail,
+                firstName: row.parentEmail.split('@')[0], // Since we don't have first/last name
+                lastName: '',
+                _id: row._id
+              },
+              childId: {
+                childName: row.studentName || 'Student' // Changed from childName to studentName
+              },
+              courseId: {
+                courseTitle: row.courseTitle
+              },
+              selectedDates: row.sortedDateSets.flatMap(set => 
+                set.dates.filter(d => d.purchased).map(d => formatDate(d.date))
+              ) // Only include purchased dates
+            }))}
+            setId={() => setEmailDialogOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };

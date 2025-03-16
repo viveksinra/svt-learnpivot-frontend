@@ -210,7 +210,7 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
               border: '1px solid #ccc'
             }}
           >
-            {[10, 25, 50, 100].map((size) => (
+            {[10, 25, 50, 100,1000,10000,50000].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
