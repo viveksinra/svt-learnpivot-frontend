@@ -118,6 +118,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/report/childReport",
       icon: <FcStatistics />
     },
+    { 
+      title: "Each User Report",
+      active: false,
+      link: "/dashboard/report/eachUserReport",
+      icon: <FcStatistics />
+    },
   ]);
 
   const handleLink = (v, n, Ar) => {

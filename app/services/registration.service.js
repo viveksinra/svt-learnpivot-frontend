@@ -86,6 +86,13 @@ export class RegistrationService {
       })
       .then((res) => res.data);
   };
+  getAllChildForDropDown = async ( ) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/otherApi/admin/getAllChildForDropDown`,  {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
   
 
