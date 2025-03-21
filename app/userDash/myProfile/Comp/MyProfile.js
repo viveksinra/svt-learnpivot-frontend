@@ -15,13 +15,17 @@ import {
   Button,
   Skeleton,
   Container,
-  Paper
+  Paper,
+  IconButton,
+  Tooltip,
+  Chip
 } from '@mui/material';
 import {
   Mail as EmailIcon,
   Phone as PhoneIcon,
   LocationOn as LocationIcon,
-  Edit as EditIcon
+  Edit as EditIcon,
+  Home as HomeIcon
 } from '@mui/icons-material';
 import AddressInput from '@/app/Components/PublicPage/LoginSignUp/AddressInput';
 import { myProfileService } from '@/app/services';
@@ -54,7 +58,8 @@ const ProfileInfo = ({
             alignItems: 'center',
             justifyContent: 'center',
             bgcolor: 'primary.main',
-            color: 'white'
+            color: 'white',
+            boxShadow: 1
           }}
         >
           <Icon />
@@ -70,6 +75,7 @@ const ProfileInfo = ({
             helperText={helperText}
             size="small"
             disabled={disabled}
+            variant="outlined"
           />
         </Box>
       </Stack>
@@ -82,9 +88,13 @@ const ProfileInfo = ({
       spacing={2}
       sx={{
         mb: 3,
-        transition: 'transform 0.2s',
+        transition: 'all 0.3s ease',
         '&:hover': {
-          transform: 'translateX(8px)'
+          transform: 'translateX(8px)',
+          bgcolor: 'rgba(0, 0, 0, 0.02)',
+          borderRadius: 2,
+          px: 1,
+          py: 0.5,
         }
       }}
     >
@@ -97,7 +107,8 @@ const ProfileInfo = ({
           alignItems: 'center',
           justifyContent: 'center',
           bgcolor: 'primary.main',
-          color: 'white'
+          color: 'white',
+          boxShadow: 2
         }}
       >
         <Icon />
@@ -131,7 +142,7 @@ const UserProfile = () => {
   const [errors, setErrors] = useState({});
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isManualAddressEdit, setIsManualAddressEdit] = useState(false)
+  const [isManualAddressEdit, setIsManualAddressEdit] = useState(false);
   const snackRef = useRef();
 
   useEffect(() => {
@@ -162,16 +173,30 @@ const UserProfile = () => {
   const handleCancel = () => {
     setProfile(initialProfile);
     setIsEditing(false);
+    setIsManualAddressEdit(false);
     setErrors({});
   };
 
   const handleChange = (e) => {
-    const { name, value, ...extra } = e.target;
-    setProfile((prev) => ({
-      ...prev,
-      [name]: value,
-      ...extra
-    }));
+    const { name, value } = e.target;
+    
+    // Handle address fields clearing when address1 is emptied
+    if (name === 'address1' && !value.trim()) {
+      setProfile((prev) => ({
+        ...prev,
+        address1: '',
+        address2: '',
+        address3: '',
+        city: '',
+        postcode: ''
+      }));
+    } else {
+      setProfile((prev) => ({
+        ...prev,
+        [name]: value
+      }));
+    }
+    
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
@@ -236,21 +261,51 @@ const UserProfile = () => {
   return (
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Paper
-        elevation={3}
+        elevation={4}
         sx={{
-          borderRadius: 4,
+          borderRadius: 3,
           overflow: 'hidden',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            boxShadow: 6
+          }
         }}
       >
         <Box sx={{ 
           bgcolor: 'primary.main', 
-          py: 2, 
+          py: 2.5, 
           px: 4,
-          color: 'white'
+          color: 'white',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}>
-          <Typography variant="h5" fontWeight="600">
+          <Typography 
+            variant="h5" 
+            fontWeight="600"
+            sx={{ 
+              fontSize: { xs: '1.25rem', sm: '1.5rem' },
+              letterSpacing: '0.5px'
+            }}
+          >
             My Profile
           </Typography>
+          {!isLoading && !isEditing && (
+            <IconButton 
+              onClick={handleEdit}
+              sx={{ 
+                color: 'white',
+                width: 36,
+                height: 36,
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                }
+              }}
+            >
+              <EditIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
         
         <CardContent sx={{ p: 4 }}>
@@ -270,7 +325,7 @@ const UserProfile = () => {
             >
               {isLoading ? (
                 <>
-                  <Skeleton variant="circular" width={80} height={80} />
+                  <Skeleton variant="circular" width={90} height={90} />
                   <Box>
                     <Skeleton variant="text" width={200} height={40} sx={{ mb: 0.5 }} />
                   </Box>
@@ -279,12 +334,24 @@ const UserProfile = () => {
                 <>
                   <Avatar
                     sx={{
-                      width: 80,
-                      height: 80,
+                      width: 90,
+                      height: 90,
                       bgcolor: 'primary.main',
-                      fontSize: '2.5rem',
+                      fontSize: '2.8rem',
                       fontWeight: 'bold',
-                      boxShadow: 2
+                      boxShadow: 3,
+                      border: '3px solid #fff',
+                      position: 'relative',
+                      '&:after': {
+                        content: '""',
+                        position: 'absolute',
+                        width: '100%',
+                        height: '100%',
+                        borderRadius: '50%',
+                        border: '2px solid rgba(0,0,0,0.1)',
+                        top: 0,
+                        left: 0
+                      }
                     }}
                   >
                     {profile?.firstName?.charAt(0)}
@@ -322,25 +389,20 @@ const UserProfile = () => {
                         }}>
                           {`${profile?.firstName} ${profile?.lastName}`}
                         </Typography>
+                        {profile?.email && (
+                          <Chip 
+                            icon={<EmailIcon fontSize="small" />} 
+                            label={profile.email}
+                            size="small"
+                            sx={{ mt: 1 }}
+                          />
+                        )}
                       </>
                     )}
                   </Box>
                 </>
               )}
             </Stack>
-            {!isLoading && !isEditing && (
-              <Button 
-                onClick={handleEdit} 
-                startIcon={<EditIcon />}
-                variant="outlined"
-                sx={{ 
-                  height: 'fit-content',
-                  width: { xs: '100%', sm: 'auto' }
-                }}
-              >
-                Edit Profile
-              </Button>
-            )}
           </Box>
 
           <Divider sx={{ mb: 4 }} />
@@ -355,6 +417,10 @@ const UserProfile = () => {
             </>
           ) : (
             <>
+              <Typography variant="h6" sx={{ mb: 3, fontWeight: 600 }}>
+                Contact Information
+              </Typography>
+              
               <ProfileInfo
                 icon={EmailIcon}
                 label="Email"
@@ -376,117 +442,167 @@ const UserProfile = () => {
                 error={!!errors.mobile}
                 helperText={errors.mobile}
               />
-      {   ( isEditing) &&     <ProfileInfo
-                icon={LocationIcon}
-                label="Address Line 1"
-                value={profile?.address1}
-                isEditing={isEditing}
-                name="address1"
-                onChange={handleChange}
-                error={!!errors.address1}
-                helperText={errors.address1}
-                component={AddressInput}
-              />}
-     {  !isManualAddressEdit? 
-     <>
-{  profile?.postcode &&  <>          <Typography variant="body1" sx={{ mb: 1 }}>
-                {profile?.address1}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {profile?.address2}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {profile?.address3}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {profile?.city}
-              </Typography>
-              <Typography variant="body1" sx={{ mb: 1 }}>
-                {profile?.postcode}
-              </Typography>
-              </>}
-        {isEditing &&      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => setIsManualAddressEdit(true)}
-                >
-                  Manual Edit
-                </Button>
-              </Box>}
-     </> :   <>      <ProfileInfo
-                icon={LocationIcon}
-                label="Address Line 2"
-                value={profile?.address2}
-                isEditing={isEditing}
-                name="address2"
-                onChange={handleChange}
-                error={!!errors.address2}
-                helperText={errors.address2}
-              />
-              <ProfileInfo
-                icon={LocationIcon}
-                label="Address Line 3"
-                value={profile?.address3}
-                isEditing={isEditing}
-                name="address3"
-                onChange={handleChange}
-                error={!!errors.address3}
-                helperText={errors.address3}
-              />
-              <ProfileInfo
-                icon={LocationIcon}
-                label="City"
-                value={profile?.city}
-                isEditing={isEditing}
-                name="city"
-                onChange={handleChange}
-                error={!!errors.city}
-                helperText={errors.city}
-              />
-              <ProfileInfo
-                icon={LocationIcon}
-                label="Postcode"
-                value={profile?.postcode}
-                isEditing={isEditing}
-                name="postcode"
-                onChange={handleChange}
-                error={!!errors.postcode}
-                helperText={errors.postcode}
-              /> 
-              </>
-              }
+              
+              <Divider sx={{ my: 3 }} />
+              
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, flexGrow: 1 }}>
+                  Address Information
+                </Typography>
+              </Box>
+              
+              {isEditing && (
+                <ProfileInfo
+                  icon={LocationIcon}
+                  label="Address Line 1"
+                  value={profile?.address1}
+                  isEditing={isEditing}
+                  name="address1"
+                  onChange={handleChange}
+                  error={!!errors.address1}
+                  helperText={errors.address1}
+                  component={isManualAddressEdit ? TextField : AddressInput}
+                />
+              )}
+              
+              {!isManualAddressEdit || !isEditing ? (
+                <>
+                  {profile?.postcode && (
+                    <Paper 
+                      elevation={1} 
+                      sx={{ 
+                        p: 2, 
+                        borderRadius: 2, 
+                        mb: 3, 
+                        bgcolor: 'rgba(0, 0, 0, 0.02)',
+                        position: 'relative'
+                      }}
+                    >
+                      {isEditing && (
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={<EditIcon fontSize="small" />}
+                          onClick={() => setIsManualAddressEdit(true)}
+                          sx={{ 
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            fontSize: '0.75rem',
+                            padding: '2px 8px',
+                            minWidth: 'auto',
+                            width: 'fit-content',
+                            maxWidth: '120px',
+                            borderColor: 'primary.main',
+                            color: 'primary.main',
+                            display: 'inline-flex',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                              borderColor: 'primary.dark'
+                            }
+                          }}
+                        >
+                          Manual Edit
+                        </Button>
+                      )}
+                      <Stack direction="row" spacing={2} alignItems="flex-start" sx={{ mt: isEditing ? 4 : 0 }}>
+                        <HomeIcon color="primary" sx={{ mt: 0.5 }} />
+                        <Box>
+                          {profile?.address1 && <Typography variant="body1">{profile?.address1}</Typography>}
+                          {profile?.address2 && <Typography variant="body1">{profile?.address2}</Typography>}
+                          {profile?.address3 && <Typography variant="body1">{profile?.address3}</Typography>}
+                          {profile?.city && <Typography variant="body1">{profile?.city}</Typography>}
+                          {profile?.postcode && <Typography variant="body1" fontWeight="bold">{profile?.postcode}</Typography>}
+                        </Box>
+                      </Stack>
+                    </Paper>
+                  )}
+                </>
+              ) : (
+                <>
+                  {isEditing && (
+                    <>
+                      <ProfileInfo
+                        icon={LocationIcon}
+                        label="Address Line 2"
+                        value={profile?.address2}
+                        isEditing={isEditing}
+                        name="address2"
+                        onChange={handleChange}
+                        error={!!errors.address2}
+                        helperText={errors.address2}
+                      />
+                      <ProfileInfo
+                        icon={LocationIcon}
+                        label="Address Line 3"
+                        value={profile?.address3}
+                        isEditing={isEditing}
+                        name="address3"
+                        onChange={handleChange}
+                        error={!!errors.address3}
+                        helperText={errors.address3}
+                      />
+                      <ProfileInfo
+                        icon={LocationIcon}
+                        label="City"
+                        value={profile?.city}
+                        isEditing={isEditing}
+                        name="city"
+                        onChange={handleChange}
+                        error={!!errors.city}
+                        helperText={errors.city}
+                      />
+                      <ProfileInfo
+                        icon={LocationIcon}
+                        label="Postcode"
+                        value={profile?.postcode}
+                        isEditing={isEditing}
+                        name="postcode"
+                        onChange={handleChange}
+                        error={!!errors.postcode}
+                        helperText={errors.postcode}
+                      /> 
+                    </>
+                  )}
+                </>
+              )}
             </>
           )}
 
           {isEditing && (
-            <Box sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ 
+              mt: 4, 
+              display: 'flex', 
+              justifyContent: 'center',
+              gap: 2
+            }}>
               <Button 
+                variant="contained"
                 onClick={handleCancel}
                 sx={{ 
-                  color: 'white', 
-                  backgroundColor: 'red', 
-                  '&:hover': { backgroundColor: 'darkred' },
+                  bgcolor: 'error.main', 
+                  '&:hover': { bgcolor: 'error.dark' },
                   flex: 1,
                   maxWidth: 200,
-                  marginRight: '16px',
-                  py: 1
+                  py: 1,
+                  boxShadow: 2
                 }}
               >
                 Cancel
               </Button>
               <Button 
+                variant="contained"
                 onClick={handleUpdate}
                 sx={{ 
-                  color: 'white', 
-                  backgroundColor: 'green', 
-                  '&:hover': { backgroundColor: 'darkgreen' },
+                  bgcolor: 'success.main', 
+                  '&:hover': { bgcolor: 'success.dark' },
                   flex: 1,
                   maxWidth: 200,
-                  py: 1
+                  py: 1,
+                  boxShadow: 2
                 }}
               >
-                Update Changes
+                Save Changes
               </Button>
             </Box>
           )}
