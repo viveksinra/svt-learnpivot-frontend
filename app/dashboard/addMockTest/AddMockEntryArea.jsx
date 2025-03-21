@@ -7,7 +7,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { FcNoIdea, FcOk, FcExpand } from "react-icons/fc";
 import { MdDeleteForever } from "react-icons/md";
 import MySnackbar from "../../Components/MySnackbar/MySnackbar";
-import { mockTestService } from "../../services";
+import { dashboardService, mockTestService } from "../../services";
 import { todayDate } from "../../Components/StaticData";
 import { useImgUpload } from "@/app/hooks/auth/useImgUpload";
 import MultiImageUpload from '@/app/Components/Common/MultiImageUpload';
@@ -35,6 +35,23 @@ const AddMockEntryArea = forwardRef((props, ref) => {
         filled: false 
     }]);
     const [PAccordion, setPAccordion] = useState(false);
+    const [privateAccordion, setPrivateAccordion] = useState(true);
+    const [allUsers, setAllUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
+    const [byPassBookingFull, setByPassBookingFull] = useState(false);
+
+    const getAllUsers = async () => {
+        let res = await dashboardService.getAllUserForDropDown();
+        if (res.variant === "success") {
+            setAllUsers(res.data);
+        } else {
+            snackRef.current.handleSnack(res);
+        }
+    };
+
+    useEffect(() => {
+        getAllUsers();
+    }, []);
 
     const AllBlinkText = [
         { label: "High Demand", id: "highDemand" },
@@ -54,7 +71,16 @@ const AddMockEntryArea = forwardRef((props, ref) => {
         setMockTestTitle(e.target.value);
         setMockTestLink(convertToSlug(e.target.value));
     };
-
+    const findUserDetails = (userId) => {
+        const user = allUsers.find(user => user._id === userId);
+        return user || { 
+            firstName: 'User',
+            lastName: 'not found', 
+            email: 'No email', 
+            mobile: 'No mobile',
+            _id: userId 
+        };
+    };
     useEffect(() => {
         async function getOneData() {
             try {
@@ -62,7 +88,9 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 if (res.variant === "success") {
                     const {
                         isPublished, mockTestTitle, mockTestLink, shortDescription, pincode, highlightedText,
-                        blinkText, testType, location, imageUrls, fullDescription, totalSeat, batch
+                        blinkText, testType, location, imageUrls, fullDescription, totalSeat, batch,
+                        selectedUsers: resSelectedUsers,
+                        byPassBookingFull: resByPassBookingFull
                     } = res.data;
                     setIsPublished(isPublished);
                     setMockTestTitle(mockTestTitle);
@@ -80,6 +108,8 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         ...b,
                         date: b.date.split('T')[0]
                     })));
+                    setSelectedUsers(resSelectedUsers || []);
+                    setByPassBookingFull(resByPassBookingFull || false);
                     setPAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
@@ -119,6 +149,8 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             filled: false 
         }]);
         setPAccordion(true);
+        setSelectedUsers([]);
+        setByPassBookingFull(false);
     };
 
     const handleDelete = async () => {
@@ -180,7 +212,9 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                     totalSeat,
                     imageUrls,
                     isPublished,
-                    batch
+                    batch,
+                    selectedUsers,
+                    byPassBookingFull
                 };
                 const response = await mockTestService.add(props.id, myMockTestData);
                 if (response.variant === "success") {
@@ -196,6 +230,72 @@ const AddMockEntryArea = forwardRef((props, ref) => {
         },
         handleClear: () => handleClear()
     }));
+
+    const renderUserSelect = () => {
+
+        // Sort users by firstName
+        const sortedUsers = [...allUsers].sort((a, b) => {
+            const nameA = (a.firstName || '').toLowerCase();
+            const nameB = (b.firstName || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
+        return (
+            <Grid item xs={12} md={8}>
+                <Autocomplete
+                    multiple
+                    id="user-select"
+                    options={sortedUsers}
+                    value={selectedUsers.map(userId => findUserDetails(userId))
+                        .sort((a, b) => (a.firstName || '').localeCompare(b.firstName || ''))}
+                    onChange={(event, newValue) => {
+                        setSelectedUsers(newValue.map(user => user._id));
+                    }}
+                    getOptionLabel={(option) => 
+                        `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) (${option.mobile || ''})`
+                    }
+                    disableCloseOnSelect
+                    filterOptions={(options, { inputValue }) => {
+                        const searchTerms = inputValue.toLowerCase().split(' ');
+                        return options.filter(option => 
+                            searchTerms.every(term =>
+                                option.firstName?.toLowerCase().includes(term) ||
+                                option.lastName?.toLowerCase().includes(term) ||
+                                option.email?.toLowerCase().includes(term) ||
+                                option.mobile?.toLowerCase().includes(term)
+                            )
+                        );
+                    }}
+                    renderInput={(params) => (
+                        <TextField
+                            {...params}
+                            variant="outlined"
+                            label="Select Users"
+                            placeholder="Search by name, email or mobile"
+                        />
+                    )}
+                    renderOption={(props, option) => {
+                        const isSelected = selectedUsers.includes(option._id);
+                        return (
+                            <li {...props} key={option._id}>
+                                <Checkbox
+                                    checked={isSelected}
+                                    style={{ marginRight: 8 }}
+                                />
+                                <Typography>
+                                    {option.firstName} {option.lastName}
+                                    <Typography component="span" color="textSecondary" sx={{ ml: 1 }}>
+                                        ({option.mobile}) • {option.email}
+                                    </Typography>
+                                </Typography>
+                            </li>
+                        );
+                    }}
+                    isOptionEqualToValue={(option, value) => option._id === value._id}
+                />
+            </Grid>
+        );
+    };
 
     return (
         <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20 }}>
@@ -324,6 +424,37 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             </Grid>
 
             <div style={{ margin: '45px' }}></div>
+            <Accordion expanded={privateAccordion} style={{marginBottom:"30px"}}>
+                <AccordionSummary
+                    expandIcon={<IconButton > <FcExpand /> </IconButton>}
+                    aria-controls="PrivateInformation"
+                    id="PrivateInformation"
+                    onClick={() => setPrivateAccordion(!privateAccordion)}
+                >
+                    <Typography>Booking Rules</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+         <Grid container spacing={2}>
+        
+                                
+                <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={byPassBookingFull}
+                           onChange={() => setByPassBookingFull(!byPassBookingFull)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`By-Pass Booking Full`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={8}>
+                {renderUserSelect()}
+                </Grid>                     
+         </Grid>
+       
+                </AccordionDetails>
+            </Accordion>
+
 
             {batch.map((entry, index) => (
                 <Paper variant="outlined" style={{ padding: '15px', marginBottom: '10px', borderRadius: '10px' }} key={index}>
