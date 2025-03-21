@@ -6,6 +6,7 @@ import { myProfileService } from '@/app/services';
 import { useRouter } from 'next/navigation';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
 import ChildrenList from '../Comp/MyChild';
+import { QuickLinks } from '@/app/Components/UserDash/QuickLinks';
 
 const Profile = () => {
   
@@ -21,6 +22,7 @@ const Profile = () => {
     >
       <Container maxWidth="lg" sx={{ mt: 4, paddingBottom: 40 }}>
       
+      <QuickLinks />
   
             <ChildrenList />
      
