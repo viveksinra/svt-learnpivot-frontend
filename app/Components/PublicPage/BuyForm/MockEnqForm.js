@@ -11,7 +11,7 @@ import MockStripePay from "../../mockStripePay/MockStripePay";
 
 function MockEnqForm({ isMobile,data,step, setStep, submitted,setSubmitted, submittedId,setSubmittedId, setTotalAmount, totalAmount, selectedBatch, setSelectedBatch, selectedChild, setSelectedChild }) {
   const snackRef = useRef();
-  console.log(data)
+ 
   // Context
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
@@ -24,6 +24,10 @@ function MockEnqForm({ isMobile,data,step, setStep, submitted,setSubmitted, subm
       setStep(1);
     } 
   }, [state, currentUser]);
+
+
+
+
   useEffect(() => {
     // Scroll to top when submitted state changes
     window.scrollTo({ top: 0, behavior: 'smooth' });

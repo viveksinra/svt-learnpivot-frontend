@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
   Typography,
@@ -19,6 +19,8 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import MockPayButton from "./MockPayButton";
 import { mockTestService } from "@/app/services";
+import Cookies from "js-cookie";
+import MainContext from "../../Context/MainContext";
 
 const MtBatchSelector = ({ 
   isMobile,
@@ -39,6 +41,9 @@ const MtBatchSelector = ({
   const [alreadyBoughtBatch, setAlreadyBoughtBatch] = useState([]);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictBatch, setConflictBatch] = useState(null);
+  const [allowBuyOnBookingFull, setAllowBuyOnBookingFull] = useState(false);
+  const { state } = useContext(MainContext);
+  const currentUser = Cookies.get("currentUser");
 
   function countDecimalPlaces(num) {
     const numStr = num.toString();
@@ -59,6 +64,17 @@ const MtBatchSelector = ({
     }
     setTotalAmount(newTotalAmount);
   }, [selectedBatch]);
+
+  useEffect(() => {
+    if (state?.isAuthenticated && currentUser && state.id) {
+      // check if user can buy mocktest by enabling even the booking full mocktest
+      if ( data.byPassBookingFull != true ||  data.selectedUsers.includes(state.id)) {
+        setAllowBuyOnBookingFull(true)
+      }
+
+    } 
+  }, [state, currentUser,data]);
+
 
   const handleCheckboxChange = (batch) => {
     const existingDateBatch = (selectedBatch || []).find(
@@ -83,9 +99,16 @@ const MtBatchSelector = ({
   };
 
   const isBatchSelectable = (batch) => {
-    return !batch.filled && 
+    const batchDate = new Date(batch.date);
+    batchDate.setHours(0, 0, 0, 0);
+    // check if batchDate is today or after today
+    const isAfterToday = batchDate >= today;
+
+    let allowBuy = allowBuyOnBookingFull && isAfterToday;
+
+    return allowBuy || (!batch.filled && 
            new Date(batch.date) >= today && 
-           !alreadyBoughtBatch.some(b => b._id === batch._id);
+           !alreadyBoughtBatch.some(b => b._id === batch._id));
   };
 
   const formatDate = (dateString) => {
