@@ -11,10 +11,13 @@ import {
   Select,
   MenuItem,
   Tooltip,
+  Modal,
+  IconButton,
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
+import InfoIcon from '@mui/icons-material/Info';
 import CoursePayButton from "./CoursePayButton";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import DateLegend from "./DateLegend";
@@ -45,6 +48,8 @@ const CourseDateSelector = ({
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
+  const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
+  console.log(data)
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
@@ -344,6 +349,28 @@ console.log("stopSkipSet",data.stopSkipSet);
     return isDisabled ? "Must purchase sets in order" : "";
   };
 
+  const handleOpenBookingRuleModal = () => {
+    setBookingRuleModalOpen(true);
+  };
+
+  const handleCloseBookingRuleModal = () => {
+    setBookingRuleModalOpen(false);
+  };
+
+  const modalStyle = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: isMobile ? '90%' : '60%',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    p: 4,
+    borderRadius: '8px',
+    maxHeight: '80vh',
+    overflow: 'auto'
+  };
+
   return (
     <Grid container spacing={2}>
       {/* Header */}
@@ -366,6 +393,75 @@ console.log("stopSkipSet",data.stopSkipSet);
         Book {data.courseTitle} for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
 
         </Typography>
+      </Grid>
+
+      {/* Booking Rules Button and Modal */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            startIcon={<InfoIcon />}
+            onClick={handleOpenBookingRuleModal}
+            sx={{
+              borderRadius: '4px',
+              textTransform: 'none',
+              fontWeight: 500
+            }}
+          >
+            Booking Rules
+          </Button>
+        </Box>
+
+        <Modal
+          open={bookingRuleModalOpen}
+          onClose={handleCloseBookingRuleModal}
+          aria-labelledby="booking-rule-modal-title"
+        >
+          <Box sx={modalStyle}>
+            <Typography id="booking-rule-modal-title" variant="h6" component="h2" gutterBottom>
+              Booking Rules
+            </Typography>
+            <Typography variant="body1" sx={{ mt: 2 }}>
+              <ul>
+                {data.forcefullBuyCourse && (
+                  <li>This is a single-class course that must be booked in its entirety.</li>
+                )}
+                {data.restrictOnTotalSeat && (
+                  <li>Limited availability: Only {data.totalSeat} total seats available for this class.</li>
+                )}
+                {data.restrictStartDateChange && (
+                  <li>The class date cannot be changed once selected.</li>
+                )}
+                <li>Classes in the past cannot be booked.</li>
+                {!singleBatchWithOneDate && (
+                  <>
+                    <li>Already purchased classes are marked in yellow.</li>
+                    <li>Selected classes are marked in green.</li>
+                    <li>Available but unselected classes are marked in red.</li>
+                  </>
+                )}
+                {data.allBatch?.length === 1 && data.allBatch[0].oneBatch.length === 1 && (
+                  <li>This is a one-time class scheduled for {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}.</li>
+                )}
+              </ul>
+            </Typography>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              <Button 
+                        sx={{ 
+                          width: isMobile ? "30%" : '20%',
+                          minWidth: 'auto',
+                          color: 'white', 
+                          marginRight: '10px',
+                          backgroundColor: '#fc7658', 
+                          '&:hover': { backgroundColor: 'darkred' }
+                        }}
+              onClick={handleCloseBookingRuleModal} variant="contained">
+                Close
+              </Button>
+            </Box>
+          </Box>
+        </Modal>
       </Grid>
 
       {/* Start Date Selector */}
