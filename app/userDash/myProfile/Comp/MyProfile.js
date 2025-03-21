@@ -131,6 +131,7 @@ const UserProfile = () => {
   const [errors, setErrors] = useState({});
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isManualAddressEdit, setIsManualAddressEdit] = useState(false)
   const snackRef = useRef();
 
   useEffect(() => {
@@ -375,7 +376,7 @@ const UserProfile = () => {
                 error={!!errors.mobile}
                 helperText={errors.mobile}
               />
-              <ProfileInfo
+      {   ( isEditing) &&     <ProfileInfo
                 icon={LocationIcon}
                 label="Address Line 1"
                 value={profile?.address1}
@@ -385,8 +386,35 @@ const UserProfile = () => {
                 error={!!errors.address1}
                 helperText={errors.address1}
                 component={AddressInput}
-              />
-              <ProfileInfo
+              />}
+     {  !isManualAddressEdit? 
+     <>
+{  profile?.postcode &&  <>          <Typography variant="body1" sx={{ mb: 1 }}>
+                {profile?.address1}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {profile?.address2}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {profile?.address3}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {profile?.city}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                {profile?.postcode}
+              </Typography>
+              </>}
+        {isEditing &&      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={() => setIsManualAddressEdit(true)}
+                >
+                  Manual Edit
+                </Button>
+              </Box>}
+     </> :   <>      <ProfileInfo
                 icon={LocationIcon}
                 label="Address Line 2"
                 value={profile?.address2}
@@ -425,7 +453,9 @@ const UserProfile = () => {
                 onChange={handleChange}
                 error={!!errors.postcode}
                 helperText={errors.postcode}
-              />
+              /> 
+              </>
+              }
             </>
           )}
 
