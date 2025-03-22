@@ -105,7 +105,7 @@ const OnePurchasedMockTest = ({test}) => {
           sx={{ mt: 2 }}
           endIcon={<ArrowForwardIosIcon />}
         >
-          View Details
+         Update Details
         </Button>
       </CardContent>
     </StyledCard>
