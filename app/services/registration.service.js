@@ -94,6 +94,13 @@ export class RegistrationService {
       .then((res) => res.data);
   };
   
+  getOneUserOrChildReport = async ( data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/otherApi/admin/getOneUserOrChildReport`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
 
 }
