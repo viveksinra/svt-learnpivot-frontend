@@ -44,7 +44,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import InfoIcon from '@mui/icons-material/Info';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import VerifiedIcon from '@mui/icons-material/Verified';
@@ -360,7 +360,7 @@ const UserReportMain = ({ reportData }) => {
               {reportData.user.userImage ? (
                 <img src={reportData.user.userImage} alt="User" width="100%" />
               ) : (
-                <PersonIcon sx={{ fontSize: 48 }} />
+                reportData.user.firstName.charAt(0)
               )}
             </Avatar>
           </Grid>
@@ -383,19 +383,7 @@ const UserReportMain = ({ reportData }) => {
               </Box>
             </Stack>
           </Grid>
-          <Grid item>
-            <Stack direction="row" spacing={1}>
-              <IconButton color="primary" size="small" sx={{ bgcolor: 'background.default' }}>
-                <PrintIcon />
-              </IconButton>
-              <IconButton color="primary" size="small" sx={{ bgcolor: 'background.default' }}>
-                <ShareIcon />
-              </IconButton>
-              <IconButton color="primary" size="small" sx={{ bgcolor: 'background.default' }}>
-                <DownloadIcon />
-              </IconButton>
-            </Stack>
-          </Grid>
+        
         </Grid>
       </ContentSection>
 
@@ -711,7 +699,7 @@ const UserReportMain = ({ reportData }) => {
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Typography variant="subtitle1">Total Spent</Typography>
-                      <AttachMoneyIcon />
+                      <CurrencyPoundIcon />
                     </Box>
                     <Typography variant="h4" sx={{ mt: 1, fontWeight: 'bold' }}>
                       £{totals.total.toFixed(2)}
