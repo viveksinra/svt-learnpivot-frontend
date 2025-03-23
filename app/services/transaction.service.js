@@ -20,6 +20,21 @@ export class TransactionService {
       })
       .then((res) => res.data);
   };
+  depositCoins = async ( data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/addMoney`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   
 
+
+  withdrawCoins = async (data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/removeMoney`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 }

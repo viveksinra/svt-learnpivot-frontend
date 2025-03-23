@@ -29,6 +29,11 @@ import ChildCareIcon from '@mui/icons-material/ChildCare';
 import SearchIcon from '@mui/icons-material/Search';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import ReportIcon from '@mui/icons-material/Report';
+import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
+import DepositOrWithdraw from './Comp/DepositOrWithDraw';
+import { transactionService } from '@/app/services';
 
 const EachUserReport = () => {
   const [allUsers, setAllUsers] = useState([]);
@@ -38,6 +43,8 @@ const EachUserReport = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [inputValue, setInputValue] = useState('');
+  const [openModal, setOpenModal] = useState(false);
+  const [modalType, setModalType] = useState('deposit'); // 'deposit' or 'withdraw'
 
   async function fetchAllUsers() {
     setLoading(true);
@@ -147,6 +154,41 @@ const EachUserReport = () => {
   const filteredOptions = allUsers.filter(user => 
     searchMode === 'all' || user.type === searchMode
   );
+
+  const handleOpenModal = (type) => {
+    setModalType(type);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleTransaction = async (transactionData) => {
+    setLoading(true);
+    setError(null);
+    try {
+      let response;
+      if (modalType === 'deposit') {
+        response = await transactionService.depositCoins(transactionData);
+      } else {
+        response = await transactionService.withdrawCoins(transactionData);
+      }
+      
+      if (response.variant === "success") {
+        // Refresh report data after successful transaction
+        fetchReport(selectedUser);
+        handleCloseModal();
+      } else {
+        setError(response.message || "Transaction failed");
+      }
+    } catch (error) {
+      setError("An error occurred during the transaction");
+      console.error('Transaction error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Container maxWidth="xl">
@@ -271,6 +313,39 @@ const EachUserReport = () => {
           </Grid>
         </Paper>
 
+        {selectedUser && (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mb: 3 }}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CurrencyPoundIcon />
+                  <AddCircleIcon sx={{ ml: -0.5, fontSize: '1rem' }} />
+                </Box>
+              }
+              onClick={() => handleOpenModal('deposit')}
+              disabled={loading}
+            >
+              Deposit
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <CurrencyPoundIcon />
+                  <RemoveCircleIcon sx={{ ml: -0.5, fontSize: '1rem' }} />
+                </Box>
+              }
+              onClick={() => handleOpenModal('withdraw')}
+              disabled={loading}
+            >
+              Withdraw
+            </Button>
+          </Box>
+        )}
+
         {loading ? (
           <Box sx={{ width: '100%' }}>
             <Skeleton variant="rectangular" height={200} sx={{ mb: 2, borderRadius: '8px' }} />
@@ -304,6 +379,14 @@ const EachUserReport = () => {
           </Box>
         )}
       </Paper>
+
+      <DepositOrWithdraw
+        open={openModal}
+        handleClose={handleCloseModal}
+        type={modalType}
+        user={selectedUser}
+        onSubmit={handleTransaction}
+      />
     </Container>
   );
 };
