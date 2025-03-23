@@ -124,6 +124,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/report/eachUserReport",
       icon: <FcStatistics />
     },
+    { 
+      title: "User Transaction",
+      active: false,
+      link: "/dashboard/transaction/oneUserTransaction",
+      icon: <FcStatistics />
+    },
   ]);
 
   const handleLink = (v, n, Ar) => {
