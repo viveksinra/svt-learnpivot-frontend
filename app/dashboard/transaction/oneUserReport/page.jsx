@@ -42,6 +42,7 @@ const CourseParentTable = () => {
             <Skeleton height={400} />
           </Box>
         ) : (
+          <></>
         )}
       </Paper>
     </Container>
