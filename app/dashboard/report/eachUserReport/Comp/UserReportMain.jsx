@@ -612,7 +612,6 @@ const UserReportMain = ({ reportData }) => {
                                       sx={{ 
                                         p: 1.5, 
                                         mb: 1, 
-                                        bgcolor: isPurchasedBatch ? 'success.light' : 'background.default',
                                         borderRadius: '8px',
                                         border: '1px solid',
                                         borderColor: isPurchasedBatch ? 'success.main' : 'divider',
