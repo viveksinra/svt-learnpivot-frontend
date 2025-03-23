@@ -181,19 +181,40 @@ const UserReportMain = ({ reportData }) => {
       });
     }
     
-    // Get upcoming mock test sessions
+    // Get upcoming mock test sessions from mock test access bought data
     if (reportData.mocktestAccessBought) {
       reportData.mocktestAccessBought.forEach(test => {
-        const childData = test.children?.find(child => child.childId === selectedChild);
-        if (childData) {
-          const upcomingBatches = childData.selectedBatch
+        if (test.batch) {
+          test.batch.forEach(batch => {
+            // Check if this batch has the selected child
+            const childPurchase = batch.children?.find(child => child.childId === selectedChild);
+            if (childPurchase && new Date(batch.date) > today) {
+              upcomingMockTests.push({
+                date: batch.date,
+                title: test.mockTestTitle,
+                startTime: batch.startTime,
+                endTime: batch.endTime,
+                image: test.imageUrls?.[0] || '',
+                type: 'mockTest'
+              });
+            }
+          });
+        }
+      });
+    }
+    
+    // Alternative check in mocktestBought data if access data isn't available
+    if (reportData.mocktestBought && upcomingMockTests.length === 0) {
+      reportData.mocktestBought.forEach(mockTest => {
+        if (mockTest.childId?._id === selectedChild && mockTest.selectedBatch) {
+          const upcomingBatches = mockTest.selectedBatch
             .filter(batch => new Date(batch.date) > today)
             .map(batch => ({
               date: batch.date,
-              title: test.mockTestTitle,
+              title: mockTest.mockTestId?.mockTestTitle || 'Mock Test',
               startTime: batch.startTime,
               endTime: batch.endTime,
-              image: test.imageUrls?.[0] || '',
+              image: mockTest.mockTestId?.imageUrls?.[0] || '',
               type: 'mockTest'
             }));
           
@@ -285,40 +306,72 @@ const UserReportMain = ({ reportData }) => {
   
   // New function to compare mocktest access vs purchased
   const getMockTestAccessComparison = () => {
-    if (!reportData || !reportData.mocktestAccess || !reportData.mocktestAccessBought) {
+    if (!reportData || !reportData.mocktestAccess) {
       return { available: [], purchased: [], notPurchased: [] };
     }
 
-    // All mock tests available to the user
-    const allMockTestAccess = reportData.mocktestAccess.map(test => ({
-      ...test,
-      isPurchased: false
-    }));
+    // Create a map of all available mock tests with their batches
+    const allMockTestsMap = reportData.mocktestAccess.reduce((acc, test) => {
+      acc[test._id] = {
+        ...test,
+        isPurchased: false,
+        purchasedBatches: []
+      };
+      return acc;
+    }, {});
     
-    // Mock tests purchased for the selected child
-    const purchasedMockTests = [];
+    // Find purchased mock test batches for the selected child
+    const purchasedTests = [];
     
-    // Find purchased mock tests for the selected child
-    reportData.mocktestAccessBought.forEach(test => {
-      const childData = test.children?.find(child => child.childId === selectedChild);
-      if (childData) {
-        purchasedMockTests.push({
+    if (reportData.mocktestAccessBought) {
+      reportData.mocktestAccessBought.forEach(test => {
+        const testWithPurchasedBatches = {
           ...test,
-          isPurchased: true,
-          purchaseInfo: childData
+          isPurchased: false,
+          purchasedBatches: []
+        };
+
+        // Check each batch if it's purchased for the selected child
+        test.batch?.forEach(batch => {
+          const childPurchase = batch.children?.find(child => child.childId === selectedChild);
+          if (childPurchase) {
+            testWithPurchasedBatches.isPurchased = true;
+            testWithPurchasedBatches.purchasedBatches.push({
+              ...batch,
+              purchaseInfo: childPurchase
+            });
+          }
         });
-      }
-    });
+
+        if (testWithPurchasedBatches.isPurchased) {
+          purchasedTests.push(testWithPurchasedBatches);
+          
+          // Update the all tests map to mark this test as purchased
+          if (allMockTestsMap[test._id]) {
+            allMockTestsMap[test._id].isPurchased = true;
+            allMockTestsMap[test._id].purchasedBatches = testWithPurchasedBatches.purchasedBatches;
+            
+            // Make sure we also copy the batch data with children information
+            if (allMockTestsMap[test._id].batch) {
+              // Replace the batch array with the one from the access bought data
+              // which includes the children information
+              allMockTestsMap[test._id].batch = test.batch;
+            }
+          }
+        }
+      });
+    }
     
-    // Find mock tests that are available but not purchased
-    const notPurchasedMockTests = allMockTestAccess.filter(test => 
-      !purchasedMockTests.some(purchased => purchased._id === test._id)
-    );
+    // Convert the map back to an array
+    const allMockTestAccess = Object.values(allMockTestsMap);
+    
+    // Find mock tests that are available but not purchased for this child
+    const notPurchasedTests = allMockTestAccess.filter(test => !test.isPurchased);
     
     return {
       available: allMockTestAccess,
-      purchased: purchasedMockTests,
-      notPurchased: notPurchasedMockTests
+      purchased: purchasedTests,
+      notPurchased: notPurchasedTests
     };
   };
 
@@ -474,16 +527,20 @@ const UserReportMain = ({ reportData }) => {
         ) : (
           <Box>
             <Typography variant="subtitle1" gutterBottom>
-              {mockTestComparison.available.length} available mock tests • {mockTestComparison.purchased.length} purchased
+              {mockTestComparison.available.length} available mock tests • {mockTestComparison.purchased.length} purchased with {
+                mockTestComparison.purchased.reduce((total, test) => total + (test.purchasedBatches?.length || 0), 0)
+              } batches
             </Typography>
             
             {mockTestComparison.available.length > 0 ? (
               <Grid container spacing={2}>
                 {mockTestComparison.available.map((test) => {
-                  const isPurchased = mockTestComparison.purchased.some(p => p._id === test._id);
+                  const isPurchased = test.isPurchased;
+                  const purchasedBatches = test.purchasedBatches || [];
+                  const availableBatches = test.batch || [];
                   
                   return (
-                    <Grid item xs={12} sm={6} md={4} key={test._id}>
+                    <Grid item xs={12} sm={6} key={test._id}>
                       <Card 
                         variant="outlined" 
                         sx={{ 
@@ -517,19 +574,134 @@ const UserReportMain = ({ reportData }) => {
                             >
                               <FactCheckIcon />
                             </Avatar>
-                            <Typography variant="h6"  title={test.mockTestTitle}>
-                              {test.mockTestTitle}
-                            </Typography>
+                            <Box>
+                              <Typography variant="h6" title={test.mockTestTitle}>
+                                {test.mockTestTitle}
+                              </Typography>
+                              <Typography variant="caption" color="text.secondary">
+                                {availableBatches.length || 0} available batches
+                              </Typography>
+                            </Box>
                           </Box>
                           
                           {isPurchased && (
                             <Box sx={{ mt: 2 }}>
                               <Typography variant="body2" color="success.main" fontWeight="bold">
-                                Purchased for {selectedChildName}
+                                {purchasedBatches.length} batch{purchasedBatches.length !== 1 ? 'es' : ''} purchased
                               </Typography>
-                              <Typography variant="body2" color="text.secondary">
-                                {mockTestComparison.purchased.find(p => p._id === test._id)?.purchaseInfo?.selectedBatch?.length || 0} batches
+                              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                                Batch-specific purchases for this child are highlighted below
                               </Typography>
+                            </Box>
+                          )}
+                          
+                          {/* Show available batches for this mock test */}
+                          {availableBatches.length > 0 && (
+                            <Box sx={{ mt: 2 }}>
+                              <Typography  variant="body2" fontWeight="bold" sx={{ mb: 0.5 }}>
+                                Batches:
+                              </Typography>
+                              <Box sx={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {availableBatches.map((batch, idx) => {
+                                  const isPurchasedBatch = isPurchased && 
+                                    purchasedBatches.some(pb => pb._id === batch._id);
+                                  
+                                  return (
+                                    <Box 
+                                      key={idx} 
+                                      sx={{ 
+                                        p: 1.5, 
+                                        mb: 1, 
+                                        bgcolor: isPurchasedBatch ? 'success.light' : 'background.default',
+                                        borderRadius: '8px',
+                                        border: '1px solid',
+                                        borderColor: isPurchasedBatch ? 'success.main' : 'divider',
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'flex-start'
+                                      }}
+                                    >
+                                      <Box sx={{ flex: 1 }}>
+                                        <Typography variant="body2" fontWeight="bold" >
+                                          {formatDate(batch.date)}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                          {formatTime(batch.startTime)} - {formatTime(batch.endTime)}
+                                        </Typography>
+                                        
+                                        {batch.filled && (
+                                          <Chip 
+                                            size="small" 
+                                            label="Full" 
+                                            color="error" 
+                                            variant="outlined"
+                                            sx={{ mt: 1, mr: 1 }}
+                                          />
+                                        )}
+                                        
+                                        {batch.fillingFast && !batch.filled && (
+                                          <Chip 
+                                            size="small" 
+                                            label="Filling Fast" 
+                                            color="warning" 
+                                            variant="outlined"
+                                            sx={{ mt: 1, mr: 1 }}
+                                          />
+                                        )}
+                                        
+                                        {/* Display the children who purchased this batch */}
+                                        {batch.children && batch.children.length > 0 && (
+                                          <Box sx={{ mt: 1 }}>
+                                            {batch.children.map((child, childIdx) => (
+                                              <Chip
+                                                key={childIdx}
+                                                size="small"
+                                                label={child.childName}
+                                                color="primary"
+                                                variant="outlined"
+                                                sx={{ mr: 0.5, mt: 0.5 }}
+                                                icon={<ChildCareIcon fontSize="small" />}
+                                              />
+                                            ))}
+                                          </Box>
+                                        )}
+                                      </Box>
+                                      
+                                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                        {batch.oneBatchprice && (
+                                          <Chip 
+                                            size="small"
+                                            label={`£${batch.oneBatchprice}`}
+                                            color={isPurchasedBatch ? "success" : "default"}
+                                            variant={isPurchasedBatch ? "filled" : "outlined"}
+                                            sx={{ mr: 1 }}
+                                          />
+                                        )}
+                                        
+                                        {isPurchasedBatch ? (
+                                          <Tooltip title="Purchased for this child">
+                                            <CheckCircleIcon 
+                                              color="success" 
+                                              fontSize="small"
+                                            />
+                                          </Tooltip>
+                                        ) : batch.children && batch.children.length > 0 ? (
+                                          <Tooltip title={`${batch.children.length} child${batch.children.length > 1 ? 'ren' : ''} enrolled`}>
+                                            <Badge 
+                                              badgeContent={batch.children.length} 
+                                              color="primary"
+                                              max={99}
+                                              sx={{ '& .MuiBadge-badge': { fontSize: '0.6rem', height: '16px', minWidth: '16px' } }}
+                                            >
+                                              <ChildCareIcon color="action" fontSize="small" />
+                                            </Badge>
+                                          </Tooltip>
+                                        ) : null}
+                                      </Box>
+                                    </Box>
+                                  );
+                                })}
+                              </Box>
                             </Box>
                           )}
                         </CardContent>

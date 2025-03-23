@@ -1,9 +1,10 @@
 import React from 'react';
-import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button } from '@mui/material';
+import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, Chip, Avatar } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import ChildCareIcon from '@mui/icons-material/ChildCare';
 import { styled } from '@mui/material/styles';
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -69,22 +70,39 @@ const OnePurchasedMockTest = ({test}) => {
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
           <CalendarMonthIcon sx={{ fontSize: 16, mr: 1, color: 'secondary.main' }} />
           <Typography variant="body2" color="text.secondary">
-            {test.selectedBatch?.length || 0} batches selected
+            {test.selectedBatch?.length || 0} batches purchased
           </Typography>
         </Box>
         
         <Divider sx={{ my: 1.5 }} />
         
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+          <ChildCareIcon sx={{ fontSize: 16, mr: 1, color: 'primary.main' }} />
+          <Typography variant="body2" fontWeight="bold">
+            For: {test.childId?.childName || 'Child'}
+          </Typography>
+        </Box>
+        
         <Typography variant="subtitle2" gutterBottom>
           Selected Batches:
         </Typography>
         
-        <Box sx={{ maxHeight: 150, overflow: 'auto', pr: 1 }}>
+        <Box sx={{ maxHeight: 200, overflow: 'auto', pr: 1 }}>
           {test.selectedBatch?.map((batch, idx) => (
-            <Box key={idx} sx={{ mb: 1.5 }}>
+            <Box 
+              key={idx} 
+              sx={{ 
+                mb: 2,
+                p: 1.5,
+                border: '1px solid',
+                borderColor: 'divider',
+                borderRadius: '8px',
+                bgcolor: 'background.default'
+              }}
+            >
               <DateTimeItem>
                 <CalendarMonthIcon sx={{ fontSize: 16, color: 'secondary.main' }} />
-                <Typography variant="body2">
+                <Typography variant="body2" fontWeight="bold">
                   {formatDate(batch.date)}
                 </Typography>
               </DateTimeItem>
@@ -94,6 +112,14 @@ const OnePurchasedMockTest = ({test}) => {
                   {formatTime(batch.startTime)} - {formatTime(batch.endTime)}
                 </Typography>
               </DateTimeItem>
+              
+              <Chip 
+                size="small"
+                label={`Batch #${idx + 1}`}
+                color="secondary"
+                variant="outlined"
+                sx={{ mt: 1 }}
+              />
             </Box>
           ))}
         </Box>
@@ -105,7 +131,7 @@ const OnePurchasedMockTest = ({test}) => {
           sx={{ mt: 2 }}
           endIcon={<ArrowForwardIosIcon />}
         >
-         Update Details
+          View Details
         </Button>
       </CardContent>
     </StyledCard>
