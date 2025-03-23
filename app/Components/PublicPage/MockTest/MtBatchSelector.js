@@ -41,7 +41,6 @@ const MtBatchSelector = ({
   const [alreadyBoughtBatch, setAlreadyBoughtBatch] = useState([]);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictBatch, setConflictBatch] = useState(null);
-  const [allowBuyOnBookingFull, setAllowBuyOnBookingFull] = useState(false);
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
 
@@ -65,15 +64,7 @@ const MtBatchSelector = ({
     setTotalAmount(newTotalAmount);
   }, [selectedBatch]);
 
-  useEffect(() => {
-    if (state?.isAuthenticated && currentUser && state.id) {
-      // check if user can buy mocktest by enabling even the booking full mocktest
-      if ( data.byPassBookingFull != true ||  data.selectedUsers.includes(state.id)) {
-        setAllowBuyOnBookingFull(true)
-      }
 
-    } 
-  }, [state, currentUser,data]);
 
 
   const handleCheckboxChange = (batch) => {
@@ -103,9 +94,13 @@ const MtBatchSelector = ({
     batchDate.setHours(0, 0, 0, 0);
     // check if batchDate is today or after today
     const isAfterToday = batchDate >= today;
+    let allowBuyOnBookingFull = false;
+    if ( batch.byPassBookingFull == true &&  batch.selectedUsers.includes(state.id)) {
+      allowBuyOnBookingFull = true;
+    }
 
     let allowBuy = allowBuyOnBookingFull && isAfterToday;
-
+console.log(allowBuy)
     return allowBuy || (!batch.filled && 
            new Date(batch.date) >= today && 
            !alreadyBoughtBatch.some(b => b._id === batch._id));
