@@ -37,4 +37,19 @@ export class TransactionService {
       })
       .then((res) => res.data);
   };
+
+  cancelFullCourseAndRefund = async (data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/cancelFullCourseAndRefund`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  cancelCourseDateAndRefund = async (data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/cancelCourseDateAndRefund`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 }

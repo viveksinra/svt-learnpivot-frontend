@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, 
-  ListItemText, Checkbox, IconButton } from '@mui/material';
+  ListItemText, Checkbox, IconButton, TextField, InputAdornment } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -10,6 +10,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import PersonIcon from '@mui/icons-material/Person';
 import { styled } from '@mui/material/styles';
+import { transactionService } from '@/app/services';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
@@ -36,7 +37,10 @@ const OnePurchasedCourse = ({course}) => {
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
   const [showDateSelection, setShowDateSelection] = useState(false);
-console.log(course)
+  const [refundAmount, setRefundAmount] = useState(0);
+  
+  console.log(course)
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -57,11 +61,24 @@ console.log(course)
     return `${hour12}:${minutes} ${ampm}`;
   };
 
+  const calculateRefundAmount = () => {
+    if (cancelMode === 'full') {
+      // Full refund for all dates
+      return course.amount;
+    } else if (selectedDatesToCancel.length > 0) {
+      // Calculate refund amount based on selected dates
+      const perSessionAmount = course.amount / course.selectedDates.length;
+      return perSessionAmount * selectedDatesToCancel.length;
+    }
+    return 0;
+  };
+
   const handleOpenCancelDialog = () => {
     setOpenCancelDialog(true);
     setShowDateSelection(false);
     setCancelMode('');
     setSelectedDatesToCancel([]);
+    setRefundAmount(0);
   };
 
   const handleCloseCancelDialog = () => {
@@ -69,6 +86,7 @@ console.log(course)
     setShowDateSelection(false);
     setCancelMode('');
     setSelectedDatesToCancel([]);
+    setRefundAmount(0);
   };
 
   const handleToggleDate = (date) => {
@@ -88,11 +106,15 @@ console.log(course)
 
   const handleSelectFullCancel = () => {
     setCancelMode('full');
+    const calculatedRefund = course.amount;
+    setRefundAmount(calculatedRefund);
     openConfirmationDialog();
   };
 
   const handleProceedWithSelected = () => {
     if (selectedDatesToCancel.length > 0) {
+      const calculatedRefund = (course.amount / course.selectedDates.length) * selectedDatesToCancel.length;
+      setRefundAmount(calculatedRefund);
       openConfirmationDialog();
     }
   };
@@ -105,20 +127,50 @@ console.log(course)
     setOpenConfirmDialog(false);
   };
 
-  const handleFinalCancel = () => {
-    if (cancelMode === 'full') {
-      // Handle full booking cancellation
-      console.log('Cancelling full booking for course:', course._id);
-      // Add API call here
-    } else {
-      // Handle cancellation of selected dates
-      console.log('Cancelling selected dates:', selectedDatesToCancel);
-      // Add API call here
+  const handleRefundAmountChange = (event) => {
+    const value = parseFloat(event.target.value);
+    if (!isNaN(value) && value >= 0) {
+      setRefundAmount(value);
     }
+  };
+
+  const handleFinalCancel = async () => {
+    try {
+      let response;
+      
+      if (cancelMode === 'full') {
+        // Handle full booking cancellation
+        const data = {
+          buyCourseId: course._id,
+          refundAmount,
+        };
+        response = await transactionService.cancelFullCourseAndRefund(data);
+      } else {
+        // Handle cancellation of selected dates
+        const data = {
+          buyCourseId: course._id,
+          refundAmount,
+          selectedDatesToCancel: selectedDatesToCancel,
+        };
+        response = await transactionService.cancelCourseDateAndRefund(data);
+      }
+      
+      if (response && response.variant === "success") {
+        // Handle success - could add notification or refresh here
+        console.log("Cancellation successful");
+      } else {
+        // Handle error - could add notification here
+        console.error("Cancellation failed", response);
+      }
+    } catch (error) {
+      console.error("Error during cancellation:", error);
+    }
+    
     setOpenConfirmDialog(false);
     setOpenCancelDialog(false);
     setShowDateSelection(false);
     setSelectedDatesToCancel([]);
+    setRefundAmount(0);
   };
 
   return (
@@ -286,6 +338,31 @@ console.log(course)
             </Box>
           )}
         </Box>
+        
+        <Box sx={{ mt: 3 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            Refund Amount:
+          </Typography>
+          <TextField
+            fullWidth
+            type="number"
+            variant="outlined"
+            value={refundAmount.toFixed(2)}
+            onChange={handleRefundAmountChange}
+            InputProps={{
+              startAdornment: <InputAdornment position="start">£</InputAdornment>,
+            }}
+            helperText="You can adjust the refund amount if needed"
+            sx={{ mt: 1 }}
+          />
+          
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+            {cancelMode === 'full' 
+              ? `Suggested full refund: £${course.amount?.toFixed(2)}`
+              : `Suggested partial refund: £${((course.amount / course.selectedDates.length) * selectedDatesToCancel.length).toFixed(2)}`
+            }
+          </Typography>
+        </Box>
       </DialogContent>
       <DialogActions sx={{ p: 2 }}>
         <Button onClick={handleCloseConfirmDialog}>
@@ -296,7 +373,7 @@ console.log(course)
           color="error" 
           onClick={handleFinalCancel}
         >
-          Yes, Cancel Booking
+          Yes, Cancel and Refund
         </Button>
       </DialogActions>
     </Dialog>
