@@ -1,10 +1,14 @@
-import React from 'react';
-import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, Chip, Avatar } from '@mui/material';
+import React, { useState } from 'react';
+import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, Chip, Avatar,
+  Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, 
+  Checkbox, IconButton } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
+import CloseIcon from '@mui/icons-material/Close';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { styled } from '@mui/material/styles';
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -27,6 +31,13 @@ const StyledCard = styled(Card)(({ theme }) => ({
   }));
 
 const OnePurchasedMockTest = ({test}) => {
+    const [openCancelDialog, setOpenCancelDialog] = useState(false);
+    const [selectedBatchesToCancel, setSelectedBatchesToCancel] = useState([]);
+    const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+    const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
+    const [showBatchSelection, setShowBatchSelection] = useState(false);
+console.log(test)
+    
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-GB', {
           day: '2-digit',
@@ -46,6 +57,71 @@ const OnePurchasedMockTest = ({test}) => {
         
         return `${hour12}:${minutes} ${ampm}`;
       };
+
+    const handleOpenCancelDialog = () => {
+      setOpenCancelDialog(true);
+      setShowBatchSelection(false);
+      setCancelMode('');
+      setSelectedBatchesToCancel([]);
+    };
+
+    const handleCloseCancelDialog = () => {
+      setOpenCancelDialog(false);
+      setShowBatchSelection(false);
+      setCancelMode('');
+      setSelectedBatchesToCancel([]);
+    };
+
+    const handleToggleBatch = (batchIndex) => {
+      setSelectedBatchesToCancel(prev => {
+        if (prev.includes(batchIndex)) {
+          return prev.filter(idx => idx !== batchIndex);
+        } else {
+          return [...prev, batchIndex];
+        }
+      });
+    };
+
+    const handleShowBatchSelection = () => {
+      setShowBatchSelection(true);
+      setCancelMode('selected');
+    };
+
+    const handleSelectFullCancel = () => {
+      setCancelMode('full');
+      openConfirmationDialog();
+    };
+
+    const handleProceedWithSelected = () => {
+      if (selectedBatchesToCancel.length > 0) {
+        openConfirmationDialog();
+      }
+    };
+
+    const openConfirmationDialog = () => {
+      setOpenConfirmDialog(true);
+    };
+
+    const handleCloseConfirmDialog = () => {
+      setOpenConfirmDialog(false);
+    };
+
+    const handleFinalCancel = () => {
+      if (cancelMode === 'full') {
+        // Handle full booking cancellation
+        console.log('Cancelling full mock test booking:', test._id);
+        // Add API call here
+      } else {
+        // Handle cancellation of selected batches
+        console.log('Cancelling selected batches:', selectedBatchesToCancel.map(idx => test.selectedBatch[idx]));
+        // Add API call here
+      }
+      setOpenConfirmDialog(false);
+      setOpenCancelDialog(false);
+      setShowBatchSelection(false);
+      setSelectedBatchesToCancel([]);
+    };
+      
     return (
     <Grid item xs={12} sm={6} md={4} key={test._id}>
     <StyledCard>
@@ -130,10 +206,136 @@ const OnePurchasedMockTest = ({test}) => {
           fullWidth 
           sx={{ mt: 2 }}
           endIcon={<ArrowForwardIosIcon />}
+          onClick={handleOpenCancelDialog}
         >
-          View Details
+          Cancel Booking
         </Button>
       </CardContent>
+
+      {/* Initial Cancellation Dialog */}
+      <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>
+          Cancel Mock Test Booking
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseCancelDialog}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          {!showBatchSelection ? (
+            <Box sx={{ textAlign: 'center', py: 2 }}>
+              <Typography variant="h6" gutterBottom>How would you like to cancel?</Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
+                <Button 
+                  variant="contained" 
+                  color="secondary"
+                  size="large"
+                  onClick={handleShowBatchSelection}
+                >
+                  Cancel Selected Batches
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="error"
+                  size="large"
+                  onClick={handleSelectFullCancel}
+                >
+                  Cancel Full Booking
+                </Button>
+              </Box>
+            </Box>
+          ) : (
+            <>
+              <Typography variant="subtitle1" gutterBottom>
+                Select batches to cancel:
+              </Typography>
+              <List sx={{ pt: 0 }}>
+                {test.selectedBatch?.map((batch, idx) => (
+                  <ListItem key={idx} button onClick={() => handleToggleBatch(idx)}>
+                    <Checkbox
+                      edge="start"
+                      checked={selectedBatchesToCancel.includes(idx)}
+                      tabIndex={-1}
+                      disableRipple
+                    />
+                    <ListItemText 
+                      primary={`Batch #${idx + 1}`}
+                      secondary={
+                        <>
+                          <Typography component="span" variant="body2" display="block">
+                            {formatDate(batch.date)}
+                          </Typography>
+                          <Typography component="span" variant="body2" color="text.secondary">
+                            {formatTime(batch.startTime)} - {formatTime(batch.endTime)}
+                          </Typography>
+                        </>
+                      }
+                    />
+                  </ListItem>
+                ))}
+              </List>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button 
+                  variant="contained" 
+                  color="secondary" 
+                  disabled={selectedBatchesToCancel.length === 0}
+                  onClick={handleProceedWithSelected}
+                >
+                  Proceed
+                </Button>
+              </Box>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Confirmation Dialog */}
+      <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <WarningAmberIcon color="warning" />
+          Confirm Cancellation
+        </DialogTitle>
+        <DialogContent dividers>
+          <Typography variant="body1" gutterBottom color="error">
+            This action cannot be reversed. Are you sure you want to proceed?
+          </Typography>
+          
+          <Box sx={{ mt: 3, bgcolor: 'background.default', p: 2, borderRadius: 1 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              You are about to cancel:
+            </Typography>
+            
+            {cancelMode === 'full' ? (
+              <Typography variant="body1" fontWeight="bold">
+                All batches for "{test.mockTestId?.mockTestTitle}"
+              </Typography>
+            ) : (
+              <Box sx={{ mt: 1 }}>
+                {selectedBatchesToCancel.map((idx) => (
+                  <Typography key={idx} variant="body2">
+                    • Batch #{idx + 1} - {formatDate(test.selectedBatch[idx].date)}
+                  </Typography>
+                ))}
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={handleCloseConfirmDialog}>
+            Go Back
+          </Button>
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleFinalCancel}
+          >
+            Yes, Cancel Booking
+          </Button>
+        </DialogActions>
+      </Dialog>
     </StyledCard>
   </Grid>
     );

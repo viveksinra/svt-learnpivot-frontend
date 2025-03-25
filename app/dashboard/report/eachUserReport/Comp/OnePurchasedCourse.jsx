@@ -1,9 +1,14 @@
-import React from 'react';
-import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button } from '@mui/material';
+import React, { useState } from 'react';
+import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, 
+  Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, 
+  ListItemText, Checkbox, IconButton } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import CloseIcon from '@mui/icons-material/Close';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import PersonIcon from '@mui/icons-material/Person';
 import { styled } from '@mui/material/styles';
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -26,6 +31,12 @@ const DateTimeItem = styled(Box)(({ theme }) => ({
 }));
 
 const OnePurchasedCourse = ({course}) => {
+  const [openCancelDialog, setOpenCancelDialog] = useState(false);
+  const [selectedDatesToCancel, setSelectedDatesToCancel] = useState([]);
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
+  const [showDateSelection, setShowDateSelection] = useState(false);
+console.log(course)
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
       day: '2-digit',
@@ -45,6 +56,71 @@ const OnePurchasedCourse = ({course}) => {
     
     return `${hour12}:${minutes} ${ampm}`;
   };
+
+  const handleOpenCancelDialog = () => {
+    setOpenCancelDialog(true);
+    setShowDateSelection(false);
+    setCancelMode('');
+    setSelectedDatesToCancel([]);
+  };
+
+  const handleCloseCancelDialog = () => {
+    setOpenCancelDialog(false);
+    setShowDateSelection(false);
+    setCancelMode('');
+    setSelectedDatesToCancel([]);
+  };
+
+  const handleToggleDate = (date) => {
+    setSelectedDatesToCancel(prev => {
+      if (prev.includes(date)) {
+        return prev.filter(d => d !== date);
+      } else {
+        return [...prev, date];
+      }
+    });
+  };
+
+  const handleShowDateSelection = () => {
+    setShowDateSelection(true);
+    setCancelMode('selected');
+  };
+
+  const handleSelectFullCancel = () => {
+    setCancelMode('full');
+    openConfirmationDialog();
+  };
+
+  const handleProceedWithSelected = () => {
+    if (selectedDatesToCancel.length > 0) {
+      openConfirmationDialog();
+    }
+  };
+
+  const openConfirmationDialog = () => {
+    setOpenConfirmDialog(true);
+  };
+
+  const handleCloseConfirmDialog = () => {
+    setOpenConfirmDialog(false);
+  };
+
+  const handleFinalCancel = () => {
+    if (cancelMode === 'full') {
+      // Handle full booking cancellation
+      console.log('Cancelling full booking for course:', course._id);
+      // Add API call here
+    } else {
+      // Handle cancellation of selected dates
+      console.log('Cancelling selected dates:', selectedDatesToCancel);
+      // Add API call here
+    }
+    setOpenConfirmDialog(false);
+    setOpenCancelDialog(false);
+    setShowDateSelection(false);
+    setSelectedDatesToCancel([]);
+  };
+
   return (
   <Grid item xs={12} sm={6} md={4} key={course._id}>
   <StyledCard>
@@ -58,6 +134,13 @@ const OnePurchasedCourse = ({course}) => {
       <Typography variant="h6" gutterBottom>
         {course.courseId?.courseTitle || 'Course Title'}
       </Typography>
+      
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <PersonIcon sx={{ fontSize: 16, mr: 1, color: 'info.main' }} />
+        <Typography variant="body2" color="text.secondary">
+          {course.childId?.childName || 'Child Name'}
+        </Typography>
+      </Box>
       
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <AccessTimeIcon sx={{ fontSize: 16, mr: 1, color: 'primary.main' }} />
@@ -96,10 +179,127 @@ const OnePurchasedCourse = ({course}) => {
         fullWidth 
         sx={{ mt: 2 }}
         endIcon={<ArrowForwardIosIcon />}
+        onClick={handleOpenCancelDialog}
       >
-        Update Details
+        Cancel Booking
       </Button>
     </CardContent>
+
+    {/* Initial Cancellation Dialog */}
+    <Dialog open={openCancelDialog} onClose={handleCloseCancelDialog} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        Cancel Booking
+        <IconButton
+          aria-label="close"
+          onClick={handleCloseCancelDialog}
+          sx={{ position: 'absolute', right: 8, top: 8 }}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        {!showDateSelection ? (
+          <Box sx={{ textAlign: 'center', py: 2 }}>
+            <Typography variant="h6" gutterBottom>How would you like to cancel?</Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 3 }}>
+              <Button 
+                variant="contained" 
+                color="primary"
+                size="large"
+                onClick={handleShowDateSelection}
+              >
+                Cancel Selected Dates
+              </Button>
+              <Button 
+                variant="contained" 
+                color="error"
+                size="large"
+                onClick={handleSelectFullCancel}
+              >
+                Cancel Full Booking
+              </Button>
+            </Box>
+          </Box>
+        ) : (
+          <>
+            <Typography variant="subtitle1" gutterBottom>
+              Select dates to cancel:
+            </Typography>
+            <List sx={{ pt: 0 }}>
+              {course.selectedDates?.map((date, idx) => (
+                <ListItem key={idx} button onClick={() => handleToggleDate(date)}>
+                  <Checkbox
+                    edge="start"
+                    checked={selectedDatesToCancel.includes(date)}
+                    tabIndex={-1}
+                    disableRipple
+                  />
+                  <ListItemText 
+                    primary={formatDate(date)}
+                    secondary={`${formatTime(course.courseId?.startTime)} - ${formatTime(course.courseId?.endTime)}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <Button 
+                variant="contained" 
+                color="primary" 
+                disabled={selectedDatesToCancel.length === 0}
+                onClick={handleProceedWithSelected}
+              >
+                Proceed
+              </Button>
+            </Box>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+
+    {/* Confirmation Dialog */}
+    <Dialog open={openConfirmDialog} onClose={handleCloseConfirmDialog} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+        <WarningAmberIcon color="warning" />
+        Confirm Cancellation
+      </DialogTitle>
+      <DialogContent dividers>
+        <Typography variant="body1" gutterBottom color="error">
+          This action cannot be reversed. Are you sure you want to proceed?
+        </Typography>
+        
+        <Box sx={{ mt: 3, bgcolor: 'background.default', p: 2, borderRadius: 1 }}>
+          <Typography variant="subtitle2" gutterBottom>
+            You are about to cancel:
+          </Typography>
+          
+          {cancelMode === 'full' ? (
+            <Typography variant="body1" fontWeight="bold">
+              All dates for "{course.courseId?.courseTitle}"
+            </Typography>
+          ) : (
+            <Box sx={{ mt: 1 }}>
+              {selectedDatesToCancel.map((date, idx) => (
+                <Typography key={idx} variant="body2">
+                  • {formatDate(date)}
+                </Typography>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ p: 2 }}>
+        <Button onClick={handleCloseConfirmDialog}>
+          Go Back
+        </Button>
+        <Button 
+          variant="contained" 
+          color="error" 
+          onClick={handleFinalCancel}
+        >
+          Yes, Cancel Booking
+        </Button>
+      </DialogActions>
+    </Dialog>
   </StyledCard>
 </Grid>
   );
