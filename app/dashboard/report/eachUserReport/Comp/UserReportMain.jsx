@@ -52,6 +52,7 @@ import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import OnePurchasedMockTest from './OnePurchasedMockTest';
 import OnePurchasedCourse from './OnePurchasedCourse';
+import OneUserData from './OneUserData';
 
 // Styled components
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -386,46 +387,7 @@ const UserReportMain = ({ reportData }) => {
   return (
     <Box sx={{ pt: 1 }}>
       {/* User Info Header */}
-      <ContentSection sx={{ mb: 4 }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item>
-            <Avatar 
-              sx={{ 
-                width: 80, 
-                height: 80, 
-                bgcolor: 'primary.main',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)' 
-              }}
-            >
-              {reportData.user.userImage ? (
-                <img src={reportData.user.userImage} alt="User" width="100%" />
-              ) : (
-                reportData.user.firstName.charAt(0)
-              )}
-            </Avatar>
-          </Grid>
-          <Grid item xs>
-            <Typography variant="h4" fontWeight="bold" gutterBottom>
-              {reportData.user.firstName} {reportData.user.lastName}
-            </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={{ xs: 1, sm: 3 }} sx={{ mb: 1 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <EmailIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
-                <Typography variant="body2">{reportData.user.email}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <PhoneIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
-                <Typography variant="body2">{reportData.user.mobile}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <ChildCareIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
-                <Typography variant="body2">{reportData.children.length} Children</Typography>
-              </Box>
-            </Stack>
-          </Grid>
-        
-        </Grid>
-      </ContentSection>
+      <OneUserData reportData={reportData} />
 
       {/* Access Comparison Section - MOVED TO BEFORE CHILD SELECTION */}
       <ContentSection sx={{ mb: 4 }}>
