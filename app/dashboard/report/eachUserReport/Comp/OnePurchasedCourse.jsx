@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, 
-  ListItemText, Checkbox, IconButton, TextField, InputAdornment } from '@mui/material';
+  ListItemText, Checkbox, IconButton, TextField, InputAdornment, Alert, Snackbar } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -31,13 +31,15 @@ const DateTimeItem = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
 }));
 
-const OnePurchasedCourse = ({course}) => {
+const OnePurchasedCourse = ({course, refetchUserData}) => {
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [selectedDatesToCancel, setSelectedDatesToCancel] = useState([]);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
   const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
   const [showDateSelection, setShowDateSelection] = useState(false);
   const [refundAmount, setRefundAmount] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [showError, setShowError] = useState(false);
   
   console.log(course)
 
@@ -156,21 +158,43 @@ const OnePurchasedCourse = ({course}) => {
       }
       
       if (response && response.variant === "success") {
-        // Handle success - could add notification or refresh here
+        // Refetch user data to get updated information
+        if (refetchUserData && typeof refetchUserData === 'function') {
+          refetchUserData();
+        }
         console.log("Cancellation successful");
-      } else {
-        // Handle error - could add notification here
+      } else if (response && response.variant === "error") {
+        // Display error message
+        setErrorMessage(response.message || "Cancellation failed");
+        setShowError(true);
         console.error("Cancellation failed", response);
+        
+        // Don't close dialogs on error so user can try again
+        return;
+      } else {
+        // Handle undefined or unexpected response
+        setErrorMessage("Unexpected response from server");
+        setShowError(true);
+        console.error("Cancellation failed", response);
+        return;
       }
     } catch (error) {
+      setErrorMessage(error.message || "Error during cancellation");
+      setShowError(true);
       console.error("Error during cancellation:", error);
+      return;
     }
     
+    // Only close dialogs and reset state if cancellation was successful
     setOpenConfirmDialog(false);
     setOpenCancelDialog(false);
     setShowDateSelection(false);
     setSelectedDatesToCancel([]);
     setRefundAmount(0);
+  };
+
+  const handleCloseErrorSnackbar = () => {
+    setShowError(false);
   };
 
   return (
@@ -377,6 +401,18 @@ const OnePurchasedCourse = ({course}) => {
         </Button>
       </DialogActions>
     </Dialog>
+
+    {/* Error Snackbar */}
+    <Snackbar 
+      open={showError} 
+      autoHideDuration={6000} 
+      onClose={handleCloseErrorSnackbar}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <Alert onClose={handleCloseErrorSnackbar} severity="error" sx={{ width: '100%' }}>
+        {errorMessage}
+      </Alert>
+    </Snackbar>
   </StyledCard>
 </Grid>
   );
