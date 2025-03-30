@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Avatar, Box, Grid, Stack, Typography, Button } from '@mui/material';
+import { Avatar, Box, Grid, Stack, Typography, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
@@ -17,9 +17,14 @@ const ContentSection = styled(Box)(({ theme }) => ({
 
 const OneUserData = ({ reportData, onBlockUser }) => {
   const [loginAllowed, setLoginAllowed] = useState(reportData.user.loginAllowed || false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
-  async function allowDisableLogin(userId,loginAllowed) {
-    if (!userId  ) return;
+  async function allowDisableLogin(userId, loginAllowed) {
+    console.log(userId, loginAllowed);
+    console.log(reportData);
+    if (!userId) return;
     
     setLoading(true);
     setError(null);
@@ -29,27 +34,39 @@ const OneUserData = ({ reportData, onBlockUser }) => {
     }
     
     try {
-
       let response = await registrationService.allowDisableLoginApi(data);
       if (response.variant === "success" && response.data) {
         setLoginAllowed(response.data.loginAllowed);
+        if (onBlockUser) {
+          onBlockUser(userId, loginAllowed);
+        }
       } else {
-        setError("Failed to fetch report");
+        setError("Failed to update login status");
       }
     } catch (error) {
-      setError("An error occurred while fetching report");
-      console.error('Error fetching report:', error);
+      setError("An error occurred while updating login status");
+      console.error('Error updating login status:', error);
     } finally {
       setLoading(false);
     }
   }
 
+  const handleOpenModal = () => {
+    setOpenModal(true);
+  };
 
-  const handleBlockUser = () => {
-    setLoginAllowed(!loginAllowed);
-    if (onBlockUser) {
-      onBlockUser(reportData.user.id, !loginAllowed);
-    }
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
+
+  const handleConfirmAction = async() => {
+    // Call API to update login status
+    await allowDisableLogin(reportData.user._id, !loginAllowed);
+    handleCloseModal();
+  };
+
+  const handleDisableLogin = () => {
+    handleOpenModal();
   };
 
   return (
@@ -93,13 +110,53 @@ const OneUserData = ({ reportData, onBlockUser }) => {
             variant="contained" 
             color={loginAllowed ? "error" : "warning"}
             startIcon={<BlockIcon />}
-            onClick={handleBlockUser}
+            onClick={handleDisableLogin}
             sx={{ mt: 2 }}
+            disabled={loading}
           >
-            {loginAllowed ? "Unblock User" : "Block User"}
+            {loginAllowed ? "Disable Login" : "Enable Login"}
           </Button>
+          {error && (
+            <Typography color="error" sx={{ mt: 1 }}>
+              {error}
+            </Typography>
+          )}
         </Grid>
       </Grid>
+
+      {/* Confirmation Modal */}
+      <Dialog
+        open={openModal}
+        onClose={handleCloseModal}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {loginAllowed ? "Disable User Login" : "Enable User Login"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            {loginAllowed 
+              ? `Are you sure you want to disable login for ${reportData.user.firstName} ${reportData.user.lastName}? This user will no longer be able to log in to the system.`
+              : `Are you sure you want to enable login for ${reportData.user.firstName} ${reportData.user.lastName}? This user will be able to log in to the system.`
+            }
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseModal} color="primary">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleConfirmAction} 
+            color={loginAllowed ? "error" : "success"} 
+            variant="contained" 
+            autoFocus
+            disabled={loading}
+          >
+            {loading ? "Processing..." : (loginAllowed ? "Disable" : "Enable")}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ContentSection>
   );
 };
