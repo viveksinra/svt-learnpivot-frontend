@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { 
@@ -18,7 +18,7 @@ import { styled } from "@mui/material/styles";
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import "./mockStripePayStyle.css";
-import { mockTestService } from "../../services";
+import { mockTestService, transactionService } from "../../services";
 import MockCheckoutForm from "./MockCheckoutForm";
 
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
@@ -39,7 +39,16 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   const [error, setError] = useState("");
   // New state to track acceptance of the terms
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [currentBalance, setCurrentBalance] = useState(0);
 
+  const handleGetCurrentAmount = async () => {
+    const response = await transactionService.getSelfCurrentAmount();
+    setCurrentBalance(response.currentBalance);
+  };
+
+  useEffect(() => {
+    handleGetCurrentAmount();
+  }, []);
   // Format the date and time
   const formatBatchDateTime = (batch) => {
     if (!batch || !batch.date) return null;

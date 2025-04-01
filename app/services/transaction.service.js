@@ -52,4 +52,13 @@ export class TransactionService {
       })
       .then((res) => res.data);
   };
+
+  // user transaction
+  getSelfCurrentAmount = async () => {
+    return this.instance
+      .get(`/api/v1/publicMaster/transaction/user/myCurrentBalance`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 }

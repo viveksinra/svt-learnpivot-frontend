@@ -21,6 +21,8 @@ export class MyProfileService {
   };
 
 
+
+
   updateMyProfile = async ( data) => {
     return this.instance
       .post(`/api/v1/publicMaster/otherApi/user/updateMyProfile`, data, {
