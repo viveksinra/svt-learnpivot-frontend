@@ -21,6 +21,7 @@ import "./mockStripePayStyle.css";
 import { mockTestService, transactionService } from "../../services";
 import MockCheckoutForm from "./MockCheckoutForm";
 import AnimatedButton from "../Common/AnimatedButton";
+import { FRONT_ENDPOINT } from "@/app/utils";
 
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
 
@@ -47,6 +48,8 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   const amountToPayWithStripe = useBalance 
     ? Math.max(0, totalAmount - currentBalance) 
     : totalAmount;
+  // Add message state for feedback to user
+  const [message, setMessage] = useState("");
 
   const handleGetCurrentAmount = async () => {
     const response = await transactionService.getSelfCurrentAmount();
@@ -67,6 +70,45 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       year: '2-digit'
     });
     return `${formattedDate} @ ${batch.startTime} - ${batch.endTime}`;
+  };
+  const handleConfirmPaymentWithBalance = async (mockId) => {
+    setLoading(true);
+
+    async function checkIfAllBatchFree() {
+      try {
+        let res = await mockTestService.isFullByBuyMock({
+          id: `${mockId}`
+        });
+        console.log(res);
+        if (res.variant === "success") {
+          return res?.isFree;
+        } else {
+          return false;
+        }
+      } catch (error) {
+        console.error("Error fetching data:", error);
+        return false;
+      }   
+    }
+
+    const isAllFree = await checkIfAllBatchFree();
+
+    if(!isAllFree) {
+      setError("Some Batches got full. Refresh and try again later.");
+      setLoading(false);
+      return;
+    }
+
+    const mockResponse = await mockTestService.buyMockWithBalanceOnly(mockId);
+
+    if (mockResponse.variant === "success") {
+      setMessage("Payment successful");
+      window.location.href = `${FRONT_ENDPOINT}/payment/verifyMock/${mockId}`;
+    } else {
+      setError(mockResponse.message || "An unexpected error occurred.");
+    }
+
+    setLoading(false);
   };
 
   const handlePaymentClick = async () => {
@@ -110,11 +152,9 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       // If balance covers the entire amount, we don't need to create a payment intent
       if (useBalance && amountToPayWithStripe <= 0) {
         // Handle the case where balance covers everything
-        // Skip payment and proceed to completion
-        // You might need to call a different API endpoint here
+        handleConfirmPaymentWithBalance(mockResponse._id);
         setLoading(false);
         setButtonDisabled(false);
-        // Redirect to success or next step
         return;
       }
 

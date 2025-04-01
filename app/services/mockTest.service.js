@@ -52,6 +52,14 @@ export class MockTestService {
       })
       .then((res) => res.data);
   };
+  buyMockWithBalanceOnly = async (id) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/buyMockTest/addBuyMock/buyMockWithBalanceOnly/${id}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
   publicVerifyOneMockPayment = async (id ) => {
     return this.instance
       .get(`/api/v1/publicMaster/buyMockTest/addBuyMock/verifyPayment/${id}`, {        
