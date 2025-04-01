@@ -20,6 +20,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import "./mockStripePayStyle.css";
 import { mockTestService, transactionService } from "../../services";
 import MockCheckoutForm from "./MockCheckoutForm";
+import AnimatedButton from "../Common/AnimatedButton";
 
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
 
@@ -37,9 +38,15 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   const [buyMockId, setBuyMockId] = useState("");
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [error, setError] = useState("");
-  // New state to track acceptance of the terms
+  // State to track acceptance of the terms
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [currentBalance, setCurrentBalance] = useState(0);
+  // New state to track if user wants to use balance
+  const [useBalance, setUseBalance] = useState(true);
+  // Calculate the amount to be paid through Stripe
+  const amountToPayWithStripe = useBalance 
+    ? Math.max(0, totalAmount - currentBalance) 
+    : totalAmount;
 
   const handleGetCurrentAmount = async () => {
     const response = await transactionService.getSelfCurrentAmount();
@@ -79,6 +86,8 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       mockTestId: data._id,
       selectedBatch,
       selectedChild,
+      useBalance: useBalance && currentBalance > 0, // Flag to indicate if we're using balance
+      balanceToUse: useBalance ? Math.min(currentBalance, totalAmount) : 0 // Amount of balance to use
     };
 
     try {
@@ -98,9 +107,21 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       setSubmittedId(mockResponse._id);
       setTotalAmount(mockResponse.totalAmount);
 
-      // Step 2: Get payment intent
+      // If balance covers the entire amount, we don't need to create a payment intent
+      if (useBalance && amountToPayWithStripe <= 0) {
+        // Handle the case where balance covers everything
+        // Skip payment and proceed to completion
+        // You might need to call a different API endpoint here
+        setLoading(false);
+        setButtonDisabled(false);
+        // Redirect to success or next step
+        return;
+      }
+
+      // Step 2: Get payment intent for remaining amount
       const paymentResponse = await mockTestService.getPaymentIntentApi({
         items: [{ id: mockResponse._id }],
+        amountToCharge: amountToPayWithStripe
       });
 
       if (paymentResponse.variant === "success") {
@@ -198,6 +219,37 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
             </Box>
           )}
           
+          {/* Current Balance Display */}
+          {currentBalance > 0 && (
+            <Box sx={{ 
+              width: '100%', 
+              mb: 2,
+              p: 2,
+              bgcolor: '#f0f7ff',  // Light blue background
+              borderRadius: 1,
+              border: '1px solid #bbd6fe'
+            }}>
+              <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
+                Your Current Balance
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                  £{currentBalance.toFixed(2)}
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={useBalance}
+                      onChange={(e) => setUseBalance(e.target.checked)}
+                      color="primary"
+                    />
+                  }
+                  label="Use balance for this payment"
+                />
+              </Box>
+            </Box>
+          )}
+
           {/* Amount Display */}
           <Box sx={{ 
             width: '100%', 
@@ -220,8 +272,38 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
                 £{totalAmount?.toFixed(2)}
               </Typography>
             </Box>
+            
+            {currentBalance > 0 && useBalance && (
+              <>
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  mb: 1
+                }}>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    Applied from Balance
+                  </Typography>
+                  <Typography variant="body1" color="success.main" sx={{ fontWeight: 600 }}>
+                    -£{Math.min(currentBalance, totalAmount).toFixed(2)}
+                  </Typography>
+                </Box>
+                <Divider sx={{ my: 1 }} />
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center'
+                }}>
+                  <Typography variant="subtitle1" color="text.secondary">
+                    Amount to Pay
+                  </Typography>
+                  <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                    £{amountToPayWithStripe.toFixed(2)}
+                  </Typography>
+                </Box>
+              </>
+            )}
           </Box>
-
 
           {/* Terms and Cancellation Policy Acceptance */}
           <Box sx={{ width: '100%' }}>
@@ -253,27 +335,30 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
               }
             />
           </Box>
-
-          <Button
-            variant="contained"
-            color="primary"
-            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CreditCardIcon />}
+          {error && (
+            <Typography color="error" variant="body2">
+              {error}
+            </Typography>
+          )}
+          <AnimatedButton 
+      variant="contained" 
+      startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CreditCardIcon />}
             onClick={handlePaymentClick}
-            disabled={buttonDisabled || loading || !termsAccepted}  // <-- disabled if terms are not accepted
+            disabled={buttonDisabled || loading || !termsAccepted}
             sx={{
               minWidth: 240,
               py: 1.5,
               textTransform: "none",
               fontSize: "1rem",
             }}
-          >
-            {loading ? "Processing..." : `Pay £${totalAmount?.toFixed(2)} with Debit Card`}
-          </Button>
-          {error && (
-            <Typography color="error" variant="body2">
-              {error}
-            </Typography>
-          )}
+    >
+                    {loading ? "Processing..." : useBalance && amountToPayWithStripe <= 0 
+              ? "Complete Booking with Balance" 
+              : `Pay £${amountToPayWithStripe.toFixed(2)} with Debit Card`}
+            </AnimatedButton>
+
+
+      
         </Box>
       ) : (
         <Elements options={options} stripe={stripePromise} style={{ width: '100%', backgroundColor:"green" }}>
