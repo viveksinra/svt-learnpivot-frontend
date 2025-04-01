@@ -35,7 +35,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
-const UserReportMain = ({ reportData }) => {
+const UserTransactionReportMain = ({ reportData }) => {
   if (!reportData) return null;
 
   const { user, statement } = reportData;
@@ -210,4 +210,4 @@ const UserReportMain = ({ reportData }) => {
   );
 };
 
-export default UserReportMain;
+export default UserTransactionReportMain;

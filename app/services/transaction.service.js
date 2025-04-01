@@ -20,6 +20,7 @@ export class TransactionService {
       })
       .then((res) => res.data);
   };
+
   depositCoins = async ( data) => {
     return this.instance
       .post(`/api/v1/publicMaster/transaction/admin/addMoney`, data, {
@@ -57,6 +58,13 @@ export class TransactionService {
   getSelfCurrentAmount = async () => {
     return this.instance
       .get(`/api/v1/publicMaster/transaction/user/myCurrentBalance`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  getMyTransactionAndBalance = async () => {
+    return this.instance
+      .get(`/api/v1/publicMaster/transaction/user/myTransactions`, {
         headers: getAuthorizationHeader(),
       })
       .then((res) => res.data);
