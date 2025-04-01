@@ -126,26 +126,7 @@ export default function MulSelCom({ selectedCourses, setSelectedCourses, selecte
         </Select>
       </FormControl>
 
-      <FormControl sx={{ m: 1, width: 300 }} disabled={selectedCourses.length === 0}>
-        <InputLabel id="batch-multiple-checkbox-label">Batches</InputLabel>
-        <Select
-          labelId="batch-multiple-checkbox-label"
-          id="batch-multiple-checkbox"
-          multiple
-          value={selectedBatches.map(batch => batch.label)}
-          onChange={handleBatchChange}
-          input={<OutlinedInput label="Batches" />}
-          renderValue={(selected) => selected.join(', ')}
-          MenuProps={MenuProps}
-        >
-          {batches.map((batch) => (
-            <MenuItem key={batch.id} value={batch.label}>
-              <Checkbox checked={selectedBatches.some(b => b.label === batch.label)} />
-              <ListItemText primary={batch.label} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+   
 
       <FormControl sx={{ m: 1, width: 300 }}>
         <FormControlLabel
