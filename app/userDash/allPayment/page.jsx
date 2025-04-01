@@ -33,7 +33,7 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
     ...payment,
     id: payment._id,
     type: 'course',
-    description: payment.courseDescription,
+    description: payment.description,
     dates: payment.selectedDates ? 
       payment.selectedDates.map(date => moment(date).format('DD MMM YYYY')).join(', ') : '',
     duration: payment.courseDuration || '',
@@ -43,7 +43,6 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
     ...payment,
     id: payment._id,
     type: 'mock',
-    courseName: 'Mock Test',
   }));
 
   return [...coursePayments, ...mockPayments].sort((a, b) => 
@@ -74,7 +73,7 @@ const PaymentListItem = ({ payment, expanded, onToggle }) => {
             )}
             <Box flex={1}>
               <Typography variant="subtitle1" className="font-semibold">
-                {payment.courseName}
+                {payment.title}
               </Typography>
          
             </Box>
@@ -182,26 +181,38 @@ const columns = [
   {
     field: 'paymentDate',
     headerName: 'Date',
-    width: 160,
+    width: 120,
     valueGetter: (params) => moment(params.value).format('DD MMM YYYY'),
   },
   {
+    field: 'amountFromBalance',
+    headerName: 'Balance',
+    width: 100,
+    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
+  },
+  {
+    field: 'amountFromStripe',
+    headerName: 'Paid',
+    width: 100,
+    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
+  },
+  {
     field: 'amountPaid',
-    headerName: 'Amount',
-    width: 120,
-    valueGetter: (params) => `£${params.value.toFixed(2)}`,
+    headerName: 'Total Amount',
+    width: 100,
+    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
   },
 
   {
-    field: 'courseName',
+    field: 'title',
     headerName: 'Course/Test',
-    width: 250,
+    width: 150,
     valueGetter: (params) => params.value || 'Mock Test',
   },
   {
     field: 'childName',
     headerName: 'Student',
-    width: 150,
+    width: 120,
     renderCell: (params) => (
       <Stack>
         <Typography variant="body2">{params.value} </Typography>
