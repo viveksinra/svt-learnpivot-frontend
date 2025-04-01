@@ -21,6 +21,7 @@ import "./mockStripePayStyle.css";
 import { mockTestService, transactionService } from "../../services";
 import MockCheckoutForm from "./MockCheckoutForm";
 import AnimatedButton from "../Common/AnimatedButton";
+import FullPageLoadingTransparent from "../Common/FullPageLoadingTransparent";
 import { FRONT_ENDPOINT } from "@/app/utils";
 
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
@@ -73,42 +74,34 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   };
   const handleConfirmPaymentWithBalance = async (mockId) => {
     setLoading(true);
+    setError("");
+    
+    try {
+      // Check if all batches are free (available)
+      let res = await mockTestService.isFullByBuyMock({
+        id: `${mockId}`
+      });
+      
+      if (res.variant !== "success" || !res?.isFree) {
+        setError("Some Batches got full. Refresh and try again later.");
+        return;
+      }
 
-    async function checkIfAllBatchFree() {
-      try {
-        let res = await mockTestService.isFullByBuyMock({
-          id: `${mockId}`
-        });
-        console.log(res);
-        if (res.variant === "success") {
-          return res?.isFree;
-        } else {
-          return false;
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        return false;
-      }   
-    }
+      // Process payment with balance
+      const mockResponse = await mockTestService.buyMockWithBalanceOnly(mockId);
 
-    const isAllFree = await checkIfAllBatchFree();
-
-    if(!isAllFree) {
-      setError("Some Batches got full. Refresh and try again later.");
+      if (mockResponse.variant === "success") {
+        setMessage("Payment successful");
+        window.location.href = `${FRONT_ENDPOINT}/payment/verifyMock/${mockId}`;
+      } else {
+        setError(mockResponse.message || "An unexpected error occurred.");
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    const mockResponse = await mockTestService.buyMockWithBalanceOnly(mockId);
-
-    if (mockResponse.variant === "success") {
-      setMessage("Payment successful");
-      window.location.href = `${FRONT_ENDPOINT}/payment/verifyMock/${mockId}`;
-    } else {
-      setError(mockResponse.message || "An unexpected error occurred.");
-    }
-
-    setLoading(false);
   };
 
   const handlePaymentClick = async () => {
@@ -201,6 +194,7 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
 
   return (
     <>
+      {loading && <FullPageLoadingTransparent message="Processing your payment..." />}
       {!clientSecret ? (
         <Box sx={{ 
           display: "flex", 
@@ -381,8 +375,8 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
             </Typography>
           )}
           <AnimatedButton 
-      variant="contained" 
-      startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <CreditCardIcon />}
+            variant="contained" 
+            startIcon={<CreditCardIcon />}
             onClick={handlePaymentClick}
             disabled={buttonDisabled || loading || !termsAccepted}
             sx={{
@@ -391,14 +385,11 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
               textTransform: "none",
               fontSize: "1rem",
             }}
-    >
-                    {loading ? "Processing..." : useBalance && amountToPayWithStripe <= 0 
+          >
+            {useBalance && amountToPayWithStripe <= 0 
               ? "Complete Booking with Balance" 
               : `Pay £${amountToPayWithStripe.toFixed(2)} with Debit Card`}
-            </AnimatedButton>
-
-
-      
+          </AnimatedButton>
         </Box>
       ) : (
         <Elements options={options} stripe={stripePromise} style={{ width: '100%', backgroundColor:"green" }}>
