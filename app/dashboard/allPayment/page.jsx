@@ -37,7 +37,7 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
     ...payment,
     id: payment._id,
     type: 'course',
-    description: payment.courseDescription,
+    description: payment.description,
     dates: payment.selectedDates ? 
       payment.selectedDates.map(date => moment(date).format('DD MMM YYYY')).join(', ') : '',
     duration: payment.courseDuration || '',
@@ -47,7 +47,6 @@ const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
     ...payment,
     id: payment._id,
     type: 'mock',
-    courseName: 'Mock Test',
   }));
 
   return [...coursePayments, ...mockPayments].sort((a, b) => 
@@ -73,7 +72,7 @@ const exportToCSV = (payments) => {
     moment(payment.paymentDate).format('DD MMM YYYY, HH:mm:ss'),
     `£${payment.amountPaid.toFixed(2)}`,
     payment.paymentStatus,
-    payment.courseName || 'Mock Test',
+    payment.title || 'Mock Test',
     payment.childName,
     payment.parentName,
     payment.email,
@@ -127,7 +126,7 @@ const PaymentListItem = ({ payment, expanded, onToggle }) => (
           )}
           <Box flex={1}>
             <Typography variant="subtitle1" className="font-semibold">
-              {payment.courseName}
+              {payment.title}
             </Typography>
             <Typography variant="body2" color="text.secondary">
               {payment.year}
@@ -239,33 +238,50 @@ const columns = [
   {
     field: 'amountPaid',
     headerName: 'Amount',
-    width: 120,
+    width: 100,
     valueGetter: (params) => `£${params.value.toFixed(2)}`,
   },
   {
     field: 'paymentStatus',
     headerName: 'Status',
-    width: 140,
+    width: 120,
     renderCell: (params) => <StatusChip status={params.value} />,
   },
   {
-    field: 'courseName',
-    headerName: 'Course/Test Name',
-    width: 250,
+    field: 'title',
+    headerName: 'Title',
+    width: 150,
     valueGetter: (params) => params.value || 'Mock Test',
   },
   {
     field: 'childName',
     headerName: 'Student',
-    width: 250,
+    width: 130,
     renderCell: (params) => (
-      <Stack>
         <Typography variant="body2">{params.value} {params.row.year}</Typography>
                 
-                <Typography variant="caption" color="text.secondary">{params.row.parentName} • {params.row.email} </Typography>
-      </Stack>
     ),
   },
+  {
+    field: 'parentName',
+    headerName: 'Parent Name',
+    width: 120,
+    renderCell: (params) => (
+                
+                <Typography variant="caption" color="text.secondary">{params.row.parentName} </Typography>
+    ),
+  },
+  {
+    field: 'email',
+      headerName: 'Student',
+    width: 120,
+    renderCell: (params) => (
+    
+                
+                <Typography variant="caption" color="text.secondary"> {params.row.email} </Typography>
+    ),
+  },
+
   {
     field: 'paymentIntent',
     headerName: 'Payment ID',
