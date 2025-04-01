@@ -22,21 +22,14 @@ import {
 } from "@mui/material/";
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
-import {
-  FcMenu,
-  FcLeft,
-  FcComboChart,
-  FcContacts,
-  FcImport,
-} from "react-icons/fc";
-import { CgProfile } from "react-icons/cg";
+import { MdDashboard, MdPayment, MdAccountCircle, MdLogout, MdPerson, MdMenu, MdChevronLeft } from "react-icons/md";
+import { FaUser, FaChild, FaFileAlt } from "react-icons/fa";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
 import Link from "next/link";
-import { FaChild } from "react-icons/fa";
 
 const drawerWidth = 240;
 
@@ -44,12 +37,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
   const router = useRouter();
   const { logout } = useLogout();
   const [dashList, setDashList] = useState([
-    { title: "Dashboard", active: true, link: "/userDash", icon: <FcComboChart /> },
-    { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <FcContacts /> },
-    { title: "My Account", active: false, link: "/userDash/reports/myAccount", icon: <FcContacts /> },
-    { title: "My Report", active: false, link: "/userDash/reports/myUserReport", icon: <FcContacts /> },
-    { title: "Profile", active: false, link: "/userDash/myProfile", icon: <CgProfile size={24} /> },
-    { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild size={24} /> },
+    { title: "Dashboard", active: true, link: "/userDash", icon: <MdDashboard className="drawer-icon" size={24} color="#1976d2" /> },
+    { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <MdPayment className="drawer-icon" size={24} color="#2e7d32" /> },
+    { title: "My Account", active: false, link: "/userDash/reports/myAccount", icon: <MdAccountCircle className="drawer-icon" size={24} color="#9c27b0" /> },
+    { title: "My Report", active: false, link: "/userDash/reports/myUserReport", icon: <FaFileAlt className="drawer-icon" size={22} color="#ed6c02" /> },
+    { title: "Profile", active: false, link: "/userDash/myProfile", icon: <FaUser className="drawer-icon" size={22} color="#0288d1" /> },
+    { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild className="drawer-icon" size={22} color="#d32f2f" /> },
   ]);
 
   const handleLink = (item, index, listType) => {
@@ -64,42 +57,96 @@ const DrawerData = ({ open, setMobileOpen }) => {
 
   return (
     <div>
-      <List>
+      <List sx={{ px: 1 }}>
         {dashList.map((item, index) => (
           <ListItem
             key={index}
             onClick={() => handleLink(item, index, "dashList")}
             disablePadding
             className={item.active ? "activeLink" : ""}
+            sx={{ mb: 0.5, borderRadius: '8px' }}
           >
             <ListItemButton
-              sx={{ minHeight: 48, justifyContent: open ? "initial" : "center", px: 2.5 }}
+              sx={{ 
+                minHeight: 48, 
+                justifyContent: open ? "initial" : "center", 
+                px: 2.5,
+                borderRadius: '8px',
+                transition: 'all 0.2s ease-in-out',
+                '&:hover': {
+                  backgroundColor: '#f5f5f5'
+                }
+              }}
             >
               <Tooltip title={item.title} placement="right">
-                <ListItemIcon sx={{ minWidth: 0, mr: open ? 3 : "auto", fontSize: 24 }}>
+                <ListItemIcon 
+                  sx={{ 
+                    minWidth: 0, 
+                    mr: open ? 3 : "auto", 
+                    fontSize: 24,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                >
                   {item.icon}
                 </ListItemIcon>
               </Tooltip>
-              <ListItemText primary={item.title} sx={{ opacity: open ? 1 : 0 }} />
+              <ListItemText 
+                primary={item.title} 
+                sx={{ 
+                  opacity: open ? 1 : 0,
+                  '& .MuiTypography-root': {
+                    fontWeight: item.active ? 600 : 400
+                  }
+                }} 
+              />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-      <Divider />
+      <Divider sx={{ my: 1 }} />
 
-      <List sx={{  width: "100%" }}>
+      <List sx={{ px: 1, width: "100%" }}>
         <ListItem
           onClick={() => {
             logout();
             router.push("/");
           }}
           disablePadding
+          sx={{ borderRadius: '8px' }}
         >
-          <ListItemButton sx={{ minHeight: 48, justifyContent: open ? "initial" : "center", px: 2.5 }}>
-            <ListItemIcon sx={{ minWidth: 0, mr: open ? 3 : "auto", fontSize: 24 }}>
-              <FcImport />
+          <ListItemButton 
+            sx={{ 
+              minHeight: 48, 
+              justifyContent: open ? "initial" : "center", 
+              px: 2.5,
+              borderRadius: '8px',
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                backgroundColor: '#ffebee'
+              }
+            }}
+          >
+            <ListItemIcon 
+              sx={{ 
+                minWidth: 0, 
+                mr: open ? 3 : "auto", 
+                fontSize: 24,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <MdLogout color="#d32f2f" size={24} className="drawer-icon" />
             </ListItemIcon>
-            <ListItemText primary="Logout" sx={{ opacity: open ? 1 : 0 }} />
+            <ListItemText 
+              primary="Logout" 
+              sx={{ 
+                opacity: open ? 1 : 0,
+                color: '#d32f2f' 
+              }} 
+            />
           </ListItemButton>
         </ListItem>
       </List>
@@ -187,25 +234,25 @@ function DashboardLayout({ children }) {
   return (
     <Box sx={{ display: "flex", background: "#fff" }}>
       <CssBaseline />
-      <AppBar position="fixed" color="default" open={open}>
+      <AppBar position="fixed" color="default" open={open} elevation={1}>
         <Toolbar>
           <IconButton
-            color="inherit"
+            color="primary"
             aria-label="open drawer"
             onClick={handleDrawer}
             edge="start"
             sx={{ marginRight: 5, display: { xs: "none", sm: "block" }, ...(open && { display: "none" }) }}
           >
-            <FcMenu />
+            <MdMenu size={26} />
           </IconButton>
           <IconButton
-            color="inherit"
+            color="primary"
             aria-label="Mobile Drawer"
             onClick={() => setMobileOpen(!mobileOpen)}
             edge="start"
             sx={{ marginRight: 2, marginLeft: 1, display: { xs: "block", sm: "none" } }}
           >
-            <FcMenu />
+            <MdMenu size={26} />
           </IconButton>
           <Link href="/" className="navbar-brand">
             <Image
@@ -252,11 +299,11 @@ function DashboardLayout({ children }) {
       <Drawer
         variant="permanent"
         open={open}
-        sx={{ display: { xs: "none", sm: "block" }, "& .MuiDrawer-paper": { boxSizing: "border-box" } }}
+        sx={{ display: { xs: "none", sm: "block" }, "& .MuiDrawer-paper": { boxSizing: "border-box", boxShadow: '0px 3px 8px rgba(0, 0, 0, 0.1)' } }}
       >
         <DrawerHeader>
           <IconButton onClick={handleDrawer} sx={{ ...(!open && { display: "none" }) }}>
-            <FcLeft />
+            <MdChevronLeft size={24} color="#757575" />
           </IconButton>
         </DrawerHeader>
         <DrawerData open={open} />

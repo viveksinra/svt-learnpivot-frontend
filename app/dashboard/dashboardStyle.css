@@ -54,5 +54,37 @@
     }
   }
 
+/* Add the drawer icon styling to match the userDash style */
+.drawer-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.activeLink .drawer-icon {
+    transform: scale(1.1);
+}
+
+.MuiListItemButton-root:hover .drawer-icon {
+    transform: scale(1.15);
+}
+
+/* Menu section headers */
+.menu-header {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #757575;
+    padding: 6px 16px 6px 16px;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
+}
+
+.submenu-container {
+    margin-left: 8px;
+}
+
+.menu-item-divider {
+    margin: 8px 0;
+}
+
 
 

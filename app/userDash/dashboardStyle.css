@@ -44,6 +44,19 @@
     float: right;
 }
 
+/* Added drawer icon styling */
+.drawer-icon {
+    transition: transform 0.2s ease-in-out;
+}
+
+.activeLink .drawer-icon {
+    transform: scale(1.1);
+}
+
+.MuiListItemButton-root:hover .drawer-icon {
+    transform: scale(1.15);
+}
+
 @media only screen and (max-width: 700px) {
     .css-zxdg2z{
         padding: 0px !important;
@@ -52,7 +65,7 @@
         max-width: 60px;
         max-height: 60px;
     }
-  }
+}
 
 
 
