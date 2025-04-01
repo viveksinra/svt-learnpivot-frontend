@@ -505,7 +505,8 @@ export const PaymentAlert = ({ selectedChild }) => {
   }
 
   return (
-    <Container 
+    <>
+{courseData.length > 0 &&    <Container 
       maxWidth="lg" 
       sx={{ 
         py: isMobile ? 2 : 3,
@@ -543,7 +544,8 @@ export const PaymentAlert = ({ selectedChild }) => {
       ) : (
         <EmptyState />
       )}
-    </Container>
+    </Container>}
+    </>
   );
 };
 
