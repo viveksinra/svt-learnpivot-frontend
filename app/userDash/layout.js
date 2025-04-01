@@ -45,7 +45,8 @@ const DrawerData = ({ open, setMobileOpen }) => {
   const { logout } = useLogout();
   const [dashList, setDashList] = useState([
     { title: "Dashboard", active: true, link: "/userDash", icon: <FcComboChart /> },
-    { title: "Transaction", active: false, link: "/userDash/allPayment", icon: <FcContacts /> },
+    { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <FcContacts /> },
+    { title: "My Account", active: false, link: "/userDash/reports/myAccount", icon: <FcContacts /> },
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <CgProfile size={24} /> },
     { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild size={24} /> },
   ]);
