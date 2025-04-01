@@ -15,23 +15,10 @@ const MockPayButton = ({
   const handleCoEnquiry = async () => {
     if (totalAmount === 0) return;
 
-    const buyData = {
-      mockTestId: data._id,
-      selectedBatch,
-      selectedChild,
-    };
-    
-    try {
-      let response = await mockTestService.buyMockStepOne(buyData);
-  
-      if (response.variant === "success") {
-        setSubmitted(true);
-        setSubmittedId(response._id);
-        setTotalAmount(response.totalAmount);
-      }
-    } catch (error) {
-      console.error("Error submitting data:", error);
-    }
+    setSubmitted(true);
+
+
+
   };
 
   const buttonText = totalAmount === 0 

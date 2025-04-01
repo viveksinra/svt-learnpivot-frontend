@@ -31,7 +31,7 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   boxShadow: theme.shadows[3],
 }));
 
-export default function MockStripePay({isMobile, setStep, data, selectedChild, selectedBatch, submittedId, totalAmount, setSubmitted, setSubmittedId }) {
+export default function MockStripePay({isMobile, setStep, data, selectedChild, selectedBatch, submittedId, setTotalAmount, totalAmount, setSubmitted, setSubmittedId }) {
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
   const [buyMockId, setBuyMockId] = useState("");
@@ -54,31 +54,56 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   };
 
   const handlePaymentClick = async () => {
-    // Prevent proceeding if terms are not accepted
+    // Validate prerequisites
     if (!termsAccepted) {
       setError("Please accept our terms before proceeding.");
       return;
     }
+
+    if (totalAmount === 0) {
+      setError("Invalid payment amount");
+      return;
+    }
+
+    // Prepare data for mock test purchase
+    const buyData = {
+      mockTestId: data._id,
+      selectedBatch,
+      selectedChild,
+    };
+
     try {
+      // Step 1: Buy mock test
       setLoading(true);
       setButtonDisabled(true);
       setError("");
-      const response = await mockTestService.getPaymentIntentApi({
-        items: [{ id: submittedId }],
-      });
-      if (response.variant === "success") {
-        setClientSecret(response.clientSecret);
-        setBuyMockId(response.buyMockId);
-      } else {
-        if (response.message){
-          setError(response.message);
-         } else {
-           setError("Failed to initialize payment. Please try again.");
-         }
+      const mockResponse = await mockTestService.buyMockStepOne(buyData);
+      
+      if (mockResponse.variant !== "success" || !mockResponse._id) {
+        setError("Failed to create mock test order");
+        return;
       }
-    } catch (err) {
-      setError("An unexpected error occurred. Please try again later.");
-      console.error("Payment error:", err);
+
+      // Update state with mock test details
+      setSubmitted(true);
+      setSubmittedId(mockResponse._id);
+      setTotalAmount(mockResponse.totalAmount);
+
+      // Step 2: Get payment intent
+      const paymentResponse = await mockTestService.getPaymentIntentApi({
+        items: [{ id: mockResponse._id }],
+      });
+
+      if (paymentResponse.variant === "success") {
+        setClientSecret(paymentResponse.clientSecret);
+        setBuyMockId(paymentResponse.buyMockId);
+      } else {
+        setError(paymentResponse.message || "Failed to initialize payment");
+      }
+
+    } catch (error) {
+      console.error("Payment process error:", error);
+      setError(error.message || "An unexpected error occurred. Please try again later.");
     } finally {
       setLoading(false);
       setButtonDisabled(false);

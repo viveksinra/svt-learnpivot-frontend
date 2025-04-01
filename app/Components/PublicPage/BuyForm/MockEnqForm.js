@@ -67,7 +67,7 @@ function MockEnqForm({ isMobile,data,step, setStep, submitted,setSubmitted, subm
            <MockStripePay 
            isMobile={isMobile}
            data={data} 
-
+              setTotalAmount={setTotalAmount}
            setSubmitted={setSubmitted}
              setSubmittedId={setSubmittedId}
              setStep={setStep}
