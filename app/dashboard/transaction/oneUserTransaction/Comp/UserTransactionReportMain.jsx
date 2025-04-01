@@ -1,5 +1,5 @@
 "use client";
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Paper,
@@ -13,11 +13,19 @@ import {
   TableRow,
   Chip,
   Avatar,
-  Divider,
   Stack,
   Card,
   CardContent,
-  Tooltip
+  Tooltip,
+  useTheme,
+  useMediaQuery,
+  IconButton,
+  Collapse,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import PersonIcon from '@mui/icons-material/Person';
@@ -26,7 +34,12 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
-import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import PaymentIcon from '@mui/icons-material/Payment';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import SwapVertIcon from '@mui/icons-material/SwapVert';
+import CalendarTodayIcon from '@mui/icons-material/CalendarToday';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   '&.MuiTableCell-head': {
@@ -35,7 +48,36 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
   },
 }));
 
+const TransactionCard = styled(Card)(({ theme, type }) => ({
+  marginBottom: theme.spacing(2),
+  borderLeft: `4px solid ${type === 'deposit' 
+    ? theme.palette.success.main 
+    : theme.palette.error.main}`,
+  transition: 'transform 0.2s ease-in-out',
+  '&:hover': {
+    transform: 'translateY(-3px)',
+    boxShadow: theme.shadows[6],
+  }
+}));
+
+const SummaryCard = styled(Card)(({ theme, bgcolor }) => ({
+  height: '100%',
+  background: `linear-gradient(135deg, ${bgcolor} 0%, ${bgcolor}dd 100%)`,
+  color: 'white',
+  borderRadius: theme.spacing(2),
+  boxShadow: theme.shadows[4],
+  transition: 'transform 0.2s',
+  '&:hover': {
+    transform: 'translateY(-5px)',
+    boxShadow: theme.shadows[8],
+  }
+}));
+
 const UserTransactionReportMain = ({ reportData }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const [expandedTransactions, setExpandedTransactions] = useState({});
+  
   if (!reportData) return null;
 
   const { user, statement } = reportData;
@@ -57,7 +99,13 @@ const UserTransactionReportMain = ({ reportData }) => {
     });
   };
 
-  // Generate tooltip content for transaction details
+  const toggleExpand = (id) => {
+    setExpandedTransactions(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
   const getTransactionDetails = (transaction) => {
     const details = [
       `Transaction ID: ${transaction.transactionId}`,
@@ -70,37 +118,63 @@ const UserTransactionReportMain = ({ reportData }) => {
     if (transaction.refundFor) details.push(`Refund For: ${transaction.refundFor}`);
     if (transaction.refundForModel) details.push(`Refund For Model: ${transaction.refundForModel}`);
     
-    return details.join('\n');
+    return details;
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={{ width: '100%', px: { xs: 1, sm: 2 } }}>
       {/* User Information Section */}
-      <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: '12px' }}>
-        <Grid container spacing={3} alignItems="center">
-          <Grid item>
-            <Avatar sx={{ width: 64, height: 64, bgcolor: 'primary.main' }}>
-              <PersonIcon sx={{ fontSize: 32 }} />
+      <Paper 
+        elevation={3} 
+        sx={{ 
+          p: { xs: 2, sm: 3 }, 
+          mb: 3, 
+          borderRadius: '16px',
+          transition: 'all 0.3s',
+          '&:hover': {
+            boxShadow: 6
+          }
+        }}
+      >
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm="auto">
+            <Avatar 
+              sx={{ 
+                width: { xs: 56, sm: 64 }, 
+                height: { xs: 56, sm: 64 }, 
+                bgcolor: 'primary.main',
+                boxShadow: 2
+              }}
+            >
+              <PersonIcon sx={{ fontSize: { xs: 28, sm: 32 } }} />
             </Avatar>
           </Grid>
           <Grid item xs>
-            <Typography variant="h5" gutterBottom>
+            <Typography variant={isMobile ? "h6" : "h5"} gutterBottom fontWeight="bold">
               {user.name}
             </Typography>
-            <Stack direction="row" spacing={2}>
-              <Typography variant="body2" color="text.secondary">
-                <EmailIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                {user.email}
-              </Typography>
-              {user.phone && (
+            <Stack 
+              direction={{ xs: "column", sm: "row" }} 
+              spacing={{ xs: 1, sm: 2 }}
+              sx={{ mb: 1 }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <EmailIcon sx={{ fontSize: 16, mr: 0.5, color: 'primary.main' }} />
                 <Typography variant="body2" color="text.secondary">
-                  <PhoneIcon sx={{ fontSize: 16, mr: 0.5, verticalAlign: 'middle' }} />
-                  {user.phone}
+                  {user.email}
                 </Typography>
+              </Box>
+              {user.phone && (
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <PhoneIcon sx={{ fontSize: 16, mr: 0.5, color: 'primary.main' }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {user.phone}
+                  </Typography>
+                </Box>
               )}
             </Stack>
             {user._id && (
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                 User ID: {user._id}
               </Typography>
             )}
@@ -109,101 +183,226 @@ const UserTransactionReportMain = ({ reportData }) => {
       </Paper>
 
       {/* Balance Summary Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', bgcolor: 'primary.main', color: 'white' }}>
+          <SummaryCard bgcolor={theme.palette.primary.main}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <AccountBalanceWalletIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">Current Balance</Typography>
+                <AccountBalanceWalletIcon sx={{ mr: 1, fontSize: 28 }} />
+                <Typography variant="h6" fontWeight="medium">Current Balance</Typography>
               </Box>
-              <Typography variant="h4">
+              <Typography variant="h4" fontWeight="bold">
                 {formatCurrency(statement.closingBalance)}
               </Typography>
             </CardContent>
-          </Card>
+          </SummaryCard>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', bgcolor: 'success.main', color: 'white' }}>
+          <SummaryCard bgcolor={theme.palette.success.main}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <TrendingUpIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">Total Credits</Typography>
+                <TrendingUpIcon sx={{ mr: 1, fontSize: 28 }} />
+                <Typography variant="h6" fontWeight="medium">Total Credits</Typography>
               </Box>
-              <Typography variant="h4">
+              <Typography variant="h4" fontWeight="bold">
                 {formatCurrency(statement.summary.totalCredits)}
               </Typography>
             </CardContent>
-          </Card>
+          </SummaryCard>
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card sx={{ height: '100%', bgcolor: 'error.main', color: 'white' }}>
+          <SummaryCard bgcolor={theme.palette.error.main}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                <TrendingDownIcon sx={{ mr: 1 }} />
-                <Typography variant="h6">Total Debits</Typography>
+                <TrendingDownIcon sx={{ mr: 1, fontSize: 28 }} />
+                <Typography variant="h6" fontWeight="medium">Total Debits</Typography>
               </Box>
-              <Typography variant="h4">
+              <Typography variant="h4" fontWeight="bold">
                 {formatCurrency(statement.summary.totalDebits)}
               </Typography>
             </CardContent>
-          </Card>
+          </SummaryCard>
         </Grid>
       </Grid>
 
       {/* Transaction History */}
-      <Paper elevation={2} sx={{ borderRadius: '12px' }}>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
+      <Paper elevation={3} sx={{ borderRadius: '16px', overflow: 'hidden' }}>
+        <Box sx={{ p: { xs: 2, sm: 3 } }}>
+          <Typography variant="h6" gutterBottom fontWeight="bold">
             Transaction History
           </Typography>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <StyledTableCell>Date</StyledTableCell>
-                  <StyledTableCell>Type</StyledTableCell>
-                  <StyledTableCell>Payment Method</StyledTableCell>
-                  <StyledTableCell align="right">Credit</StyledTableCell>
-                  <StyledTableCell align="right">Debit</StyledTableCell>
-                  <StyledTableCell align="right">Balance</StyledTableCell>
-                  <StyledTableCell>Remarks</StyledTableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {statement.transactions.map((transaction) => (
-                  <Tooltip 
-                    key={transaction.transactionId}
-                    title={getTransactionDetails(transaction)}
-                    arrow
-                    placement="top"
-                  >
-                    <TableRow hover>
-                      <TableCell>{formatDate(transaction.date)}</TableCell>
-                      <TableCell>
+          
+          {/* Desktop Table View */}
+          {!isMobile && (
+            <TableContainer sx={{ maxHeight: '70vh' }}>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <StyledTableCell>Date</StyledTableCell>
+                    <StyledTableCell>Type</StyledTableCell>
+                    <StyledTableCell>Payment Method</StyledTableCell>
+                    <StyledTableCell align="right">Credit</StyledTableCell>
+                    <StyledTableCell align="right">Debit</StyledTableCell>
+                    <StyledTableCell align="right">Balance</StyledTableCell>
+                    <StyledTableCell>Remarks</StyledTableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {statement.transactions.map((transaction) => (
+                    <Tooltip 
+                      key={transaction.transactionId}
+                      title={getTransactionDetails(transaction).join('\n')}
+                      arrow
+                      placement="top"
+                    >
+                      <TableRow 
+                        hover
+                        sx={{
+                          '&:nth-of-type(odd)': {
+                            backgroundColor: theme.palette.action.hover,
+                          }
+                        }}
+                      >
+                        <TableCell>{formatDate(transaction.date)}</TableCell>
+                        <TableCell>
+                          <Chip
+                            label={transaction.type}
+                            color={transaction.type === 'deposit' ? 'success' : 'error'}
+                            size="small"
+                            icon={transaction.type === 'deposit' ? <TrendingUpIcon /> : <TrendingDownIcon />}
+                          />
+                        </TableCell>
+                        <TableCell>{transaction.paymentMethod || 'N/A'}</TableCell>
+                        <TableCell align="right">
+                          {transaction.credit > 0 && formatCurrency(transaction.credit)}
+                        </TableCell>
+                        <TableCell align="right">
+                          {transaction.debit > 0 && formatCurrency(transaction.debit)}
+                        </TableCell>
+                        <TableCell align="right">
+                          {formatCurrency(transaction.runningBalance)}
+                        </TableCell>
+                        <TableCell>{transaction.remark}</TableCell>
+                      </TableRow>
+                    </Tooltip>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+          
+          {/* Mobile Card View */}
+          {isMobile && (
+            <Box>
+              {statement.transactions.map((transaction) => (
+                <TransactionCard 
+                  key={transaction.transactionId}
+                  type={transaction.type}
+                  elevation={2}
+                >
+                  <CardContent sx={{ p: 2 }}>
+                    <Grid container spacing={1} alignItems="center">
+                      <Grid item xs={8}>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <CalendarTodayIcon sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                          <Typography variant="body2" color="text.secondary">
+                            {formatDate(transaction.date)}
+                          </Typography>
+                        </Box>
+                      </Grid>
+                      <Grid item xs={4} sx={{ textAlign: 'right' }}>
                         <Chip
                           label={transaction.type}
                           color={transaction.type === 'deposit' ? 'success' : 'error'}
                           size="small"
+                          icon={transaction.type === 'deposit' ? <TrendingUpIcon /> : <TrendingDownIcon />}
                         />
-                      </TableCell>
-                      <TableCell>{transaction.paymentMethod || 'N/A'}</TableCell>
-                      <TableCell align="right">
-                        {transaction.credit > 0 && formatCurrency(transaction.credit)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {transaction.debit > 0 && formatCurrency(transaction.debit)}
-                      </TableCell>
-                      <TableCell align="right">
-                        {formatCurrency(transaction.runningBalance)}
-                      </TableCell>
-                      <TableCell>{transaction.remark}</TableCell>
-                    </TableRow>
-                  </Tooltip>
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+                      </Grid>
+                      <Grid item xs={12} sx={{ mt: 1 }}>
+                        <Typography variant="h6" color={transaction.type === 'deposit' ? 'success.main' : 'error.main'}>
+                          {transaction.type === 'deposit' 
+                            ? formatCurrency(transaction.credit) 
+                            : `-${formatCurrency(transaction.debit)}`}
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Typography variant="body2">
+                            Balance: {formatCurrency(transaction.runningBalance)}
+                          </Typography>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => toggleExpand(transaction.transactionId)}
+                            sx={{ ml: 1 }}
+                          >
+                            {expandedTransactions[transaction.transactionId] 
+                              ? <ExpandLessIcon /> 
+                              : <ExpandMoreIcon />}
+                          </IconButton>
+                        </Box>
+                      </Grid>
+                    </Grid>
+                    
+                    <Collapse in={expandedTransactions[transaction.transactionId] || false}>
+                      <Divider sx={{ my: 1.5 }} />
+                      <List dense disablePadding>
+                        {transaction.remark && (
+                          <ListItem disablePadding sx={{ pb: 1 }}>
+                            <ListItemIcon sx={{ minWidth: 32 }}>
+                              <ReceiptIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Remark" 
+                              secondary={transaction.remark}
+                              primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
+                            />
+                          </ListItem>
+                        )}
+                        {transaction.paymentMethod && (
+                          <ListItem disablePadding sx={{ pb: 1 }}>
+                            <ListItemIcon sx={{ minWidth: 32 }}>
+                              <PaymentIcon fontSize="small" />
+                            </ListItemIcon>
+                            <ListItemText 
+                              primary="Payment Method" 
+                              secondary={transaction.paymentMethod}
+                              primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
+                            />
+                          </ListItem>
+                        )}
+                        {getTransactionDetails(transaction).map((detail, index) => {
+                          const [label, value] = detail.split(': ');
+                          if (label === 'Payment Method' || label === 'Transaction ID') return null;
+                          return (
+                            <ListItem key={index} disablePadding sx={{ pb: 1 }}>
+                              <ListItemIcon sx={{ minWidth: 32 }}>
+                                <SwapVertIcon fontSize="small" />
+                              </ListItemIcon>
+                              <ListItemText 
+                                primary={label} 
+                                secondary={value}
+                                primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
+                              />
+                            </ListItem>
+                          );
+                        })}
+                        <ListItem disablePadding>
+                          <ListItemIcon sx={{ minWidth: 32 }}>
+                            <ReceiptIcon fontSize="small" />
+                          </ListItemIcon>
+                          <ListItemText 
+                            primary="Transaction ID" 
+                            secondary={transaction.transactionId}
+                            primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
+                          />
+                        </ListItem>
+                      </List>
+                    </Collapse>
+                  </CardContent>
+                </TransactionCard>
+              ))}
+            </Box>
+          )}
         </Box>
       </Paper>
     </Box>
