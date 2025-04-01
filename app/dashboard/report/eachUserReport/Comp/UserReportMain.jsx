@@ -83,7 +83,7 @@ const ContentSection = styled(Box)(({ theme }) => ({
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
 }));
 
-const UserReportMain = ({ reportData }) => {
+const UserReportMain = ({ reportData, profileType }) => {
   const [selectedTab, setSelectedTab] = useState(0);
   const [selectedChild, setSelectedChild] = useState(reportData?.children[0]?._id || '');
 
@@ -274,13 +274,14 @@ const UserReportMain = ({ reportData }) => {
   return (
     <Box sx={{ pt: 1 }}>
       {/* User Info Header */}
-      <OneUserData reportData={reportData} />
+      <OneUserData reportData={reportData} profileType={profileType} />
 
       {/* Access Comparison Section - MOVED TO BEFORE CHILD SELECTION */}
       <OneAccessCom 
         reportData={reportData} 
         selectedChild={selectedChild} 
         selectedChildName={selectedChildName} 
+        profileType={profileType}
       />
 
       {/* User Info and Stats */}
@@ -522,7 +523,7 @@ const UserReportMain = ({ reportData }) => {
             {getChildCourses().length > 0 ? (
               <Grid container spacing={3}>
                 {getChildCourses().map((course) => (
-                  <OnePurchasedCourse course={course} />
+                  <OnePurchasedCourse course={course} profileType={profileType} />
                 
                 ))}
               </Grid>
@@ -542,7 +543,7 @@ const UserReportMain = ({ reportData }) => {
             {getChildMockTests().length > 0 ? (
               <Grid container spacing={3}>
                 {getChildMockTests().map((test) => (
-         <OnePurchasedMockTest test ={test} />
+         <OnePurchasedMockTest test ={test} profileType={profileType} />
                 ))}
               </Grid>
             ) : (

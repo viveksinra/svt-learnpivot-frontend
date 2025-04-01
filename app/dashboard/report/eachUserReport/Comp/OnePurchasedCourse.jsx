@@ -31,7 +31,7 @@ const DateTimeItem = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
 }));
 
-const OnePurchasedCourse = ({course, refetchUserData}) => {
+const OnePurchasedCourse = ({course, refetchUserData, profileType}) => {
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [selectedDatesToCancel, setSelectedDatesToCancel] = useState([]);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -249,7 +249,7 @@ const OnePurchasedCourse = ({course, refetchUserData}) => {
         ))}
       </Box>
       
-      <Button 
+{profileType === "admin" && <Button 
         variant="outlined" 
         color="primary" 
         fullWidth 
@@ -258,7 +258,7 @@ const OnePurchasedCourse = ({course, refetchUserData}) => {
         onClick={handleOpenCancelDialog}
       >
         Cancel Booking
-      </Button>
+      </Button>}
     </CardContent>
 
     {/* Initial Cancellation Dialog */}

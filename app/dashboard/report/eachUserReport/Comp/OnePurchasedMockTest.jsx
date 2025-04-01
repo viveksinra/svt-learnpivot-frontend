@@ -30,13 +30,12 @@ const StyledCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(0.5),
   }));
 
-const OnePurchasedMockTest = ({test}) => {
+const OnePurchasedMockTest = ({test, profileType}) => {
     const [openCancelDialog, setOpenCancelDialog] = useState(false);
     const [selectedBatchesToCancel, setSelectedBatchesToCancel] = useState([]);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
     const [showBatchSelection, setShowBatchSelection] = useState(false);
-console.log(test)
     
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-GB', {
@@ -200,7 +199,7 @@ console.log(test)
           ))}
         </Box>
         
-        <Button 
+ {profileType === "admin" && <Button 
           variant="outlined" 
           color="secondary" 
           fullWidth 
@@ -209,7 +208,7 @@ console.log(test)
           onClick={handleOpenCancelDialog}
         >
           Cancel Booking
-        </Button>
+        </Button>}
       </CardContent>
 
       {/* Initial Cancellation Dialog */}

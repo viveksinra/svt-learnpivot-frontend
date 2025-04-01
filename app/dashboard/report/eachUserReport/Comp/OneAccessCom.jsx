@@ -30,7 +30,7 @@ const ContentSection = styled(Box)(({ theme }) => ({
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
 }));
 
-const OneAccessCom = ({ reportData, selectedChild, selectedChildName }) => {
+const OneAccessCom = ({ reportData, selectedChild, selectedChildName, profileType }) => {
   const [accessTab, setAccessTab] = useState(0);
 
   const formatDate = (dateString) => {

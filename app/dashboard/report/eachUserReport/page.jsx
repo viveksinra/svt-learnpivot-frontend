@@ -287,7 +287,7 @@ const EachUserReport = () => {
             </Grid>
           </Box>
         ) : reportData ? (
-          <UserReportMain reportData={reportData} />
+          <UserReportMain reportData={reportData} profileType="admin"/>
         ) : selectedUser ? (
           <Box sx={{ textAlign: 'center', py: 5 }}>
             <AssessmentIcon color="action" sx={{ fontSize: 60, opacity: 0.5 }} />

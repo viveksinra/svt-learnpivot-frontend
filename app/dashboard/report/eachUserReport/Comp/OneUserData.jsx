@@ -15,7 +15,7 @@ const ContentSection = styled(Box)(({ theme }) => ({
     boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
   }));
 
-const OneUserData = ({ reportData, onBlockUser }) => {
+const OneUserData = ({ reportData, onBlockUser, profileType }) => {
   const [loginAllowed, setLoginAllowed] = useState(reportData.user.loginAllowed || false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -106,7 +106,7 @@ const OneUserData = ({ reportData, onBlockUser }) => {
               <Typography variant="body2">{reportData.children.length} Children</Typography>
             </Box>
           </Stack>
-          <Button 
+          {profileType === "admin" && <Button 
             variant="contained" 
             color={loginAllowed ? "error" : "warning"}
             startIcon={<BlockIcon />}
@@ -115,7 +115,7 @@ const OneUserData = ({ reportData, onBlockUser }) => {
             disabled={loading}
           >
             {loginAllowed ? "Disable Login" : "Enable Login"}
-          </Button>
+          </Button>}
           {error && (
             <Typography color="error" sx={{ mt: 1 }}>
               {error}
