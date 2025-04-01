@@ -28,7 +28,7 @@ import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
 import SearchIcon from '@mui/icons-material/Search';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import ReportIcon from '@mui/icons-material/Report';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import CurrencyPoundIcon from '@mui/icons-material/CurrencyPound';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import RemoveCircleIcon from '@mui/icons-material/RemoveCircle';
@@ -194,7 +194,7 @@ const EachUserReport = () => {
     <Container maxWidth="xl">
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <ReportIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
+          <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
           <Typography variant="h5" fontWeight="bold">User Transaction Report</Typography>
         </Box>
         

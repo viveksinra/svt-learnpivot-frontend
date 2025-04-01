@@ -10,24 +10,9 @@ import {
   Typography, 
   Avatar, 
   Grid, 
-  Card, 
-  CardContent, 
-  Chip,
-  Tabs,
-  Tab,
-  IconButton,
-  Button,
-  Divider,
-  Stack,
-  Autocomplete,
-  TextField
+ 
 } from '@mui/material';
-import PersonIcon from '@mui/icons-material/Person';
-import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
-import ChildCareIcon from '@mui/icons-material/ChildCare';
-import SearchIcon from '@mui/icons-material/Search';
 import AssessmentIcon from '@mui/icons-material/Assessment';
-import ReportIcon from '@mui/icons-material/Report';
 import UserReportMain from '@/app/dashboard/report/eachUserReport/Comp/UserReportMain';
 
 const EachUserReport = () => {
@@ -75,7 +60,7 @@ const EachUserReport = () => {
     <Container maxWidth="xl">
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <ReportIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
+        <AssessmentIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
           <Typography variant="h5" fontWeight="bold">My Report</Typography>
         </Box>
         
