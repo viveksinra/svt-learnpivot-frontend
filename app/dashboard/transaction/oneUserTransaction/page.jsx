@@ -22,7 +22,7 @@ import {
   Autocomplete,
   TextField
 } from '@mui/material';
-import UserReportMain from './Comp/UserReportMain';
+import UserTransactionReportMain from './Comp/UserTransactionReportMain';
 import PersonIcon from '@mui/icons-material/Person';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
@@ -362,7 +362,7 @@ const EachUserReport = () => {
             </Grid>
           </Box>
         ) : reportData ? (
-          <UserReportMain reportData={reportData} />
+          <UserTransactionReportMain reportData={reportData} />
         ) : selectedUser ? (
           <Box sx={{ textAlign: 'center', py: 5 }}>
             <AssessmentIcon color="action" sx={{ fontSize: 60, opacity: 0.5 }} />

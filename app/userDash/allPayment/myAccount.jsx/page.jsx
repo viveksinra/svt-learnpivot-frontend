@@ -35,7 +35,6 @@ import { transactionService } from '@/app/services';
 import UserTransactionReportMain from '@/app/dashboard/transaction/oneUserTransaction/Comp/UserTransactionReportMain';
 
 const MyTransactionReport = () => {
-  const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [searchMode, setSearchMode] = useState('parent'); // 'parent' or 'child'
@@ -47,21 +46,16 @@ const MyTransactionReport = () => {
 
 
 
-  async function fetchReport(user) {
-    if (!user) return;
+  async function fetchReport() {
+
     
     setLoading(true);
     setError(null);
     
     try {
-      let data;
-      if (user.type === 'parent') {
-        data = { userId: user._id };
-      } else {
-        data = { userId: user.parent?._id };
-      }
+
       
-      let response = await transactionService.getOneUserTransactionReport(data);
+      let response = await transactionService.getMyTransactionAndBalance();
       if (response.variant === "success") {
         setReportData(response.data);
       } else {
@@ -76,16 +70,9 @@ const MyTransactionReport = () => {
   }
 
   useEffect(() => {
-    if (selectedUser) {
-      fetchReport(selectedUser);
-    }
-  }, [selectedUser]);
+      fetchReport();
+  }, []);
 
-
-
-  const handleCloseModal = () => {
-    setOpenModal(false);
-  };
 
 
 
