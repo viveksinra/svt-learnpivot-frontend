@@ -47,6 +47,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
     { title: "Dashboard", active: true, link: "/userDash", icon: <FcComboChart /> },
     { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <FcContacts /> },
     { title: "My Account", active: false, link: "/userDash/reports/myAccount", icon: <FcContacts /> },
+    { title: "My Report", active: false, link: "/userDash/reports/myUserReport", icon: <FcContacts /> },
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <CgProfile size={24} /> },
     { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild size={24} /> },
   ]);

@@ -24,9 +24,9 @@ import AssignmentIcon from '@mui/icons-material/Assignment';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import moment from 'moment';
-import ChildSelectorDropDown from '../../Components/Common/ChildSelectorDropDown';
 import { reportService } from '@/app/services';
 import DownReceipt from '@/app/Components/pdf/DownReceipt';
+import ChildSelectorDropDown from '@/app/Components/Common/ChildSelectorDropDown';
 
 const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
   const coursePayments = myBuyCourse.map(payment => ({
