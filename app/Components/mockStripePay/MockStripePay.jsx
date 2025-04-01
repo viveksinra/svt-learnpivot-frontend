@@ -84,6 +84,7 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       
       if (res.variant !== "success" || !res?.isFree) {
         setError("Some Batches got full. Refresh and try again later.");
+        setLoading(false);
         return;
       }
 
@@ -95,11 +96,11 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
         window.location.href = `${FRONT_ENDPOINT}/payment/verifyMock/${mockId}`;
       } else {
         setError(mockResponse.message || "An unexpected error occurred.");
+        setLoading(false);
       }
     } catch (error) {
       console.error("Error processing payment:", error);
       setError("An unexpected error occurred. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -134,6 +135,8 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       
       if (mockResponse.variant !== "success" || !mockResponse._id) {
         setError("Failed to create mock test order");
+        setLoading(false);
+        setButtonDisabled(false);
         return;
       }
 
@@ -146,7 +149,6 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       if (useBalance && amountToPayWithStripe <= 0) {
         // Handle the case where balance covers everything
         handleConfirmPaymentWithBalance(mockResponse._id);
-        setLoading(false);
         setButtonDisabled(false);
         return;
       }
@@ -160,14 +162,17 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
       if (paymentResponse.variant === "success") {
         setClientSecret(paymentResponse.clientSecret);
         setBuyMockId(paymentResponse.buyMockId);
+        setLoading(false);
+        setButtonDisabled(false);
       } else {
         setError(paymentResponse.message || "Failed to initialize payment");
+        setLoading(false);
+        setButtonDisabled(false);
       }
 
     } catch (error) {
       console.error("Payment process error:", error);
       setError(error.message || "An unexpected error occurred. Please try again later.");
-    } finally {
       setLoading(false);
       setButtonDisabled(false);
     }
