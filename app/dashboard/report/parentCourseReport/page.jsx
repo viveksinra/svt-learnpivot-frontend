@@ -1,7 +1,7 @@
 "use client";
 import { registrationService } from '@/app/services';
 import React, { useState, useEffect } from 'react';
-import { Alert, Box, Container, Skeleton, Paper } from '@mui/material';
+import { Alert, Box, Container, Skeleton, Paper, useMediaQuery, useTheme } from '@mui/material';
 import CourseParentTable from './Comp/CourseParentTable';
 import { isValidDate } from '@/app/utils/dateUtils';
 
@@ -10,6 +10,8 @@ const parentCourseReportPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [courseDropDown, setCourseDropDown] = useState([]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
  
   async function fetchAllData() {
     setLoading(true);
@@ -76,8 +78,8 @@ const parentCourseReportPage = () => {
   }, []);
 
   return (
-    <Container maxWidth="xl">
-      <Paper elevation={3} sx={{ p: 3, mt: 2 }}>
+    <Container maxWidth="xl" sx={{ px: isMobile ? 1 : 3 }}>
+      <Paper elevation={3} sx={{ p: isMobile ? 1 : 3, mt: 2 }}>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
         )}
@@ -88,7 +90,7 @@ const parentCourseReportPage = () => {
             <Skeleton height={400} />
           </Box>
         ) : (
-          <CourseParentTable data={rows} courseDropDown={courseDropDown} />
+          <CourseParentTable data={rows} courseDropDown={courseDropDown} isMobile={isMobile} />
         )}
       </Paper>
     </Container>
