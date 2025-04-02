@@ -19,6 +19,7 @@ import {
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
 
 const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
   const theme = useTheme();
@@ -44,11 +45,15 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
   const exportToCSV = () => {
     const csvData = data.map(row => {
       return {
-        Name: row.name,
-        Email: row.email,
-        Mobile: row.mobile,
-        'City/Region': row.city || 'N/A',
-        Status: row.status || 'N/A'
+        'First Name': row.firstName || 'N/A',
+        'Last Name': row.lastName || 'N/A',
+        Email: row.email || 'N/A',
+        Mobile: row.mobile || 'N/A',
+        Role: row.jobRole?.label || 'N/A',
+        City: row.city || 'N/A',
+        Postcode: row.postcode || 'N/A',
+        Children: row.children?.length || 0,
+        'Registration Date': row.date ? format(new Date(row.date), 'dd MMM yyyy') : 'N/A'
       };
     });
     
@@ -60,12 +65,9 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
   };
 
   // Get initials for avatar
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const nameParts = name.split(' ');
-    return nameParts.length > 1
-      ? `${nameParts[0][0]}${nameParts[1][0]}`.toUpperCase()
-      : name.substring(0, 2).toUpperCase();
+  const getInitials = (firstName, lastName) => {
+    if (!firstName && !lastName) return '?';
+    return `${firstName ? firstName[0] : ''}${lastName ? lastName[0] : ''}`.toUpperCase();
   };
 
   // Get random color for avatar based on name
@@ -120,7 +122,7 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
       
       <Grid container spacing={2}>
         {data.map((user, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={user._id || index}>
             <Card 
               elevation={2} 
               sx={{ 
@@ -138,11 +140,11 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
                 avatar={
                   <Avatar 
                     sx={{ 
-                      bgcolor: getAvatarColor(user.name),
+                      bgcolor: getAvatarColor(`${user.firstName} ${user.lastName}`),
                       fontSize: { xs: '0.75rem', sm: '0.875rem' }
                     }}
                   >
-                    {getInitials(user.name)}
+                    {getInitials(user.firstName, user.lastName)}
                   </Avatar>
                 }
                 title={
@@ -153,13 +155,13 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
                       fontWeight: 'bold',
                       fontSize: { xs: '0.875rem', sm: '1rem' }
                     }}
-                    title={user.name}
+                    title={`${user.firstName} ${user.lastName}`}
                   >
-                    {user.name}
+                    {`${user.firstName} ${user.lastName}`}
                   </Typography>
                 }
                 subheader={
-                  <Typography variant="body2" color="text.secondary" noWrap>
+                  <Typography variant="body2" color="text.secondary" noWrap title={user.email}>
                     {user.email}
                   </Typography>
                 }
@@ -176,28 +178,60 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
                     </Typography>
                   </Box>
                   
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Role:
+                    </Typography>
+                    <Chip 
+                      label={user.jobRole?.label || 'N/A'}
+                      color={user.jobRole?.label === 'Admin' ? 'primary' : 'default'}
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Box>
+
                   {user.city && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
-                        City/Region:
+                        City:
                       </Typography>
                       <Typography variant="body2">
-                        {user.city || 'N/A'}
+                        {user.city}
                       </Typography>
                     </Box>
                   )}
                   
-                  {user.status && (
+                  {user.postcode && (
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary">
-                        Status:
+                        Postcode:
                       </Typography>
-                      <Chip 
-                        label={user.status || 'N/A'}
-                        color={user.status === 'Active' ? "success" : "default"}
-                        variant="outlined"
-                        size="small"
-                      />
+                      <Typography variant="body2">
+                        {user.postcode}
+                      </Typography>
+                    </Box>
+                  )}
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Children:
+                    </Typography>
+                    <Chip 
+                      label={user.children?.length || 0}
+                      color={(user.children?.length || 0) > 0 ? "success" : "default"}
+                      variant="outlined"
+                      size="small"
+                    />
+                  </Box>
+                  
+                  {user.date && (
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Reg. Date:
+                      </Typography>
+                      <Typography variant="body2">
+                        {format(new Date(user.date), 'dd MMM yyyy')}
+                      </Typography>
                     </Box>
                   )}
                 </Box>

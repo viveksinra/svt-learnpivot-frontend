@@ -19,6 +19,7 @@ import {
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import * as XLSX from 'xlsx';
+import { format } from 'date-fns';
 
 const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
   const theme = useTheme();
@@ -44,11 +45,14 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
   const exportToCSV = () => {
     const csvData = data.map(row => {
       return {
-        Name: row.name,
-        'Parent Email': row.parentEmail || 'N/A',
-        Grade: row.grade || 'N/A',
-        School: row.school || 'N/A',
-        Status: row.status || 'N/A'
+        'Child Name': row.childName || 'N/A',
+        'Gender': row.childGender || 'N/A',
+        'Year Group': row.childYear || 'N/A',
+        'Date of Birth': row.childDob ? format(new Date(row.childDob), 'dd MMM yyyy') : 'N/A',
+        'Parent Name': row.parent ? `${row.parent.firstName} ${row.parent.lastName}` : 'N/A',
+        'Parent Email': row.parent?.email || 'N/A',
+        'Parent Mobile': row.parent?.mobile || 'N/A',
+        'Child Added Date': row.date ? format(new Date(row.date), 'dd MMM yyyy') : 'N/A'
       };
     });
     
@@ -120,7 +124,7 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
       
       <Grid container spacing={2}>
         {data.map((child, index) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={index}>
+          <Grid item xs={12} sm={6} md={4} lg={3} key={child._id || index}>
             <Card 
               elevation={2} 
               sx={{ 
@@ -138,11 +142,11 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
                 avatar={
                   <Avatar 
                     sx={{ 
-                      bgcolor: getAvatarColor(child.name),
+                      bgcolor: getAvatarColor(child.childName),
                       fontSize: { xs: '0.75rem', sm: '0.875rem' }
                     }}
                   >
-                    {getInitials(child.name)}
+                    {getInitials(child.childName)}
                   </Avatar>
                 }
                 title={
@@ -153,14 +157,14 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
                       fontWeight: 'bold',
                       fontSize: { xs: '0.875rem', sm: '1rem' }
                     }}
-                    title={child.name}
+                    title={child.childName}
                   >
-                    {child.name}
+                    {child.childName}
                   </Typography>
                 }
                 subheader={
                   <Typography variant="body2" color="text.secondary" noWrap>
-                    {child.parentEmail || 'No parent email'}
+                    {child.parent ? `${child.parent.firstName} ${child.parent.lastName}` : 'No parent info'}
                   </Typography>
                 }
                 sx={{ pb: 0 }}
@@ -169,40 +173,60 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 1 }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <Typography variant="body2" color="text.secondary">
-                      Grade:
+                      Gender:
                     </Typography>
                     <Chip 
-                      label={child.grade || 'N/A'}
-                      color="primary"
+                      label={child.childGender || 'N/A'}
+                      color={child.childGender === 'Boy' ? 'primary' : 'secondary'}
                       variant="outlined"
                       size="small"
                     />
                   </Box>
                   
-                  {child.school && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        School:
-                      </Typography>
-                      <Typography variant="body2" sx={{ maxWidth: '65%', textAlign: 'right' }} noWrap title={child.school}>
-                        {child.school}
-                      </Typography>
-                    </Box>
-                  )}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Year Group:
+                    </Typography>
+                    <Typography variant="body2">
+                      {child.childYear || 'N/A'}
+                    </Typography>
+                  </Box>
                   
-                  {child.status && (
-                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography variant="body2" color="text.secondary">
-                        Status:
-                      </Typography>
-                      <Chip 
-                        label={child.status || 'N/A'}
-                        color={child.status === 'Active' ? "success" : "default"}
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Box>
-                  )}
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Date of Birth:
+                    </Typography>
+                    <Typography variant="body2">
+                      {child.childDob ? format(new Date(child.childDob), 'dd MMM yyyy') : 'N/A'}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Parent Email:
+                    </Typography>
+                    <Typography variant="body2" noWrap sx={{ maxWidth: '65%', textAlign: 'right' }} title={child.parent?.email}>
+                      {child.parent?.email || 'N/A'}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Parent Mobile:
+                    </Typography>
+                    <Typography variant="body2">
+                      {child.parent?.mobile || 'N/A'}
+                    </Typography>
+                  </Box>
+                  
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Added Date:
+                    </Typography>
+                    <Typography variant="body2">
+                      {child.date ? format(new Date(child.date), 'dd MMM yyyy') : 'N/A'}
+                    </Typography>
+                  </Box>
                 </Box>
               </CardContent>
             </Card>
