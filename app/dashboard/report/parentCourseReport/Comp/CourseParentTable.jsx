@@ -174,7 +174,26 @@ const Row = ({ row, onSelectRow, isSelected }) => {
             {row.batchTime}
           </Typography>
         </TableCell>
-        <TableCell>{row.parentEmail}</TableCell>
+        <TableCell>
+          <Typography variant="body2">{row.parentEmail}</Typography>
+          {row.firstName && (
+            <Typography variant="caption" color="textSecondary" display="block">
+              {row.firstName} {row.lastName}
+            </Typography>
+          )}
+        </TableCell>
+        <TableCell>
+          {row.childName && (
+            <>
+              <Typography variant="body2">{row.childName}</Typography>
+              {row.childGender && row.childYear && (
+                <Typography variant="caption" color="textSecondary">
+                  {row.childGender} | {row.childYear}
+                </Typography>
+              )}
+            </>
+          )}
+        </TableCell>
         <TableCell align="center">{row.totalPurchasedDates}</TableCell>
         <TableCell align="center">{row.totalDates}</TableCell>
         <TableCell>
@@ -192,9 +211,18 @@ const Row = ({ row, onSelectRow, isSelected }) => {
             {row.sortedDateSets.map((set, idx) => renderSetStatus(set, idx))}
           </Box>
         </TableCell>
+        <TableCell>
+          <IconButton
+            aria-label="expand row"
+            size="small"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </IconButton>
+        </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
+        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={9}>
           <Collapse in={open} timeout="auto" unmountOnExit>
             <Box sx={{ margin: 1 }}>
               <Typography variant="h6" gutterBottom component="div">
@@ -418,11 +446,13 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [] }) => {
                 />
               </TableCell>
               <TableCell>Course Details</TableCell>
-              <TableCell>Parent Email</TableCell>
+              <TableCell>Parent Info</TableCell>
+              <TableCell>Child Info</TableCell>
               <TableCell align="center">Purchased Classes</TableCell>
               <TableCell align="center">Total Classes</TableCell>
               <TableCell>Progress</TableCell>
               <TableCell>Set Status</TableCell>
+              <TableCell>Details</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -437,7 +467,7 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [] }) => {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} align="center">
+                <TableCell colSpan={9} align="center">
                   <Typography variant="body1" sx={{ py: 2 }}>
                     No data found matching your filters
                   </Typography>
@@ -459,15 +489,19 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [] }) => {
             selectedItems={selectedRows.map(row => ({
               user: {
                 email: row.parentEmail,
-                firstName: row.parentEmail.split('@')[0], // Since we don't have first/last name
-                lastName: '',
-                _id: row._id
+                firstName: row.firstName || row.parentEmail.split('@')[0],
+                lastName: row.lastName || '',
+                _id: row.parentId || row._id
               },
               childId: {
-                childName: row.studentName || 'Student' // Changed from childName to studentName
+                childName: row.childName || 'Student',
+                childGender: row.childGender || '',
+                childYear: row.childYear || ''
               },
               courseId: {
-                courseTitle: row.courseTitle
+                courseTitle: row.courseTitle,
+                courseLink: row.courseLink || '',
+                batchTime: row.batchTime || ''
               },
               selectedDates: row.sortedDateSets.flatMap(set => 
                 set.dates.filter(d => d.purchased).map(d => formatDate(d.date))
