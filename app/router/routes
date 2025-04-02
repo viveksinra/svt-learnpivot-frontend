@@ -1,6 +1,31 @@
-export const protectedRoutes = ["/dashboard","/dashboard/allBuyMock", "/dashboard/allBuyCourse","/dashboard/addCourse",
-    "/dashboard/addMockTest","/dashboard/allPayment","/dashboard/report/parentCourseReport","/dashboard/report/courseBatchReport","/dashboard/report/mockBatchReport"
+export const protectedRoutes = [
+    "/dashboard",
+    "/dashboard/allBuyMock", 
+    "/dashboard/allBuyCourse",
+    "/dashboard/addCourse",
+    "/dashboard/addMockTest",
+    "/dashboard/allPayment",
+    "/dashboard/report/parentCourseReport",
+    "/dashboard/report/courseBatchReport",
+    "/dashboard/report/mockBatchReport",
+    "/dashboard/report/courseDateReport",
+    "/dashboard/report/userReport",
+    "/dashboard/report/childReport",
+    "/dashboard/report/eachUserReport",
+    "/dashboard/transaction/oneUserTransaction"
 ];
-export const userProtectedRoutes = ["/userDash","/userDash/dashCourse","/userDash/dashMock","/userDash/allPayment","/userDash/myProfile","/userDash/myProfile/myChild"];
+
+export const userProtectedRoutes = [
+    "/userDash",
+    "/userDash/dashCourse",
+    "/userDash/dashMock",
+    "/userDash/allPayment",
+    "/userDash/myProfile",
+    "/userDash/myProfile/myChild",
+    "/userDash/reports/allPayment",
+    "/userDash/reports/myAccount",
+    "/userDash/reports/myUserReport"
+];
+
 export const authRoutes = ["/login"];
 export const publicRoutes = ["/","/login", "/course","/mockTest","/contact"];

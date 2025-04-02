@@ -90,8 +90,17 @@ const MtBatchSelector = ({
   };
 
   const isBatchSelectable = (batch) => {
+    console.log(batch)
     const batchDate = new Date(batch.date);
     batchDate.setHours(0, 0, 0, 0);
+
+    const alreadyBookedDateBatch = alreadyBoughtBatch.find(
+      b => new Date(b.date).toDateString() === new Date(batch.date).toDateString()
+    );
+
+    if(alreadyBookedDateBatch){
+      return false;
+    }
     // check if batchDate is today or after today
     const isAfterToday = batchDate >= today;
     let allowBuyOnBookingFull = false;
@@ -99,11 +108,11 @@ const MtBatchSelector = ({
       allowBuyOnBookingFull = true;
     }
 
+
+
     let allowBuy = allowBuyOnBookingFull && isAfterToday;
-console.log(allowBuy)
     return allowBuy || (!batch.filled && 
-           new Date(batch.date) >= today && 
-           !alreadyBoughtBatch.some(b => b._id === batch._id));
+           new Date(batch.date) >= today );
   };
 
   const formatDate = (dateString) => {
