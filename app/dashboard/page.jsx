@@ -1,31 +1,39 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import { Box, Container, Typography, Stack, useTheme } from '@mui/material';
-import { UpcomingEvents } from '../Components/UserDash/UpcomingEvents';
-import { dashboardService } from '../services';
 import { AdminQuickLinks } from '../Components/Dashboard/AdminQuickLinks';
 import { useRouter } from "next/navigation";
-
+import Cookies from 'js-cookie';
+import { MdDashboard } from "react-icons/md";
 
 const Dashboard = () => {
   const [selectedChild, setSelectedChild] = useState('all');
   const theme = useTheme();
   const router = useRouter();
 
-  const [heading, setHeading] = useState({msg: "Welcome",firstName: "Guest",lastName: "",designation:"Role"});
+  const [userData, setUserData] = useState(null);
+  const [stats, setStats] = useState({
+    courses: 0,
+    mockTests: 0,
+    purchases: 0,
+    users: 0
+  });
 
+  // Get user data from cookies
   useEffect(() => {
-     // Getting Heading Data
-     async function getHeading(){
-      let res = await dashboardService.getData(`api/v1/dashboard/getDashboard/welcomeMsg`);
-      if(res.variant === "success"){
-        setHeading(res.data)
-      }else {
-        router.refresh();
-      };    
-     }
-     getHeading()
-   }, []);
+    try {
+      const cookieData = Cookies.get("currentUser");
+      if (cookieData) {
+        const parsedData = JSON.parse(cookieData);
+        setUserData(parsedData);
+        console.log('User data from cookies:', parsedData);
+      } else {
+        console.log('No user data found in cookies');
+      }
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  }, []);
 
   const getGreeting = () => {
     const currentHour = new Date().getHours();
@@ -33,8 +41,6 @@ const Dashboard = () => {
     if (currentHour < 18) return "Good Afternoon";
     return "Good Evening";
   };
-
-
 
   return (
     <Box sx={{ 
@@ -44,33 +50,44 @@ const Dashboard = () => {
     }}>
       <Container maxWidth="xl">
         {/* Header Section */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 5 }}>
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          mb: 5,
+          p: 3,
+          borderRadius: 3,
+          background: 'linear-gradient(135deg, #6B73FF 0%, #000DFF 100%)',
+          color: 'white',
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+        }}>
           <Box>
             <Typography variant="h4" sx={{ 
               fontWeight: 700,
               mb: 1,
-              background: 'linear-gradient(90deg, #FF8E53 0%, #FE6B8B 100%)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
             }}>
-              {getGreeting()}, {heading?.firstName}!
+              {getGreeting()}, {userData?.firstName || 'Guest'}!
             </Typography>
-            <Typography color="text.secondary" sx={{ fontSize: '1.1rem' }}>
-              Your role is {heading.designation}
+            <Typography sx={{ 
+              fontSize: '1.1rem', 
+              fontWeight: 600,
+              color: 'rgba(255, 255, 255, 0.95)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px'
+            }}>
+              Your role: {userData?.jobRoleLabel || 'Role'}
             </Typography>
           </Box>
- 
+          <Box sx={{ 
+            display: { xs: 'none', md: 'flex' },
+            alignItems: 'center'
+          }}>
+            <MdDashboard size={40} />
+          </Box>
         </Box>
 
-
-
-        {/* Quick Links */}
+        {/* Dashboard Overview (now moved to AdminQuickLinks component) */}
         <AdminQuickLinks />
-        {/* Upcoming Events */}
-        {/* <UpcomingEvents 
-selectedChild={selectedChild}
-        /> */}
 
       </Container>
     </Box>
