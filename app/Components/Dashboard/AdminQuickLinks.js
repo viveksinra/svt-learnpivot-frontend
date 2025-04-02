@@ -186,11 +186,11 @@ export const AdminQuickLinks = () => {
                 <Box>
                   <Typography variant="h6" sx={{ 
                     fontWeight: 700,
-                    color: theme.palette.text.primary
+                    color: 'white'
                   }}>
                     {category.title}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: theme.palette.text.secondary }}>
+                  <Typography variant="caption" sx={{ color: 'white' }}>
                     {category.subtitle}
                   </Typography>
                 </Box>
