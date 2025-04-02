@@ -95,7 +95,7 @@ const MockTestTable = ({ data }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Mock Test Schedule
+          Mock Batch Report
         </Typography>
   
       </Box>
@@ -107,7 +107,7 @@ const MockTestTable = ({ data }) => {
             paginationModel: { page: 0, pageSize: 25 },
           },
           sorting: {
-            sortModel: [{ field: 'batchDate', sort: 'desc' }],
+            sortModel: [{ field: 'batchDate', sort: 'asc' }],
           },
         }}
         slots={{ toolbar: GridToolbar }}

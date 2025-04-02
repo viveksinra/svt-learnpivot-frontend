@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import { BsSendPlus } from "react-icons/bs";
 import { FaFilePdf, FaRegImage, FaRegFileAlt, FaEye, FaTrashAlt } from "react-icons/fa";
+import { MdOutlineAddCircleOutline } from "react-icons/md";
 import MySnackbar from "@/app/Components/MySnackbar/MySnackbar";
 import { mockTestService } from "@/app/services";
 import { useImgUpload } from "@/app/hooks/auth/useImgUpload";
@@ -261,24 +262,52 @@ const EmailMainCom = forwardRef(({
 
                 <Grid item xs={12}>
                     <Box sx={{ mb: 2 }}>
-                        <TextField
-                            label="Add Attachment"
-                            size="small"
-                            disabled={loadingAttachment || loading}
-                            helperText="Upload images, PDFs or other files"
-                            inputProps={{ accept: "image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" }}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        {loadingAttachment && <CircularProgress size={20} />}
-                                    </InputAdornment>
-                                ),
-                            }}
-                            onChange={(e) => attachmentUpload(e.target.files[0])}
+                        <input
                             type="file"
-                            focused
-                            fullWidth
+                            id="attachment-upload"
+                            style={{ display: 'none' }}
+                            onChange={(e) => attachmentUpload(e.target.files[0])}
+                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            disabled={loadingAttachment || loading}
                         />
+                        <Paper
+                            variant="outlined"
+                            component="label"
+                            htmlFor="attachment-upload"
+                            sx={{
+                                p: 2,
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                borderRadius: 1,
+                                borderStyle: 'dashed',
+                                borderColor: 'primary.main',
+                                bgcolor: 'background.paper',
+                                cursor: loadingAttachment || loading ? 'not-allowed' : 'pointer',
+                                opacity: loadingAttachment || loading ? 0.7 : 1,
+                                transition: 'all 0.2s ease-in-out',
+                                height: 80,
+                                '&:hover': {
+                                    bgcolor: 'action.hover',
+                                    transform: loadingAttachment || loading ? 'none' : 'translateY(-2px)',
+                                    boxShadow: loadingAttachment || loading ? 'none' : '0 4px 8px rgba(0,0,0,0.1)',
+                                },
+                            }}
+                        >
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                {loadingAttachment ? (
+                                    <CircularProgress size={24} />
+                                ) : (
+                                    <MdOutlineAddCircleOutline size={24} color="#1976d2" />
+                                )}
+                                <Typography color="primary.main" variant="subtitle1">
+                                    {loadingAttachment ? "Uploading..." : "Add Attachment"}
+                                </Typography>
+                            </Stack>
+                        </Paper>
+                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                            Upload images, PDFs or other files
+                        </Typography>
                     </Box>
                     
                     {attachmentUrls.length > 0 && (

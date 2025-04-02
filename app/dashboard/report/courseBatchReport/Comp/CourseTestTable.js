@@ -107,7 +107,7 @@ const CourseTestTable = ({ data }) => {
             paginationModel: { page: 0, pageSize: 25 },
           },
           sorting: {
-            sortModel: [{ field: 'batchDate', sort: 'desc' }],
+            sortModel: [{ field: 'batchDate', sort: 'asc' }],
           },
         }}
         slots={{ toolbar: GridToolbar }}

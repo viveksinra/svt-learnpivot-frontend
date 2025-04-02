@@ -14,13 +14,21 @@ const SendEmailParentReport = forwardRef((props, ref) => {
             .replace(/{name}/g, `${item.user?.firstName || ''} ${item.user?.lastName || ''}`.trim())
             .replace(/{email}/g, item.user?.email || '')
             .replace(/{childName}/g, item.childId?.childName || 'Student')
-            .replace(/{courseTitle}/g, item.courseId?.courseTitle || '');
+            .replace(/{childGender}/g, item.childId?.childGender || 'Unknown')
+            .replace(/{childYear}/g, item.childId?.childYear || 'Unknown')
+            .replace(/{courseTitle}/g, item.courseId?.courseTitle || '')
+            .replace(/{courseLink}/g, item.courseId?.courseLink || '')
+            .replace(/{batchTime}/g, item.courseId?.batchTime || '');
 
         const personalizedBody = emailBody
             .replace(/{name}/g, `${item.user?.firstName || ''} ${item.user?.lastName || ''}`.trim())
             .replace(/{email}/g, item.user?.email || '')
             .replace(/{childName}/g, item.childId?.childName || 'Student')
-            .replace(/{courseTitle}/g, item.courseId?.courseTitle || '');
+            .replace(/{childGender}/g, item.childId?.childGender || 'Unknown')
+            .replace(/{childYear}/g, item.childId?.childYear || 'Unknown')
+            .replace(/{courseTitle}/g, item.courseId?.courseTitle || '')
+            .replace(/{courseLink}/g, item.courseId?.courseLink || '')
+            .replace(/{batchTime}/g, item.courseId?.batchTime || '');
 
         return {
             to: [{
@@ -34,8 +42,8 @@ const SendEmailParentReport = forwardRef((props, ref) => {
         };
     };
 
-    const subjectDynamicFields = ['{name}', '{email}', '{childName}', '{courseTitle}'];
-    const bodyDynamicFields = ['{name}', '{email}', '{childName}', '{courseTitle}'];
+    const subjectDynamicFields = ['{name}', '{email}', '{childName}', '{childGender}', '{childYear}', '{courseTitle}', '{courseLink}', '{batchTime}'];
+    const bodyDynamicFields = ['{name}', '{email}', '{childName}', '{childGender}', '{childYear}', '{courseTitle}', '{courseLink}', '{batchTime}'];
 
     return (
         <EmailMainCom
