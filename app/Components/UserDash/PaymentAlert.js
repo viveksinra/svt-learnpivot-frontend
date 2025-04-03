@@ -76,7 +76,7 @@ const CoursePaymentCard = ({ courseData }) => {
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+  console.log(courseData);
   // Calculate total dates and payment progress
   const allDates = courseData.courseDateSets.flatMap(set => set.dates);
   const totalDates = allDates.length;
@@ -89,13 +89,14 @@ const CoursePaymentCard = ({ courseData }) => {
     .filter(date => new Date(date.date) >= new Date())
     .sort((a, b) => new Date(a.date) - new Date(b.date));
   
+  const child = courseData.childInfo;
+
   // Find next upcoming unpaid date
   
   const handleNavigateToPayment = () => {
-    router.push(`/course/${courseData.courseLink}/payment`);
+    router.push(`/course/buy/${courseData.courseId}?childId=${child._id}`);
   };
 
-  const child = courseData.childInfo;
   
   // Find the current active set (the one with unpaid dates)
   const getCurrentActiveSetIndex = () => {
@@ -289,6 +290,22 @@ const CoursePaymentCard = ({ courseData }) => {
               <Typography variant="body2">
                 Next Course on {moment(nextUnpaidDate.date).format('dddd, MMMM D, YYYY')} requires payment
               </Typography>
+              <Button 
+                variant="contained" 
+                color="error"
+                size="small"
+                endIcon={<ArrowForward />}
+                onClick={handleNavigateToPayment}
+                sx={{ 
+                  mt: 1, 
+                  alignSelf: 'flex-start',
+                  borderRadius: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 600
+                }}
+              >
+                Pay Now
+              </Button>
             </Stack>
             
           </Alert>
