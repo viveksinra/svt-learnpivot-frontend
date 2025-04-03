@@ -296,9 +296,9 @@ const CoursePaymentCard = ({ courseData }) => {
                 size="small"
                 endIcon={<ArrowForward />}
                 onClick={handleNavigateToPayment}
+                fullWidth
                 sx={{ 
                   mt: 1, 
-                  alignSelf: 'flex-start',
                   borderRadius: 1.5,
                   textTransform: 'none',
                   fontWeight: 600
