@@ -68,15 +68,6 @@ const Dashboard = () => {
             }}>
               {getGreeting()}, {userData?.firstName || 'Guest'}!
             </Typography>
-            <Typography sx={{ 
-              fontSize: '1.1rem', 
-              fontWeight: 600,
-              color: 'rgba(255, 255, 255, 0.95)',
-              textTransform: 'uppercase',
-              letterSpacing: '0.5px'
-            }}>
-              Your role: {userData?.jobRoleLabel || 'Role'}
-            </Typography>
           </Box>
           <Box sx={{ 
             display: { xs: 'none', md: 'flex' },

@@ -16,17 +16,19 @@ const Dashboard = () => {
     const router = useRouter();
   
     useEffect(() => {
-       // Getting Heading Data
-       async function getHeading(){
-        let res = await dashboardService.getData(`api/v1/dashboard/getDashboard/welcomeMsg`);
-        if(res.variant === "success"){
-          setHeading(res.data)
-        }else {
-          router.reload();
-        };    
-       }
-       getHeading()
-     }, []);
+      try {
+        const cookieData = Cookies.get("currentUser");
+        if (cookieData) {
+          const parsedData = JSON.parse(cookieData);
+          setUserData(parsedData);
+          console.log('User data from cookies:', parsedData);
+        } else {
+          console.log('No user data found in cookies');
+        }
+      } catch (error) {
+        console.error('Error retrieving user data:', error);
+      }
+    }, []);
 
      const getGreeting = () => {
       const currentHour = new Date().getHours();
