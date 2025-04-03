@@ -7,35 +7,44 @@ import { UpcomingEvents } from '../Components/UserDash/UpcomingEvents';
 import { QuickLinks } from '../Components/UserDash/QuickLinks';
 import { dashboardService } from '../services';
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
 
 
 const Dashboard = () => {
   const [selectedChild, setSelectedChild] = useState('all');
+  const [userData, setUserData] = useState(null);
+  const [heading, setHeading] = useState({msg: "Welcome",firstName: "Guest",lastName: "",designation:"Role"});
+  const router = useRouter();
 
-    const [heading, setHeading] = useState({msg: "Welcome",firstName: "Guest",lastName: "",designation:"Role"});
-    const router = useRouter();
-  
-    useEffect(() => {
-      try {
-        const cookieData = Cookies.get("currentUser");
-        if (cookieData) {
-          const parsedData = JSON.parse(cookieData);
-          setUserData(parsedData);
-          console.log('User data from cookies:', parsedData);
-        } else {
-          console.log('No user data found in cookies');
-        }
-      } catch (error) {
-        console.error('Error retrieving user data:', error);
+  useEffect(() => {
+    try {
+      const cookieData = Cookies.get("currentUser");
+      if (cookieData) {
+        const parsedData = JSON.parse(cookieData);
+        console.log({parsedData})
+        setUserData(parsedData);
+        // Update the heading state with the user data
+        setHeading({
+          msg: "Welcome",
+          firstName: parsedData.firstName || "Guest",
+          lastName: parsedData.lastName || "",
+          designation: parsedData.jobRoleLabel || "Role"
+        });
+        console.log('User data from cookies:', parsedData);
+      } else {
+        console.log('No user data found in cookies');
       }
-    }, []);
+    } catch (error) {
+      console.error('Error retrieving user data:', error);
+    }
+  }, []);
 
-     const getGreeting = () => {
-      const currentHour = new Date().getHours();
-      if (currentHour < 12) return "Good Morning";
-      if (currentHour < 18) return "Good Afternoon";
-      return "Good Evening";
-    };
+  const getGreeting = () => {
+    const currentHour = new Date().getHours();
+    if (currentHour < 12) return "Good Morning";
+    if (currentHour < 18) return "Good Afternoon";
+    return "Good Evening";
+  };
 
 
 
