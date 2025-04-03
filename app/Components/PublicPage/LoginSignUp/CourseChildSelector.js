@@ -94,7 +94,7 @@ const CourseChildSelector = memo(({
     setSelectedChild(child);
     setSelectedDates(null);
     setTotalAmount('');
-  }, [setSelectedChild, setSelectedDates]);
+  }, [setSelectedChild, setSelectedDates, setTotalAmount]);
 
   const handleGetAllChildren = useCallback(async (forceRefresh = false) => {
     if (!forceRefresh && (childrenLoaded.current || isLoading)) return;
@@ -111,7 +111,23 @@ const CourseChildSelector = memo(({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [isLoading]);
+
+  // Check for childId in URL params and select that child
+  useEffect(() => {
+    if (allChildren.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const childId = urlParams.get('childId');
+      
+      if (childId) {
+        const childToSelect = allChildren.find(child => child._id === childId);
+        if (childToSelect) {
+          handleSelectChild(childToSelect);
+          setStep(3); // Automatically advance to step 3
+        }
+      }
+    }
+  }, [allChildren, handleSelectChild, setStep]);
 
   useEffect(() => {
     if (isInitialMount.current) {
