@@ -9,14 +9,15 @@ import {
   CircularProgress, 
   Typography,
   Checkbox,
-  FormControlLabel
+  FormControlLabel,
+  Divider
 } from "@mui/material";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 import "./stripePayStyle.css";
-import { myCourseService } from "../../services";
+import { myCourseService, transactionService } from "../../services";
 import CourseCheckoutForm from "./CourseCheckoutForm";
 
 const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
@@ -32,6 +33,45 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
   const [buttonDisabled, setButtonDisabled] = useState(false);
   const [error, setError] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [useBalance, setUseBalance] = useState(true);
+  const [message, setMessage] = useState("");
+
+  // Calculate the amount to be paid through Stripe
+  const amountToPayWithStripe = useBalance 
+    ? Math.max(0, totalAmount - currentBalance) 
+    : totalAmount;
+
+  const handleGetCurrentAmount = async () => {
+    const response = await transactionService.getSelfCurrentAmount();
+    setCurrentBalance(response.currentBalance);
+  };
+
+  useEffect(() => {
+    handleGetCurrentAmount();
+  }, []);
+
+  const handleConfirmPaymentWithBalance = async (courseId) => {
+    setLoading(true);
+    setError("");
+    
+    try {
+      // Process payment with balance
+      const courseResponse = await myCourseService.buyCourseWithBalanceOnly(courseId);
+
+      if (courseResponse.variant === "success") {
+        setMessage("Payment successful");
+        window.location.href = `/payment/verify/${courseId}`;
+      } else {
+        setError(courseResponse.message || "An unexpected error occurred.");
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error processing payment:", error);
+      setError("An unexpected error occurred. Please try again.");
+      setLoading(false);
+    }
+  };
 
   const handlePaymentInitialization = async () => {
     if (!termsAccepted) {
@@ -43,8 +83,17 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
       setButtonDisabled(true);
       setError("");
 
+      // If balance covers the entire amount, we don't need to create a payment intent
+      if (useBalance && amountToPayWithStripe <= 0) {
+        // Handle the case where balance covers everything
+        handleConfirmPaymentWithBalance(submittedId);
+        setButtonDisabled(false);
+        return;
+      }
+
       const response = await myCourseService.getPaymentIntentApi({
         items: [{ id: submittedId }],
+        amountToCharge: amountToPayWithStripe
       });
 
       if (response.variant === "success") {
@@ -180,6 +229,37 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                   </Box>
                 )}
 
+                {/* Current Balance Display */}
+                {currentBalance > 0 && (
+                  <Box sx={{ 
+                    width: '100%', 
+                    mb: 2,
+                    p: 2,
+                    bgcolor: '#f0f7ff',  // Light blue background
+                    borderRadius: 1,
+                    border: '1px solid #bbd6fe'
+                  }}>
+                    <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
+                      Your Current Balance
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                        £{currentBalance.toFixed(2)}
+                      </Typography>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={useBalance}
+                            onChange={(e) => setUseBalance(e.target.checked)}
+                            color="primary"
+                          />
+                        }
+                        label="Use balance for this payment"
+                      />
+                    </Box>
+                  </Box>
+                )}
+
                 {/* Amount Display */}
                 <Box sx={{ 
                   width: '100%', 
@@ -202,6 +282,37 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                       £{totalAmount?.toFixed(2)}
                     </Typography>
                   </Box>
+                  
+                  {currentBalance > 0 && useBalance && (
+                    <>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        mb: 1
+                      }}>
+                        <Typography variant="subtitle1" color="text.secondary">
+                          Applied from Balance
+                        </Typography>
+                        <Typography variant="body1" color="success.main" sx={{ fontWeight: 600 }}>
+                          -£{Math.min(currentBalance, totalAmount).toFixed(2)}
+                        </Typography>
+                      </Box>
+                      <Divider sx={{ my: 1 }} />
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center'
+                      }}>
+                        <Typography variant="subtitle1" color="text.secondary">
+                          Amount to Pay
+                        </Typography>
+                        <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>
+                          £{amountToPayWithStripe.toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </>
+                  )}
                 </Box>
 
                 {/* Terms and Cancellation Policy Acceptance */}
@@ -255,11 +366,18 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                     }
                   }}
                 >
-                  {loading ? "Processing..." : `Pay £${totalAmount?.toFixed(2)} with Debit Card`}
+                  {loading ? "Processing..." : useBalance && amountToPayWithStripe <= 0 
+                    ? "Complete Booking with Balance" 
+                    : `Pay £${amountToPayWithStripe.toFixed(2)} with Debit Card`}
                 </Button>
                 {error && (
                   <Typography color="error" variant="body2">
                     {error}
+                  </Typography>
+                )}
+                {message && (
+                  <Typography color="success.main" variant="body2">
+                    {message}
                   </Typography>
                 )}
               </Box>

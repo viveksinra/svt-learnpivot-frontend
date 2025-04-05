@@ -97,6 +97,23 @@ export class MyCourseService {
       .then((res) => res.data);
   };
 
+  buyCourseWithBalanceOnly = async (id) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/buyCourse/addBuyCourse/buyCourseWithBalanceOnly/${id}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+
+
+
+
+
+
+
+
+
 
 
 
