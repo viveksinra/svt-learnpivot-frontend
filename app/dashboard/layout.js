@@ -166,7 +166,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
   // Transaction Items
   const transactionItems = [
     { 
-      title: "User Transaction",
+      title: "User Balance",
       active: false,
       link: "/dashboard/transaction/oneUserTransaction",
       icon: <MdOutlineReceiptLong className="drawer-icon" size={24} color="#689f38" />

@@ -93,11 +93,11 @@ export const AdminQuickLinks = () => {
       textColor: theme.palette.info.contrastText
     },
     {
-      title: "Transactions",
+      title: "Balance",
       subtitle: "View detailed payment history",
       icon: <MdOutlineReceiptLong size={isMobile ? 28 : 36} color={theme.palette.error.main} />,
       items: [
-        { title: "User Transactions", link: "/dashboard/transaction/oneUserTransaction", count: 756, isNew: true }
+        { title: "User Balance", link: "/dashboard/transaction/oneUserTransaction", count: 756, isNew: true }
       ],
       bgColor: theme.palette.error.light,
       accentColor: theme.palette.error.main,

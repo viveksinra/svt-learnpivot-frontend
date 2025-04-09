@@ -195,7 +195,7 @@ const EachUserReport = () => {
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" fontWeight="bold">User Transaction Report</Typography>
+          <Typography variant="h5" fontWeight="bold">User Balance Report</Typography>
         </Box>
         
         {error && (

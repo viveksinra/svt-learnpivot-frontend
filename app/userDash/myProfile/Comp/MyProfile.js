@@ -389,14 +389,7 @@ const UserProfile = () => {
                         }}>
                           {`${profile?.firstName} ${profile?.lastName}`}
                         </Typography>
-                        {profile?.email && (
-                          <Chip 
-                            icon={<EmailIcon fontSize="small" />} 
-                            label={profile.email}
-                            size="small"
-                            sx={{ mt: 1 }}
-                          />
-                        )}
+            
                       </>
                     )}
                   </Box>
