@@ -162,18 +162,18 @@ const UserReportMain = ({ reportData, profileType }) => {
     const upcomingMockTests = [];
     
     // Get upcoming course sessions
-    if (reportData.courseAccessBought) {
-      reportData.courseAccessBought.forEach(course => {
-        const childData = course.children?.find(child => child.childId === selectedChild);
-        if (childData) {
-          const upcomingDates = childData.selectedDates
+    if (reportData.courseBought) {
+      reportData.courseBought.forEach(course => {
+        // Check if this course is for the selected child
+        if (course.childId && course.childId._id === selectedChild) {
+          const upcomingDates = course.selectedDates
             .filter(date => new Date(date) > today)
             .map(date => ({
               date,
-              title: course.courseTitle,
-              startTime: course.startTime,
-              endTime: course.endTime,
-              image: course.imageUrls?.[0] || '',
+              title: course.courseId?.courseTitle || 'Course',
+              startTime: course.courseId?.startTime,
+              endTime: course.courseId?.endTime,
+              image: course.courseId?.imageUrls?.[0] || '',
               type: 'course'
             }));
           
@@ -183,23 +183,26 @@ const UserReportMain = ({ reportData, profileType }) => {
     }
     
     // Get upcoming mock test sessions from mock test access bought data
-    if (reportData.mocktestAccessBought) {
-      reportData.mocktestAccessBought.forEach(test => {
-        if (test.batch) {
-          test.batch.forEach(batch => {
-            // Check if this batch has the selected child
-            const childPurchase = batch.children?.find(child => child.childId === selectedChild);
-            if (childPurchase && new Date(batch.date) > today) {
-              upcomingMockTests.push({
-                date: batch.date,
-                title: test.mockTestTitle,
-                startTime: batch.startTime,
-                endTime: batch.endTime,
-                image: test.imageUrls?.[0] || '',
-                type: 'mockTest'
-              });
-            }
-          });
+    if (reportData.mocktestBought) {
+      console.log(reportData.mocktestBought)
+      reportData.mocktestBought.forEach(test => {
+        // Check if this test is for the selected child
+        if (test.childId && test.childId._id === selectedChild) {
+          if (test.selectedBatch) {
+            test.selectedBatch.forEach(batch => {
+              // Check if this batch date is in the future
+              if (new Date(batch.date) > today) {
+                upcomingMockTests.push({
+                  date: batch.date,
+                  title: test.mockTestId?.mockTestTitle || 'Mock Test',
+                  startTime: batch.startTime,
+                  endTime: batch.endTime,
+                  image: test.mockTestId?.imageUrls?.[0] || '',
+                  type: 'mockTest'
+                });
+              }
+            });
+          }
         }
       });
     }

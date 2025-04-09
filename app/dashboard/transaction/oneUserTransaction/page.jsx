@@ -39,7 +39,7 @@ const EachUserReport = () => {
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [searchMode, setSearchMode] = useState('parent'); // 'parent' or 'child'
+  const [searchMode, setSearchMode] = useState('child'); // 'parent' or 'child'
   const [selectedUser, setSelectedUser] = useState(null);
   const [reportData, setReportData] = useState(null);
   const [inputValue, setInputValue] = useState('');
@@ -195,7 +195,7 @@ const EachUserReport = () => {
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" fontWeight="bold">User Balance Report</Typography>
+          <Typography variant="h5" fontWeight="bold">User Super Coins Report</Typography>
         </Box>
         
         {error && (
@@ -219,18 +219,19 @@ const EachUserReport = () => {
                 variant="fullWidth"
                 sx={{ mb: 2 }}
               >
+                         <Tab 
+                  icon={<ChildCareIcon />} 
+                  label="Child" 
+                  value="child" 
+                  sx={{ borderRadius: '0 8px 8px 0' }}
+                />
                 <Tab 
                   icon={<PersonIcon />} 
                   label="Parent" 
                   value="parent" 
                   sx={{ borderRadius: '8px 0 0 8px' }}
                 />
-                <Tab 
-                  icon={<ChildCareIcon />} 
-                  label="Child" 
-                  value="child" 
-                  sx={{ borderRadius: '0 8px 8px 0' }}
-                />
+       
               </Tabs>
             </Grid>
             

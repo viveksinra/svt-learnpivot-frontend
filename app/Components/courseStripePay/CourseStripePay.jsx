@@ -229,7 +229,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                   </Box>
                 )}
 
-                {/* Current Balance Display */}
+                {/* Current Super Coins Display */}
                 {currentBalance > 0 && (
                   <Box sx={{ 
                     width: '100%', 
@@ -240,7 +240,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                     border: '1px solid #bbd6fe'
                   }}>
                     <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 1 }}>
-                      Your Current Balance
+                      Your Current Super Coins
                     </Typography>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <Typography variant="h6" color="primary" sx={{ fontWeight: 600 }}>

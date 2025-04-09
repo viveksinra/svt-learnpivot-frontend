@@ -83,10 +83,8 @@ const UserTransactionReportMain = ({ reportData }) => {
   const { user, statement } = reportData;
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-GB', {
-      style: 'currency',
-      currency: 'GBP'
-    }).format(amount);
+    const formattedNumber = new Intl.NumberFormat('en-GB').format(amount);
+    return `${formattedNumber} ${amount === 1 ? 'coin' : 'coins'}`;
   };
 
   const formatDate = (dateString) => {
@@ -106,20 +104,7 @@ const UserTransactionReportMain = ({ reportData }) => {
     }));
   };
 
-  const getTransactionDetails = (transaction) => {
-    const details = [
-      `Transaction ID: ${transaction.transactionId}`,
-      `Payment Method: ${transaction.paymentMethod || 'N/A'}`,
-      `Added By: ${transaction.addedBy || 'N/A'}`
-    ];
-    
-    if (transaction.usedInPurchase) details.push(`Used In Purchase: ${transaction.usedInPurchase}`);
-    if (transaction.usedInModel) details.push(`Used In Model: ${transaction.usedInModel}`);
-    if (transaction.refundFor) details.push(`Refund For: ${transaction.refundFor}`);
-    if (transaction.refundForModel) details.push(`Refund For Model: ${transaction.refundForModel}`);
-    
-    return details;
-  };
+
 
   return (
     <Box sx={{ width: '100%', px: { xs: 1, sm: 2 } }}>
@@ -189,7 +174,7 @@ const UserTransactionReportMain = ({ reportData }) => {
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
                 <AccountBalanceWalletIcon sx={{ mr: 1, fontSize: 28 }} />
-                <Typography variant="h6" fontWeight="medium">Current Balance</Typography>
+                <Typography variant="h6" fontWeight="medium">Current Super Coins </Typography>
               </Box>
               <Typography variant="h4" fontWeight="bold">
                 {formatCurrency(statement.closingBalance)}
@@ -229,7 +214,7 @@ const UserTransactionReportMain = ({ reportData }) => {
       <Paper elevation={3} sx={{ borderRadius: '16px', overflow: 'hidden' }}>
         <Box sx={{ p: { xs: 2, sm: 3 } }}>
           <Typography variant="h6" gutterBottom fontWeight="bold">
-            Transaction History
+            Super Coins History
           </Typography>
           
           {/* Desktop Table View */}
@@ -249,12 +234,7 @@ const UserTransactionReportMain = ({ reportData }) => {
                 </TableHead>
                 <TableBody>
                   {statement.transactions.map((transaction) => (
-                    <Tooltip 
-                      key={transaction.transactionId}
-                      title={getTransactionDetails(transaction).join('\n')}
-                      arrow
-                      placement="top"
-                    >
+        
                       <TableRow 
                         hover
                         sx={{
@@ -284,7 +264,7 @@ const UserTransactionReportMain = ({ reportData }) => {
                         </TableCell>
                         <TableCell>{transaction.remark}</TableCell>
                       </TableRow>
-                    </Tooltip>
+              
                   ))}
                 </TableBody>
               </Table>
@@ -370,22 +350,7 @@ const UserTransactionReportMain = ({ reportData }) => {
                             />
                           </ListItem>
                         )}
-                        {getTransactionDetails(transaction).map((detail, index) => {
-                          const [label, value] = detail.split(': ');
-                          if (label === 'Payment Method' || label === 'Transaction ID') return null;
-                          return (
-                            <ListItem key={index} disablePadding sx={{ pb: 1 }}>
-                              <ListItemIcon sx={{ minWidth: 32 }}>
-                                <SwapVertIcon fontSize="small" />
-                              </ListItemIcon>
-                              <ListItemText 
-                                primary={label} 
-                                secondary={value}
-                                primaryTypographyProps={{ variant: 'caption', color: 'text.secondary' }}
-                              />
-                            </ListItem>
-                          );
-                        })}
+                      
                         <ListItem disablePadding>
                           <ListItemIcon sx={{ minWidth: 32 }}>
                             <ReceiptIcon fontSize="small" />
