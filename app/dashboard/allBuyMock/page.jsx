@@ -184,7 +184,7 @@ function MyMockTest() {
 function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [loading, setLoading] = useState(false);
   const [rows, setRows] = useState([]);
-  const [tabular, setView] = useState(false);
+  const [tabular, setView] = useState(true);
   const sortOptions = [
     { label: "New First", value: "newToOld" }, 
     { label: "Old First", value: "oldToNew" }

@@ -384,7 +384,7 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
   const [processedData, setProcessedData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [setPurchaseFilter, setSetPurchaseFilter] = useState("all");
+  const [setPurchaseFilter, setSetPurchaseFilter] = useState([]);
   const [selectedRows, setSelectedRows] = useState([]);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [courseFilter, setCourseFilter] = useState("all");
@@ -409,9 +409,9 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
   };
 
   const handleSetFilter = (e) => {
-    const filter = e.target.value;
-    setSetPurchaseFilter(filter);
-    applyFilters(searchTerm, filter, courseFilter);
+    const filters = e.target.value;
+    setSetPurchaseFilter(filters);
+    applyFilters(searchTerm, filters, courseFilter);
   };
 
   const handleCourseFilter = (e) => {
@@ -420,7 +420,7 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
     applyFilters(searchTerm, setPurchaseFilter, filter);
   };
 
-  const applyFilters = (term, setFilter, course) => {
+  const applyFilters = (term, setFilters, course) => {
     let filtered = processedData;
 
     // Apply search term filter
@@ -429,21 +429,27 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
       filtered = filtered.filter(row =>
         row.courseTitle.toLowerCase().includes(lowercaseTerm) ||
         row.parentEmail.toLowerCase().includes(lowercaseTerm) ||
-        row.batchTime.toLowerCase().includes(lowercaseTerm)
+        row.batchTime.toLowerCase().includes(lowercaseTerm) ||
+        (row.childName && row.childName.toLowerCase().includes(lowercaseTerm)) ||
+        (row.childGender && row.childGender.toLowerCase().includes(lowercaseTerm)) ||
+        (row.childYear && row.childYear.toString().toLowerCase().includes(lowercaseTerm))
       );
     }
 
-    // Apply set purchase filter
-    if (setFilter !== "all") {
-      const [setIndex, purchaseStatus] = setFilter.split('-');
-      const idx = parseInt(setIndex) - 1;
-      const isPurchased = purchaseStatus === 'purchased';
-
+    // Apply set purchase filters
+    if (setFilters.length > 0 && !setFilters.includes("all")) {
       filtered = filtered.filter(row => {
-        if (row.sortedDateSets.length <= idx) return false;
-        return row.sortedDateSets[idx].isPurchased === isPurchased;
+        return setFilters.some(filter => {
+          const [setIndex, purchaseStatus] = filter.split('-');
+          const idx = parseInt(setIndex) - 1;
+          const isPurchased = purchaseStatus === 'purchased';
+
+          if (row.sortedDateSets.length <= idx) return false;
+          return row.sortedDateSets[idx].isPurchased === isPurchased;
+        });
       });
     }
+    
     // Apply course filter
     if (course !== "all") {
       filtered = filtered.filter(row => row.courseTitle === course);
@@ -612,9 +618,19 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
         <FormControl size="small" sx={{ minWidth: isMobile ? '100%' : '200px' }}>
           <InputLabel>Filter by Set</InputLabel>
           <Select
+            multiple
             value={setPurchaseFilter}
             onChange={handleSetFilter}
             label="Filter by Set"
+            renderValue={(selected) => {
+              if (selected.length === 0) {
+                return 'All Sets';
+              }
+              return selected.map(value => {
+                const [setNum, status] = value.split('-');
+                return `Set ${setNum} - ${status === 'purchased' ? 'Purchased' : 'Not Purchased'}`;
+              }).join(', ');
+            }}
           >
             <MenuItem value="all">All Sets</MenuItem>
             <MenuItem value="1-purchased">Set 1 - Purchased</MenuItem>

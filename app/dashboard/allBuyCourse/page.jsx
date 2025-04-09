@@ -145,7 +145,7 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [successOnly, setSuccessOnly] = useState(true);
   const [containerWidth, setContainerWidth] = useState(1250);
-  const [tabular, setView] = useState(false);
+  const [tabular, setView] = useState(true);
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     email: false,
     bookingDate: false,

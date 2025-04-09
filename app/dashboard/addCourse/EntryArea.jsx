@@ -288,7 +288,7 @@ const EntryArea = forwardRef((props, ref) => {
         });
 
         return (
-            <Grid item xs={12} md={8}>
+            <Grid item xs={12}>
                 <Autocomplete
                     multiple
                     id="user-select"
@@ -298,9 +298,10 @@ const EntryArea = forwardRef((props, ref) => {
                     onChange={(event, newValue) => {
                         setSelectedUser(newValue.map(user => user._id));
                     }}
-                    getOptionLabel={(option) => 
-                        `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) (${option.mobile || ''})`
-                    }
+                    getOptionLabel={(option) => {
+                        const childrenNames = option.children?.map(child => child.childName).join(', ') || '';
+                        return `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) ${childrenNames ? `[Children: ${childrenNames}]` : ''}`;
+                    }}
                     disableCloseOnSelect
                     filterOptions={(options, { inputValue }) => {
                         const searchTerms = inputValue.toLowerCase().split(' ');
@@ -309,7 +310,11 @@ const EntryArea = forwardRef((props, ref) => {
                                 option.firstName?.toLowerCase().includes(term) ||
                                 option.lastName?.toLowerCase().includes(term) ||
                                 option.email?.toLowerCase().includes(term) ||
-                                option.mobile?.toLowerCase().includes(term)
+                                option.mobile?.toLowerCase().includes(term) ||
+                                // Add filter by children names
+                                option.children?.some(child => 
+                                    child.childName?.toLowerCase().includes(term)
+                                )
                             )
                         );
                     }}
@@ -318,7 +323,7 @@ const EntryArea = forwardRef((props, ref) => {
                             {...params}
                             variant="outlined"
                             label="Select Users"
-                            placeholder="Search by name, email or mobile"
+                            placeholder="Search by name, email, mobile or child name"
                         />
                     )}
                     renderOption={(props, option) => {
@@ -329,12 +334,19 @@ const EntryArea = forwardRef((props, ref) => {
                                     checked={isSelected}
                                     style={{ marginRight: 8 }}
                                 />
-                                <Typography>
-                                    {option.firstName} {option.lastName}
-                                    <Typography component="span" color="textSecondary" sx={{ ml: 1 }}>
-                                        ({option.mobile}) • {option.email}
+                                <div>
+                                    <Typography>
+                                        {option.firstName} {option.lastName}
+                                        <Typography component="span" color="textSecondary" sx={{ ml: 1 }}>
+                                            ({option.mobile}) • {option.email}
+                                        </Typography>
                                     </Typography>
-                                </Typography>
+                                    {option.children && option.children.length > 0 && (
+                                        <Typography variant="body2" color="primary" sx={{ ml: 3 }}>
+                                            Children: {option.children.map(child => child.childName).join(', ')}
+                                        </Typography>
+                                    )}
+                                </div>
                             </li>
                         );
                     }}
