@@ -119,7 +119,7 @@ const Enquiry = () => {
                         <TextField fullWidth value={message} onChange={e=>setMsg(e.target.value)} label="Your Message"  multiline minRows={4} placeholder="Please write your message..." variant="outlined" />
                         </Grid>
                         <Grid item xs={12} style={{display:"flex",justifyContent:"center"}}> 
-                        <Fab variant="extended" size="medium" color="primary" aria-label="add" type="submit">
+                        <Fab variant="extended" size="medium" color="primary" aria-label="add" type="submit" style={{ zIndex: 10 }}>
                           <FcFeedback style={{fontSize:24,marginRight:10}} sx={{ mr: 1 }} />
                           Send Enquiry
                         </Fab>

@@ -53,7 +53,7 @@ const EmptyState = ({ type, onButtonClick }) => {
         {isClass ? (
           <School sx={{ 
             fontSize: isMobile ? 40 : 48, 
-            color: 'primary.main', 
+            color: isClass ? '#2e7d32' : 'primary.main', 
             mb: 1.5 
           }} />
         ) : (
@@ -68,7 +68,7 @@ const EmptyState = ({ type, onButtonClick }) => {
         </Typography>
         <Button
           variant="contained"
-          color={isClass ? "primary" : "secondary"}
+          color={isClass ? "success" : "secondary"}
           onClick={() => onButtonClick(isClass ? '/course' : '/mockTest')}
           size="small"
           sx={{ 
@@ -103,7 +103,7 @@ const EventCard = ({ item }) => {
         left: 0,
         right: 0,
         height: 4,
-        bgcolor: isClass ? 'primary.main' : 'secondary.main',
+        bgcolor: isClass ? '#2e7d32' : 'secondary.main',
         borderRadius: '8px 8px 0 0'
       },
       transition: 'transform 0.2s ease, box-shadow 0.2s ease',
@@ -118,8 +118,8 @@ const EventCard = ({ item }) => {
             label={isClass ? "Class" : "Mock Test"}
             size="small"
             sx={{ 
-              bgcolor: isClass ? 'primary.lighter' : 'secondary.lighter',
-              color: isClass ? 'primary.dark' : 'secondary.dark',
+              bgcolor: isClass ? '#e8f5e9' : 'secondary.lighter',
+              color: isClass ? '#2e7d32' : 'secondary.dark',
               fontWeight: 600,
               mb: 1,
               fontSize: '0.75rem'
@@ -178,6 +178,7 @@ const EventList = ({ items, type, currentPage, onShowMore }) => {
   const theme = useTheme();
   const itemsToShow = items.slice(0, currentPage * 3);
   const hasMore = items.length > itemsToShow.length;
+  const isClass = type === 'class';
 
   return (
     <Box>
@@ -193,14 +194,14 @@ const EventList = ({ items, type, currentPage, onShowMore }) => {
         <Box sx={{ mt: 3, textAlign: 'center' }}>
           <Button
             variant="outlined"
-            color="primary"
+            color={isClass ? "success" : "primary"}
             onClick={onShowMore}
             sx={{
               borderRadius: 2,
               textTransform: 'none',
               px: 4,
               '&:hover': {
-                bgcolor: 'primary.lighter'
+                bgcolor: isClass ? '#e8f5e9' : 'primary.lighter'
               }
             }}
           >
