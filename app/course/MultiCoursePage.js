@@ -29,6 +29,16 @@ function MultiCoursePage() {
       ]
     },
     {
+      title: "Subject",
+      link:"subject",
+
+      tags: [
+        { label: "Maths", id: "maths" },
+        { label: "English", id: "english" },
+        
+      ]
+    },
+    {
       title: "Duration",
       link:"duration",
       tags: [
@@ -46,6 +56,10 @@ function MultiCoursePage() {
     },
     {
       link:"courseType",
+      ids:[]
+    },
+    {
+      link:"subject",
       ids:[]
     },
     {

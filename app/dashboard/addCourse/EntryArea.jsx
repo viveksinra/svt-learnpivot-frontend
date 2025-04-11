@@ -32,6 +32,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [courseClass, setCourseClass] = useState(null);
     const [courseType, setCourseType] = useState(null);
     const [duration, setDuration] = useState(null);
+    const [subject, setSubject] = useState(null);
     const [fullDescription, setFullDescription] = useState("");
     const [totalSeat, setTotalSeat] = useState("0");
     const [filledSeat, setFilledSeats] = useState("");
@@ -73,6 +74,11 @@ const EntryArea = forwardRef((props, ref) => {
         { label: "Full Course", id: "fullCourse" },
          { label: "Crash Course", id: "crashCourse" },
         ];
+    const allSubject = [
+        { label: "Math", id: "math" },
+        { label: "English", id: "english" },      
+        { label: "Other", id: "other" }
+    ];
     const allDuration = [
         { label: "< 1 Month", id: "lessThan1Month" },
         { label: "1-3 Months", id: "1to3Months" },
@@ -97,7 +103,7 @@ const EntryArea = forwardRef((props, ref) => {
                 if (res.variant === "success") {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
-                        courseClass, courseType, duration, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
+                        courseClass, courseType, duration, subject, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
                         onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,stopSkipSet } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
@@ -117,6 +123,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setCourseClass(courseClass);
                     setCourseType(courseType);
                     setDuration(duration);
+                    setSubject(subject);
                     setImageUrls(imageUrls?.length ? imageUrls : [""]);
                     setFullDescription(fullDescription);
                     setTotalSeat(totalSeat);
@@ -169,6 +176,7 @@ const EntryArea = forwardRef((props, ref) => {
         setCourseClass(null);
         setCourseType(null);
         setDuration(null);
+        setSubject(null);
         setFullDescription("");
         setTotalSeat("0");
         setFilledSeats("");
@@ -203,6 +211,7 @@ const EntryArea = forwardRef((props, ref) => {
                     courseClass,
                     courseType,
                     duration,
+                    subject,
                     fullDescription,
                     totalSeat,
                     restrictOnTotalSeat,
@@ -462,10 +471,7 @@ const EntryArea = forwardRef((props, ref) => {
                 <Grid item xs={12} md={2}>
                     <TextField focused type='time' value={endTime} onChange={(e) => setEndTime(e.target.value)} fullWidth label="End Time :" variant="standard" />
                 </Grid>
-                <Grid item xs={12} md={6}>
-                    <TextField fullWidth label="Short Description" value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} inputProps={{ minLength: "2", maxLength: "100" }} placeholder='Short Description' variant="standard" />
-                </Grid>
-                <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                 <FormControl fullWidth sx={{ m: 1 }}>
           <InputLabel htmlFor="outlined-adornment-amount">One Class Price</InputLabel>
           <OutlinedInput
@@ -481,6 +487,10 @@ const EntryArea = forwardRef((props, ref) => {
         </FormControl>
             
                 </Grid>
+                <Grid item xs={12} md={6}>
+                    <TextField fullWidth label="Short Description" value={shortDescription} onChange={(e) => setShortDescription(e.target.value)} inputProps={{ minLength: "2", maxLength: "100" }} placeholder='Short Description' variant="standard" />
+                </Grid>
+              
                 {/* <Grid item xs={12} md={3}>
                 <FormControl fullWidth sx={{ m: 1 }} variant="filled">
           <InputLabel htmlFor="filled-adornment-amount">Discount On Full Course</InputLabel>
@@ -547,6 +557,25 @@ const EntryArea = forwardRef((props, ref) => {
                             );
                         }}
                         renderInput={(params) => <TextField {...params} label="Duration" variant="standard" />}
+                    />
+                </Grid>
+                
+                <Grid item xs={12} md={3}>
+                    <Autocomplete
+                        isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                        options={allSubject}
+                        value={subject}
+                        onChange={(e, v) => {
+                            setSubject(v);
+                        }}
+                        renderOption={(props, option) => {
+                            return (
+                                <li {...props} key={option.id}>
+                                    {option.label}
+                                </li>
+                            );
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Subject" variant="standard" />}
                     />
                 </Grid>
                 
