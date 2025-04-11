@@ -77,38 +77,7 @@ const CoursePaymentCard = ({ courseData }) => {
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   console.log(courseData);
-  // Calculate total dates and payment progress
-  const allDates = courseData.courseDateSets.flatMap(set => set.dates);
-  const totalDates = allDates.length;
-  const purchasedDates = courseData.totalPurchasedDates;
-  const progressPercentage = (purchasedDates / totalDates) * 100;
   
-  // Group dates by payment status
-  const unpaidDates = allDates.filter(date => !date.purchased);
-  const upcomingUnpaidDates = unpaidDates
-    .filter(date => new Date(date.date) >= new Date())
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-  
-  const child = courseData.childInfo;
-
-  // Find next upcoming unpaid date
-  
-  const handleNavigateToPayment = () => {
-    router.push(`/course/buy/${courseData.courseId}?childId=${child._id}`);
-  };
-
-  
-  // Find the current active set (the one with unpaid dates)
-  const getCurrentActiveSetIndex = () => {
-    for (let i = 0; i < courseData.courseDateSets.length; i++) {
-      const set = courseData.courseDateSets[i];
-      const hasUnpaidDates = set.dates.some(date => !date.purchased);
-      if (hasUnpaidDates) {
-        return i;
-      }
-    }
-    return -1; // All sets are paid
-  };
   const [earliestPaidDate, setEarliestPaidDate] = useState(null);
 
   useEffect(() => {
@@ -128,8 +97,6 @@ const CoursePaymentCard = ({ courseData }) => {
 
   // Process sets with updated skipped logic
   const processedDateSets = courseData.courseDateSets.map((set, setIndex) => {
-    // Find the earliest paid date in the set
-
     const today = new Date();
     
     return {
@@ -140,13 +107,42 @@ const CoursePaymentCard = ({ courseData }) => {
         return {
           ...date,
           skipped: !date.purchased && // 1. Not purchased
-                  currentDate > today && // 2. In the future
                   earliestPaidDate && // Ensure earliestPaidDate exists
-                  currentDate < earliestPaidDate // 3. Before earliest paid date
+                  currentDate < earliestPaidDate // 2. Before earliest paid date (removed future date check)
         };
       })
     };
   });
+
+  // Calculate total dates and payment progress (excluding skipped dates)
+  const allProcessedDates = processedDateSets.flatMap(set => set.dates);
+  const totalDates = allProcessedDates.filter(date => !date.skipped).length;
+  const purchasedDates = courseData.totalPurchasedDates;
+  const progressPercentage = (purchasedDates / totalDates) * 100;
+  
+  // Group dates by payment status
+  const unpaidDates = allProcessedDates.filter(date => !date.purchased && !date.skipped);
+  const upcomingUnpaidDates = unpaidDates
+    .filter(date => new Date(date.date) >= new Date())
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+  
+  const child = courseData.childInfo;
+
+  const handleNavigateToPayment = () => {
+    router.push(`/course/buy/${courseData.courseId}?childId=${child._id}`);
+  };
+  
+  // Find the current active set (the one with unpaid dates)
+  const getCurrentActiveSetIndex = () => {
+    for (let i = 0; i < courseData.courseDateSets.length; i++) {
+      const set = courseData.courseDateSets[i];
+      const hasUnpaidDates = set.dates.some(date => !date.purchased);
+      if (hasUnpaidDates) {
+        return i;
+      }
+    }
+    return -1; // All sets are paid
+  };
 
   // New method to get next payment date
   const getNextUnpaidDate = () => {
