@@ -22,6 +22,7 @@ const UserCourseAccess = () => {
   const [courseDropDown, setCourseDropDown] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [parentAccessError, setParentAccessError] = useState(null);
   
   // State for selected values
   const [selectedParent, setSelectedParent] = useState(null);
@@ -89,6 +90,7 @@ const UserCourseAccess = () => {
   const AddParentToCourseAccess = async () => {
     if (!selectedParent || !selectedCourse) {
       setError("Please select both parent and course");
+      setParentAccessError("Please select both parent and course");
       setSaveError(true);
       return;
     }
@@ -106,6 +108,8 @@ const UserCourseAccess = () => {
         setOnlySelectedParent(!onlySelectedParent);
       } else {
         setError(res.message || "Failed to update parent course access");
+      setParentAccessError(res.message || "Failed to update parent course access");
+
         setSaveError(true);
       }
     } catch (error) {
@@ -189,13 +193,20 @@ const UserCourseAccess = () => {
     }
     try {
       let res = await myCourseService.GetOneUserOneCourseAccessApi(data);
-      if (res.variant === "success") {
+      console.log(res);
+      if (res.variant == "success") {
         // Update the state with the configuration from API
-        if(res.hasCourseAccessFile == "yes" || res.hasCourseAccessFile == "no"){
-          setHasCourseAccessFile(res.hasCourseAccessFile);
+        if (res.hasCourseAccessFile === "yes" || res.hasCourseAccessFile === "no") {
+            setHasCourseAccessFile(res.hasCourseAccessFile);
+            
+            // If it's "no", we should clear the configuration settings but keep hasCourseAccessFile value
+            if (res.hasCourseAccessFile === "no") {
+                clearConfigSettingsOnly();
+            }
         }
+        
         if(res.hasCourseAccessFile == "yes"){
-            if (res.data ) {
+            if (res.data) {
                 const config = res.data;
                 setRestrictStartDateChange(config.restrictStartDateChange || false);
                 setForcefullBuyCourse(config.forcefullBuyCourse || false);
@@ -204,12 +215,10 @@ const UserCourseAccess = () => {
                 setBackDayCount((config.backDayCount || 0).toString());
                 setRestrictOnTotalSeat(config.restrictOnTotalSeat || false);
                 setTotalSeat((config.totalSeat || 0).toString());
-              }
-        } else  if(res.hasCourseAccessFile == "no"){
-            clearAllConfigData();
-          } else {
+            }
+        } else if(res.hasCourseAccessFile != "yes" && res.hasCourseAccessFile != "no") {
             setHasCourseAccessFile("");
-          }
+        }
        
       } else {
         setError(res.message || "Failed to fetch user course access");
@@ -222,12 +231,23 @@ const UserCourseAccess = () => {
     }
   };
 
-  const clearAllConfigData = () => {
+  // Function to clear just configuration settings, not the hasCourseAccessFile
+  const clearConfigSettingsOnly = () => {
     setRestrictStartDateChange(false);
     setForcefullBuyCourse(false);
     setStopSkipSet(false);
     setAllowBackDateBuy(false);
+    setBackDayCount("0");
+    setRestrictOnTotalSeat(false);
+    setTotalSeat("0");
   };
+
+  // Function to clear all data including hasCourseAccessFile
+  const clearAllConfigData = () => {
+    clearConfigSettingsOnly();
+    setHasCourseAccessFile("");
+  };
+
   // Check if course is selected and load configuration
   useEffect(() => {
     if (selectedParent && selectedCourse) {
@@ -249,8 +269,7 @@ const UserCourseAccess = () => {
       // Prepare data to save
       const dataToSave = {
         userId: selectedParent._id,
-        courseId: selectedCourse._id,
-        config: {
+        courseId: selectedCourse._id,       
           restrictStartDateChange,
           forcefullBuyCourse,
           stopSkipSet,
@@ -258,7 +277,7 @@ const UserCourseAccess = () => {
           backDayCount: parseInt(backDayCount),
           restrictOnTotalSeat,
           totalSeat: parseInt(totalSeat)
-        }
+       
       };
 
       // Call API to save data
@@ -354,6 +373,9 @@ const UserCourseAccess = () => {
           <Typography variant="h6" gutterBottom>
            {onlySelectedParent ? "Parent has access to course" : "Parent does not have access to course"}
           </Typography>
+          <Typography variant="h6" gutterBottom color="error">
+          {parentAccessError}
+          </Typography>
           <Divider sx={{ mb: 3 }} />
           
           <Grid container spacing={2} alignItems="center">
@@ -382,7 +404,8 @@ const UserCourseAccess = () => {
           </Typography>
           <Divider sx={{ mb: 3 }} />
           
-      {(hasCourseAccessFile == "yes" || hasCourseAccessFile == "no") ? <Grid container spacing={2}>
+      {(hasCourseAccessFile === "yes" || hasCourseAccessFile === "no") ? 
+   (   <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <FormControlLabel
                 control={
@@ -504,11 +527,20 @@ const UserCourseAccess = () => {
                 Delete All Access
               </Button>
             </Grid>
-          </Grid>
+          </Grid>)
         :
-        
+       ( <>
                 <Typography variant="h6" gutterBottom>Not able to fetch Access Configuration</Typography>
-        
+                <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={GetOneUserOneCourseAccess}
+                disabled={loading}
+                >
+                Fetch Data ~ {hasCourseAccessFile}
+                </Button>
+        </>)
         }
         </Paper>
       )}
