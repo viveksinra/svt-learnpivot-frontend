@@ -14,7 +14,7 @@ import {
   Snackbar,
   Alert
 } from "@mui/material";
-import { dashboardService, registrationService } from "@/app/services";
+import { dashboardService, registrationService, myCourseService } from "@/app/services";
 
 const UserCourseAccess = () => {
   // State for users and courses
@@ -27,6 +27,9 @@ const UserCourseAccess = () => {
   const [selectedParent, setSelectedParent] = useState(null);
   const [selectedCourse, setSelectedCourse] = useState(null);
   
+  // State for parent course access
+  const [onlySelectedParent, setOnlySelectedParent] = useState(true); // true = add, false = remove
+  
   // State for configuration options
   const [restrictStartDateChange, setRestrictStartDateChange] = useState(false);
   const [forcefullBuyCourse, setForcefullBuyCourse] = useState(false);
@@ -35,7 +38,8 @@ const UserCourseAccess = () => {
   const [backDayCount, setBackDayCount] = useState("0");
   const [restrictOnTotalSeat, setRestrictOnTotalSeat] = useState(false);
   const [totalSeat, setTotalSeat] = useState("0");
-  
+  const [hasCourseAccessFile, setHasCourseAccessFile] = useState("");
+
   // State for the save operation
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -82,6 +86,156 @@ const UserCourseAccess = () => {
     fetchCourseDropDown();
   }, []);
 
+  const AddParentToCourseAccess = async () => {
+    if (!selectedParent || !selectedCourse) {
+      setError("Please select both parent and course");
+      setSaveError(true);
+      return;
+    }
+    
+    setLoading(true);
+    let data = {
+      userId: selectedParent._id,
+      courseId: selectedCourse._id,
+      addOrRemove: !onlySelectedParent ? "add" : "remove"
+    }
+    try {
+      let res = await myCourseService.addParentToCourseAccessApi(data);
+      if (res.variant === "success") {
+        setSaveSuccess(true);
+        setOnlySelectedParent(!onlySelectedParent);
+      } else {
+        setError(res.message || "Failed to update parent course access");
+        setSaveError(true);
+      }
+    } catch (error) {
+      console.error('Error updating parent course access:', error);
+      setError("An error occurred while updating parent course access");
+      setSaveError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const DoesParentHaveCourseAccess = async () => {
+    if (!selectedParent || !selectedCourse) {
+      setError("Please select both parent and course");
+      return;
+    }
+    
+    setLoading(true);
+    let data = {
+      userId: selectedParent._id,
+      courseId: selectedCourse._id,
+    }
+    try {
+      let res = await myCourseService.DoesParentHaveCourseAccessApi(data);
+      if (res.variant === "success") {
+        setOnlySelectedParent(res.hasAccess); // If they have access, default to remove
+
+        return res.data;
+      } else {
+        setError(res.message || "Failed to check parent course access");
+        return false;
+      }
+    } catch (error) {
+      console.error('Error checking parent course access:', error);
+      setError("An error occurred while checking parent course access");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const DeleteOneUserOneCourseAccess = async () => {
+    if (!selectedParent || !selectedCourse) {
+      setError("Please select both parent and course");
+      setSaveError(true);
+      return;
+    }
+    
+    setLoading(true);
+    let data = {
+      userId: selectedParent._id,
+      courseId: selectedCourse._id,
+    }
+    try {
+      let res = await myCourseService.DeleteOneUserOneCourseAccessApi(data);
+      if (res.variant === "success") {
+        setSaveSuccess(true);
+      } else {
+        setError(res.message || "Failed to delete parent course access");
+        setSaveError(true);
+      }
+    } catch (error) {
+      console.error('Error deleting parent course access:', error);
+      setError("An error occurred while deleting parent course access");
+      setSaveError(true);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  const GetOneUserOneCourseAccess = async () => {
+    if (!selectedParent || !selectedCourse) {
+      setError("Please select both parent and course");
+      return;
+    }
+    
+    setLoading(true);
+    let data = {
+      userId: selectedParent._id,
+      courseId: selectedCourse._id,
+    }
+    try {
+      let res = await myCourseService.GetOneUserOneCourseAccessApi(data);
+      if (res.variant === "success") {
+        // Update the state with the configuration from API
+        if(res.hasCourseAccessFile == "yes" || res.hasCourseAccessFile == "no"){
+          setHasCourseAccessFile(res.hasCourseAccessFile);
+        }
+        if(res.hasCourseAccessFile == "yes"){
+            if (res.data ) {
+                const config = res.data;
+                setRestrictStartDateChange(config.restrictStartDateChange || false);
+                setForcefullBuyCourse(config.forcefullBuyCourse || false);
+                setStopSkipSet(config.stopSkipSet || false);
+                setAllowBackDateBuy(config.allowBackDateBuy || false);
+                setBackDayCount((config.backDayCount || 0).toString());
+                setRestrictOnTotalSeat(config.restrictOnTotalSeat || false);
+                setTotalSeat((config.totalSeat || 0).toString());
+              }
+        } else  if(res.hasCourseAccessFile == "no"){
+            clearAllConfigData();
+          } else {
+            setHasCourseAccessFile("");
+          }
+       
+      } else {
+        setError(res.message || "Failed to fetch user course access");
+      }
+    } catch (error) {
+      console.error('Error fetching user course access:', error);
+      setError("An error occurred while fetching user course access");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const clearAllConfigData = () => {
+    setRestrictStartDateChange(false);
+    setForcefullBuyCourse(false);
+    setStopSkipSet(false);
+    setAllowBackDateBuy(false);
+  };
+  // Check if course is selected and load configuration
+  useEffect(() => {
+    if (selectedParent && selectedCourse) {
+      GetOneUserOneCourseAccess();
+      DoesParentHaveCourseAccess();
+    }
+  }, [selectedParent, selectedCourse]);
+
   // Handle save button click
   const handleSave = async () => {
     if (!selectedParent || !selectedCourse) {
@@ -107,14 +261,14 @@ const UserCourseAccess = () => {
         }
       };
 
-      // Call API to save data (replace with your actual service method)
-      // const response = await dashboardService.saveUserCourseAccess(dataToSave);
-      
-      // For now, just simulate a successful save
-      console.log("Saving data:", dataToSave);
-      
-      // Show success message
-      setSaveSuccess(true);
+      // Call API to save data
+      let res = await myCourseService.SaveOrUpdateOneCourseAccessApi(dataToSave);
+      if (res.variant === "success") {
+        setSaveSuccess(true);
+      } else {
+        setError(res.message || "Failed to save configuration");
+        setSaveError(true);
+      }
     } catch (error) {
       console.error('Error saving data:', error);
       setSaveError(true);
@@ -191,6 +345,35 @@ const UserCourseAccess = () => {
         </Grid>
       </Paper>
 
+      {/* Parent Course Access Toggle */}
+      {selectedParent && selectedCourse && (
+        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
+          <Typography variant="h5" gutterBottom>
+           1. Parent Course Access 
+          </Typography>
+          <Typography variant="h6" gutterBottom>
+           {onlySelectedParent ? "Parent has access to course" : "Parent does not have access to course"}
+          </Typography>
+          <Divider sx={{ mb: 3 }} />
+          
+          <Grid container spacing={2} alignItems="center">
+            
+            <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
+              <Button
+                variant="contained"
+                color={!onlySelectedParent ? "primary" : "error"}
+                onClick={AddParentToCourseAccess}
+                disabled={loading}
+                sx={{ mr: 2 }}
+              >
+                {!onlySelectedParent ? "Grant Access" : "Remove Access"}
+              </Button>
+
+            </Grid>
+          </Grid>
+        </Paper>
+      )}
+
       {/* Configuration Options */}
       {selectedParent && selectedCourse && (
         <Paper elevation={3} sx={{ p: 3 }}>
@@ -199,7 +382,7 @@ const UserCourseAccess = () => {
           </Typography>
           <Divider sx={{ mb: 3 }} />
           
-          <Grid container spacing={2}>
+      {(hasCourseAccessFile == "yes" || hasCourseAccessFile == "no") ? <Grid container spacing={2}>
             <Grid item xs={12} md={4}>
               <FormControlLabel
                 control={
@@ -312,8 +495,21 @@ const UserCourseAccess = () => {
               >
                 {loading ? "Saving..." : "Save Configuration"}
               </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={DeleteOneUserOneCourseAccess}
+                disabled={loading}
+              >
+                Delete All Access
+              </Button>
             </Grid>
           </Grid>
+        :
+        
+                <Typography variant="h6" gutterBottom>Not able to fetch Access Configuration</Typography>
+        
+        }
         </Paper>
       )}
 
