@@ -33,6 +33,7 @@ function LoginForm({ isRedirectToDashboard }) {
     setLoading(true);
     try {
       const res = await login(email, password);
+      console.log("res",res)
       if (res.success && res.token) {
         dispatch({ type: LOGIN_USER, payload: res });
         snackRef.current.handleSnack({
@@ -43,6 +44,11 @@ function LoginForm({ isRedirectToDashboard }) {
           router.push("/userDash");
           window.location.reload();
         }
+      } else if(res.message){
+        snackRef.current.handleSnack({
+          message: res.message,
+          variant: "error",
+        });
       } else {
         snackRef.current.handleSnack({
           message: "Invalid Login. Please enter correct credentials.",
