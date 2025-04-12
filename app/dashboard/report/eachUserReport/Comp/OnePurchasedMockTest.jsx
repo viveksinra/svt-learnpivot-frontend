@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, Chip, Avatar,
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, ListItemText, 
-  Checkbox, IconButton } from '@mui/material';
+  Checkbox, IconButton, TextField, InputAdornment, Alert, Snackbar } from '@mui/material';
 import PaymentIcon from '@mui/icons-material/Payment';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
@@ -10,6 +10,7 @@ import ChildCareIcon from '@mui/icons-material/ChildCare';
 import CloseIcon from '@mui/icons-material/Close';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import { styled } from '@mui/material/styles';
+import { transactionService } from '@/app/services';
 
 const StyledCard = styled(Card)(({ theme }) => ({
     height: '100%',
@@ -36,6 +37,9 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
     const [cancelMode, setCancelMode] = useState(''); // 'full' or 'selected'
     const [showBatchSelection, setShowBatchSelection] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+    const [showError, setShowError] = useState(false);
+    const [refundAmount, setRefundAmount] = useState(0);
     
     const formatDate = (dateString) => {
         return new Date(dateString).toLocaleDateString('en-GB', {
@@ -57,11 +61,24 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
         return `${hour12}:${minutes} ${ampm}`;
       };
 
+    const calculateRefundAmount = () => {
+      if (cancelMode === 'full') {
+        // Full refund for all batches
+        return test.amount || 0;
+      } else if (selectedBatchesToCancel.length > 0) {
+        // Calculate refund amount based on selected batches
+        const perBatchAmount = (test.amount || 0) / (test.selectedBatch?.length || 1);
+        return perBatchAmount * selectedBatchesToCancel.length;
+      }
+      return 0;
+    };
+
     const handleOpenCancelDialog = () => {
       setOpenCancelDialog(true);
       setShowBatchSelection(false);
       setCancelMode('');
       setSelectedBatchesToCancel([]);
+      setRefundAmount(0);
     };
 
     const handleCloseCancelDialog = () => {
@@ -71,12 +88,12 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
       setSelectedBatchesToCancel([]);
     };
 
-    const handleToggleBatch = (batchIndex) => {
+    const handleToggleBatch = (batch) => {
       setSelectedBatchesToCancel(prev => {
-        if (prev.includes(batchIndex)) {
-          return prev.filter(idx => idx !== batchIndex);
+        if (prev.some(b => b._id === batch._id)) {
+          return prev.filter(b => b._id !== batch._id);
         } else {
-          return [...prev, batchIndex];
+          return [...prev, batch];
         }
       });
     };
@@ -88,11 +105,15 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
 
     const handleSelectFullCancel = () => {
       setCancelMode('full');
+      const calculatedRefund = test.amount || 0;
+      setRefundAmount(calculatedRefund);
       openConfirmationDialog();
     };
 
     const handleProceedWithSelected = () => {
       if (selectedBatchesToCancel.length > 0) {
+        const calculatedRefund = calculateRefundAmount();
+        setRefundAmount(calculatedRefund);
         openConfirmationDialog();
       }
     };
@@ -105,33 +126,52 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
       setOpenConfirmDialog(false);
     };
 
-    const handleFinalCancel = async() => {
+    const handleRefundAmountChange = (event) => {
+      const value = parseFloat(event.target.value);
+      if (!isNaN(value) && value >= 0) {
+        setRefundAmount(value);
+      }
+    };
+
+    const handleCloseErrorSnackbar = () => {
+      setShowError(false);
+    };
+
+    const handleFinalCancel = async () => {
       try {
         let response;
         
         if (cancelMode === 'full') {
           // Handle full booking cancellation
           const data = {
-            buyCourseId: course._id,
+            buyMockTestId: test._id,
             refundAmount,
           };
-          response = await transactionService.cancelFullCourseAndRefund(data);
+          response = await transactionService.cancelFullMockTestAndRefund(data);
         } else {
           // Handle cancellation of selected dates
+          const batchIdsToCancel = selectedBatchesToCancel.map(batch => batch._id.toString());
           const data = {
-            buyCourseId: course._id,
+            buyMockTestId: test._id,
             refundAmount,
-            selectedDatesToCancel: selectedDatesToCancel,
+            selectedBatchesToCancel: batchIdsToCancel,
           };
-          response = await transactionService.cancelCourseDateAndRefund(data);
+          response = await transactionService.cancelMockTestDateAndRefund(data);
         }
-        
+        console.log(response)
+        console.log("variant", response.variant)
         if (response && response.variant === "success") {
-          // Refetch user data to get updated information
-          if (refetchUserData && typeof refetchUserData === 'function') {
-            refetchUserData();
-          }
-          console.log("Cancellation successful");
+          // Replace router.refresh() with window.location.reload()
+          window.location.reload();
+          setErrorMessage("Cancellation and refund processed successfully");
+          setShowError(false);
+          
+          // Close dialogs and reset state
+          setOpenConfirmDialog(false);
+          setOpenCancelDialog(false);
+          setSelectedBatchesToCancel([]);
+          setRefundAmount(0);
+          return;
         } else if (response && response.variant === "error") {
           // Display error message
           setErrorMessage(response.message || "Cancellation failed");
@@ -153,12 +193,6 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
         console.error("Error during cancellation:", error);
         return;
       }
-
-
-      setOpenConfirmDialog(false);
-      setOpenCancelDialog(false);
-      setShowBatchSelection(false);
-      setSelectedBatchesToCancel([]);
     };
       
     return (
@@ -293,10 +327,10 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
               </Typography>
               <List sx={{ pt: 0 }}>
                 {test.selectedBatch?.map((batch, idx) => (
-                  <ListItem key={idx} button onClick={() => handleToggleBatch(idx)}>
+                  <ListItem key={idx} button onClick={() => handleToggleBatch(batch)}>
                     <Checkbox
                       edge="start"
-                      checked={selectedBatchesToCancel.includes(idx)}
+                      checked={selectedBatchesToCancel.some(b => b._id === batch._id)}
                       tabIndex={-1}
                       disableRipple
                     />
@@ -338,6 +372,14 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
           Confirm Cancellation
         </DialogTitle>
         <DialogContent dividers>
+          {showError && (
+            <Box sx={{ mb: 2, p: 2, bgcolor: 'error.light', borderRadius: 1 }}>
+              <Typography color="error.dark" variant="body2">
+                {errorMessage}
+              </Typography>
+            </Box>
+          )}
+          
           <Typography variant="body1" gutterBottom color="error">
             This action cannot be reversed. Are you sure you want to proceed?
           </Typography>
@@ -353,13 +395,38 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
               </Typography>
             ) : (
               <Box sx={{ mt: 1 }}>
-                {selectedBatchesToCancel.map((idx) => (
+                {selectedBatchesToCancel.map((batch, idx) => (
                   <Typography key={idx} variant="body2">
-                    • Batch #{idx + 1} - {formatDate(test.selectedBatch[idx].date)}
+                    • Batch #{test.selectedBatch.findIndex(b => b._id === batch._id) + 1} - {formatDate(batch.date)}
                   </Typography>
                 ))}
               </Box>
             )}
+          </Box>
+          
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Refund Amount:
+            </Typography>
+            <TextField
+              fullWidth
+              type="number"
+              variant="outlined"
+              value={refundAmount.toFixed(2)}
+              onChange={handleRefundAmountChange}
+              InputProps={{
+                startAdornment: <InputAdornment position="start">£</InputAdornment>,
+              }}
+              helperText="You can adjust the refund amount if needed"
+              sx={{ mt: 1 }}
+            />
+            
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              {cancelMode === 'full' 
+                ? `Suggested full refund: £${(test.amount || 0).toFixed(2)}`
+                : `Suggested partial refund: £${(((test.amount || 0) / (test.selectedBatch?.length || 1)) * selectedBatchesToCancel.length).toFixed(2)}`
+              }
+            </Typography>
           </Box>
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
@@ -371,10 +438,22 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
             color="error" 
             onClick={handleFinalCancel}
           >
-            Yes, Cancel Booking
+            Yes, Cancel and Refund
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Error Snackbar */}
+      <Snackbar 
+        open={showError} 
+        autoHideDuration={6000} 
+        onClose={handleCloseErrorSnackbar}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseErrorSnackbar} severity="error" sx={{ width: '100%' }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </StyledCard>
   </Grid>
     );

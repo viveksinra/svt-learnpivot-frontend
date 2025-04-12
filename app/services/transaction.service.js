@@ -53,6 +53,20 @@ export class TransactionService {
       })
       .then((res) => res.data);
   };
+  cancelFullMockTestAndRefund = async (data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/cancelFullMockTestAndRefund`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  cancelMockTestDateAndRefund = async (data) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/transaction/admin/cancelMockTestDateAndRefund`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
   // user Balance
   getSelfCurrentAmount = async () => {
