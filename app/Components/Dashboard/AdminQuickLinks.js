@@ -80,13 +80,13 @@ export const AdminQuickLinks = () => {
       textColor: theme.palette.warning.contrastText
     },
     {
-      title: "User Reports",
+      title: "All Users",
       subtitle: "Analyze user engagement metrics",
       icon: <MdPerson size={isMobile ? 28 : 36} color={theme.palette.info.main} />,
       items: [
-        { title: "User Report", link: "/dashboard/report/userReport", count: 482, isNew: true},
-        { title: "Child Report", link: "/dashboard/report/childReport", count: 95,isNew: true },
-        { title: "Each User Report", link: "/dashboard/report/eachUserReport", count: 482,isNew: true }
+        { title: "All User", link: "/dashboard/report/userReport", count: 482, isNew: true},
+        { title: "All Child", link: "/dashboard/report/childReport", count: 95,isNew: true },
+        { title: "Each All User", link: "/dashboard/report/eachUserReport", count: 482,isNew: true }
       ],
       bgColor: theme.palette.info.light,
       accentColor: theme.palette.info.main,

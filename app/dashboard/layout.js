@@ -141,22 +141,22 @@ const DrawerData = ({ open, setMobileOpen }) => {
     },
   ];
 
-  // User Report Items
+  // All User Items
   const userReportItems = [
     { 
-      title: "User Report",
+      title: "All User",
       active: false,
       link: "/dashboard/report/userReport",
       icon: <MdPerson className="drawer-icon" size={24} color="#303f9f" />
     },
     { 
-      title: "Child Report",
+      title: "All Child",
       active: false,
       link: "/dashboard/report/childReport",
       icon: <MdFamilyRestroom className="drawer-icon" size={24} color="#c2185b" />
     },
     { 
-      title: "Each User Report",
+      title: "Each All User",
       active: false,
       link: "/dashboard/report/eachUserReport",
       icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />
@@ -289,8 +289,8 @@ const DrawerData = ({ open, setMobileOpen }) => {
           )}
         </div>
         
-        {/* User Reports */}
-        <MenuHeader title="User Reports" open={open} />
+        {/* All Users */}
+        <MenuHeader title="All Users" open={open} />
         <div className="submenu-container">
           {userReportItems.map((item, idx) => 
             renderMenuItem(

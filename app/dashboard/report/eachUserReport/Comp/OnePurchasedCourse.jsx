@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState } from 'react';
 import { Grid, Card, CardMedia, CardContent, Typography, Box, Divider, Button, 
   Dialog, DialogTitle, DialogContent, DialogActions, List, ListItem, 
@@ -11,7 +13,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import PersonIcon from '@mui/icons-material/Person';
 import { styled } from '@mui/material/styles';
 import { transactionService } from '@/app/services';
-
+import { useRouter } from 'next/navigation';
 const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
   boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
@@ -31,7 +33,7 @@ const DateTimeItem = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(0.5),
 }));
 
-const OnePurchasedCourse = ({course, refetchUserData, profileType}) => {
+const OnePurchasedCourse = ({course,  profileType}) => {
   const [openCancelDialog, setOpenCancelDialog] = useState(false);
   const [selectedDatesToCancel, setSelectedDatesToCancel] = useState([]);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -40,8 +42,7 @@ const OnePurchasedCourse = ({course, refetchUserData, profileType}) => {
   const [refundAmount, setRefundAmount] = useState(0);
   const [errorMessage, setErrorMessage] = useState('');
   const [showError, setShowError] = useState(false);
-  
-  console.log(course)
+  const router = useRouter();
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-GB', {
@@ -156,13 +157,21 @@ const OnePurchasedCourse = ({course, refetchUserData, profileType}) => {
         };
         response = await transactionService.cancelCourseDateAndRefund(data);
       }
-      
+      console.log(response)
+      console.log("variant", response.variant)
       if (response && response.variant === "success") {
-        // Refetch user data to get updated information
-        if (refetchUserData && typeof refetchUserData === 'function') {
-          refetchUserData();
-        }
-        console.log("Cancellation successful");
+        // Replace router.refresh() with window.location.reload()
+        window.location.reload();
+        setErrorMessage("Cancellation and refund processed successfully");
+        setShowError(false);
+        
+        // // Close dialogs and reset state
+        setOpenConfirmDialog(false);
+        setOpenCancelDialog(false);
+        setShowDateSelection(false);
+        setSelectedDatesToCancel([]);
+        setRefundAmount(0);
+        return;
       } else if (response && response.variant === "error") {
         // Display error message
         setErrorMessage(response.message || "Cancellation failed");
@@ -184,13 +193,6 @@ const OnePurchasedCourse = ({course, refetchUserData, profileType}) => {
       console.error("Error during cancellation:", error);
       return;
     }
-    
-    // Only close dialogs and reset state if cancellation was successful
-    setOpenConfirmDialog(false);
-    setOpenCancelDialog(false);
-    setShowDateSelection(false);
-    setSelectedDatesToCancel([]);
-    setRefundAmount(0);
   };
 
   const handleCloseErrorSnackbar = () => {

@@ -96,7 +96,7 @@ const UserTestGrid = ({ data, exportFileName = 'user-report' }) => {
         gap: 1
       }}>
         <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: 600 }}>
-          User Report
+          All User
         </Typography>
         <Box>
           <IconButton

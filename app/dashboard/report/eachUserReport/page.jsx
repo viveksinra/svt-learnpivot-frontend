@@ -1,6 +1,7 @@
 "use client";
 import { registrationService } from '@/app/services';
 import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { 
   Alert, 
   Box, 
@@ -28,7 +29,10 @@ import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
 import SearchIcon from '@mui/icons-material/Search';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+
 const EachUserReport = () => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [allUsers, setAllUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -129,29 +133,64 @@ const EachUserReport = () => {
     fetchAllUsers();
   }, []);
 
+  // Check URL params when allUsers is populated
+  useEffect(() => {
+    if (allUsers.length > 0) {
+      const type = searchParams.get('type');
+      const id = searchParams.get('id');
+      
+      if (type && id) {
+        setSearchMode(type);
+        const userFromParams = allUsers.find(user => user._id === id && user.type === type);
+        if (userFromParams) {
+          setSelectedUser(userFromParams);
+          setInputValue(userFromParams.name);
+        }
+      }
+    }
+  }, [allUsers, searchParams]);
+
   useEffect(() => {
     if (selectedUser) {
       fetchReport(selectedUser);
+      
+      // Update URL with selected user
+      const params = new URLSearchParams();
+      params.set('type', selectedUser.type);
+      params.set('id', selectedUser._id);
+      router.push(`?${params.toString()}`);
     }
-  }, [selectedUser]);
+  }, [selectedUser, router]);
 
   const handleSearchModeChange = (event, newValue) => {
     setSearchMode(newValue);
     setSelectedUser(null);
     setReportData(null);
     setInputValue('');
+    
+    // Clear URL params when changing search mode
+    router.push(`?`);
   };
 
   const filteredOptions = allUsers.filter(user => 
     searchMode === 'all' || user.type === searchMode
   );
+  
+  // Format the display value for the autocomplete input
+  const getOptionLabel = (option) => {
+    if (!option) return '';
+    if (option.type === 'child') {
+      return `${option.name} (${option.year}) - ${option.parent?.firstName || ''} ${option.parent?.lastName || ''}`;
+    }
+    return option.name;
+  };
 
   return (
     <Container maxWidth="xl">
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <AssessmentIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" fontWeight="bold">Each User Report</Typography>
+          <Typography variant="h5" fontWeight="bold">Each All User</Typography>
         </Box>
         
         {error && (
@@ -200,12 +239,7 @@ const EachUserReport = () => {
                 onInputChange={(event, newInputValue) => {
                   setInputValue(newInputValue);
                 }}
-                getOptionLabel={(option) => {
-                  if (option.type === 'child') {
-                    return `${option.name} (${option.year}) - ${option.parent?.firstName || ''} ${option.parent?.lastName || ''}`;
-                  }
-                  return option.name;
-                }}
+                getOptionLabel={getOptionLabel}
                 renderOption={(props, option) => (
                   <Box component="li" {...props} sx={{ flexWrap: 'wrap' }}>
                     <Avatar 
@@ -286,7 +320,7 @@ const EachUserReport = () => {
             </Grid>
           </Box>
         ) : reportData ? (
-          <UserReportMain reportData={reportData} profileType="admin"/>
+          <UserReportMain reportData={reportData} refetchUserData={fetchReport} profileType="admin"/>
         ) : selectedUser ? (
           <Box sx={{ textAlign: 'center', py: 5 }}>
             <AssessmentIcon color="action" sx={{ fontSize: 60, opacity: 0.5 }} />

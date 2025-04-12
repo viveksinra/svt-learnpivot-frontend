@@ -30,7 +30,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
     marginBottom: theme.spacing(0.5),
   }));
 
-const OnePurchasedMockTest = ({test, profileType}) => {
+const OnePurchasedMockTest = ({test,  profileType}) => {
     const [openCancelDialog, setOpenCancelDialog] = useState(false);
     const [selectedBatchesToCancel, setSelectedBatchesToCancel] = useState([]);
     const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
@@ -105,16 +105,56 @@ const OnePurchasedMockTest = ({test, profileType}) => {
       setOpenConfirmDialog(false);
     };
 
-    const handleFinalCancel = () => {
-      if (cancelMode === 'full') {
-        // Handle full booking cancellation
-        console.log('Cancelling full mock test booking:', test._id);
-        // Add API call here
-      } else {
-        // Handle cancellation of selected batches
-        console.log('Cancelling selected batches:', selectedBatchesToCancel.map(idx => test.selectedBatch[idx]));
-        // Add API call here
+    const handleFinalCancel = async() => {
+      try {
+        let response;
+        
+        if (cancelMode === 'full') {
+          // Handle full booking cancellation
+          const data = {
+            buyCourseId: course._id,
+            refundAmount,
+          };
+          response = await transactionService.cancelFullCourseAndRefund(data);
+        } else {
+          // Handle cancellation of selected dates
+          const data = {
+            buyCourseId: course._id,
+            refundAmount,
+            selectedDatesToCancel: selectedDatesToCancel,
+          };
+          response = await transactionService.cancelCourseDateAndRefund(data);
+        }
+        
+        if (response && response.variant === "success") {
+          // Refetch user data to get updated information
+          if (refetchUserData && typeof refetchUserData === 'function') {
+            refetchUserData();
+          }
+          console.log("Cancellation successful");
+        } else if (response && response.variant === "error") {
+          // Display error message
+          setErrorMessage(response.message || "Cancellation failed");
+          setShowError(true);
+          console.error("Cancellation failed", response);
+          
+          // Don't close dialogs on error so user can try again
+          return;
+        } else {
+          // Handle undefined or unexpected response
+          setErrorMessage("Unexpected response from server");
+          setShowError(true);
+          console.error("Cancellation failed", response);
+          return;
+        }
+      } catch (error) {
+        setErrorMessage(error.message || "Error during cancellation");
+        setShowError(true);
+        console.error("Error during cancellation:", error);
+        return;
       }
+
+
       setOpenConfirmDialog(false);
       setOpenCancelDialog(false);
       setShowBatchSelection(false);

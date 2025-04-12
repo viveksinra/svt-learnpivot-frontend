@@ -89,7 +89,7 @@ const ChildTestTable = ({ data }) => {
         gap: 2
       }}>
         <Typography variant="h5" sx={{ fontWeight: 600 }}>
-          Child Report
+          All Child
         </Typography>
       </Box>
       <DataGrid

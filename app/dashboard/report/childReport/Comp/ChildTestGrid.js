@@ -98,7 +98,7 @@ const ChildTestGrid = ({ data, exportFileName = 'child-report' }) => {
         gap: 1
       }}>
         <Typography variant={isMobile ? "h6" : "h5"} sx={{ fontWeight: 600 }}>
-          Child Report
+          All Child
         </Typography>
         <Box>
           <IconButton
