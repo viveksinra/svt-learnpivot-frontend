@@ -11,6 +11,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useLogout } from "@/app/hooks/auth/uselogout";
 import { CookieNotice } from "@/app/CookieNotice";
+import { authService, myProfileService } from "@/app/services";
 
 const Navbar = () => {
   const [collapsed, setCollapsed] = useState(true);
@@ -30,6 +31,28 @@ const Navbar = () => {
   const { logout } = useLogout();
 
 
+  useEffect(() => {
+    console.log("state?.isAuthenticated",state?.isAuthenticated)
+    if (state?.isAuthenticated && currentUser?.firstName) {
+    console.log("currentUser?.firstName",currentUser?.firstName)
+
+      const checkUserStatus = async () => {
+        try {
+          const response = await myProfileService.getCheckUserStatus();
+          if (response?.loginBlocked) {
+            logout();
+          }
+          
+          // else if(response == "undefined"){
+          //   logout();
+          // }
+        } catch (error) {
+          console.error('Error checking user status:', error);
+        }
+      };
+      checkUserStatus();
+    }
+  }, [ currentUser?.firstName ]);
   useEffect(() => {
     const handleScroll = () => {
       const elementId = document.getElementById("navbar");

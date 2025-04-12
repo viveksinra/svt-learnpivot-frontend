@@ -23,6 +23,7 @@ export class MyProfileService {
 
 
 
+
   updateMyProfile = async ( data) => {
     return this.instance
       .post(`/api/v1/publicMaster/otherApi/user/updateMyProfile`, data, {
@@ -63,6 +64,16 @@ export class MyProfileService {
       })
       .then((res) => res.data);
   };
+
+
+  getCheckUserStatus = async () => {
+    return this.instance
+      .get(`/api/v1/auth/passwordAuth/checkUserStatus`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
 
 
 }
