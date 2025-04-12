@@ -79,6 +79,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/addCourse",
       icon: <MdSchool className="drawer-icon" size={24} color="#2e7d32" />,
     },
+    { 
+      title: "User Course Access",
+      active: false,
+      link: "/dashboard/report/userCourseAccess",
+      icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />
+    },
     {
       title: "Mock Test",
       active: false,
@@ -161,6 +167,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/report/eachUserReport",
       icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />
     },
+
   ];
 
   // Transaction Items
