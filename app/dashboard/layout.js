@@ -156,7 +156,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
       icon: <MdFamilyRestroom className="drawer-icon" size={24} color="#c2185b" />
     },
     { 
-      title: "Each All User",
+      title: "Each User Report",
       active: false,
       link: "/dashboard/report/eachUserReport",
       icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />

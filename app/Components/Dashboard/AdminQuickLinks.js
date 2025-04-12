@@ -86,7 +86,7 @@ export const AdminQuickLinks = () => {
       items: [
         { title: "All User", link: "/dashboard/report/userReport", count: 482, isNew: true},
         { title: "All Child", link: "/dashboard/report/childReport", count: 95,isNew: true },
-        { title: "Each All User", link: "/dashboard/report/eachUserReport", count: 482,isNew: true }
+        { title: "Each User Report", link: "/dashboard/report/eachUserReport", count: 482,isNew: true }
       ],
       bgColor: theme.palette.info.light,
       accentColor: theme.palette.info.main,

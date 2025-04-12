@@ -190,7 +190,7 @@ const EachUserReport = () => {
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <AssessmentIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />
-          <Typography variant="h5" fontWeight="bold">Each All User</Typography>
+          <Typography variant="h5" fontWeight="bold">Each User Report</Typography>
         </Box>
         
         {error && (
