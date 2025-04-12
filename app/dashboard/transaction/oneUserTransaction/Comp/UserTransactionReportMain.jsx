@@ -81,6 +81,9 @@ const UserTransactionReportMain = ({ reportData }) => {
   if (!reportData) return null;
 
   const { user, statement } = reportData;
+  
+  // Return null if there are no transactions
+  if (!statement.transactions || statement.transactions.length === 0) return null;
 
   const formatCurrency = (amount) => {
     const formattedNumber = new Intl.NumberFormat('en-GB').format(amount);

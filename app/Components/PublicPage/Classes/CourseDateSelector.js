@@ -49,13 +49,11 @@ const CourseDateSelector = ({
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
-  console.log(data)
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
     ? new Date(today.getTime() - (data.backDayCount * 24 * 60 * 60 * 1000))
     : today;
-console.log("stopSkipSet",data.stopSkipSet);
   
   const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
     data.allBatch[0].oneBatch.length === 1 && 
@@ -104,22 +102,50 @@ console.log("stopSkipSet",data.stopSkipSet);
   };
 
   const isValidBatchSelection = (batchId, allBatches) => {
-    // New stopSkipSet logic: Force selection of the first available set if not already selected.
-    if (data.stopSkipSet) {
-        const firstAvailableSetIndex = data.allBatch.findIndex(b => !b.hide && !b.bookingFull && hasAvailableDatesInBatch(b));
-        if (firstAvailableSetIndex !== -1) {
-            const firstAvailableBatchId = data.allBatch[firstAvailableSetIndex]._id;
-            if (!selectedBatches.includes(firstAvailableBatchId) && batchId !== firstAvailableBatchId) {
-                return false;
-            }
-        }
-    }
-
-    // ...existing logic...
+    // Get the current batch index
     const validBatches = allBatches.filter(batch => !batch.hide && !batch.bookingFull);
     const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
     const currentBatch = validBatches[batchIndex];
     const currentBatchIndex = data.allBatch.findIndex(b => b._id === currentBatch._id);
+    
+    // Check if the previous set has any purchased dates
+    const previousSetIndex = currentBatchIndex - 1;
+    
+    const hasPurchasedDatesInPreviousSet = previousSetIndex >= 0 && 
+      data.allBatch[previousSetIndex]?.oneBatch?.some(date => alreadyBoughtDate.includes(date));
+    
+    // If the previous set has purchased dates, allow this set to be selected regardless of other rules
+    if (hasPurchasedDatesInPreviousSet) {
+        return true;
+    }
+    
+    // New stopSkipSet logic: 
+    // Allow selection if it's adjacent to a selected set, even if the first available set is not selected
+    if (data.stopSkipSet) {
+        // Get the first available set
+        const firstAvailableSetIndex = data.allBatch.findIndex(b => !b.hide && !b.bookingFull && hasAvailableDatesInBatch(b));
+
+        if (firstAvailableSetIndex !== -1) {
+            const firstAvailableBatchId = data.allBatch[firstAvailableSetIndex]._id;
+            
+            // Check if this selection is adjacent to a currently selected batch
+            const isAdjacentToSelectedBatch = selectedBatches.some(selectedId => {
+                const selectedIndex = data.allBatch.findIndex(b => b._id === selectedId);
+                return Math.abs(selectedIndex - currentBatchIndex) === 1;
+            });
+            
+            // Allow if:
+            // 1. The first available set is selected, or
+            // 2. This is the first available set, or
+            // 3. This selection is adjacent to an already selected batch
+            // 4. This selection is after a batch with purchased dates
+            if (!selectedBatches.includes(firstAvailableBatchId) && 
+                batchId !== firstAvailableBatchId && 
+                !isAdjacentToSelectedBatch) {
+                return false;
+            }
+        }
+    }
 
     if (lastPurchasedSetIndex >= 0) {
         if (currentBatchIndex <= lastPurchasedSetIndex) {
@@ -127,11 +153,12 @@ console.log("stopSkipSet",data.stopSkipSet);
         } else if (currentBatchIndex === lastPurchasedSetIndex + 1) {
             return true;
         } else if (currentBatchIndex === lastPurchasedSetIndex + 2) {
-            return selectedBatches.some(id => {
+            const hasMiddleSelected = selectedBatches.some(id => {
                 const batch = validBatches.find(b => b._id === id);
                 const index = data.allBatch.findIndex(b => b._id === batch?._id);
                 return index === currentBatchIndex - 1;
             });
+            return hasMiddleSelected;
         }
         return false;
     }
@@ -146,8 +173,9 @@ console.log("stopSkipSet",data.stopSkipSet);
     const minSelected = Math.min(...selectedIndices);
     const maxSelected = Math.max(...selectedIndices);
 
-    return batchIndex === minSelected - 1 || batchIndex === maxSelected + 1;
-};
+    const isAdjacent = batchIndex === minSelected - 1 || batchIndex === maxSelected + 1;
+    return isAdjacent;
+  };
 
   const handleBatchSelect = (batchId) => {
     if (data.forcefullBuyCourse) return;
@@ -168,7 +196,8 @@ console.log("stopSkipSet",data.stopSkipSet);
       }
     } else {
       // When selecting, only allow if it's adjacent to current selection
-      if (!isValidBatchSelection(batchId, data.allBatch)) {
+      const isValid = isValidBatchSelection(batchId, data.allBatch);
+      if (!isValid) {
         return;
       }
       updatedBatches = [...selectedBatches, batchId].sort();
@@ -296,6 +325,7 @@ console.log("stopSkipSet",data.stopSkipSet);
   };
 
   const isCheckboxDisabled = (batch, batchIndex) => {
+    
     // First check if the batch has any available dates
     if (!hasAvailableDatesInBatch(batch)) {
       return true;
@@ -305,13 +335,41 @@ console.log("stopSkipSet",data.stopSkipSet);
       return true;
     }
 
+    const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
+    
+    // Find the index of the last batch that has a purchased date
+    let lastPurchasedBatchIndex = -1;
+    for (let i = 0; i < data.allBatch.length; i++) {
+      if (data.allBatch[i].oneBatch.some(date => alreadyBoughtDate.includes(date))) {
+        lastPurchasedBatchIndex = i;
+      }
+    }
+    
+    
+    // If this batch immediately follows a batch with purchased dates, enable it
+    if (lastPurchasedBatchIndex !== -1 && actualBatchIndex === lastPurchasedBatchIndex + 1) {
+      return false;
+    }
+    
+    // Check if the previous set has any purchased dates
+    const previousSetIndex = actualBatchIndex - 1;
+    const hasPurchasedDatesInPreviousSet = previousSetIndex >= 0 && 
+      data.allBatch[previousSetIndex]?.oneBatch?.some(date => alreadyBoughtDate.includes(date));
+    
+    // If the previous set has purchased dates, allow this set to be selected
+    if (hasPurchasedDatesInPreviousSet) {
+      return false;
+    }
+
     const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
+    const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
     const selectedIndices = selectedBatches.map(id => 
       validBatches.findIndex(batch => batch._id === id)
     );
 
     if (selectedIndices.length === 0) {
-      return !isValidBatchSelection(batch._id, data.allBatch);
+      const result = !isValidBatchSelection(batch._id, data.allBatch);
+      return result;
     }
 
     const maxSelectedIndex = Math.max(...selectedIndices);
@@ -319,12 +377,13 @@ console.log("stopSkipSet",data.stopSkipSet);
     // If this batch is selected
     if (selectedBatches.includes(batch._id)) {
       // If there's a selected batch after this one, prevent unchecking
-      const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
-      return maxSelectedIndex > currentBatchIndex;
+      const result = maxSelectedIndex > currentBatchIndex;
+      return result;
     }
 
     // If not selected, use original validation logic
-    return !isValidBatchSelection(batch._id, data.allBatch);
+    const result = !isValidBatchSelection(batch._id, data.allBatch);
+    return result;
   };
 
   const getTooltipTitle = (batch, batchIndex, isDisabled) => {
@@ -334,6 +393,16 @@ console.log("stopSkipSet",data.stopSkipSet);
     
     if (batch.bookingFull) {
       return "Fully Booked";
+    }
+
+    // Check if the previous set has any purchased dates
+    const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
+    const previousSetIndex = actualBatchIndex - 1;
+    const hasPurchasedDatesInPreviousSet = previousSetIndex >= 0 && 
+      data.allBatch[previousSetIndex]?.oneBatch?.some(date => alreadyBoughtDate.includes(date));
+    
+    if (hasPurchasedDatesInPreviousSet) {
+      return "Available for selection";
     }
 
     const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
@@ -346,6 +415,7 @@ console.log("stopSkipSet",data.stopSkipSet);
     if (selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
       return "Cannot uncheck when later sets are selected";
     }
+    
     return isDisabled ? "Must purchase sets in order" : "";
   };
 
@@ -541,7 +611,8 @@ console.log("stopSkipSet",data.stopSkipSet);
               <Grid item xs={12} key={batch._id}>
                 <Paper elevation={2} sx={{ p: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <Tooltip title={tooltipTitle} placement="top">
+            
+        <Tooltip title={tooltipTitle} placement="top">
                       <span> {/* Wrapper needed for disabled elements */}
                         <Checkbox
                           checked={selectedBatches.includes(batch._id)}

@@ -24,6 +24,7 @@ import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
 import { MdDashboard, MdPayment, MdAccountCircle, MdLogout, MdPerson, MdMenu, MdChevronLeft } from "react-icons/md";
 import { FaUser, FaChild, FaFileAlt } from "react-icons/fa";
+import { FcEngineering } from "react-icons/fc";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
@@ -41,7 +42,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
     { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <MdPayment className="drawer-icon" size={24} color="#2e7d32" /> },
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <FaUser className="drawer-icon" size={22} color="#0288d1" /> },
     { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild className="drawer-icon" size={22} color="#d32f2f" /> },
-    { title: "My Balance", active: false, link: "/userDash/reports/myAccount", icon: <MdAccountCircle className="drawer-icon" size={24} color="#9c27b0" /> },
+    { title: "My Super Coin", active: false, link: "/userDash/reports/myAccount", icon: <FcEngineering className="drawer-icon" size={24} color="#9c27b0" /> },
     { title: "My Account", active: false, link: "/userDash/reports/myUserReport", icon: <FaFileAlt className="drawer-icon" size={22} color="#ed6c02" /> },
   ]);
 

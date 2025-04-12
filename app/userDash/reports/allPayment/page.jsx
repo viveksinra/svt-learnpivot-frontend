@@ -185,24 +185,22 @@ const columns = [
     valueGetter: (params) => moment(params.value).format('DD MMM YYYY'),
   },
   {
-    field: 'amountFromBalance',
-    headerName: 'Balance',
-    width: 100,
-    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
-  },
-  {
-    field: 'amountFromStripe',
-    headerName: 'Paid',
-    width: 100,
-    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
-  },
-  {
     field: 'amountPaid',
-    headerName: 'Total Amount',
-    width: 100,
-    valueGetter: (params) => `£${params.value?.toFixed(2)}`,
+    headerName: 'Amount',
+    width: 280,
+    renderCell: (params) => {
+      const total = params.row.amountPaid;
+      const fromStripe = params.row.amountFromStripe || 0;
+      const fromBalance = params.row.amountFromBalance || 0;
+      
+      return (
+        <Typography variant="body2">
+          £{total.toFixed(2)} ({fromStripe ? `£${fromStripe.toFixed(2)} paid` : '£0 paid'}
+          {fromBalance ? ` + £${fromBalance.toFixed(2)} supercoin` : ''})
+        </Typography>
+      );
+    },
   },
-
   {
     field: 'title',
     headerName: 'Course/Test',
