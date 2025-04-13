@@ -84,7 +84,7 @@ export function SearchArea({handleEdit}) {
         <Grid container>
           <Grid item xs={0} md={5}/>
           <Grid item xs={12} md={2}>
-          <Typography color="slateblue" style={{fontFamily: 'Courgette'}} variant='h6' align='center'>All Mock Test</Typography>
+          <Typography color="slateblue" style={{fontFamily: 'Courgette'}} variant='h6' align='center'>Mock Test</Typography>
           </Grid>
           <Grid item xs={12} md={5} sx={{display:"flex", justifyContent:"end", marginBottom:"20px"}}>
           <Search onChange={e=>setSearchText(e.target.value)} value={searchText} fullWidth endAdornment={<IconButton size="small" sx={{display: searchText ? "block": "none"}} onClick={()=>setSearchText("")}> <MdOutlineClose /></IconButton> } />

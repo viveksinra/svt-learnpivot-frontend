@@ -452,7 +452,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
             gutterBottom
             sx={{ fontFamily: 'Courgette', fontSize: { xs: '1.5rem', md: '2rem' } }}
           >
-            All Mock Tests
+            All Purchased Mock Tests
           </Typography>
         </Grid>
         <Grid item xs={12} md={6} sx={{display:"flex", justifyContent:"end", marginBottom:"20px", flexWrap: "wrap"}}>
