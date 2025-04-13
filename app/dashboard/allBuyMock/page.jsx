@@ -197,11 +197,12 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [successOnly, setSuccessOnly] = useState(true);
   const [containerWidth, setContainerWidth] = useState(1250);
   const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(100000);
+  const [pageSize, setPageSize] = useState(25);
   const [filterButtonEl, setFilterButtonEl] = useState(null);
 
   function CustomPagination() {
-    const pageCount = totalCount / pageSize;
+    const pageCount = Math.ceil(totalCount / pageSize);
+    
     const handleChangeRowsPerPage = (event) => {
       const newPageSize = parseInt(event.target.value, 10);
       setPageSize(newPageSize);
@@ -213,7 +214,8 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
         display: 'flex', 
         alignItems: 'center', 
         gap: 2,
-        padding: '8px'
+        padding: '8px',
+        borderTop: '1px solid rgba(224, 224, 224, 1)'
       }}>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography variant="body2" sx={{ mr: 2 }}>Rows per page:</Typography>
@@ -226,13 +228,16 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
               border: '1px solid #ccc'
             }}
           >
-            {[ 10, 25, 50, 100,1000,10000,50000].map((size) => (
+            {[10, 25, 50, 100, 1000].map((size) => (
               <option key={size} value={size}>
                 {size}
               </option>
             ))}
           </select>
         </Box>
+        <Typography variant="body2">
+          {totalCount > 0 ? `${page * pageSize + 1}-${Math.min((page + 1) * pageSize, totalCount)} of ${totalCount}` : `0 of ${totalCount}`}
+        </Typography>
         <ButtonGroup variant="outlined" size="small">
           <Button
             onClick={() => setPage(0)}
@@ -246,18 +251,15 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
           >
             Previous
           </Button>
-          <Button disabled>
-            Page {page + 1} of {Math.ceil(pageCount)}
-          </Button>
           <Button
-            onClick={() => setPage(Math.min(page + 1, pageCount))}
-            disabled={page >= Math.ceil(pageCount) - 1}
+            onClick={() => setPage(Math.min(page + 1, pageCount - 1))}
+            disabled={page >= pageCount - 1}
           >
             Next
           </Button>
           <Button
-            onClick={() => setPage(Math.ceil(pageCount) - 1)}
-            disabled={page >= Math.ceil(pageCount) - 1}
+            onClick={() => setPage(pageCount - 1)}
+            disabled={page >= pageCount - 1}
           >
             Last
           </Button>
@@ -452,7 +454,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
             gutterBottom
             sx={{ fontFamily: 'Courgette', fontSize: { xs: '1.5rem', md: '2rem' } }}
           >
-            All Mock Tests
+            All Purchased Mock Tests
           </Typography>
         </Grid>
         <Grid item xs={12} md={6} sx={{display:"flex", justifyContent:"end", marginBottom:"20px", flexWrap: "wrap"}}>
@@ -604,7 +606,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                   setPageSize(newPageSize);
                   setPage(0);
                 }}
-                pageSizeOptions={[ 10, 100, 1000, 10000, 100000 ]}
+                pageSizeOptions={[10, 25, 50, 100, 1000]}
                 checkboxSelection
                 disableRowSelectionOnClick
                 rowSelectionModel={selectedItems.map(item => item._id)}
@@ -865,19 +867,75 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
           })}
         </Grid>
       )}
-      <TablePagination
-        rowsPerPageOptions={[10, 100, 1000, 10000, 100000]}
-        component="div"
-        count={totalCount}
-        sx={{overflowX: "hidden"}}
-        rowsPerPage={pageSize}
-        page={page}
-        onPageChange={(e, v) => setPage(v)}
-        onRowsPerPageChange={e => {
-          setPageSize(parseInt(e.target.value, 10));
-          setPage(0);
-        }}
-      />
+      {!tabular && (
+        <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 2,
+            padding: '8px',
+            background: '#f5f5f5',
+            borderRadius: '8px'
+          }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mr: 2 }}>
+              <Typography variant="body2" sx={{ mr: 1 }}>Rows per page:</Typography>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(parseInt(e.target.value, 10));
+                  setPage(0);
+                }}
+                style={{
+                  padding: '4px 8px',
+                  borderRadius: '4px',
+                  border: '1px solid #ccc'
+                }}
+              >
+                {[10, 25, 50, 100, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </Box>
+            <Typography variant="body2" sx={{ mr: 2 }}>
+              {totalCount > 0 ? `${page * pageSize + 1}-${Math.min((page + 1) * pageSize, totalCount)} of ${totalCount}` : `0 of ${totalCount}`}
+            </Typography>
+            <Button
+              onClick={() => setPage(0)}
+              disabled={page === 0}
+              variant="outlined"
+              size="small"
+            >
+              First
+            </Button>
+            <Button
+              onClick={() => setPage(Math.max(page - 1, 0))}
+              disabled={page === 0}
+              variant="outlined"
+              size="small"
+            >
+              Previous
+            </Button>
+            <Button
+              onClick={() => setPage(Math.min(page + 1, Math.ceil(totalCount / pageSize) - 1))}
+              disabled={page >= Math.ceil(totalCount / pageSize) - 1}
+              variant="outlined"
+              size="small"
+            >
+              Next
+            </Button>
+            <Button
+              onClick={() => setPage(Math.ceil(totalCount / pageSize) - 1)}
+              disabled={page >= Math.ceil(totalCount / pageSize) - 1}
+              variant="outlined"
+              size="small"
+            >
+              Last
+            </Button>
+          </Box>
+        </div>
+      )}
       <br/> <br/> <br/>
     </main>
   );

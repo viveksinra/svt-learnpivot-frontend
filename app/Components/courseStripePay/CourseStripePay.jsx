@@ -254,7 +254,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                             color="primary"
                           />
                         }
-                        label="Use balance for this payment"
+                        label="Use coins for this payment"
                       />
                     </Box>
                   </Box>

@@ -340,7 +340,7 @@ const EachUserReport = () => {
                 </Box>
               }
               onClick={() => handleOpenModal('withdraw')}
-              disabled={loading}
+              disabled={loading || (reportData && reportData.statement.closingBalance <= 0)}
             >
               Withdraw
             </Button>
