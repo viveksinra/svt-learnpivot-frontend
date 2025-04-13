@@ -337,6 +337,19 @@ const CourseDateSelector = ({
 
     const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
     
+    // For selected batches with stopSkipSet: prevent deselection if there are later selected batches
+    if (data.stopSkipSet && selectedBatches.includes(batch._id)) {
+      // Check if there are any selected batches with a higher index
+      const hasLaterSelectedBatches = selectedBatches.some(id => {
+        const otherBatchIndex = data.allBatch.findIndex(b => b._id === id);
+        return otherBatchIndex > actualBatchIndex;
+      });
+      
+      if (hasLaterSelectedBatches) {
+        return true; // Disable checkbox if there are later selected batches
+      }
+    }
+    
     // Find the index of the last batch that has a purchased date
     let lastPurchasedBatchIndex = -1;
     for (let i = 0; i < data.allBatch.length; i++) {
@@ -344,7 +357,6 @@ const CourseDateSelector = ({
         lastPurchasedBatchIndex = i;
       }
     }
-    
     
     // If this batch immediately follows a batch with purchased dates, enable it
     if (lastPurchasedBatchIndex !== -1 && actualBatchIndex === lastPurchasedBatchIndex + 1) {
@@ -393,6 +405,19 @@ const CourseDateSelector = ({
     
     if (batch.bookingFull) {
       return "Fully Booked";
+    }
+
+    // If this is a selected batch and stopSkipSet is true, check if there are later selected batches
+    if (data.stopSkipSet && selectedBatches.includes(batch._id)) {
+      const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
+      const hasLaterSelectedBatches = selectedBatches.some(id => {
+        const otherBatchIndex = data.allBatch.findIndex(b => b._id === id);
+        return otherBatchIndex > actualBatchIndex;
+      });
+      
+      if (hasLaterSelectedBatches) {
+        return "You must unselect later sets first";
+      }
     }
 
     // Check if the previous set has any purchased dates
