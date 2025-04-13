@@ -102,6 +102,11 @@ const CourseDateSelector = ({
   };
 
   const isValidBatchSelection = (batchId, allBatches) => {
+    // If stopSkipSet is false, allow any batch to be selected
+    if (!data.stopSkipSet) {
+      return true;
+    }
+
     // Get the current batch index
     const validBatches = allBatches.filter(batch => !batch.hide && !batch.bookingFull);
     const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
@@ -182,23 +187,32 @@ const CourseDateSelector = ({
 
     let updatedBatches;
     if (selectedBatches.includes(batchId)) {
-      // When deselecting, only allow if it's at the end of the sequence
-      const validBatches = data.allBatch.filter(batch => !batch.hide && !batch.bookingFull);
-      const selectedIndices = selectedBatches.map(id => 
-        validBatches.findIndex(batch => batch._id === id)
-      );
-      const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
-      
-      if (batchIndex === Math.max(...selectedIndices) || batchIndex === Math.min(...selectedIndices)) {
-        updatedBatches = selectedBatches.filter((id) => id !== batchId);
+      // When deselecting, only apply restrictions if stopSkipSet is true
+      if (data.stopSkipSet) {
+        // When deselecting, only allow if it's at the end of the sequence
+        const validBatches = data.allBatch.filter(batch => !batch.hide && !batch.bookingFull);
+        const selectedIndices = selectedBatches.map(id => 
+          validBatches.findIndex(batch => batch._id === id)
+        );
+        const batchIndex = validBatches.findIndex(batch => batch._id === batchId);
+        
+        if (batchIndex === Math.max(...selectedIndices) || batchIndex === Math.min(...selectedIndices)) {
+          updatedBatches = selectedBatches.filter((id) => id !== batchId);
+        } else {
+          return; // Cannot deselect from middle of sequence
+        }
       } else {
-        return; // Cannot deselect from middle of sequence
+        // If stopSkipSet is false, allow deselection of any batch
+        updatedBatches = selectedBatches.filter((id) => id !== batchId);
       }
     } else {
-      // When selecting, only allow if it's adjacent to current selection
-      const isValid = isValidBatchSelection(batchId, data.allBatch);
-      if (!isValid) {
-        return;
+      // When selecting, only apply restrictions if stopSkipSet is true
+      if (data.stopSkipSet) {
+        // When selecting, only allow if it's adjacent to current selection
+        const isValid = isValidBatchSelection(batchId, data.allBatch);
+        if (!isValid) {
+          return;
+        }
       }
       updatedBatches = [...selectedBatches, batchId].sort();
     }
@@ -373,6 +387,11 @@ const CourseDateSelector = ({
       return false;
     }
 
+    // If stopSkipSet is false, allow any selection pattern
+    if (!data.stopSkipSet) {
+      return false;
+    }
+
     const validBatches = data.allBatch.filter(b => !b.hide && !b.bookingFull);
     const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
     const selectedIndices = selectedBatches.map(id => 
@@ -407,6 +426,11 @@ const CourseDateSelector = ({
       return "Fully Booked";
     }
 
+    // If stopSkipSet is false and the batch is not fully booked, just return empty string
+    if (!data.stopSkipSet && !batch.bookingFull) {
+      return "";
+    }
+
     // If this is a selected batch and stopSkipSet is true, check if there are later selected batches
     if (data.stopSkipSet && selectedBatches.includes(batch._id)) {
       const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
@@ -437,7 +461,7 @@ const CourseDateSelector = ({
     const maxSelectedIndex = Math.max(...selectedIndices);
     const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
     
-    if (selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
+    if (data.stopSkipSet && selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
       return "Cannot uncheck when later sets are selected";
     }
     

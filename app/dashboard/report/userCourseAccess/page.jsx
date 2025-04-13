@@ -12,7 +12,14 @@ import {
   Paper,
   Divider,
   Snackbar,
-  Alert
+  Alert,
+  Card,
+  CardContent,
+  Stack,
+  Chip,
+  CircularProgress,
+  Container,
+  IconButton
 } from "@mui/material";
 import { dashboardService, registrationService, myCourseService } from "@/app/services";
 
@@ -40,6 +47,7 @@ const UserCourseAccess = () => {
   const [restrictOnTotalSeat, setRestrictOnTotalSeat] = useState(false);
   const [totalSeat, setTotalSeat] = useState("0");
   const [hasCourseAccessFile, setHasCourseAccessFile] = useState("");
+  const [enableSeperateUserAccessForCourse, setEnableSeperateUserAccessForCourse] = useState(false);
 
   // State for the save operation
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -240,6 +248,8 @@ const UserCourseAccess = () => {
     setBackDayCount("0");
     setRestrictOnTotalSeat(false);
     setTotalSeat("0");
+    setParentAccessError(null);
+    setEnableSeperateUserAccessForCourse(false);
   };
 
   // Function to clear all data including hasCourseAccessFile
@@ -253,6 +263,7 @@ const UserCourseAccess = () => {
     if (selectedParent && selectedCourse) {
       GetOneUserOneCourseAccess();
       DoesParentHaveCourseAccess();
+      setParentAccessError(null);
     }
   }, [selectedParent, selectedCourse]);
 
@@ -284,6 +295,7 @@ const UserCourseAccess = () => {
       let res = await myCourseService.SaveOrUpdateOneCourseAccessApi(dataToSave);
       if (res.variant === "success") {
         setSaveSuccess(true);
+        GetOneUserOneCourseAccess();
       } else {
         setError(res.message || "Failed to save configuration");
         setSaveError(true);
@@ -304,260 +316,316 @@ const UserCourseAccess = () => {
   };
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom>
-        User Course Access
-      </Typography>
-      
-      <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-        <Grid container spacing={3}>
-          {/* Step 1: Select Parent */}
-          <Grid item xs={12} md={6}>
-            <Autocomplete
-              id="parent-select"
-              options={allUsers}
-              value={selectedParent}
-              onChange={(event, newValue) => {
-                setSelectedParent(newValue);
-              }}
-              getOptionLabel={(option) => {
-                const childrenNames = option.children?.map(child => child.childName).join(', ') || '';
-                return `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) ${childrenNames ? `[Children: ${childrenNames}]` : ''}`;
-              }}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Select Parent"
-                  placeholder="Search by name, email or mobile"
-                  required
+    <Container maxWidth="lg">
+      <Box sx={{ py: 4 }}>
+        <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
+          User Course Access Management
+        </Typography>
+        
+        <Card elevation={3} sx={{ mb: 4, overflow: 'visible' }}>
+          <CardContent sx={{ p: 3 }}>
+            <Typography variant="h6" gutterBottom color="text.secondary" sx={{ mb: 3 }}>
+              Select User and Course
+            </Typography>
+            
+            <Grid container spacing={3}>
+              {/* Step 1: Select Parent */}
+              <Grid item xs={12} md={6}>
+                <Autocomplete
+                  id="parent-select"
+                  options={allUsers}
+                  value={selectedParent}
+                  onChange={(event, newValue) => {
+                    setSelectedParent(newValue);
+                  }}
+                  getOptionLabel={(option) => {
+                    const childrenNames = option.children?.map(child => child.childName).join(', ') || '';
+                    return `${option.firstName || ''} ${option.lastName || ''} (${option.email || ''}) ${childrenNames ? `[Children: ${childrenNames}]` : ''}`;
+                  }}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Select Parent"
+                      placeholder="Search by name, email or mobile"
+                      required
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
+                    />
+                  )}
+                  loading={loading}
+                  disabled={loading}
+                  loadingText="Loading users..."
+                  noOptionsText="No users found"
                 />
-              )}
-              loading={loading}
-              disabled={loading}
-            />
-          </Grid>
+              </Grid>
 
-          {/* Step 2: Select Course */}
-          <Grid item xs={12} md={6}>
-            <Autocomplete
-              id="course-select"
-              options={courseDropDown}
-              value={selectedCourse}
-              onChange={(event, newValue) => {
-                setSelectedCourse(newValue);
-              }}
-              getOptionLabel={(option) => option.courseTitle || ''}
-              renderInput={(params) => (
-                <TextField
-                  {...params}
-                  variant="outlined"
-                  label="Select Course"
-                  placeholder="Search course"
-                  required
+              {/* Step 2: Select Course */}
+              <Grid item xs={12} md={6}>
+                <Autocomplete
+                  id="course-select"
+                  options={courseDropDown}
+                  value={selectedCourse}
+                  onChange={(event, newValue) => {
+                    setSelectedCourse(newValue);
+                  }}
+                  getOptionLabel={(option) => option.courseTitle || ''}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      variant="outlined"
+                      label="Select Course"
+                      placeholder="Search course"
+                      required
+                      InputLabelProps={{ shrink: true }}
+                      fullWidth
+                    />
+                  )}
+                  loading={loading}
+                  disabled={loading || !selectedParent}
+                  loadingText="Loading courses..."
+                  noOptionsText="No courses found"
                 />
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+
+        {/* Parent Course Access Toggle */}
+        {selectedParent && selectedCourse && (
+          <Card elevation={3} sx={{ mb: 4, overflow: 'visible' }}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Typography variant="h6" color="text.secondary">
+                  1. Parent Course Access 
+                </Typography>
+                <Chip 
+                  label={onlySelectedParent ? "Has Access" : "No Access"} 
+                  color={onlySelectedParent ? "success" : "error"} 
+                  variant="filled" 
+                  sx={{ fontWeight: 'medium' }}
+                />
+              </Stack>
+              
+              {parentAccessError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {parentAccessError}
+                </Alert>
               )}
-              loading={loading}
-              disabled={loading || !selectedParent}
-            />
-          </Grid>
-        </Grid>
-      </Paper>
-
-      {/* Parent Course Access Toggle */}
-      {selectedParent && selectedCourse && (
-        <Paper elevation={3} sx={{ p: 3, mb: 4 }}>
-          <Typography variant="h5" gutterBottom>
-           1. Parent Course Access 
-          </Typography>
-          <Typography variant="h6" gutterBottom>
-           {onlySelectedParent ? "Parent has access to course" : "Parent does not have access to course"}
-          </Typography>
-          <Typography variant="h6" gutterBottom color="error">
-          {parentAccessError}
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
-          
-          <Grid container spacing={2} alignItems="center">
-            
-            <Grid item xs={12} md={6} sx={{ textAlign: 'right' }}>
-              <Button
-                variant="contained"
-                color={!onlySelectedParent ? "primary" : "error"}
-                onClick={AddParentToCourseAccess}
-                disabled={loading}
-                sx={{ mr: 2 }}
-              >
-                {!onlySelectedParent ? "Grant Access" : "Remove Access"}
-              </Button>
-
-            </Grid>
-          </Grid>
-        </Paper>
-      )}
-
-      {/* Configuration Options */}
-      {selectedParent && selectedCourse && (
-        <Paper elevation={3} sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>
-            Access Configuration
-          </Typography>
-          <Divider sx={{ mb: 3 }} />
-          
-      {(hasCourseAccessFile === "yes" || hasCourseAccessFile === "no") ? 
-   (   <Grid container spacing={2}>
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={restrictStartDateChange}
-                    onChange={() => setRestrictStartDateChange(!restrictStartDateChange)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label="Restrict Start Date Change"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={forcefullBuyCourse}
-                    onChange={() => setForcefullBuyCourse(!forcefullBuyCourse)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label="Force Full Buy Course"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={stopSkipSet}
-                    onChange={() => setStopSkipSet(!stopSkipSet)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label="Force Continuous Set Buy"
-              />
-            </Grid>
-            
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={allowBackDateBuy}
-                    onChange={() => setAllowBackDateBuy(!allowBackDateBuy)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label="Allow Back Date Buy"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={8}>
-              <TextField
-                fullWidth
-                label="Back Days"
-                type="number"
-                value={backDayCount}
-                onChange={(e) => {
-                  const value = Math.max(0, parseInt(e.target.value) || 0);
-                  setBackDayCount(value.toString());
-                }}
-                inputProps={{ min: "0", step: "1" }}
-                variant="outlined"
-                disabled={!allowBackDateBuy}
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={4}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={restrictOnTotalSeat}
-                    onChange={() => setRestrictOnTotalSeat(!restrictOnTotalSeat)}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label="Restrict On Total-Seat"
-              />
-            </Grid>
-            
-            <Grid item xs={12} md={8}>
-              <TextField
-                fullWidth
-                label="Total Seat"
-                type="number"
-                value={totalSeat}
-                onChange={(e) => {
-                  const value = Math.max(0, parseInt(e.target.value) || 0);
-                  setTotalSeat(value.toString());
-                }}
-                inputProps={{ min: "0", step: "1" }}
-                placeholder="Total Seat"
-                variant="outlined"
-                disabled={!restrictOnTotalSeat}
-              />
-            </Grid>
-            
-            <Grid item xs={12} sx={{ mt: 3, textAlign: 'right' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={handleSave}
-                disabled={loading}
-              >
-                {loading ? "Saving..." : "Save Configuration"}
-              </Button>
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={DeleteOneUserOneCourseAccess}
-                disabled={loading}
-              >
-                Delete All Access
-              </Button>
-            </Grid>
-          </Grid>)
-        :
-       ( <>
-                <Typography variant="h6" gutterBottom>Not able to fetch Access Configuration</Typography>
+              
+              <Divider sx={{ mb: 3 }} />
+              
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                onClick={GetOneUserOneCourseAccess}
-                disabled={loading}
+                  variant="contained"
+                  color={!onlySelectedParent ? "primary" : "error"}
+                  onClick={AddParentToCourseAccess}
+                  disabled={loading}
+                  sx={{ 
+                    px: 3, 
+                    py: 1,
+                    borderRadius: 2,
+                    boxShadow: 2
+                  }}
+                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
                 >
-                Fetch Data ~ {hasCourseAccessFile}
+                  {!onlySelectedParent ? "Grant Access" : "Remove Access"}
                 </Button>
-        </>)
-        }
-        </Paper>
-      )}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
 
-      {/* Success/Error Snackbars */}
-      <Snackbar open={saveSuccess} autoHideDuration={6000} onClose={handleCloseAlert}>
-        <Alert onClose={handleCloseAlert} severity="success" sx={{ width: '100%' }}>
-          Configuration saved successfully!
-        </Alert>
-      </Snackbar>
-      
-      <Snackbar open={saveError} autoHideDuration={6000} onClose={handleCloseAlert}>
-        <Alert onClose={handleCloseAlert} severity="error" sx={{ width: '100%' }}>
-          {error || "Error saving configuration. Please try again."}
-        </Alert>
-      </Snackbar>
-    </Box>
+        {/* Configuration Options */}
+        {selectedParent && selectedCourse && (
+          <Card elevation={3}>
+            <CardContent sx={{ p: 3 }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+                <Typography variant="h6" color="text.secondary">
+                  2. Access Configuration
+                </Typography>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={enableSeperateUserAccessForCourse}
+                      onChange={() => setEnableSeperateUserAccessForCourse(!enableSeperateUserAccessForCourse)}
+                      color="primary"
+                    />
+                  }
+                  label="Enable Separate User Access"
+                />
+              </Stack>
+              
+              <Divider sx={{ mb: 3 }} />
+              
+              {(hasCourseAccessFile === "yes" || hasCourseAccessFile === "no") ? (
+                <Box sx={{
+                  border: enableSeperateUserAccessForCourse ? "1px solid #4caf50" : "1px solid #f44336",
+                  borderRadius: "12px",
+                  p: 3,
+                  backgroundColor: enableSeperateUserAccessForCourse ? "rgba(76, 175, 80, 0.05)" : "rgba(244, 67, 54, 0.05)",
+                  transition: "all 0.3s ease",
+                }}>
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={4}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={restrictStartDateChange}
+                            onChange={() => setRestrictStartDateChange(!restrictStartDateChange)}
+                            color="primary"
+                          />
+                        }
+                        label="Restrict Start Date Change"
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={forcefullBuyCourse}
+                            onChange={() => setForcefullBuyCourse(!forcefullBuyCourse)}
+                            color="primary"
+                          />
+                        }
+                        label="Force Full Buy Course"
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={stopSkipSet}
+                            onChange={() => setStopSkipSet(!stopSkipSet)}
+                            color="primary"
+                          />
+                        }
+                        label="Force Continuous Set Buy"
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12}>
+                      <Divider sx={{ my: 2 }} />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={4}>
+                      <FormControlLabel
+                        control={
+                          <Checkbox
+                            checked={allowBackDateBuy}
+                            onChange={() => setAllowBackDateBuy(!allowBackDateBuy)}
+                            color="primary"
+                          />
+                        }
+                        label="Allow Back Date Buy"
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={8}>
+                      <TextField
+                        fullWidth
+                        label="Back Days"
+                        type="number"
+                        value={backDayCount}
+                        onChange={(e) => {
+                          const value = Math.max(0, parseInt(e.target.value) || 0);
+                          setBackDayCount(value.toString());
+                        }}
+                        inputProps={{ min: "0", step: "1" }}
+                        variant="outlined"
+                        disabled={!allowBackDateBuy}
+                        size="small"
+                      />
+                    </Grid>
+                    
+               
+                    
+               
+                    
+                    <Grid item xs={12}>
+                      <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 3 }}>
+                        {hasCourseAccessFile === "yes" && <Button
+                          variant="outlined"
+                          color="error"
+                          onClick={DeleteOneUserOneCourseAccess}
+                          disabled={loading}
+                          sx={{ borderRadius: 2 }}
+                        >
+                          Delete All Access
+                        </Button>}
+                        <Button
+                          variant="contained"
+                          color="primary"
+                          onClick={handleSave}
+                          disabled={loading}
+                          sx={{ 
+                            px: 3, 
+                            borderRadius: 2,
+                            boxShadow: 2
+                          }}
+                          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                        >
+                          {loading ? "Saving..." : hasCourseAccessFile === "yes" ? "Update Configuration" : "Save Configuration"}
+                        </Button>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </Box>
+              ) : (
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  p: 5,
+                  backgroundColor: "rgba(0, 0, 0, 0.02)",
+                  borderRadius: 2
+                }}>
+                  <Typography variant="body1" gutterBottom color="text.secondary" sx={{ mb: 2 }}>
+                    Not able to fetch Access Configuration
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={GetOneUserOneCourseAccess}
+                    disabled={loading}
+                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                    sx={{ borderRadius: 2 }}
+                  >
+                    Fetch Data ~ {hasCourseAccessFile}
+                  </Button>
+                </Box>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Success/Error Snackbars */}
+        <Snackbar 
+          open={saveSuccess} 
+          autoHideDuration={4000} 
+          onClose={handleCloseAlert}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <Alert onClose={handleCloseAlert} severity="success" variant="filled" sx={{ width: '100%' }}>
+            Configuration saved successfully!
+          </Alert>
+        </Snackbar>
+        
+        <Snackbar 
+          open={saveError} 
+          autoHideDuration={6000} 
+          onClose={handleCloseAlert}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        >
+          <Alert onClose={handleCloseAlert} severity="error" variant="filled" sx={{ width: '100%' }}>
+            {error || "Error saving configuration. Please try again."}
+          </Alert>
+        </Snackbar>
+      </Box>
+    </Container>
   );
 };
 
