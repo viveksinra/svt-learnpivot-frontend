@@ -223,6 +223,7 @@ const UserCourseAccess = () => {
                 setBackDayCount((config.backDayCount || 0).toString());
                 setRestrictOnTotalSeat(config.restrictOnTotalSeat || false);
                 setTotalSeat((config.totalSeat || 0).toString());
+                setEnableSeperateUserAccessForCourse(config.enableSeperateUserAccessForCourse || false);
             }
         } else if(res.hasCourseAccessFile != "yes" && res.hasCourseAccessFile != "no") {
             setHasCourseAccessFile("");
@@ -285,6 +286,7 @@ const UserCourseAccess = () => {
           forcefullBuyCourse,
           stopSkipSet,
           allowBackDateBuy,
+          enableSeperateUserAccessForCourse,
           backDayCount: parseInt(backDayCount),
           restrictOnTotalSeat,
           totalSeat: parseInt(totalSeat)

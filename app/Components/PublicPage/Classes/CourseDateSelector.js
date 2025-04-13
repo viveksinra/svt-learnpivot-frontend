@@ -49,10 +49,17 @@ const CourseDateSelector = ({
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
+  const [bookingRule, setBookingRule] = useState({
+  restrictStartDateChange: data?.restrictStartDateChange,
+              forcefullBuyCourse: data?.forcefullBuyCourse,
+              stopSkipSet: data?.stopSkipSet,
+              backDayCount: data?.backDayCount,
+              allowBackDateBuy: data?.allowBackDateBuy,   
+  });
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
-    ? new Date(today.getTime() - (data.backDayCount * 24 * 60 * 60 * 1000))
+    ? new Date(today.getTime() - (bookingRule.backDayCount * 24 * 60 * 60 * 1000))
     : today;
   
   const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
@@ -87,13 +94,13 @@ const CourseDateSelector = ({
   }, [selectedDates, data?.oneClassPrice, setFrontEndTotal]);
 
   useEffect(() => {
-    if (data.forcefullBuyCourse && data?.allBatch) {
+    if (bookingRule.forcefullBuyCourse && data?.allBatch) {
       const availableBatchIds = data.allBatch
         .filter(b => !b.hide && !b.bookingFull)
         .map(b => b._id);
       setSelectedBatches(availableBatchIds);
     }
-  }, [data.forcefullBuyCourse, data?.allBatch]);
+  }, [bookingRule.forcefullBuyCourse, data?.allBatch]);
 
   const findSetIndexForDate = (date) => {
     return data?.allBatch?.findIndex(batch => 
@@ -103,7 +110,7 @@ const CourseDateSelector = ({
 
   const isValidBatchSelection = (batchId, allBatches) => {
     // If stopSkipSet is false, allow any batch to be selected
-    if (!data.stopSkipSet) {
+    if (!bookingRule.stopSkipSet) {
       return true;
     }
 
@@ -126,7 +133,7 @@ const CourseDateSelector = ({
     
     // New stopSkipSet logic: 
     // Allow selection if it's adjacent to a selected set, even if the first available set is not selected
-    if (data.stopSkipSet) {
+    if (bookingRule.stopSkipSet) {
         // Get the first available set
         const firstAvailableSetIndex = data.allBatch.findIndex(b => !b.hide && !b.bookingFull && hasAvailableDatesInBatch(b));
 
@@ -183,12 +190,12 @@ const CourseDateSelector = ({
   };
 
   const handleBatchSelect = (batchId) => {
-    if (data.forcefullBuyCourse) return;
+    if (bookingRule.forcefullBuyCourse) return;
 
     let updatedBatches;
     if (selectedBatches.includes(batchId)) {
       // When deselecting, only apply restrictions if stopSkipSet is true
-      if (data.stopSkipSet) {
+      if (bookingRule.stopSkipSet) {
         // When deselecting, only allow if it's at the end of the sequence
         const validBatches = data.allBatch.filter(batch => !batch.hide && !batch.bookingFull);
         const selectedIndices = selectedBatches.map(id => 
@@ -207,7 +214,7 @@ const CourseDateSelector = ({
       }
     } else {
       // When selecting, only apply restrictions if stopSkipSet is true
-      if (data.stopSkipSet) {
+      if (bookingRule.stopSkipSet) {
         // When selecting, only allow if it's adjacent to current selection
         const isValid = isValidBatchSelection(batchId, data.allBatch);
         if (!isValid) {
@@ -308,6 +315,23 @@ const CourseDateSelector = ({
       
         if (res.variant === "success") {
           setAlreadyBoughtDate(res.boughtDates);
+          if(res.userCourseAccess){
+  
+            const userAccess = res?.userCourseAccess;
+            setBookingRule({
+              restrictStartDateChange: userAccess?.restrictStartDateChange,
+              forcefullBuyCourse: userAccess?.forcefullBuyCourse,
+              stopSkipSet: userAccess?.stopSkipSet,
+              backDayCount: userAccess?.backDayCount,
+              allowBackDateBuy: userAccess?.allowBackDateBuy,   
+
+            })
+            setHideStartDateSelector(res.enableSeperateUserAccessForCourse);
+            setLastPurchasedSetIndex(res.filledSeat);
+            setStartDate(res.date);
+            handleStartDateChange({target: {value: res.date}});
+     
+          }
           if(res.boughtDates.length > 0){
            setHideStartDateSelector(true);
            const maxDate = new Date(Math.max(...res.boughtDates.map(d => new Date(d))));
@@ -345,14 +369,14 @@ const CourseDateSelector = ({
       return true;
     }
 
-    if (batch.bookingFull || data.forcefullBuyCourse) {
+    if (batch.bookingFull || bookingRule.forcefullBuyCourse) {
       return true;
     }
 
     const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
     
     // For selected batches with stopSkipSet: prevent deselection if there are later selected batches
-    if (data.stopSkipSet && selectedBatches.includes(batch._id)) {
+    if (bookingRule.stopSkipSet && selectedBatches.includes(batch._id)) {
       // Check if there are any selected batches with a higher index
       const hasLaterSelectedBatches = selectedBatches.some(id => {
         const otherBatchIndex = data.allBatch.findIndex(b => b._id === id);
@@ -388,7 +412,7 @@ const CourseDateSelector = ({
     }
 
     // If stopSkipSet is false, allow any selection pattern
-    if (!data.stopSkipSet) {
+    if (!bookingRule.stopSkipSet) {
       return false;
     }
 
@@ -427,12 +451,12 @@ const CourseDateSelector = ({
     }
 
     // If stopSkipSet is false and the batch is not fully booked, just return empty string
-    if (!data.stopSkipSet && !batch.bookingFull) {
+    if (!bookingRule.stopSkipSet && !batch.bookingFull) {
       return "";
     }
 
     // If this is a selected batch and stopSkipSet is true, check if there are later selected batches
-    if (data.stopSkipSet && selectedBatches.includes(batch._id)) {
+    if (bookingRule.stopSkipSet && selectedBatches.includes(batch._id)) {
       const actualBatchIndex = data.allBatch.findIndex(b => b._id === batch._id);
       const hasLaterSelectedBatches = selectedBatches.some(id => {
         const otherBatchIndex = data.allBatch.findIndex(b => b._id === id);
@@ -461,7 +485,7 @@ const CourseDateSelector = ({
     const maxSelectedIndex = Math.max(...selectedIndices);
     const currentBatchIndex = validBatches.findIndex(b => b._id === batch._id);
     
-    if (data.stopSkipSet && selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
+    if (bookingRule.stopSkipSet && selectedBatches.includes(batch._id) && maxSelectedIndex > currentBatchIndex) {
       return "Cannot uncheck when later sets are selected";
     }
     
@@ -543,13 +567,13 @@ const CourseDateSelector = ({
             </Typography>
             <Typography variant="body1" sx={{ mt: 2 }}>
               <ul>
-                {data.forcefullBuyCourse && (
+                {bookingRule.forcefullBuyCourse && (
                   <li>This is a single-class course that must be booked in its entirety.</li>
                 )}
                 {data.restrictOnTotalSeat && (
                   <li>Limited availability: Only {data.totalSeat} total seats available for this class.</li>
                 )}
-                {data.restrictStartDateChange && (
+                {bookingRule.restrictStartDateChange && (
                   <li>The class date cannot be changed once selected.</li>
                 )}
                 <li>Classes in the past cannot be booked.</li>
@@ -589,7 +613,7 @@ const CourseDateSelector = ({
           <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
          <StartDateShowCase   startDate={startDate} frontEndTotal={frontEndTotal}
    />
-       {  (!data.restrictStartDateChange && !data.forcefullBuyCourse && !hideStartDateSelector) &&   <FormControl fullWidth variant="outlined" size="small">
+       {  (!bookingRule.restrictStartDateChange && !bookingRule.forcefullBuyCourse && !hideStartDateSelector) &&   <FormControl fullWidth variant="outlined" size="small">
               <Select
                 value={startDate}
                 onChange={handleStartDateChange}
