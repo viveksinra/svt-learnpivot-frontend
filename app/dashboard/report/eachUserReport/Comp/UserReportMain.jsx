@@ -546,7 +546,12 @@ const UserReportMain = ({ reportData, profileType }) => {
             {getChildMockTests().length > 0 ? (
               <Grid container spacing={3}>
                 {getChildMockTests().map((test) => (
-         <OnePurchasedMockTest test ={test} profileType={profileType} />
+                  test.selectedBatch?.length > 0 ? (
+                    <OnePurchasedMockTest test ={test} profileType={profileType} />
+                  ) : (
+                    < >
+                    </>
+                  )
                 ))}
               </Grid>
             ) : (
