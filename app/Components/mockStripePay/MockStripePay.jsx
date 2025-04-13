@@ -43,7 +43,7 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
   // State to track acceptance of the terms
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [currentBalance, setCurrentBalance] = useState(0);
-  // New state to track if user wants to use balance
+  // New state to track if user wants to Use coins
   const [useBalance, setUseBalance] = useState(true);
   // Calculate the amount to be paid through Stripe
   const amountToPayWithStripe = useBalance 
@@ -283,7 +283,7 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
                       color="primary"
                     />
                   }
-                  label="Use balance for this payment"
+                  label="Use coins for this payment"
                 />
               </Box>
             </Box>
