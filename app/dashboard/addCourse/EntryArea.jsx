@@ -75,7 +75,7 @@ const EntryArea = forwardRef((props, ref) => {
          { label: "Crash Course", id: "crashCourse" },
         ];
     const allSubject = [
-        { label: "Math", id: "math" },
+        { label: "Maths", id: "maths" },
         { label: "English", id: "english" },      
         { label: "Other", id: "other" }
     ];
