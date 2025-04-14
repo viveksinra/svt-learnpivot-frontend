@@ -4,14 +4,17 @@ import {
   Box, 
   Typography, 
   Tabs, 
-  Tab
+  Tab,
+  Button
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import SchoolIcon from '@mui/icons-material/School';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import CourseAccessCom from './AccessCom/CourseAccessCom';
 import MockAccessCom from './AccessCom/MockAccessCom';
+import Link from 'next/link';
 
 // Styled components
 const SectionTitle = styled(Typography)(({ theme }) => ({
@@ -28,6 +31,11 @@ const ContentSection = styled(Box)(({ theme }) => ({
   borderRadius: '12px',
   backgroundColor: theme.palette.background.paper,
   boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+}));
+
+const BuyButton = styled(Button)(({ theme }) => ({
+  marginLeft: theme.spacing(1),
+  textTransform: 'none',
 }));
 
 const OneAccessCom = ({ reportData, selectedChild, selectedChildName, profileType }) => {
@@ -171,11 +179,58 @@ const OneAccessCom = ({ reportData, selectedChild, selectedChildName, profileTyp
     // Logic to handle giving access would go here
   };
 
+  // Get the title based on profileType and tab
+  const getAccessTitle = () => {
+    if (profileType === 'user') {
+      if (accessTab === 0) {
+        return `${courseComparison.notPurchased.length} Available Courses`;
+      } else {
+        return `${mockTestComparison.notPurchased.length} Available Mock Tests`;
+      }
+    } else {
+      // Default title for admin or other profiles
+      if (accessTab === 0) {
+        return 'Access Comparison';
+      } else {
+        return 'Access Comparison';
+      }
+    }
+  };
+
+  // Determine which data to pass based on profileType
+  const getFilteredCourseData = () => {
+    if (profileType === 'user') {
+      // For user profile, only show unpurchased items
+      return {
+        ...courseComparison,
+        // Override available to only show unpurchased for display
+        available: courseComparison.notPurchased
+      };
+    }
+    return courseComparison;
+  };
+
+  const getFilteredMockTestData = () => {
+    if (profileType === 'user') {
+      // For user profile, only show unpurchased items
+      return {
+        ...mockTestComparison,
+        // Override available to only show unpurchased for display
+        available: mockTestComparison.notPurchased
+      };
+    }
+    return mockTestComparison;
+  };
+
   return (
     <ContentSection sx={{ mb: 4 }}>
       <SectionTitle variant="h6">
-        <CompareArrowsIcon color="primary" />
-        Access Comparison
+        {profileType === 'user' ? (
+          <ShoppingCartIcon color="primary" />
+        ) : (
+          <CompareArrowsIcon color="primary" />
+        )}
+        {getAccessTitle()}
       </SectionTitle>
       
       <Tabs
@@ -190,17 +245,21 @@ const OneAccessCom = ({ reportData, selectedChild, selectedChildName, profileTyp
       
       {accessTab === 0 ? (
         <CourseAccessCom 
-          courseComparison={courseComparison}
+          courseComparison={getFilteredCourseData()}
           selectedChildName={selectedChildName}
           formatTime={formatTime}
           handleGiveAccess={handleGiveAccess}
+          profileType={profileType}
+          showBuyButton={profileType === 'user'}
         />
       ) : (
         <MockAccessCom 
-          mockTestComparison={mockTestComparison}
+          mockTestComparison={getFilteredMockTestData()}
           formatDate={formatDate}
           formatTime={formatTime}
           handleGiveAccess={handleGiveAccess}
+          profileType={profileType}
+          showBuyButton={profileType === 'user'}
         />
       )}
     </ContentSection>

@@ -10,20 +10,26 @@ import {
   CardContent, 
   Chip,
   Badge,
-  Tooltip
+  Tooltip,
+  Button
 } from '@mui/material';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import ChildCareIcon from '@mui/icons-material/ChildCare';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Link from 'next/link';
 
-const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveAccess }) => {
+const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveAccess, profileType, showBuyButton }) => {
   return (
     <Box>
       <Typography variant="subtitle1" gutterBottom>
-        {mockTestComparison.available.length} available mock tests • {mockTestComparison.purchased.length} purchased with {
-          mockTestComparison.purchased.reduce((total, test) => total + (test.purchasedBatches?.length || 0), 0)
-        } batches
+        {profileType === 'user' 
+          ? `${mockTestComparison.available.length} available mock tests`
+          : `${mockTestComparison.available.length} available mock tests • ${mockTestComparison.purchased.length} purchased with ${
+              mockTestComparison.purchased.reduce((total, test) => total + (test.purchasedBatches?.length || 0), 0)
+            } batches`
+        }
       </Typography>
       
       {mockTestComparison.available.length > 0 ? (
@@ -78,7 +84,7 @@ const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveA
                       </Box>
                     </Box>
                     
-                    {isPurchased && (
+                    {isPurchased && !showBuyButton && (
                       <Box sx={{ mt: 2 }}>
                         <Typography variant="body2" color="success.main" fontWeight="bold">
                           {purchasedBatches.length} batch{purchasedBatches.length !== 1 ? 'es' : ''} purchased
@@ -143,7 +149,7 @@ const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveA
                                   )}
                                   
                                   {/* Display the children who purchased this batch */}
-                                  {batch.children && batch.children.length > 0 && (
+                                  {batch.children && batch.children.length > 0 && !showBuyButton && (
                                     <Box sx={{ mt: 1 }}>
                                       {batch.children.map((child, childIdx) => (
                                         <Chip
@@ -171,14 +177,14 @@ const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveA
                                     />
                                   )}
                                   
-                                  {isPurchasedBatch ? (
+                                  {isPurchasedBatch && !showBuyButton ? (
                                     <Tooltip title="Purchased for this child">
                                       <CheckCircleIcon 
                                         color="success" 
                                         fontSize="small"
                                       />
                                     </Tooltip>
-                                  ) : batch.children && batch.children.length > 0 ? (
+                                  ) : batch.children && batch.children.length > 0 && !showBuyButton ? (
                                     <Tooltip title={`${batch.children.length} child${batch.children.length > 1 ? 'ren' : ''} enrolled`}>
                                       <Badge 
                                         badgeContent={batch.children.length} 
@@ -195,6 +201,21 @@ const MockAccessCom = ({ mockTestComparison, formatDate, formatTime, handleGiveA
                             );
                           })}
                         </Box>
+                      </Box>
+                    )}
+                    
+                    {showBuyButton && (
+                      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Link href={`/mockTest/buy/${test._id}`} passHref style={{ textDecoration: 'none' }}>
+                          <Button 
+                            variant="contained" 
+                            color="primary" 
+                            startIcon={<ShoppingCartIcon />}
+                            size="small"
+                          >
+                            Buy Now
+                          </Button>
+                        </Link>
                       </Box>
                     )}
                   </CardContent>

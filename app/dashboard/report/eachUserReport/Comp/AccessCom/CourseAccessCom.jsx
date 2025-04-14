@@ -7,24 +7,30 @@ import {
   Paper, 
   Grid, 
   Card, 
-  CardContent
+  CardContent,
+  Button
 } from '@mui/material';
 import SchoolIcon from '@mui/icons-material/School';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import Link from 'next/link';
 
-const CourseAccessCom = ({ courseComparison, selectedChildName, formatTime, handleGiveAccess }) => {
+const CourseAccessCom = ({ courseComparison, selectedChildName, formatTime, handleGiveAccess, profileType, showBuyButton }) => {
   return (
     <Box>
       <Typography variant="subtitle1" gutterBottom>
-        {courseComparison.available.length} available courses • {courseComparison.purchased.length} purchased
+        {profileType === 'user' 
+          ? `${courseComparison.available.length} available courses`
+          : `${courseComparison.available.length} available courses • ${courseComparison.purchased.length} purchased`
+        }
       </Typography>
       
       {courseComparison.available.length > 0 ? (
         <Grid container spacing={2}>
           {courseComparison.available.map((course) => {
-            const isPurchased = courseComparison.purchased.some(p => p._id === course._id);
+            const isPurchased = courseComparison.purchased?.some(p => p._id === course._id);
             
             return (
               <Grid item xs={12} sm={6} md={4} key={course._id}>
@@ -81,6 +87,21 @@ const CourseAccessCom = ({ courseComparison, selectedChildName, formatTime, hand
                         <Typography variant="body2" color="text.secondary">
                           {courseComparison.purchased.find(p => p._id === course._id)?.purchaseInfo?.selectedDates?.length || 0} sessions
                         </Typography>
+                      </Box>
+                    )}
+                    
+                    {showBuyButton && (
+                      <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                        <Link href={`/course/buy/${course._id}`} passHref style={{ textDecoration: 'none' }}>
+                          <Button 
+                            variant="contained" 
+                            color="primary" 
+                            startIcon={<ShoppingCartIcon />}
+                            size="small"
+                          >
+                            Buy Now
+                          </Button>
+                        </Link>
                       </Box>
                     )}
                   </CardContent>
