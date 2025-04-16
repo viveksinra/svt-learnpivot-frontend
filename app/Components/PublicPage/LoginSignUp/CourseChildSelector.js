@@ -94,6 +94,7 @@ const CourseChildSelector = memo(({
     setSelectedChild(child);
     setSelectedDates(null);
     setTotalAmount('');
+    set
   }, [setSelectedChild, setSelectedDates, setTotalAmount]);
 
   const handleGetAllChildren = useCallback(async (forceRefresh = false) => {

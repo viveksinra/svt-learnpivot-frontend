@@ -55,7 +55,7 @@ const styles = {
   },
 };
 
-export default function CourseCheckoutForm({data, setClientSecret, selectedChild, buyCourseId, totalAmount, isMobile }) {
+export default function CourseCheckoutForm({data, setClientSecret, selectedChild, buyCourseId, amountToPayWithStripe, isMobile }) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -162,7 +162,7 @@ export default function CourseCheckoutForm({data, setClientSecret, selectedChild
             {isLoading ? (
               <div style={styles.spinner}></div>
             ) : (
-              `Pay £${totalAmount.toFixed(2)}`
+              `Pay £${amountToPayWithStripe.toFixed(2)}`
             )}
           </span>
         </button>

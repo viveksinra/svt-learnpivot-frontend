@@ -397,7 +397,7 @@ export default function CourseStripePay({
                 setClientSecret={setClientSecret}
                 selectedChild={selectedChild}
                 buyCourseId={buyCourseId}
-                totalAmount={totalAmount}
+                amountToPayWithStripe={amountToPayWithStripe}
               />
             </Elements>
           )}
