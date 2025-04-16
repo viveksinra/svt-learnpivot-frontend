@@ -49,13 +49,7 @@ const CourseDateSelector = ({
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
-  const [bookingRule, setBookingRule] = useState({
-  restrictStartDateChange: data?.restrictStartDateChange,
-              forcefullBuyCourse: data?.forcefullBuyCourse,
-              stopSkipSet: data?.stopSkipSet,
-              backDayCount: data?.backDayCount,
-              allowBackDateBuy: data?.allowBackDateBuy,   
-  });
+  const [bookingRule, setBookingRule] = useState();
 
   const today = new Date();
   const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
@@ -316,7 +310,7 @@ const CourseDateSelector = ({
         if (res.variant === "success") {
           setAlreadyBoughtDate(res.boughtDates);
           if(res.userCourseAccess){
-  
+            console.log(res.userCourseAccess);
             const userAccess = res?.userCourseAccess;
             setBookingRule({
               restrictStartDateChange: userAccess?.restrictStartDateChange,
@@ -331,6 +325,14 @@ const CourseDateSelector = ({
             setStartDate(res.date);
             handleStartDateChange({target: {value: res.date}});
      
+          } else {
+            setBookingRule({
+              restrictStartDateChange: data?.restrictStartDateChange,
+                          forcefullBuyCourse: data?.forcefullBuyCourse,
+                          stopSkipSet: data?.stopSkipSet,
+                          backDayCount: data?.backDayCount,
+              allowBackDateBuy: data?.allowBackDateBuy,   
+            })
           }
           if(res.boughtDates.length > 0){
            setHideStartDateSelector(true);
