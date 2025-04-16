@@ -90,6 +90,14 @@ export class MyCourseService {
       .then((res) => res.data);
   };
 
+  checkIfSeatAvailableForChild = async ({id,childId}) => {  
+    return this.instance
+      .get(`/api/v1/publicMaster/course/getCourse/checkIfSeatAvailableForChild/${id}/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
   alreadyBoughtDate = async ({childId,id}) => {
     return this.instance
       .get(`/api/v1/publicMaster/course/getCourse/alreadyBoughtCourseDate/${childId}/${id}`, {

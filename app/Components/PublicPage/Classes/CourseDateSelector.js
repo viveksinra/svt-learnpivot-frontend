@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Grid,
   Typography,
@@ -24,6 +24,8 @@ import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 import DateLegend from "./DateLegend";
 import StartDateShowCase from "./StartDateShowCase";
 import { myCourseService } from "@/app/services";
+import CourseBookingFullMessage from "../BuyForm/CourseBookingFullMessage";
+import MainContext from "../../Context/MainContext";
 
 const CourseDateSelector = ({
   isMobile,
@@ -45,12 +47,15 @@ const CourseDateSelector = ({
   frontEndTotal,
   setFrontEndTotal
 }) => {
+  const { state } = useContext(MainContext);
+
   const [loading, setLoading] = useState(true);
   const [dataReady, setDataReady] = useState(false);
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
+  const [isAvailableForChild, setIsAvailableForChild] = useState(null);
   const [bookingRule, setBookingRule] = useState({
     restrictStartDateChange: false,
     forcefullBuyCourse: false,
@@ -109,6 +114,19 @@ const CourseDateSelector = ({
       batch.oneBatch.includes(date)
     );
   };
+
+  const checkForAvailableSeatForChild = async() => {
+    let res = await myCourseService.checkIfSeatAvailableForChild({id:data._id,childId:selectedChild._id});
+    console.log(res);
+    if (res?.isAvailable === false) {
+      setIsAvailableForChild(false);
+    } else {
+      setIsAvailableForChild(true);
+    }
+  };
+  useEffect(() => {
+    checkForAvailableSeatForChild();
+  }, [selectedChild]);
 
   const isValidBatchSelection = (batchId, allBatches) => {
     // If stopSkipSet is false, allow any batch to be selected
@@ -314,7 +332,7 @@ const CourseDateSelector = ({
         childId: selectedChild._id, 
         id: `${data._id}`
       });
-    
+      await checkForAvailableSeatForChild();
       if (res.variant === "success") {
         setAlreadyBoughtDate(res.boughtDates);
         if(res.userCourseAccess){
@@ -553,7 +571,12 @@ const CourseDateSelector = ({
       )}
 
       {!loading && dataReady && (
-        <>
+        <>{
+               !isAvailableForChild ? (
+                <CourseBookingFullMessage userInfo={state} data={data}/> 
+              ) :
+       ( <>
+  
           {/* Header */}
           <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
             <Button
@@ -840,7 +863,7 @@ const CourseDateSelector = ({
               selectedChild={selectedChild}
             />
           </Box>
-        </>
+        </>)}</>
       )}
     </Grid>
   );

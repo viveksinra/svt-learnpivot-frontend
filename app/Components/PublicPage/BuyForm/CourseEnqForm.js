@@ -40,8 +40,7 @@ function CourseEnqForm({
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
   const [canBuy, setCanBuy] = useState(!data.onlySelectedParent);
-  const [isAvailable, setIsAvailable] = useState(true);
-
+  const [isAvailable, setIsAvailable] = useState(null);
   useEffect(() => {
     if(step !== 3) {
     if (state?.isAuthenticated && currentUser) {
@@ -67,9 +66,10 @@ function CourseEnqForm({
 
   const checkForAvailableSeat = async() => {
     let res = await myCourseService.checkIfSeatAvailable(`${data._id}`);
-    console.log(res);
     if (res?.isAvailable === false) {
       setIsAvailable(false);
+    } else {
+      setIsAvailable(true);
     }
   };
 
@@ -82,6 +82,19 @@ function CourseEnqForm({
     setSelectedChild(child);
     setSelectedDates([]);  // Clear dates when child changes
   };
+
+  // const checkForAvailableSeatForChild = async() => {
+  //   let res = await myCourseService.checkIfSeatAvailableForChild({id:data._id,childId:selectedChild._id});
+  //   console.log(res);
+  //   if (res?.isAvailable === false) {
+  //     setIsAvailableForChild(false);
+  //   } else {
+  //     setIsAvailableForChild(true);
+  //   }
+  // };
+  // useEffect(() => {
+  //   checkForAvailableSeatForChild();
+  // }, [selectedChild]);
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
@@ -100,7 +113,12 @@ function CourseEnqForm({
       )}
       {(canBuy && isAvailable && step === 3) && (
         <>
-          {!submitted ? (
+          {
+          // !isAvailableForChild ? (
+          //   <CourseBookingFullMessage userInfo={state} data={data}/> 
+          // ) :
+          
+          !submitted ? (
             <CourseDateSelector
               isMobile={isMobile}
               data={data}
