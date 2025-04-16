@@ -135,6 +135,8 @@ function CourseEnqForm({
           selectedChild={selectedChild} 
           setSelectedChild={handleChildSelect}  // Use the updated handler
           setStep={setStep}
+          setSelectedBatches={setSelectedBatches}
+          setStartDate={setStartDate}
         />
       )}
       

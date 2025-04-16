@@ -46,7 +46,10 @@ const initialChildState = {
 const CourseChildSelector = memo(({ 
   isMobile, title, setTotalAmount,
    setSelectedDates, selectedChild, 
-   setSelectedChild, setStep }) => {
+   setSelectedChild, setStep,
+   setSelectedBatches,
+   setStartDate
+   }) => {
   const [allChildren, setAllChildren] = useState([]);
   const [open, setOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -94,8 +97,9 @@ const CourseChildSelector = memo(({
     setSelectedChild(child);
     setSelectedDates(null);
     setTotalAmount('');
-    setSelectedBatches([]);
-  }, [setSelectedChild, setSelectedDates, setTotalAmount, setSelectedBatches]);
+      setSelectedBatches([]);
+    setStartDate(null);
+  }, [setSelectedChild, setSelectedDates, setTotalAmount, setSelectedBatches, setStartDate]);
 
   const handleGetAllChildren = useCallback(async (forceRefresh = false) => {
     if (!forceRefresh && (childrenLoaded.current || isLoading)) return;
