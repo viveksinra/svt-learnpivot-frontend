@@ -58,7 +58,7 @@ const CourseDateSelector = ({
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
-  const [isAvailableForChild, setIsAvailableForChild] = useState(null);
+  const [isAvailableForChild, setIsAvailableForChild] = useState(preserveSelections);
   const [bookingRule, setBookingRule] = useState({
     restrictStartDateChange: false,
     forcefullBuyCourse: false,
@@ -128,6 +128,7 @@ const CourseDateSelector = ({
     }
   };
   useEffect(() => {
+    if(preserveSelections) return;
     checkForAvailableSeatForChild();
   }, [selectedChild]);
 
