@@ -94,8 +94,8 @@ const CourseChildSelector = memo(({
     setSelectedChild(child);
     setSelectedDates(null);
     setTotalAmount('');
-    set
-  }, [setSelectedChild, setSelectedDates, setTotalAmount]);
+    setSelectedBatches([]);
+  }, [setSelectedChild, setSelectedDates, setTotalAmount, setSelectedBatches]);
 
   const handleGetAllChildren = useCallback(async (forceRefresh = false) => {
     if (!forceRefresh && (childrenLoaded.current || isLoading)) return;
