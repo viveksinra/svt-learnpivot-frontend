@@ -13,6 +13,7 @@ import {
   Tooltip,
   Modal,
   IconButton,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -44,15 +45,22 @@ const CourseDateSelector = ({
   frontEndTotal,
   setFrontEndTotal
 }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [dataReady, setDataReady] = useState(false);
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
   const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
   const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
-  const [bookingRule, setBookingRule] = useState();
+  const [bookingRule, setBookingRule] = useState({
+    restrictStartDateChange: false,
+    forcefullBuyCourse: false,
+    stopSkipSet: false,
+    backDayCount: 0,
+    allowBackDateBuy: false,
+  });
 
   const today = new Date();
-  const effectiveDate = data?.allowBackDateBuy && data?.backDayCount
+  const effectiveDate = bookingRule?.allowBackDateBuy && bookingRule?.backDayCount
     ? new Date(today.getTime() - (bookingRule.backDayCount * 24 * 60 * 60 * 1000))
     : today;
   
@@ -299,62 +307,79 @@ const CourseDateSelector = ({
     return alreadyBoughtDate?.includes(date) || false;
   };
 
-    async function getBoughtBatch() {
-      setLoading(true);
-      try {
-        let res = await myCourseService.alreadyBoughtDate({
-          childId: selectedChild._id, 
-          id: `${data._id}`
-        });
-      
-        if (res.variant === "success") {
-          setAlreadyBoughtDate(res.boughtDates);
-          if(res.userCourseAccess){
-            console.log(res.userCourseAccess);
-            const userAccess = res?.userCourseAccess;
-            setBookingRule({
-              restrictStartDateChange: userAccess?.restrictStartDateChange,
-              forcefullBuyCourse: userAccess?.forcefullBuyCourse,
-              stopSkipSet: userAccess?.stopSkipSet,
-              backDayCount: userAccess?.backDayCount,
-              allowBackDateBuy: userAccess?.allowBackDateBuy,   
-
-            })
-            setHideStartDateSelector(res.enableSeperateUserAccessForCourse);
-            setLastPurchasedSetIndex(res.filledSeat);
-            setStartDate(res.date);
-            handleStartDateChange({target: {value: res.date}});
-     
-          } else {
-            setBookingRule({
-              restrictStartDateChange: data?.restrictStartDateChange,
-                          forcefullBuyCourse: data?.forcefullBuyCourse,
-                          stopSkipSet: data?.stopSkipSet,
-                          backDayCount: data?.backDayCount,
-              allowBackDateBuy: data?.allowBackDateBuy,   
-            })
-          }
-          if(res.boughtDates.length > 0){
-           setHideStartDateSelector(true);
-           const maxDate = new Date(Math.max(...res.boughtDates.map(d => new Date(d))));
-           const maxDateStr = maxDate.toISOString().split('T')[0];
-           const setIndex = findSetIndexForDate(maxDateStr);
-           setLastPurchasedSetIndex(setIndex);
-          }
-       
+  async function getBoughtBatch() {
+    setLoading(true);
+    try {
+      let res = await myCourseService.alreadyBoughtDate({
+        childId: selectedChild._id, 
+        id: `${data._id}`
+      });
+    
+      if (res.variant === "success") {
+        setAlreadyBoughtDate(res.boughtDates);
+        if(res.userCourseAccess){
+          console.log(res.userCourseAccess);
+          const userAccess = res?.userCourseAccess;
+          setBookingRule({
+            restrictStartDateChange: userAccess?.restrictStartDateChange,
+            forcefullBuyCourse: userAccess?.forcefullBuyCourse,
+            stopSkipSet: userAccess?.stopSkipSet,
+            backDayCount: userAccess?.backDayCount,
+            allowBackDateBuy: userAccess?.allowBackDateBuy,   
+          });
+          setHideStartDateSelector(res.enableSeperateUserAccessForCourse);
+          setLastPurchasedSetIndex(res.filledSeat);
+          setStartDate(res.date);
+          handleStartDateChange({target: {value: res.date}});
         } else {
-          setAlreadyBoughtDate([]);
-          setLastPurchasedSetIndex(-1);
+          setBookingRule({
+            restrictStartDateChange: data?.restrictStartDateChange,
+            forcefullBuyCourse: data?.forcefullBuyCourse,
+            stopSkipSet: data?.stopSkipSet,
+            backDayCount: data?.backDayCount,
+            allowBackDateBuy: data?.allowBackDateBuy,   
+          });
         }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }   
+        if(res.boughtDates.length > 0){
+          setHideStartDateSelector(true);
+          const maxDate = new Date(Math.max(...res.boughtDates.map(d => new Date(d))));
+          const maxDateStr = maxDate.toISOString().split('T')[0];
+          const setIndex = findSetIndexForDate(maxDateStr);
+          setLastPurchasedSetIndex(setIndex);
+        }
+      } else {
+        setAlreadyBoughtDate([]);
+        setLastPurchasedSetIndex(-1);
+        setBookingRule({
+          restrictStartDateChange: data?.restrictStartDateChange,
+          forcefullBuyCourse: data?.forcefullBuyCourse,
+          stopSkipSet: data?.stopSkipSet,
+          backDayCount: data?.backDayCount,
+          allowBackDateBuy: data?.allowBackDateBuy,   
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      // Set default booking rules on error
+      setBookingRule({
+        restrictStartDateChange: data?.restrictStartDateChange,
+        forcefullBuyCourse: data?.forcefullBuyCourse,
+        stopSkipSet: data?.stopSkipSet,
+        backDayCount: data?.backDayCount,
+        allowBackDateBuy: data?.allowBackDateBuy,   
+      });
+    } finally {   
       setLoading(false);
+      setDataReady(true);
     }
+  }
   
-    useEffect(() => {
+  useEffect(() => {
+    if (selectedChild && data) {
+      setDataReady(false); // Reset data ready state
       getBoughtBatch();
-    }, [selectedChild]);
+    }
+  }, [selectedChild, data]);
 
   const hasAvailableDatesInBatch = (batch) => {
     return batch.oneBatch.some(date => {
@@ -518,297 +543,305 @@ const CourseDateSelector = ({
 
   return (
     <Grid container spacing={2}>
-      {/* Header */}
-      <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center' , marginTop: '10px'}}>
-        <Button
-          startIcon={<ArrowBackIcon />}
-          onClick={() => setStep(2)}
-          sx={{ 
-            width: isMobile ? "30%" : '20%',
-            minWidth: 'auto',
-            color: 'white', 
-            marginRight: '10px',
-            backgroundColor: '#fc7658', 
-            '&:hover': { backgroundColor: 'darkred' }
-          }}
-        >
-          Back
-        </Button>
-        <Typography variant="h7" sx={{ width: isMobile ? "70%" : '80%', fontWeight: 400 }}>
-        Book {data.courseTitle} for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
+      {loading && (
+        <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+          <CircularProgress />
+          <Typography variant="body1" sx={{ ml: 2 }}>
+            Loading class information...
+          </Typography>
+        </Grid>
+      )}
 
-        </Typography>
-      </Grid>
-
-      {/* Booking Rules Button and Modal */}
-      <Grid item xs={12}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Button
-            variant="outlined"
-            color="primary"
-            startIcon={<InfoIcon />}
-            onClick={handleOpenBookingRuleModal}
-            sx={{
-              borderRadius: '4px',
-              textTransform: 'none',
-              fontWeight: 500
-            }}
-          >
-            Booking Rules
-          </Button>
-        </Box>
-
-        <Modal
-          open={bookingRuleModalOpen}
-          onClose={handleCloseBookingRuleModal}
-          aria-labelledby="booking-rule-modal-title"
-        >
-          <Box sx={modalStyle}>
-            <Typography id="booking-rule-modal-title" variant="h6" component="h2" gutterBottom>
-              Booking Rules
+      {!loading && dataReady && (
+        <>
+          {/* Header */}
+          <Grid item xs={12} sx={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+            <Button
+              startIcon={<ArrowBackIcon />}
+              onClick={() => setStep(2)}
+              sx={{ 
+                width: isMobile ? "30%" : '20%',
+                minWidth: 'auto',
+                color: 'white', 
+                marginRight: '10px',
+                backgroundColor: '#fc7658', 
+                '&:hover': { backgroundColor: 'darkred' }
+              }}
+            >
+              Back
+            </Button>
+            <Typography variant="h7" sx={{ width: isMobile ? "70%" : '80%', fontWeight: 400 }}>
+              Book {data.courseTitle} for <span style={{ fontWeight: 'bold' }}>{selectedChild.childName}</span>
             </Typography>
-            <Typography variant="body1" sx={{ mt: 2 }}>
-              <ul>
-                {bookingRule.forcefullBuyCourse && (
-                  <li>This is a single-class course that must be booked in its entirety.</li>
-                )}
-                {data.restrictOnTotalSeat && (
-                  <li>Limited availability: Only {data.totalSeat} total seats available for this class.</li>
-                )}
-                {bookingRule.restrictStartDateChange && (
-                  <li>The class date cannot be changed once selected.</li>
-                )}
-                <li>Classes in the past cannot be booked.</li>
-                {!singleBatchWithOneDate && (
-                  <>
-                    <li>Already purchased classes are marked in yellow.</li>
-                    <li>Selected classes are marked in green.</li>
-                    <li>Available but unselected classes are marked in red.</li>
-                  </>
-                )}
-                {data.allBatch?.length === 1 && data.allBatch[0].oneBatch.length === 1 && (
-                  <li>This is a one-time class scheduled for {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}.</li>
-                )}
-              </ul>
-            </Typography>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-              <Button 
-                        sx={{ 
-                          width: isMobile ? "30%" : '20%',
-                          minWidth: 'auto',
-                          color: 'white', 
-                          marginRight: '10px',
-                          backgroundColor: '#fc7658', 
-                          '&:hover': { backgroundColor: 'darkred' }
-                        }}
-              onClick={handleCloseBookingRuleModal} variant="contained">
-                Close
+          </Grid>
+
+          {/* Booking Rules Button and Modal */}
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                startIcon={<InfoIcon />}
+                onClick={handleOpenBookingRuleModal}
+                sx={{
+                  borderRadius: '4px',
+                  textTransform: 'none',
+                  fontWeight: 500
+                }}
+              >
+                Booking Rules
               </Button>
             </Box>
-          </Box>
-        </Modal>
-      </Grid>
 
-      {/* Start Date Selector */}
-      { availableDates?.length > 0 && !singleBatchWithOneDate && (
-        <Grid item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
-         <StartDateShowCase   startDate={startDate} frontEndTotal={frontEndTotal}
-   />
-       {  (!bookingRule.restrictStartDateChange && !bookingRule.forcefullBuyCourse && !hideStartDateSelector) &&   <FormControl fullWidth variant="outlined" size="small">
-              <Select
-                value={startDate}
-                onChange={handleStartDateChange}
-                displayEmpty
-                renderValue={(selected) => {
-                  // if (!selected) {
-                    return "Update start date";
-                  // }
-                  // return formatDateToShortMonth(selected);
-                }}
-                sx={{ backgroundColor: 'white' }}
-              >
-                {availableDates.map((date) => (
-                  <MenuItem key={date} value={date}>
-                    {formatDateToShortMonth(date)}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>}
-          </Paper>
-        </Grid>
-      )}
-
-      {/* Batch Selection */}
-      {singleBatchWithOneDate ? (
-        <Grid item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 600 }}>
-                Class Date
-              </Typography>
-              <Box sx={{ 
-                display: 'flex', 
-                alignItems: 'center',
-                bgcolor: '#e3f2fd',
-                borderRadius: '8px',
-                padding: '12px 16px',
-                border: '1px solid #90caf9',
-              }}>
-                <Typography 
-                  variant="body1" 
-                  sx={{ 
-                    color: '#1976d2',
-                    fontWeight: 500,
-                    marginRight: '8px'
-                  }}
-                >
-                  {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}
+            <Modal
+              open={bookingRuleModalOpen}
+              onClose={handleCloseBookingRuleModal}
+              aria-labelledby="booking-rule-modal-title"
+            >
+              <Box sx={modalStyle}>
+                <Typography id="booking-rule-modal-title" variant="h6" component="h2" gutterBottom>
+                  Booking Rules
                 </Typography>
-                <CheckCircleIcon 
-                  sx={{ 
-                    color: '#2e7d32',
-                    fontSize: '20px'
-                  }} 
-                />
-              </Box>
-            </Box>
-          </Paper>
-        </Grid>
-      ) : (
-        data?.allBatch
-          .filter(batch => !batch.hide)
-          .map((batch, batchIndex) => {
-            const isDisabled = isCheckboxDisabled(batch, batchIndex);
-            const tooltipTitle = getTooltipTitle(batch, batchIndex, isDisabled);
-
-            return (
-              <Grid item xs={12} key={batch._id}>
-                <Paper elevation={2} sx={{ p: 2 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-            
-        <Tooltip title={tooltipTitle} placement="top">
-                      <span> {/* Wrapper needed for disabled elements */}
-                        <Checkbox
-                          checked={selectedBatches.includes(batch._id)}
-                          onChange={() => handleBatchSelect(batch._id)}
-                          disabled={isDisabled}
-                        />
-                      </span>
-                    </Tooltip>
-                    <Typography variant="h6" sx={{ mr: 2 }}>
-                      Set {batchIndex + 1}
-                    </Typography>
-                    {batch.bookingFull && (
-                      <Chip
-                        label="Fully Booked"
-                        size="small"
-                        sx={{
-                          backgroundColor: '#FEE2E2',
-                          color: '#DC2626',
-                          fontWeight: 'bold'
-                        }}
-                      />
+                <Typography variant="body1" sx={{ mt: 2 }}>
+                  <ul>
+                    {bookingRule.forcefullBuyCourse && (
+                      <li>This is a single-class course that must be booked in its entirety.</li>
                     )}
+                    {data.restrictOnTotalSeat && (
+                      <li>Limited availability: Only {data.totalSeat} total seats available for this class.</li>
+                    )}
+                    {bookingRule.restrictStartDateChange && (
+                      <li>The class date cannot be changed once selected.</li>
+                    )}
+                    <li>Classes in the past cannot be booked.</li>
+                    {!singleBatchWithOneDate && (
+                      <>
+                        <li>Already purchased classes are marked in yellow.</li>
+                        <li>Selected classes are marked in green.</li>
+                        <li>Available but unselected classes are marked in red.</li>
+                      </>
+                    )}
+                    {data.allBatch?.length === 1 && data.allBatch[0].oneBatch.length === 1 && (
+                      <li>This is a one-time class scheduled for {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}.</li>
+                    )}
+                  </ul>
+                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                  <Button 
+                    sx={{ 
+                      width: isMobile ? "30%" : '20%',
+                      minWidth: 'auto',
+                      color: 'white', 
+                      marginRight: '10px',
+                      backgroundColor: '#fc7658', 
+                      '&:hover': { backgroundColor: 'darkred' }
+                    }}
+                    onClick={handleCloseBookingRuleModal} variant="contained">
+                    Close
+                  </Button>
+                </Box>
+              </Box>
+            </Modal>
+          </Grid>
+
+          {/* Start Date Selector */}
+          { availableDates?.length > 0 && !singleBatchWithOneDate && (
+            <Grid item xs={12}>
+              <Paper elevation={2} sx={{ p: 2, backgroundColor: '#f8f9fa' }}>
+                <StartDateShowCase startDate={startDate} frontEndTotal={frontEndTotal} />
+                {(!bookingRule.restrictStartDateChange && !bookingRule.forcefullBuyCourse && !hideStartDateSelector) && 
+                  <FormControl fullWidth variant="outlined" size="small">
+                    <Select
+                      value={startDate}
+                      onChange={handleStartDateChange}
+                      displayEmpty
+                      renderValue={(selected) => {
+                        return "Update start date";
+                      }}
+                      sx={{ backgroundColor: 'white' }}
+                    >
+                      {availableDates.map((date) => (
+                        <MenuItem key={date} value={date}>
+                          {formatDateToShortMonth(date)}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                }
+              </Paper>
+            </Grid>
+          )}
+
+          {/* Batch Selection */}
+          {singleBatchWithOneDate ? (
+            <Grid item xs={12}>
+              <Paper elevation={2} sx={{ p: 2, bgcolor: '#f8f9fa' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 600 }}>
+                    Class Date
+                  </Typography>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    bgcolor: '#e3f2fd',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    border: '1px solid #90caf9',
+                  }}>
+                    <Typography 
+                      variant="body1" 
+                      sx={{ 
+                        color: '#1976d2',
+                        fontWeight: 500,
+                        marginRight: '8px'
+                      }}
+                    >
+                      {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}
+                    </Typography>
+                    <CheckCircleIcon 
+                      sx={{ 
+                        color: '#2e7d32',
+                        fontSize: '20px'
+                      }} 
+                    />
                   </Box>
-                  <Grid container spacing={1.5}>
-                    {batch.oneBatch.map((date) => {
-                      const isPastDate = new Date(date) <= effectiveDate;
-                      const isSelected = isDateSelected(date);
-                      const isPurchased = isDateAlreadyPurchased(date);
-                      let bgColor = '#F3F4F6'; // default/past date color
-                      let textColor = '#9CA3AF'; // past date text color
-                      
-                      if (!isPastDate) {
-                        if (isPurchased) {
-                          bgColor = '#FFF3CD'; // light yellow for purchased
-                          textColor = '#f0ad4e'; // darker yellow text
-                        } else if (isSelected) {
-                          bgColor = '#E8F5E9'; // light green for selected
-                          textColor = '#2E7D32'; // dark green text
-                        } else {
-                          bgColor = '#FEE2E2'; // light red for not selected
-                          textColor = '#DC2626'; // dark red text
-                        }
-                      }
+                </Box>
+              </Paper>
+            </Grid>
+          ) : (
+            data?.allBatch
+              .filter(batch => !batch.hide)
+              .map((batch, batchIndex) => {
+                const isDisabled = isCheckboxDisabled(batch, batchIndex);
+                const tooltipTitle = getTooltipTitle(batch, batchIndex, isDisabled);
 
-                      return (
-                        <Grid item xs={6} sm={4} key={date}>
-                          <Box
+                return (
+                  <Grid item xs={12} key={batch._id}>
+                    <Paper elevation={2} sx={{ p: 2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                        <Tooltip title={tooltipTitle} placement="top">
+                          <span> {/* Wrapper needed for disabled elements */}
+                            <Checkbox
+                              checked={selectedBatches.includes(batch._id)}
+                              onChange={() => handleBatchSelect(batch._id)}
+                              disabled={isDisabled}
+                            />
+                          </span>
+                        </Tooltip>
+                        <Typography variant="h6" sx={{ mr: 2 }}>
+                          Set {batchIndex + 1}
+                        </Typography>
+                        {batch.bookingFull && (
+                          <Chip
+                            label="Fully Booked"
+                            size="small"
                             sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              backgroundColor: bgColor,
-                              color: textColor,
-                              padding: '8px 12px',
-                              borderRadius: '8px',
-                              border: '1px solid',
-                              borderColor: isPastDate ? '#E5E7EB' : 
-                                          (isPurchased ? '#ffeeba' :
-                                          (isSelected ? '#A5D6A7' : '#FECACA')),
-                              transition: 'all 0.2s ease',
-                              '&:hover': !isPastDate && !isPurchased && {
-                                transform: 'translateY(-1px)',
-                                boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
-                              }
+                              backgroundColor: '#FEE2E2',
+                              color: '#DC2626',
+                              fontWeight: 'bold'
                             }}
-                          >
-                            <Typography 
-                              variant="body2" 
-                              sx={{ 
-                                fontWeight: 500,
-                                flex: 1
-                              }}
-                            >
-                              {formatDateToShortMonth(date)}
-                            </Typography>
-                            {!isPastDate && (
-                              isPurchased ? 
-                                <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                                (isSelected ? 
-                                  <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                                  <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
-                            )}
-                          </Box>
-                        </Grid>
-                      );
-                    })}
+                          />
+                        )}
+                      </Box>
+                      <Grid container spacing={1.5}>
+                        {batch.oneBatch.map((date) => {
+                          const isPastDate = new Date(date) <= effectiveDate;
+                          const isSelected = isDateSelected(date);
+                          const isPurchased = isDateAlreadyPurchased(date);
+                          let bgColor = '#F3F4F6'; // default/past date color
+                          let textColor = '#9CA3AF'; // past date text color
+                          
+                          if (!isPastDate) {
+                            if (isPurchased) {
+                              bgColor = '#FFF3CD'; // light yellow for purchased
+                              textColor = '#f0ad4e'; // darker yellow text
+                            } else if (isSelected) {
+                              bgColor = '#E8F5E9'; // light green for selected
+                              textColor = '#2E7D32'; // dark green text
+                            } else {
+                              bgColor = '#FEE2E2'; // light red for not selected
+                              textColor = '#DC2626'; // dark red text
+                            }
+                          }
+
+                          return (
+                            <Grid item xs={6} sm={4} key={date}>
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  backgroundColor: bgColor,
+                                  color: textColor,
+                                  padding: '8px 12px',
+                                  borderRadius: '8px',
+                                  border: '1px solid',
+                                  borderColor: isPastDate ? '#E5E7EB' : 
+                                              (isPurchased ? '#ffeeba' :
+                                              (isSelected ? '#A5D6A7' : '#FECACA')),
+                                  transition: 'all 0.2s ease',
+                                  '&:hover': !isPastDate && !isPurchased && {
+                                    transform: 'translateY(-1px)',
+                                    boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                  }
+                                }}
+                              >
+                                <Typography 
+                                  variant="body2" 
+                                  sx={{ 
+                                    fontWeight: 500,
+                                    flex: 1
+                                  }}
+                                >
+                                  {formatDateToShortMonth(date)}
+                                </Typography>
+                                {!isPastDate && (
+                                  isPurchased ? 
+                                    <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                                    (isSelected ? 
+                                      <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                                      <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
+                                )}
+                              </Box>
+                            </Grid>
+                          );
+                        })}
+                      </Grid>
+                    </Paper>
                   </Grid>
-                </Paper>
-              </Grid>
-            );
-          })
+                );
+              })
+          )}
+
+          {/* Legend - Shown once at the bottom */}
+          {!singleBatchWithOneDate && <DateLegend />}
+
+          {/* Payment Button */}
+          <Box
+            sx={{
+              position: 'fixed',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              bgcolor: 'white',
+              borderTop: '1px solid #E5E7EB',
+              padding: 2,
+              zIndex: 1000,
+            }}
+          >
+            <CoursePayButton
+              data={data}
+              setSubmitted={setSubmitted}
+              setSubmittedId={setSubmittedId}
+              setTotalAmount={setTotalAmount}
+              totalAmount={totalAmount}
+              frontEndTotal={frontEndTotal}
+              selectedDates={selectedDates}
+              selectedChild={selectedChild}
+            />
+          </Box>
+        </>
       )}
-
-      {/* Legend - Shown once at the bottom */}
-  {/* Legend */}
-  {!singleBatchWithOneDate && <DateLegend />}
-
-      {/* Payment Button */}
-      <Box
-        sx={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          bgcolor: 'white',
-          borderTop: '1px solid #E5E7EB',
-          padding: 2,
-          zIndex: 1000,
-        }}
-      >
-        <CoursePayButton
-          data={data}
-          setSubmitted={setSubmitted}
-          setSubmittedId={setSubmittedId}
-          setTotalAmount={setTotalAmount}
-          totalAmount={totalAmount}
-          frontEndTotal={frontEndTotal}
-          selectedDates={selectedDates}
-          selectedChild={selectedChild}
-        />
-      </Box>
     </Grid>
   );
 };
