@@ -25,7 +25,9 @@ const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9Qa
 
 
 // this is for course
-export default function CourseStripePay({ isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount, setSubmitted, setSubmittedId  }) {
+export default function CourseStripePay({
+   isMobile, setStep, data, selectedChild, selectedDates, submittedId, totalAmount,
+    setSubmitted, setSubmittedId, preserveSelections, setPreserveSelections  }) {
   
   const [clientSecret, setClientSecret] = useState("");
   const [loading, setLoading] = useState(false);
@@ -121,6 +123,11 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
     setSubmitted(false);
   };
 
+  const handleBack = () => {
+    setPreserveSelections(true);
+    setSubmitted(false);
+  };
+
   const appearance = {
     theme: "stripe",
     variables: {
@@ -151,7 +158,7 @@ export default function CourseStripePay({ isMobile, setStep, data, selectedChild
                 <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
                   <Button
                     startIcon={<ArrowBackIcon />}
-                    onClick={() => setSubmitted(false)}
+                    onClick={handleBack}
                     sx={{ 
                       width: isMobile ? "30%" : '20%',
                       minWidth: 'auto',

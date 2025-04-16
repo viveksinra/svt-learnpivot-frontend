@@ -9,7 +9,9 @@ const CoursePayButton = ({
   frontEndTotal, 
   setTotalAmount, 
   selectedDates, 
-  selectedChild 
+  selectedChild ,
+  preserveSelections,
+  setPreserveSelections
 }) => {
   const handleCoEnquiry = async () => {
     if (!selectedDates || selectedDates.length === 0) return;
@@ -24,9 +26,12 @@ const CoursePayButton = ({
       let response = await myCourseService.buyStepOne(buyData);
 
       if (response.variant === 'success') {
+        setPreserveSelections(true);
         setSubmitted(true);
         setSubmittedId(response._id);
         setTotalAmount(response.totalAmount);
+    
+
       }
     } catch (error) {
       console.error('Error submitting data:', error);

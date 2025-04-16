@@ -45,7 +45,10 @@ const CourseDateSelector = ({
   availableDates,
   setAvailableDates,
   frontEndTotal,
-  setFrontEndTotal
+  setFrontEndTotal,
+  preserveSelections,
+  setPreserveSelections,
+
 }) => {
   const { state } = useContext(MainContext);
 
@@ -393,11 +396,16 @@ const CourseDateSelector = ({
   }
   
   useEffect(() => {
+    if (preserveSelections) {
+      setLoading(false);
+      setDataReady(true);
+      return;
+    }
     if (selectedChild && data) {
       setDataReady(false); // Reset data ready state
       getBoughtBatch();
     }
-  }, [selectedChild, data]);
+  }, [selectedChild, data, preserveSelections]);
 
   const hasAvailableDatesInBatch = (batch) => {
     return batch.oneBatch.some(date => {
@@ -861,6 +869,8 @@ const CourseDateSelector = ({
               frontEndTotal={frontEndTotal}
               selectedDates={selectedDates}
               selectedChild={selectedChild}
+              preserveSelections={preserveSelections}
+              setPreserveSelections={setPreserveSelections}
             />
           </Box>
         </>)}</>

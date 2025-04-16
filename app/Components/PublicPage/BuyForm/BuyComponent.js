@@ -21,6 +21,8 @@ const BuyComponent = ({ data }) => {
   const [startDate, setStartDate] = useState("");
   const [availableDates, setAvailableDates] = useState([]);
   const [frontEndTotal, setFrontEndTotal] = useState(null);
+    // Add a new state to preserve selections when toggling between CourseDateSelector and CourseStripePay
+    const [preserveSelections, setPreserveSelections] = useState(false);
 
   const handleOpenDialog = () => {
     setOpenDialog(true);
@@ -60,6 +62,8 @@ const BuyComponent = ({ data }) => {
                   selectedDates={selectedDates}
                   submittedId={submittedId} 
                   totalAmount={totalAmount}
+                  preserveSelections={preserveSelections}
+                  setPreserveSelections={setPreserveSelections}
                 />
               ) : (
                 <CourseEnqForm 
@@ -84,6 +88,8 @@ const BuyComponent = ({ data }) => {
                   setAvailableDates={setAvailableDates}
                   frontEndTotal={frontEndTotal}
                   setFrontEndTotal={setFrontEndTotal}
+                  preserveSelections={preserveSelections}
+                  setPreserveSelections={setPreserveSelections}
                 />
               )}
             </Grid>
@@ -103,6 +109,8 @@ const BuyComponent = ({ data }) => {
               selectedDates={selectedDates}
               submittedId={submittedId} 
               totalAmount={totalAmount}
+              preserveSelections={preserveSelections}
+              setPreserveSelections={setPreserveSelections}
             />
           ) : (
             <CourseEnqForm 
@@ -127,6 +135,8 @@ const BuyComponent = ({ data }) => {
               setAvailableDates={setAvailableDates}
               frontEndTotal={frontEndTotal}
               setFrontEndTotal={setFrontEndTotal}
+              preserveSelections={preserveSelections}
+              setPreserveSelections={setPreserveSelections}
             />
           )}
         </>

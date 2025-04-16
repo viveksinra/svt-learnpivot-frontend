@@ -34,7 +34,9 @@ function CourseEnqForm({
   availableDates,
   setAvailableDates,
   frontEndTotal,
-  setFrontEndTotal
+  setFrontEndTotal,
+  preserveSelections,
+  setPreserveSelections
 }) {
   const snackRef = useRef();
   const { state } = useContext(MainContext);
@@ -42,6 +44,7 @@ function CourseEnqForm({
   const [canBuy, setCanBuy] = useState(!data.onlySelectedParent);
   const [isAvailable, setIsAvailable] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
   
   useEffect(() => {
     if(step !== 3) {
@@ -94,24 +97,23 @@ function CourseEnqForm({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [submitted, step]);
 
-  // Add a handler for child selection
+  // Update the handler for child selection to reset preserveSelections
   const handleChildSelect = (child) => {
     setSelectedChild(child);
     setSelectedDates([]);  // Clear dates when child changes
+    setPreserveSelections(false); // Reset selections when child changes
   };
 
-  // const checkForAvailableSeatForChild = async() => {
-  //   let res = await myCourseService.checkIfSeatAvailableForChild({id:data._id,childId:selectedChild._id});
-  //   console.log(res);
-  //   if (res?.isAvailable === false) {
-  //     setIsAvailableForChild(false);
-  //   } else {
-  //     setIsAvailableForChild(true);
-  //   }
-  // };
-  // useEffect(() => {
-  //   checkForAvailableSeatForChild();
-  // }, [selectedChild]);
+  // Add a handler for setting submitted with preserveSelections
+  const handleSetSubmitted = (value) => {
+    setSubmitted(value);
+    // If going to payment form, preserve selections for when we come back
+    if (value) {
+      setPreserveSelections(true);
+    }
+    // If coming back from payment, preserveSelections stays true (already set)
+  };
+
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
@@ -131,7 +133,7 @@ function CourseEnqForm({
           setTotalAmount={setTotalAmount}
           setSelectedDates={setSelectedDates}
           selectedChild={selectedChild} 
-          setSelectedChild={handleChildSelect}  // Use the new handler
+          setSelectedChild={handleChildSelect}  // Use the updated handler
           setStep={setStep}
         />
       )}
@@ -146,7 +148,7 @@ function CourseEnqForm({
               selectedChild={selectedChild}
               selectedDates={selectedDates}
               setSelectedDates={setSelectedDates}
-              setSubmitted={setSubmitted}
+              setSubmitted={handleSetSubmitted} // Use the new handler
               setSubmittedId={setSubmittedId}
               setTotalAmount={setTotalAmount}
               totalAmount={totalAmount}
@@ -159,6 +161,9 @@ function CourseEnqForm({
               setAvailableDates={setAvailableDates}
               frontEndTotal={frontEndTotal}
               setFrontEndTotal={setFrontEndTotal}
+              // Add the preserveSelections prop
+              preserveSelections={preserveSelections}
+              setPreserveSelections={setPreserveSelections}
             />
           ) : (
             <CourseStripePay 
@@ -171,6 +176,8 @@ function CourseEnqForm({
               selectedDates={selectedDates}
               submittedId={submittedId} 
               totalAmount={totalAmount} 
+              preserveSelections={preserveSelections}
+              setPreserveSelections={setPreserveSelections}
             />
           )}
         </>
