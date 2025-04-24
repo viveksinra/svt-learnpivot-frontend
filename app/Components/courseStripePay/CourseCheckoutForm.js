@@ -55,7 +55,7 @@ const styles = {
   },
 };
 
-export default function CourseCheckoutForm({data, setClientSecret, selectedChild, buyCourseId, amountToPayWithStripe, isMobile }) {
+export default function CourseCheckoutForm({data, setClientSecret, selectedChild, buyCourseId, amountToPayWithStripe,totalAmount, isMobile }) {
   const stripe = useStripe();
   const elements = useElements();
 

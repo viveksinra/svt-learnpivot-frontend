@@ -95,7 +95,8 @@ export default function CourseStripePay({
 
       const response = await myCourseService.getPaymentIntentApi({
         items: [{ id: submittedId }],
-        amountToCharge: amountToPayWithStripe
+        amountToCharge: amountToPayWithStripe,
+        totalAmount: totalAmount
       });
 
       if (response.variant === "success") {
@@ -398,6 +399,7 @@ export default function CourseStripePay({
                 selectedChild={selectedChild}
                 buyCourseId={buyCourseId}
                 amountToPayWithStripe={amountToPayWithStripe}
+                totalAmount={totalAmount}
               />
             </Elements>
           )}
