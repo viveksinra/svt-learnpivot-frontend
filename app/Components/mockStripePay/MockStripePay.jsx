@@ -405,6 +405,7 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
             selectedChild={selectedChild} 
             buyMockId={buyMockId} 
             totalAmount={totalAmount} 
+            amountToPayWithStripe={amountToPayWithStripe}
           />
         </Elements>
       )}

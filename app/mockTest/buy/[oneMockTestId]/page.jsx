@@ -14,8 +14,6 @@ export default function OneClassBuy({ params }) {
   const snackRef = useRef();
   useEffect(() => {
     // Getting date from Voucher in URL
-    console.log("got loaded")
-    console.log({params})
 
     async function getVoucher() {
       setLoading(true)

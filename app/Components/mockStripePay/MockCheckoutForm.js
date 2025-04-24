@@ -56,7 +56,7 @@ const styles = {
   },
 };
 
-export default function MockCheckoutForm({data, setClientSecret, selectedChild, buyMockId, totalAmount, isMobile}) {
+export default function MockCheckoutForm({data, setClientSecret, selectedChild, buyMockId, totalAmount, isMobile, amountToPayWithStripe}) {
   const stripe = useStripe();
   const elements = useElements();
 
@@ -189,7 +189,7 @@ export default function MockCheckoutForm({data, setClientSecret, selectedChild, 
             {isLoading ? (
               <div style={styles.spinner}></div>
             ) : (
-              `Pay £${totalAmount.toFixed(2)} `
+              `Pay £${amountToPayWithStripe.toFixed(2)} `
             )}
           </span>
         </button>
