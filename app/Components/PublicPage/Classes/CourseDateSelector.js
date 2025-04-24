@@ -49,23 +49,25 @@ const CourseDateSelector = ({
   preserveSelections,
   setPreserveSelections,
 
+  alreadyBoughtDate,
+  setAlreadyBoughtDate,
+  hideStartDateSelector,
+  setHideStartDateSelector,
+  lastPurchasedSetIndex,
+  setLastPurchasedSetIndex,
+  bookingRuleModalOpen,
+  setBookingRuleModalOpen,
+  bookingRule,
+  setBookingRule
+
 }) => {
   const { state } = useContext(MainContext);
 
   const [loading, setLoading] = useState(true);
   const [dataReady, setDataReady] = useState(false);
-  const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
-  const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
-  const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
-  const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
   const [isAvailableForChild, setIsAvailableForChild] = useState(preserveSelections);
-  const [bookingRule, setBookingRule] = useState({
-    restrictStartDateChange: false,
-    forcefullBuyCourse: false,
-    stopSkipSet: false,
-    backDayCount: 0,
-    allowBackDateBuy: false,
-  });
+  
+
 
   const today = new Date();
   const effectiveDate = bookingRule?.allowBackDateBuy && bookingRule?.backDayCount
@@ -119,6 +121,8 @@ const CourseDateSelector = ({
   };
 
   const checkForAvailableSeatForChild = async() => {
+    console.log("sdsd",preserveSelections)
+
     let res = await myCourseService.checkIfSeatAvailableForChild({id:data._id,childId:selectedChild._id});
     console.log(res);
     if (res?.isAvailable === false) {
@@ -128,7 +132,10 @@ const CourseDateSelector = ({
     }
   };
   useEffect(() => {
+
+
     if(preserveSelections) return;
+
     checkForAvailableSeatForChild();
   }, [selectedChild]);
 
@@ -351,8 +358,11 @@ const CourseDateSelector = ({
           });
           setHideStartDateSelector(res.enableSeperateUserAccessForCourse);
           setLastPurchasedSetIndex(res.filledSeat);
+          if(preserveSelections ){
+            handleStartDateChange({target: {value: startDate}});
+          } else {
           setStartDate(res.date);
-          handleStartDateChange({target: {value: res.date}});
+          handleStartDateChange({target: {value: res.date}});}
         } else {
           setBookingRule({
             restrictStartDateChange: data?.restrictStartDateChange,
@@ -397,11 +407,11 @@ const CourseDateSelector = ({
   }
   
   useEffect(() => {
-    if (preserveSelections) {
+    if (preserveSelections == "a") {
       setLoading(false);
       setDataReady(true);
       return;
-    }
+    } else
     if (selectedChild && data) {
       setDataReady(false); // Reset data ready state
       getBoughtBatch();

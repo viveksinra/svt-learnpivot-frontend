@@ -45,7 +45,24 @@ function CourseEnqForm({
   const [isAvailable, setIsAvailable] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
+  const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
+  const [lastPurchasedSetIndex, setLastPurchasedSetIndex] = useState(-1);
+  const [bookingRuleModalOpen, setBookingRuleModalOpen] = useState(false);
+  const [bookingRule, setBookingRule] = useState({
+    restrictStartDateChange: false,
+    forcefullBuyCourse: false,
+    stopSkipSet: false,
+    backDayCount: 0,
+    allowBackDateBuy: false,
+  });
+
   
+  useEffect(() => {
+    console.log(bookingRule)
+
+  }, [bookingRule]);
+
   useEffect(() => {
     if(step !== 3) {
       if (state?.isAuthenticated && currentUser) {
@@ -166,6 +183,17 @@ function CourseEnqForm({
               // Add the preserveSelections prop
               preserveSelections={preserveSelections}
               setPreserveSelections={setPreserveSelections}
+
+              alreadyBoughtDate={alreadyBoughtDate}
+              setAlreadyBoughtDate={setAlreadyBoughtDate}
+              hideStartDateSelector={hideStartDateSelector}
+              setHideStartDateSelector={setHideStartDateSelector}
+              lastPurchasedSetIndex={lastPurchasedSetIndex}
+              setLastPurchasedSetIndex={setLastPurchasedSetIndex}
+              bookingRuleModalOpen={bookingRuleModalOpen}
+              setBookingRuleModalOpen={setBookingRuleModalOpen}
+              bookingRule={bookingRule}
+              setBookingRule={setBookingRule}
             />
           ) : (
             <CourseStripePay 

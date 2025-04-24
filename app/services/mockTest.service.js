@@ -69,6 +69,7 @@ export class MockTestService {
   getPaymentIntentApi = async ( data) => {
     return this.instance
       .post(`/api/v1/publicMaster/stripePayment/stripePay/forMockTest`, data, {
+        headers: getAuthorizationHeader(),
         
       })
       .then((res) => res.data);
