@@ -307,7 +307,17 @@ const CourseDateSelector = ({
       setSelectedDates([]);
       setStartDate("");
     }
-  }, [selectedBatches, data]);
+  }, [selectedBatches, data,alreadyBoughtDate, effectiveDate]);
+
+  // useEffect(() => {
+  //   // here check if any already bought date is in the selected dates if there remove it from selected dates
+  //   if(selectedDates?.length > 0) {
+  //     console.log("selectedDates", selectedDates);
+  //     console.log("alreadyBoughtDate", alreadyBoughtDate);
+  //   const newSelectedDates = selectedDates.filter(date => !alreadyBoughtDate.includes(date));
+  //   setSelectedDates(newSelectedDates);
+  //   }
+  //   }, [selectedDates, alreadyBoughtDate])
 
   const handleStartDateChange = (event) => {
     const newDate = event.target.value;
@@ -563,13 +573,7 @@ const CourseDateSelector = ({
   const handleCloseBookingRuleModal = () => {
     setBookingRuleModalOpen(false);
   };
-  useEffect(() => {
-  // here check if any already bought date is in the selected dates if there remove it from selected dates
-  if(selectedDates?.length > 0) {
-  const newSelectedDates = selectedDates.filter(date => !alreadyBoughtDate.includes(date));
-  setSelectedDates(newSelectedDates);
-  }
-  }, [selectedDates, alreadyBoughtDate])
+
 
 
   const modalStyle = {
