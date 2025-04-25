@@ -155,7 +155,7 @@ const PaymentCom = ({ data, isLoading = false, onRefresh }) => {
         </li>
         <li>
           <span>
-            <i className="bx bxs-badge-check"></i> Status: {paymentDetails.status === "succeeded" ? "Completed" : paymentDetails.status}
+            <i className="bx bxs-badge-check"></i> Status: {paymentDetails.status === "succeeded" ? "Success" : paymentDetails.status}
           </span>
         </li>
       </ul>
