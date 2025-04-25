@@ -75,7 +75,7 @@ const CourseDateSelector = ({
     : today;
   
   const singleBatchWithOneDate = data?.allBatch?.length === 1 && 
-    data.allBatch[0].oneBatch.length === 1 && 
+    data.allBatch[0].oneBatch?.length === 1 && 
     !data.allBatch[0].hide && 
     !data.allBatch[0].bookingFull;
 
@@ -206,7 +206,7 @@ const CourseDateSelector = ({
         return false;
     }
 
-    if (selectedBatches.length === 0) {
+    if (selectedBatches?.length === 0) {
         return true;
     }
 
@@ -257,7 +257,7 @@ const CourseDateSelector = ({
 
     setSelectedBatches(updatedBatches);
 
-    if (updatedBatches.length === 0) {
+    if (updatedBatches?.length === 0) {
       setSelectedDates([]);
       setAvailableDates([]);
       setStartDate("");
@@ -265,7 +265,7 @@ const CourseDateSelector = ({
   };
 
   useEffect(() => {
-    if (selectedBatches.length > 0 && data?.allBatch) {
+    if (selectedBatches?.length > 0 && data?.allBatch) {
       const firstSelectedBatchId = selectedBatches[0];
       const firstSelectedBatch = data.allBatch.find(b => b._id === firstSelectedBatchId);
   
@@ -294,7 +294,7 @@ const CourseDateSelector = ({
       }
   
       // Only update startDate if needed
-      if (sortedAvailableDates.length > 0) {
+      if (sortedAvailableDates?.length > 0) {
         if (!sortedAvailableDates.includes(startDate)) {
           setStartDate(sortedAvailableDates[0]);
           handleStartDateChange({ target: { value: sortedAvailableDates[0] } });
@@ -303,8 +303,8 @@ const CourseDateSelector = ({
         setStartDate("");
       }
     } else {
-      if (availableDates.length !== 0) setAvailableDates([]);
-      if (selectedDates.length !== 0) setSelectedDates([]);
+      if (availableDates?.length !== 0) setAvailableDates([]);
+      if (selectedDates?.length !== 0) setSelectedDates([]);
       if (startDate !== "") setStartDate("");
     }
     // eslint-disable-next-line
@@ -383,7 +383,7 @@ const CourseDateSelector = ({
             allowBackDateBuy: data?.allowBackDateBuy,   
           });
         }
-        if(res.boughtDates.length > 0){
+        if(res.boughtDates?.length > 0){
           setHideStartDateSelector(true);
           const maxDate = new Date(Math.max(...res.boughtDates.map(d => new Date(d))));
           const maxDateStr = maxDate.toISOString().split('T')[0];
@@ -465,7 +465,7 @@ const CourseDateSelector = ({
     
     // Find the index of the last batch that has a purchased date
     let lastPurchasedBatchIndex = -1;
-    for (let i = 0; i < data.allBatch.length; i++) {
+    for (let i = 0; i < data.allBatch?.length; i++) {
       if (data.allBatch[i].oneBatch.some(date => alreadyBoughtDate.includes(date))) {
         lastPurchasedBatchIndex = i;
       }
@@ -497,7 +497,7 @@ const CourseDateSelector = ({
       validBatches.findIndex(batch => batch._id === id)
     );
 
-    if (selectedIndices.length === 0) {
+    if (selectedIndices?.length === 0) {
       const result = !isValidBatchSelection(batch._id, data.allBatch);
       return result;
     }
@@ -676,7 +676,7 @@ const CourseDateSelector = ({
                         <li>Available but unselected classes are marked in red.</li>
                       </>
                     )}
-                    {data.allBatch?.length === 1 && data.allBatch[0].oneBatch.length === 1 && (
+                    {data.allBatch?.length === 1 && data.allBatch[0].oneBatch?.length === 1 && (
                       <li>This is a one-time class scheduled for {formatDateToShortMonth(data.allBatch[0].oneBatch[0])}.</li>
                     )}
                   </ul>
