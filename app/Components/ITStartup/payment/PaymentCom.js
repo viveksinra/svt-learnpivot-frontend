@@ -1,9 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { formatDateToShortMonth } from "@/app/utils/dateFormat";
 
 const PaymentCom = ({ data, isLoading = false, onRefresh }) => {
+  // Add useEffect for polling when status is not succeeded
+  useEffect(() => {
+    let intervalId;
+    
+    if (data && data.status && data.status.toLowerCase() !== "succeeded") {
+      intervalId = setInterval(() => {
+        onRefresh();
+      }, 10000); // Poll every 10 seconds
+    }
+    
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [data, onRefresh]);
+
   if (isLoading) {
     return (
       <div className="overview-area ptb-100">

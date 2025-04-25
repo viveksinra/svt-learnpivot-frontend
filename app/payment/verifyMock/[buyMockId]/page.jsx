@@ -18,9 +18,13 @@ function MyPayment({ params }) {
       let res = await mockTestService.publicVerifyOneMockPayment(`${params.buyMockId}`);
       if (res.variant === "success") {
         setData(res.myData);
-        snackRef.current.handleSnack(res);
+        if (snackRef.current) {
+          snackRef.current.handleSnack(res);
+        }
       } else {
-        snackRef.current.handleSnack(res);
+        if (snackRef.current) {
+          snackRef.current.handleSnack(res);
+        }
       }
     } catch (error) {
       console.error("Error fetching data:", error);
