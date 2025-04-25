@@ -86,6 +86,7 @@ const UserTransactionReportMain = ({ reportData }) => {
   if (!statement.transactions || statement.transactions.length === 0) return null;
 
   const formatCurrency = (amount) => {
+    console.log("amount", amount);
     // Handle negative zero case
     if (amount === 0 || Object.is(amount, -0)) {
       return '0 coins';
