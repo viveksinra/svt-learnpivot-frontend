@@ -86,9 +86,8 @@ const UserTransactionReportMain = ({ reportData }) => {
   if (!statement.transactions || statement.transactions.length === 0) return null;
 
   const formatCurrency = (amount) => {
-    console.log("amount", amount);
-    // Handle negative zero case
-    if (amount === 0 || Object.is(amount, -0)) {
+    // Treat very small values as zero
+    if (Math.abs(amount) < 1e-9) {
       return '0 coins';
     }
     const formattedNumber = new Intl.NumberFormat('en-GB').format(amount);
@@ -310,7 +309,7 @@ const UserTransactionReportMain = ({ reportData }) => {
                         <Typography variant="h6" color={transaction.type === 'deposit' ? 'success.main' : 'error.main'}>
                           {transaction.type === 'deposit' 
                             ? formatCurrency(transaction.credit) 
-                            : `-${formatCurrency(transaction.debit)}`}
+                            : (formatCurrency(transaction.debit) === '0 coins' ? '0 coins' : `-${formatCurrency(transaction.debit)}`)}
                         </Typography>
                       </Grid>
                       <Grid item xs={12}>
