@@ -13,23 +13,35 @@ function MyPayment({ params }) {
   const snackRef = useRef(null);
 
   const getPaymentDetails = async () => {
-    setLoading(true);
+    // Don't set loading to true if we're just polling for updates
+    // This prevents the UI from flashing loading state during polling
+    const isPolling = data && data.status && data.status.toLowerCase() !== "succeeded";
+    if (!isPolling) {
+      setLoading(true);
+    }
+    
     try {
+      console.log("Fetching mock payment details for ID:", params.buyMockId);
       let res = await mockTestService.publicVerifyOneMockPayment(`${params.buyMockId}`);
       if (res.variant === "success") {
+        console.log("Mock payment status update:", res.myData?.status);
         setData(res.myData);
-        if (snackRef.current) {
+        if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }
       } else {
-        if (snackRef.current) {
+        console.log("Mock payment fetch failed:", res.variant);
+        if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }
       }
     } catch (error) {
-      console.error("Error fetching data:", error);
+      console.error("Error fetching mock payment data:", error);
     }
-    setLoading(false);
+    
+    if (!isPolling) {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
