@@ -266,48 +266,49 @@ const CourseDateSelector = ({
 
   useEffect(() => {
     if (selectedBatches.length > 0 && data?.allBatch) {
-      // For availableDates, only show dates from the first selected batch
       const firstSelectedBatchId = selectedBatches[0];
       const firstSelectedBatch = data.allBatch.find(b => b._id === firstSelectedBatchId);
-      
+  
       const availableFutureDates = firstSelectedBatch && !firstSelectedBatch.hide && !firstSelectedBatch.bookingFull
         ? firstSelectedBatch.oneBatch.filter(date => new Date(date) > effectiveDate)
         : [];
-
-      // Sort available dates chronologically
+  
       const sortedAvailableDates = [...new Set(availableFutureDates)].sort((a, b) => new Date(a) - new Date(b));
-      setAvailableDates(sortedAvailableDates);
-
-      // For selectedDates, include dates from all selected batches
+  
+      // Only update if changed
+      if (JSON.stringify(availableDates) !== JSON.stringify(sortedAvailableDates)) {
+        setAvailableDates(sortedAvailableDates);
+      }
+  
       const allSelectedDates = selectedBatches
         .map(batchId => data.allBatch.find(b => b._id === batchId))
         .filter(batch => batch && !batch.hide && !batch.bookingFull)
-        .flatMap(batch => batch.oneBatch.filter(date => 
+        .flatMap(batch => batch.oneBatch.filter(date =>
           new Date(date) > effectiveDate && !alreadyBoughtDate.includes(date)
         ));
-
-      // Sort selected dates chronologically
+  
       const sortedSelectedDates = [...new Set(allSelectedDates)].sort((a, b) => new Date(a) - new Date(b));
-      setSelectedDates(sortedSelectedDates);
-
-      // Set start date from available dates (first batch only)
+  
+      if (JSON.stringify(selectedDates) !== JSON.stringify(sortedSelectedDates)) {
+        setSelectedDates(sortedSelectedDates);
+      }
+  
+      // Only update startDate if needed
       if (sortedAvailableDates.length > 0) {
-        if(!sortedAvailableDates.includes(startDate)){
+        if (!sortedAvailableDates.includes(startDate)) {
           setStartDate(sortedAvailableDates[0]);
-          handleStartDateChange({target: {value: sortedAvailableDates[0]}});
-        } else {
-          setStartDate(startDate);
-          handleStartDateChange({target: {value: startDate}});
+          handleStartDateChange({ target: { value: sortedAvailableDates[0] } });
         }
-      } else {
+      } else if (startDate !== "") {
         setStartDate("");
       }
     } else {
-      setAvailableDates([]);
-      setSelectedDates([]);
-      setStartDate("");
+      if (availableDates.length !== 0) setAvailableDates([]);
+      if (selectedDates.length !== 0) setSelectedDates([]);
+      if (startDate !== "") setStartDate("");
     }
-  }, [selectedBatches, data,alreadyBoughtDate, effectiveDate]);
+    // eslint-disable-next-line
+  }, [selectedBatches, data, alreadyBoughtDate]);
 
   // useEffect(() => {
   //   // here check if any already bought date is in the selected dates if there remove it from selected dates
