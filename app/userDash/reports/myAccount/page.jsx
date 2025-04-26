@@ -20,6 +20,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 
 import { transactionService } from '@/app/services';
 import UserTransactionReportMain from '@/app/dashboard/transaction/oneUserTransaction/Comp/UserTransactionReportMain';
+import { QuickLinks } from '@/app/Components/UserDash/QuickLinks';
 
 const MyTransactionReport = () => {
   const [loading, setLoading] = useState(false);
@@ -62,6 +63,7 @@ const MyTransactionReport = () => {
 
   return (
     <Container maxWidth="xl">
+      <QuickLinks />
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
           <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />

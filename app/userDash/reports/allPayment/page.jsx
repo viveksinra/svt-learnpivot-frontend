@@ -27,6 +27,7 @@ import moment from 'moment';
 import { reportService } from '@/app/services';
 import DownReceipt from '@/app/Components/pdf/DownReceipt';
 import ChildSelectorDropDown from '@/app/Components/Common/ChildSelectorDropDown';
+import { QuickLinks } from '@/app/Components/UserDash/QuickLinks';
 
 const formatPaymentData = (myBuyCourse = [], myBuyMock = []) => {
   const coursePayments = myBuyCourse.map(payment => ({
@@ -294,7 +295,8 @@ export default function PaymentsPage() {
 
   return (
     <Box className="p-4">
-      <Card className="shadow-md rounded-xl">
+      <QuickLinks />
+      <Card className="shadow-md rounded-xl mt-4">
         <CardContent>
           <Grid container spacing={2} alignItems="center" className="mb-4">
             <Grid item xs={12} md={6}>

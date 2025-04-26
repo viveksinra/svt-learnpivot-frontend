@@ -435,6 +435,7 @@ const ChildrenList = () => {
     <>
       <Card
         elevation={0}
+        className="shadow-md rounded-xl mt-4"
         sx={{
           borderRadius: 4,
           border: '1px solid',

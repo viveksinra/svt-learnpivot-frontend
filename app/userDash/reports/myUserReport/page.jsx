@@ -14,6 +14,7 @@ import {
 } from '@mui/material';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import UserReportMain from '@/app/dashboard/report/eachUserReport/Comp/UserReportMain';
+import { QuickLinks } from '@/app/Components/UserDash/QuickLinks';
 
 const EachUserReport = () => {
   const [loading, setLoading] = useState(false);
@@ -58,6 +59,7 @@ const EachUserReport = () => {
 
   return (
     <Container maxWidth="xl">
+      <QuickLinks />
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
         <AssessmentIcon color="primary" sx={{ fontSize: 28, mr: 1 }} />

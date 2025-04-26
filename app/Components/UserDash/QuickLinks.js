@@ -14,7 +14,7 @@ const quickLinks = [
   },
   {
     id: 2,
-    title: 'Book New Courses',
+    title: 'Book Courses',
     link: "/course",
     icon: <Book sx={{ fontSize: 28, color: 'white' }} />,
     bgColor: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%)'

@@ -62,12 +62,17 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
       };
 
     const calculateRefundAmount = () => {
+      let cancelBatchLength = test.canceledBatch?.length || 0;
+      
+      const perBatchAmount = (test.amount || 0) / (test.selectedBatch?.length + cancelBatchLength || 1 );
+      console.log("test", test)
+      console.log("cancelBatchLength", test.canceledBatch)
       if (cancelMode === 'full') {
         // Full refund for all batches
         return test.amount || 0;
-      } else if (selectedBatchesToCancel.length > 0) {
+      } else if (selectedBatchesToCancel?.length > 0) {
         // Calculate refund amount based on selected batches
-        const perBatchAmount = (test.amount || 0) / (test.selectedBatch?.length || 1);
+       
         return perBatchAmount * selectedBatchesToCancel.length;
       }
       return 0;
