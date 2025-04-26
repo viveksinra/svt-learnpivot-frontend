@@ -803,14 +803,16 @@ const CourseDateSelector = ({
                           const isPastDate = new Date(date) <= effectiveDate;
                           const isSelected = isDateSelected(date);
                           const isPurchased = isDateAlreadyPurchased(date);
-                          let bgColor = '#F3F4F6'; // default/past date color
-                          let textColor = '#9CA3AF'; // past date text color
+                          let bgColor = '#F3F4F6'; // default color
+                          let textColor = '#9CA3AF'; // default text color
                           
-                          if (!isPastDate) {
-                            if (isPurchased) {
-                              bgColor = '#FFF3CD'; // light yellow for purchased
-                              textColor = '#f0ad4e'; // darker yellow text
-                            } else if (isSelected) {
+                          // First check if the date is purchased, regardless of whether it's past or not
+                          if (isPurchased) {
+                            bgColor = '#FFF3CD'; // light yellow for purchased
+                            textColor = '#f0ad4e'; // darker yellow text
+                          } else if (!isPastDate) {
+                            // If not purchased and not past date, then check if selected
+                            if (isSelected) {
                               bgColor = '#E8F5E9'; // light green for selected
                               textColor = '#2E7D32'; // dark green text
                             } else {
@@ -818,6 +820,7 @@ const CourseDateSelector = ({
                               textColor = '#DC2626'; // dark red text
                             }
                           }
+                          // If none of above conditions met, it will keep the default past date styling
 
                           return (
                             <Grid item xs={6} sm={4} key={date}>
@@ -831,8 +834,8 @@ const CourseDateSelector = ({
                                   padding: '8px 12px',
                                   borderRadius: '8px',
                                   border: '1px solid',
-                                  borderColor: isPastDate ? '#E5E7EB' : 
-                                              (isPurchased ? '#ffeeba' :
+                                  borderColor: isPurchased ? '#ffeeba' :
+                                              (isPastDate ? '#E5E7EB' :
                                               (isSelected ? '#A5D6A7' : '#FECACA')),
                                   transition: 'all 0.2s ease',
                                   '&:hover': !isPastDate && !isPurchased && {
@@ -850,13 +853,14 @@ const CourseDateSelector = ({
                                 >
                                   {formatDateToShortMonth(date)}
                                 </Typography>
-                                {!isPastDate && (
-                                  isPurchased ? 
-                                    <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                                    (isSelected ? 
+                                {isPurchased ? 
+                                  <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
+                                  (!isPastDate && (
+                                    isSelected ? 
                                       <CheckCircleIcon sx={{ fontSize: 18, ml: 1 }} /> :
-                                      <CancelIcon sx={{ fontSize: 18, ml: 1 }} />)
-                                )}
+                                      <CancelIcon sx={{ fontSize: 18, ml: 1 }} />
+                                  ))
+                                }
                               </Box>
                             </Grid>
                           );
