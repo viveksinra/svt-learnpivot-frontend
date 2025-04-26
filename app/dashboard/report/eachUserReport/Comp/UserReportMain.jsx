@@ -526,7 +526,12 @@ const UserReportMain = ({ reportData, profileType }) => {
             {getChildCourses().length > 0 ? (
               <Grid container spacing={3}>
                 {getChildCourses().map((course) => (
-                  <OnePurchasedCourse course={course} profileType={profileType} />
+                  course.selectedDates?.length > 0 ? (
+                    <OnePurchasedCourse course={course} profileType={profileType} />
+                  ) : (
+                    < >
+                    </>
+                  )
                 
                 ))}
               </Grid>
