@@ -281,7 +281,7 @@ const EachUserReport = () => {
                 renderInput={(params) => (
                   <TextField
                     {...params}
-                    label={`Search ${searchMode === 'parent' ? 'Parents' : 'Children'}`}
+                    label={`Search ${searchMode === 'parent' ? 'Parents' : 'Child'}`}
                     variant="outlined"
                     InputProps={{
                       ...params.InputProps,

@@ -103,7 +103,7 @@ const OneUserData = ({ reportData, onBlockUser, profileType }) => {
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <ChildCareIcon sx={{ fontSize: 18, mr: 1, color: 'primary.main' }} />
-              <Typography variant="body2">{reportData.children.length} Children</Typography>
+              <Typography variant="body2">{reportData.children.length} {reportData.children.length === 1 ? 'Child' : 'Children'}</Typography>
             </Box>
           </Stack>
           {profileType === "admin" && <Button 
