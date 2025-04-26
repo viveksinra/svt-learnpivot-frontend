@@ -65,8 +65,7 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
       let cancelBatchLength = test.canceledBatch?.length || 0;
       
       const perBatchAmount = (test.amount || 0) / (test.selectedBatch?.length + cancelBatchLength || 1 );
-      console.log("test", test)
-      console.log("cancelBatchLength", test.canceledBatch)
+  
       if (cancelMode === 'full') {
         // Full refund for all batches
         return test.amount || 0;
