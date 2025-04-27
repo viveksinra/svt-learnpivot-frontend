@@ -48,14 +48,14 @@ const ChildTestTable = ({ data }) => {
       headerName: 'Parent Name',
       flex: 1,
       minWidth: 150,
-      valueGetter: (params) => `${params.row.parent.firstName} ${params.row.parent.lastName}`
+      valueGetter: (params) => `${params.row?.parent?.firstName} ${params.row?.parent?.lastName}`
     },
     { 
       field: 'parentEmail', 
       headerName: 'Parent Email',
       flex: 1,
       minWidth: 200,
-      valueGetter: (params) => params.row.parent.email,
+      valueGetter: (params) => params.row?.parent?.email,
       renderCell: (params) => (
         <Tooltip title={params.value}>
           <span>{params.value}</span>
@@ -67,7 +67,7 @@ const ChildTestTable = ({ data }) => {
       headerName: 'Parent Mobile',
       flex: 1,
       minWidth: 120,
-      valueGetter: (params) => params.row.parent.mobile
+      valueGetter: (params) => params.row?.parent?.mobile
     },
     { 
       field: 'date', 
