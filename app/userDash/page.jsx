@@ -69,7 +69,7 @@ const Dashboard = () => {
               {getGreeting()}, {heading?.firstName}!
             </Typography>
             <Typography color="text.secondary" sx={{ fontSize: '1.1rem' }}>
-              Track your children's educational journey
+              Track your childs educational journey
             </Typography>
           </Grid>
           <Grid item xs={12} md={4} sx={{ 
