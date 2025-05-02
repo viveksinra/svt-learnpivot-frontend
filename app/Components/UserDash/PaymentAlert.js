@@ -153,13 +153,24 @@ const CoursePaymentCard = ({ courseData }) => {
         // Must be unpaid
         !date.purchased && 
         // Must not be skipped
-        !date.skipped &&
-        // Must be in the future
-        new Date(date.date) >= new Date()
+        !date.skipped 
       )
       .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-    return allProcessedDates[0];
+    // Return the first unpaid date if it exists
+    if (allProcessedDates.length > 0) {
+      // Calculate payment due date (7 days before the class)
+      const nextClassDate = new Date(allProcessedDates[0].date);
+      const paymentDueDate = new Date(nextClassDate);
+      paymentDueDate.setDate(paymentDueDate.getDate() - 7);
+      
+      return {
+        date: nextClassDate,
+        dueDate: paymentDueDate
+      };
+    }
+    
+    return null;
   };
 
   const nextUnpaidDate = getNextUnpaidDate();
@@ -284,7 +295,7 @@ const CoursePaymentCard = ({ courseData }) => {
                 Payment Due
               </Typography>
               <Typography variant="body2">
-                Next Course on {moment(nextUnpaidDate.date).format('dddd, MMMM D, YYYY')} requires payment
+                Payment due by {moment(nextUnpaidDate.dueDate).format('MMM D, YYYY')} for course on {moment(nextUnpaidDate.date).format('dddd, MMMM D')}
               </Typography>
               <Button 
                 variant="contained" 
@@ -353,11 +364,11 @@ const CoursePaymentCard = ({ courseData }) => {
                       border: '1px solid',
                       borderColor: dateObj.purchased ? 'success.light' : 
                                 dateObj.skipped ? 'grey.300' :
-                                new Date(dateObj.date) < new Date() ? 'grey.300' : 'warning.light',
+                                new Date(dateObj.date) < new Date() ? 'error.light' : 'warning.light',
                       borderRadius: 1.5,
                       bgcolor: dateObj.purchased ? 'success.lighter' : 
                                dateObj.skipped ? 'grey.50' :
-                               new Date(dateObj.date) < new Date() ? 'grey.50' : 'warning.lighter',
+                               new Date(dateObj.date) < new Date() ? 'error.lighter' : 'warning.lighter',
                       textAlign: 'center',
                       position: 'relative'
                     }}
@@ -397,7 +408,7 @@ const CoursePaymentCard = ({ courseData }) => {
                       size="small"
                       color={dateObj.purchased ? "success" : 
                              dateObj.skipped ? "default" :
-                             new Date(dateObj.date) < new Date() ? "default" : "warning"}
+                             new Date(dateObj.date) < new Date() ? "error" : "warning"}
                       sx={{ 
                         height: 20, 
                         '& .MuiChip-label': { px: 0.5, fontSize: '0.625rem', fontWeight: 600 }
