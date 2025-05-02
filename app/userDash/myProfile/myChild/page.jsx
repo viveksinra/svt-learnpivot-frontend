@@ -13,13 +13,7 @@ const Profile = () => {
   const snackRef = useRef();
 
   return (
-    <Box 
-    // sx={{ 
-    //   bgcolor: '#F8FAFC',
-    //   minHeight: '100vh',
-    //   py: 6
-    // }}
-    >
+<Box className="p-4">
       <Container maxWidth="lg" sx={{ mt: 4, paddingBottom: 40 }}>
       
       <QuickLinks />
