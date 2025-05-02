@@ -81,13 +81,15 @@ const UserCourseAccess = () => {
 
     // Fetch all users for dropdown
     const checkOneUserAllCourseAccess = async () => {
-      setLoading(true);
+      // If no parent is selected, don't do anything and don't set loading state
       if (!selectedParent) {
-
         return;
       }
+      
+      setLoading(true);
+      
       try {
-      const  userId = selectedParent._id;
+        const userId = selectedParent._id;
 
         let res = await myCourseService.GetOneUserAllCourseAccessApi({userId});
         if (res.variant === "success") {
@@ -118,7 +120,12 @@ const UserCourseAccess = () => {
     };
 
     useEffect(() => {
-      checkOneUserAllCourseAccess();
+      if (selectedParent) {
+        checkOneUserAllCourseAccess();
+      } else {
+        // If no parent is selected, ensure courseDropDown is empty
+        setCourseDropDown([]);
+      }
     }, [selectedParent]);
 
   const AddParentToCourseAccess = async () => {
@@ -367,7 +374,16 @@ const UserCourseAccess = () => {
                   options={allUsers}
                   value={selectedParent}
                   onChange={(event, newValue) => {
+                    console.log("Parent selection changed", newValue, "loading:", loading);
+                    // Always update the parent selection first
                     setSelectedParent(newValue);
+                    
+                    // If parent is cleared, clear course and config data
+                    if (!newValue) {
+                      setSelectedCourse(null);
+                      clearAllConfigData();
+                      setCourseDropDown([]); // Clear course dropdown options
+                    }
                   }}
                   getOptionLabel={(option) => {
                     const childrenNames = option.children?.map(child => child.childName).join(', ') || '';
@@ -385,9 +401,11 @@ const UserCourseAccess = () => {
                     />
                   )}
                   loading={loading}
-                  disabled={loading}
+                  disabled={false} // Always enable the parent dropdown
                   loadingText="Loading users..."
                   noOptionsText="No users found"
+                  clearOnBlur={false}
+                  clearOnEscape
                 />
               </Grid>
 
@@ -399,6 +417,10 @@ const UserCourseAccess = () => {
                   value={selectedCourse}
                   onChange={(event, newValue) => {
                     setSelectedCourse(newValue);
+                    if (!newValue) {
+                      // Clear configuration data
+                      clearAllConfigData();
+                    }
                   }}
                   getOptionLabel={(option) => option.courseTitle || ''}
                   renderOption={(props, option) => (
@@ -445,7 +467,9 @@ const UserCourseAccess = () => {
                   loading={loading}
                   disabled={loading || !selectedParent}
                   loadingText="Loading courses..."
-                  noOptionsText="No courses found"
+                  noOptionsText={selectedParent ? "No courses found" : "Please select a parent first"}
+                  clearOnBlur={false}
+                  clearOnEscape
                 />
               </Grid>
             </Grid>
