@@ -290,7 +290,7 @@ const UserReportMain = ({ reportData, profileType }) => {
       {/* User Info and Stats */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         {/* Child Selection Cards */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
           <ContentSection>
             <SectionTitle variant="h6">
               <ChildCareIcon color="primary" />
@@ -345,7 +345,7 @@ const UserReportMain = ({ reportData, profileType }) => {
         </Grid>
 
         {/* Upcoming Sessions */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
           <ContentSection>
             <SectionTitle variant="h6">
               <CalendarMonthIcon color="primary" />
@@ -412,7 +412,7 @@ const UserReportMain = ({ reportData, profileType }) => {
         </Grid>
 
         {/* Summary Stats */}
-        <Grid item xs={12} md={4}>
+        <Grid item xs={12} sm={12} md={12} lg={4} xl={4}>
           <ContentSection>
             <SectionTitle variant="h6">
               <InfoIcon color="primary" />
@@ -421,7 +421,7 @@ const UserReportMain = ({ reportData, profileType }) => {
             
             <Grid container spacing={2}>
               {/* Total Spent */}
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6} md={12} lg={12}>
                 <Card sx={{ bgcolor: 'primary.light', color: 'white', borderRadius: '10px' }}>
                   <CardContent>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -447,7 +447,7 @@ const UserReportMain = ({ reportData, profileType }) => {
               </Grid>
               
               {/* Sessions by Month */}
-              <Grid item xs={12}>
+              <Grid item xs={12} sm={6} md={12} lg={12}>
                 <Card sx={{ borderRadius: '10px' }}>
                   <CardContent>
                     <Typography variant="subtitle1" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
