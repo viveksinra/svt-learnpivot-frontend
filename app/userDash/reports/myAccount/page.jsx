@@ -62,7 +62,7 @@ const MyTransactionReport = () => {
 
 
   return (
-    <Container maxWidth="xl">
+<Box className="p-4">
       <QuickLinks />
       <Paper elevation={3} sx={{ p: 3, mt: 2, borderRadius: '12px' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -106,7 +106,7 @@ const MyTransactionReport = () => {
       </Paper>
 
 
-    </Container>
+    </Box>
   );
 };
 
