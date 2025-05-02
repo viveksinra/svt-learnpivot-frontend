@@ -121,7 +121,7 @@ const UserTestTable = ({ data }) => {
             quickFilterProps: { debounceMs: 500 },
           },
         }}
-        pageSizeOptions={[10, 25, 50, 100]}
+        pageSizeOptions={[10, 25, 50, 100,1000]}
         sx={{
           '& .MuiDataGrid-cell': {
             py: 1.5
