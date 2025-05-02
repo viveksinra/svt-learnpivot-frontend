@@ -375,15 +375,17 @@ const UserCourseAccess = () => {
                   value={selectedParent}
                   onChange={(event, newValue) => {
                     console.log("Parent selection changed", newValue, "loading:", loading);
-                    // Always update the parent selection first
-                    setSelectedParent(newValue);
                     
                     // If parent is cleared, clear course and config data
                     if (!newValue) {
                       setSelectedCourse(null);
                       clearAllConfigData();
                       setCourseDropDown([]); // Clear course dropdown options
+                      setLoading(false); // Ensure loading is false when parent is cleared
                     }
+                    
+                    // Always update the parent selection last
+                    setSelectedParent(newValue);
                   }}
                   getOptionLabel={(option) => {
                     const childrenNames = option.children?.map(child => child.childName).join(', ') || '';
