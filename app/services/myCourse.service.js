@@ -146,6 +146,13 @@ export class MyCourseService {
       })
       .then((res) => res.data);
   };
+  GetOneUserAllCourseAccessApi = async ({userId}) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/admin/courseAccess/getOneUserAllCourseAccess/${userId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
   DeleteOneUserOneCourseAccessApi = async ({courseId,userId}) => {
     return this.instance
       .post(`/api/v1/publicMaster/report/admin/courseAccess/deleteOneUserOneCourse/${courseId}/${userId}`, {

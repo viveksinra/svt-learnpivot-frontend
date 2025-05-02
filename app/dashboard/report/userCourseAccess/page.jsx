@@ -77,7 +77,13 @@ const UserCourseAccess = () => {
     try {
       let response = await registrationService.getCourseDropDown();
       if (response.variant === "success") {
-        setCourseDropDown(response.data);
+        // Map the course data to include default values for access properties if not present
+        const coursesWithAccessInfo = response.data.map(course => ({
+          ...course,
+          isSeperateUserAccess: false,
+          isCourseAccess: false
+        }));
+        setCourseDropDown(coursesWithAccessInfo);
       } else {
         setError("Failed to fetch courses");
       }
@@ -94,6 +100,48 @@ const UserCourseAccess = () => {
     getAllUsers();
     fetchCourseDropDown();
   }, []);
+
+    // Fetch all users for dropdown
+    const checkOneUserOneCourseAccess = async () => {
+      setLoading(true);
+      if (!selectedParent) {
+
+        return;
+      }
+      try {
+      const  userId = selectedParent._id;
+
+        let res = await myCourseService.GetOneUserAllCourseAccessApi({userId});
+        if (res.variant === "success") {
+          console.log(res.data);
+          // Sort courses - courses with access and custom config first
+          const sortedCourses = [...res.data].sort((a, b) => {
+            // First priority: Has access (true comes before false)
+            if (a.isCourseAccess !== b.isCourseAccess) {
+              return a.isCourseAccess ? -1 : 1;
+            }
+            // Second priority: Has custom config (true comes before false)
+            if (a.isSeperateUserAccess !== b.isSeperateUserAccess) {
+              return a.isSeperateUserAccess ? -1 : 1;
+            }
+            // If both are equal, sort alphabetically by course title
+            return a.courseTitle.localeCompare(b.courseTitle);
+          });
+          setCourseDropDown(sortedCourses);
+        } else {
+          setError("Failed to fetch users");
+        }
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        setError("An error occurred while fetching users");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      checkOneUserOneCourseAccess();
+    }, [selectedParent]);
 
   const AddParentToCourseAccess = async () => {
     if (!selectedParent || !selectedCourse) {
@@ -372,6 +420,27 @@ const UserCourseAccess = () => {
                     setSelectedCourse(newValue);
                   }}
                   getOptionLabel={(option) => option.courseTitle || ''}
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+                        <Typography variant="body1">{option.courseTitle}</Typography>
+                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
+                          <Chip 
+                            label={option.isCourseAccess ? "Access" : "No Access"} 
+                            color={option.isCourseAccess ? "success" : "error"} 
+                            size="small"
+                            variant="outlined"
+                          />
+                          <Chip 
+                            label={option.isSeperateUserAccess ? "Custom Config" : "Default Config"} 
+                            color={option.isSeperateUserAccess ? "primary" : "default"} 
+                            size="small"
+                            variant="outlined"
+                          />
+                        </Box>
+                      </Box>
+                    </li>
+                  )}
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -381,6 +450,30 @@ const UserCourseAccess = () => {
                       required
                       InputLabelProps={{ shrink: true }}
                       fullWidth
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {selectedCourse && (
+                              <Box sx={{ display: 'flex', gap: 0.5, mr: 2 }}>
+                                <Chip 
+                                  label={selectedCourse.isCourseAccess ? "Access" : "No Access"} 
+                                  color={selectedCourse.isCourseAccess ? "success" : "error"} 
+                                  size="small"
+                                  sx={{ height: 24 }}
+                                />
+                                <Chip 
+                                  label={selectedCourse.isSeperateUserAccess ? "Custom" : "Default"} 
+                                  color={selectedCourse.isSeperateUserAccess ? "primary" : "default"} 
+                                  size="small"
+                                  sx={{ height: 24 }}
+                                />
+                              </Box>
+                            )}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
                     />
                   )}
                   loading={loading}
@@ -391,6 +484,31 @@ const UserCourseAccess = () => {
               </Grid>
             </Grid>
           </CardContent>
+          
+          {courseDropDown.length > 0 && selectedParent && (
+            <Box sx={{ p: 2, bgcolor: 'action.hover', borderTop: '1px solid rgba(0, 0, 0, 0.12)' }}>
+              <Stack direction="row" spacing={2} justifyContent="flex-end">
+                <Chip 
+                  label={`${courseDropDown.filter(c => c.isCourseAccess).length} Courses with Access`} 
+                  color="success"
+                  size="small"
+                  variant="outlined"
+                />
+                <Chip 
+                  label={`${courseDropDown.filter(c => c.isSeperateUserAccess).length} with Custom Config`} 
+                  color="primary"
+                  size="small"
+                  variant="outlined"
+                />
+                <Chip 
+                  label={`${courseDropDown.length} Total Courses`} 
+                  color="default"
+                  size="small"
+                  variant="outlined"
+                />
+              </Stack>
+            </Box>
+          )}
         </Card>
 
         {/* Parent Course Access Toggle */}
