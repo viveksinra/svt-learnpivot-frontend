@@ -94,20 +94,8 @@ const UserCourseAccess = () => {
         let res = await myCourseService.GetOneUserAllCourseAccessApi({userId});
         if (res.variant === "success") {
           console.log(res.data);
-          // Sort courses - courses with access and custom config first
-          const sortedCourses = [...res.data].sort((a, b) => {
-            // First priority: Has access (true comes before false)
-            if (a.isCourseAccess !== b.isCourseAccess) {
-              return a.isCourseAccess ? -1 : 1;
-            }
-            // Second priority: Has custom config (true comes before false)
-            if (a.isSeperateUserAccess !== b.isSeperateUserAccess) {
-              return a.isSeperateUserAccess ? -1 : 1;
-            }
-            // If both are equal, sort alphabetically by course title
-            return a.courseTitle.localeCompare(b.courseTitle);
-          });
-          setCourseDropDown(sortedCourses);
+
+          setCourseDropDown(res.data);
         } else {
           setError("Failed to fetch users");
         }
