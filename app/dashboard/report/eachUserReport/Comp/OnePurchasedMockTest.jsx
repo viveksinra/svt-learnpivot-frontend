@@ -241,7 +241,7 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
         </Typography>
         
         <Box sx={{ maxHeight: 200, overflow: 'auto', pr: 1 }}>
-          {test.selectedBatch?.map((batch, idx) => (
+          {test.selectedBatch?.sort((a, b) => new Date(a.date) - new Date(b.date)).map((batch, idx) => (
             <Box 
               key={idx} 
               sx={{ 
@@ -330,7 +330,7 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
                 Select batches to cancel:
               </Typography>
               <List sx={{ pt: 0 }}>
-                {test.selectedBatch?.map((batch, idx) => (
+                {test.selectedBatch?.sort((a, b) => new Date(a.date) - new Date(b.date)).map((batch, idx) => (
                   <ListItem key={idx} button onClick={() => handleToggleBatch(batch)}>
                     <Checkbox
                       edge="start"
