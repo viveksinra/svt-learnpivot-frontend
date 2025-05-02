@@ -12,7 +12,11 @@ export const protectedRoutes = [
     "/dashboard/report/userReport",
     "/dashboard/report/childReport",
     "/dashboard/report/eachUserReport",
-    "/dashboard/transaction/oneUserTransaction"
+    "/dashboard/report/userCourseAccess",
+    "/dashboard/report/userCourseUpdate",
+    "/dashboard/transaction/oneUserTransaction",
+    "/dashboard/transaction/allUserReport",
+    "/dashboard/filtertag"
 ];
 
 export const userProtectedRoutes = [
