@@ -71,38 +71,16 @@ const UserCourseAccess = () => {
     }
   };
 
-  // Fetch all courses for dropdown
-  const fetchCourseDropDown = async () => {
-    setLoading(true);
-    try {
-      let response = await registrationService.getCourseDropDown();
-      if (response.variant === "success") {
-        // Map the course data to include default values for access properties if not present
-        const coursesWithAccessInfo = response.data.map(course => ({
-          ...course,
-          isSeperateUserAccess: false,
-          isCourseAccess: false
-        }));
-        setCourseDropDown(coursesWithAccessInfo);
-      } else {
-        setError("Failed to fetch courses");
-      }
-    } catch (error) {
-      console.error('Error fetching courses:', error);
-      setError("An error occurred while fetching courses");
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   // Load data on component mount
   useEffect(() => {
     getAllUsers();
-    fetchCourseDropDown();
+    
   }, []);
 
     // Fetch all users for dropdown
-    const checkOneUserOneCourseAccess = async () => {
+    const checkOneUserAllCourseAccess = async () => {
       setLoading(true);
       if (!selectedParent) {
 
@@ -140,7 +118,7 @@ const UserCourseAccess = () => {
     };
 
     useEffect(() => {
-      checkOneUserOneCourseAccess();
+      checkOneUserAllCourseAccess();
     }, [selectedParent]);
 
   const AddParentToCourseAccess = async () => {
@@ -162,6 +140,7 @@ const UserCourseAccess = () => {
       if (res.variant === "success") {
         setSaveSuccess(true);
         setOnlySelectedParent(!onlySelectedParent);
+        checkOneUserAllCourseAccess();
       } else {
         setError(res.message || "Failed to update parent course access");
       setParentAccessError(res.message || "Failed to update parent course access");
@@ -223,6 +202,7 @@ const UserCourseAccess = () => {
       let res = await myCourseService.DeleteOneUserOneCourseAccessApi(data);
       if (res.variant === "success") {
         setSaveSuccess(true);
+        checkOneUserAllCourseAccess();
       } else {
         setError(res.message || "Failed to delete parent course access");
         setSaveError(true);
@@ -346,6 +326,7 @@ const UserCourseAccess = () => {
       if (res.variant === "success") {
         setSaveSuccess(true);
         GetOneUserOneCourseAccess();
+        checkOneUserAllCourseAccess();
       } else {
         setError(res.message || "Failed to save configuration");
         setSaveError(true);
@@ -454,22 +435,7 @@ const UserCourseAccess = () => {
                         ...params.InputProps,
                         endAdornment: (
                           <>
-                            {selectedCourse && (
-                              <Box sx={{ display: 'flex', gap: 0.5, mr: 2 }}>
-                                <Chip 
-                                  label={selectedCourse.isCourseAccess ? "Access" : "No Access"} 
-                                  color={selectedCourse.isCourseAccess ? "success" : "error"} 
-                                  size="small"
-                                  sx={{ height: 24 }}
-                                />
-                                <Chip 
-                                  label={selectedCourse.isSeperateUserAccess ? "Custom" : "Default"} 
-                                  color={selectedCourse.isSeperateUserAccess ? "primary" : "default"} 
-                                  size="small"
-                                  sx={{ height: 24 }}
-                                />
-                              </Box>
-                            )}
+                     
                             {params.InputProps.endAdornment}
                           </>
                         ),
