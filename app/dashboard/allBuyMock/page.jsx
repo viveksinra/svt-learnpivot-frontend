@@ -11,6 +11,8 @@ import {
   Tooltip, 
   Box,
   Chip,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material/';
 import { 
   MdModeEdit, 
@@ -111,6 +113,9 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
     status: false,
     address: false,
   });
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleWidthReset = () => {
     setContainerWidth(1250);
@@ -274,17 +279,18 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   );
 
   return (
-    <main style={{ 
-      background: "#fff", 
-      boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", 
-      borderRadius: 8, 
-      padding: {xs: 10, md: 20},
-      alignItems: "center",
-      justifyContent: "center",
-      alignSelf: "center",
-      margin: {xs: "0 10px", md: "0 20px"},
-      maxWidth: tabular ? containerWidth : "100%",
-    }}>
+    <Box
+      sx={{
+        background: "#fff",
+        boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+        borderRadius: 2,
+        p: { xs: 1, sm: 2, md: 3 },
+        width: "100%",
+        maxWidth: tabular ? containerWidth : "100%",
+        mx: "auto",
+        overflow: "hidden"
+      }}
+    >
       {/* Filter Controls */}
       <FilterControls
         tabular={tabular}
@@ -300,11 +306,11 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       />
 
       {loading ? (
-        <div className="center" style={{flexDirection:"column", padding: "40px"}}>
-          <CircularProgress size={40} sx={{ color: '#00c853' }}/>
-          <Typography 
-            color="primary" 
-            sx={{ 
+        <Box className="center" sx={{ flexDirection: "column", p: 5 }}>
+          <CircularProgress size={40} sx={{ color: '#00c853' }} />
+          <Typography
+            color="primary"
+            sx={{
               mt: 2,
               fontFamily: 'Courgette',
               fontSize: '1.2rem'
@@ -312,7 +318,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
           >
             Loading Mock Tests...
           </Typography>
-        </div>
+        </Box>
       ) : rows.length === 0 ? (
         <NoResult label="No Mock Tests Available" />
       ) : tabular ? (
@@ -337,27 +343,27 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
         />
       ) : (
         <>
-          <CardView 
+          <CardView
             rows={rows}
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
           />
-          <div style={{ display: 'flex', justifyContent: 'center', margin: '20px 0' }}>
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
+          <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+            <Box sx={{
+              display: 'flex',
+              alignItems: 'center',
               gap: 2,
-              padding: '8px',
+              p: 1,
               background: '#f5f5f5',
-              borderRadius: '8px'
+              borderRadius: 1
             }}>
               <PaginationComponent />
             </Box>
-          </div>
+          </Box>
         </>
       )}
-      <br/> <br/> <br/>
-    </main>
+      <Box sx={{ height: 60 }} /> {/* Space for AppBar */}
+    </Box>
   );
 }
 

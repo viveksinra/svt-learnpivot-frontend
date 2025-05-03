@@ -8,6 +8,7 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { Box, Stack, useMediaQuery, useTheme, Paper } from '@mui/material';
 import { mockTestService } from '@/app/services';
 
 const ITEM_HEIGHT = 48;
@@ -29,6 +30,9 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [mockTests, setMockTests] = useState([]);
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMediumScreen = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     async function fetchAllData() {
@@ -103,56 +107,105 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
     setSuccessOnly(event.target.checked);
   };
 
+  const getSelectWidth = () => {
+    if (isSmallScreen) return '100%';
+    if (isMediumScreen) return 220;
+    return 300;
+  };
+
   return (
-    <div>
-      <FormControl sx={{ m: 1, width: 300 }}>
-        <InputLabel id="mocktest-multiple-checkbox-label">Mock Tests</InputLabel>
-        <Select
-          labelId="mocktest-multiple-checkbox-label"
-          id="mocktest-multiple-checkbox"
-          multiple
-          value={selectedMockTests.map(mockTest => mockTest.title)}
-          onChange={handleMockTestChange}
-          input={<OutlinedInput label="Mock Tests Student" />}
-          renderValue={(selected) => selected.join(', ')}
-          MenuProps={MenuProps}
-        >
-          {filteredMockTests.map((mockTest) => (
-            <MenuItem key={mockTest._id} value={mockTest.mockTestTitle}>
-              <Checkbox checked={selectedMockTests.some(mt => mt.title === mockTest.mockTestTitle)} />
-              <ListItemText primary={mockTest.mockTestTitle} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+    <Box sx={{ width: '100%' }}>
+      {/* Two selects in a row */}
+      <Stack 
+        direction={{ xs: 'column', sm: 'row' }} 
+        spacing={{ xs: 1, sm: 2 }} 
+        flexWrap="wrap"
+        alignItems="center"
+        sx={{ mb: 3 }}
+      >
+        <FormControl sx={{ width: getSelectWidth(), minWidth: isSmallScreen ? '100%' : 220 }}>
+          <InputLabel id="mocktest-multiple-checkbox-label">Mock Tests</InputLabel>
+          <Select
+            labelId="mocktest-multiple-checkbox-label"
+            id="mocktest-multiple-checkbox"
+            multiple
+            value={selectedMockTests.map(mockTest => mockTest.title)}
+            onChange={handleMockTestChange}
+            input={<OutlinedInput label="Mock Tests Student" />}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={MenuProps}
+          >
+            {filteredMockTests.map((mockTest) => (
+              <MenuItem key={mockTest._id} value={mockTest.mockTestTitle}>
+                <Checkbox checked={selectedMockTests.some(mt => mt.title === mockTest.mockTestTitle)} />
+                <ListItemText primary={mockTest.mockTestTitle} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      <FormControl sx={{ m: 1, width: 300 }} disabled={selectedMockTests.length === 0}>
-        <InputLabel id="batch-multiple-checkbox-label">Batches</InputLabel>
-        <Select
-          labelId="batch-multiple-checkbox-label"
-          id="batch-multiple-checkbox"
-          multiple
-          value={selectedBatches.map(batch => batch.label)}
-          onChange={handleBatchChange}
-          input={<OutlinedInput label="Batches" />}
-          renderValue={(selected) => selected.join(', ')}
-          MenuProps={MenuProps}
-        >
-          {batches.map((batch) => (
-            <MenuItem key={batch.id} value={batch.label}>
-              <Checkbox checked={selectedBatches.some(b => b.label === batch.label)} />
-              <ListItemText primary={batch.label} />
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        <FormControl sx={{ width: getSelectWidth(), minWidth: isSmallScreen ? '100%' : 220 }} disabled={selectedMockTests.length === 0}>
+          <InputLabel id="batch-multiple-checkbox-label">Batches</InputLabel>
+          <Select
+            labelId="batch-multiple-checkbox-label"
+            id="batch-multiple-checkbox"
+            multiple
+            value={selectedBatches.map(batch => batch.label)}
+            onChange={handleBatchChange}
+            input={<OutlinedInput label="Batches" />}
+            renderValue={(selected) => selected.join(', ')}
+            MenuProps={MenuProps}
+          >
+            {batches.map((batch) => (
+              <MenuItem key={batch.id} value={batch.label}>
+                <Checkbox checked={selectedBatches.some(b => b.label === batch.label)} />
+                <ListItemText primary={batch.label} />
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Stack>
 
-      <FormControl sx={{ m: 1, width: 300 }}>
+      {/* Success Only Toggle - Styled prominently */}
+      <Paper 
+        elevation={0} 
+        sx={{ 
+          p: 1.5, 
+          mb: 2, 
+          backgroundColor: successOnly ? '#e8f5e9' : '#f5f5f5',
+          border: `1px solid ${successOnly ? '#81c784' : '#e0e0e0'}`,
+          borderRadius: 2,
+          transition: 'background-color 0.3s, border-color 0.3s',
+          display: 'inline-flex'
+        }}
+      >
         <FormControlLabel
-          control={<Switch checked={successOnly} onChange={handleSwitchChange} />}
+          control={
+            <Switch 
+              checked={successOnly} 
+              onChange={handleSwitchChange} 
+              color="success"
+              sx={{ 
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: '#2e7d32',
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: '#81c784',
+                }
+              }}
+            />
+          }
           label="Success Only"
+          sx={{ 
+            m: 0,
+            '& .MuiFormControlLabel-label': { 
+              fontWeight: 500,
+              fontSize: '1rem',
+              color: successOnly ? '#2e7d32' : 'text.primary'
+            }
+          }}
         />
-      </FormControl>
-    </div>
+      </Paper>
+    </Box>
   );
 }

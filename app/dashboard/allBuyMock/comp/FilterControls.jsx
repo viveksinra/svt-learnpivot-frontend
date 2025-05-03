@@ -5,7 +5,13 @@ import {
   ToggleButtonGroup, 
   ToggleButton, 
   Tooltip, 
-  Tab 
+  Tab,
+  Box,
+  useMediaQuery,
+  useTheme,
+  Stack,
+  Divider,
+  Paper
 } from '@mui/material';
 import { TabContext, TabList } from "@mui/lab";
 import { FcOrgUnit, FcTimeline } from "react-icons/fc";
@@ -27,48 +33,74 @@ const FilterControls = ({
     { label: "New First", value: "newToOld" }, 
     { label: "Old First", value: "oldToNew" }
   ];
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
-    <Grid container spacing={2}>
-      <Grid item xs={12} md={6}>
-        <Typography 
-          color="primary" 
-          variant='h5' 
-          gutterBottom
-          sx={{ fontFamily: 'Courgette', fontSize: { xs: '1.5rem', md: '2rem' } }}
-        >
-          All Purchased Mock Tests
-        </Typography>
-      </Grid>
-      <Grid item xs={12} md={6} sx={{display:"flex", justifyContent:"end", marginBottom:"20px", flexWrap: "wrap"}}>
+    <Box sx={{ width: '100%', mb: 3 }}>
+      <Typography 
+        color="primary" 
+        variant='h5' 
+        sx={{ 
+          fontFamily: 'Courgette', 
+          fontSize: { xs: '1.5rem', md: '2rem' },
+          mb: 2
+        }}
+      >
+        All Purchased Mock Tests
+      </Typography>
+
+      {/* View Type Toggle Buttons - Placed at the top for maximum visibility */}
+      <Paper 
+        elevation={0}
+        sx={{ 
+          display: 'flex',
+          justifyContent: 'center',
+          mb: 3,
+          p: 1,
+          backgroundColor: '#f5f5f5',
+          border: '1px solid #e0e0e0',
+          borderRadius: 2
+        }}
+      >
         <ToggleButtonGroup 
-          aria-label="ViewMode" 
-          sx={{display: "flex", marginLeft:"10px", marginRight:"10px"}}
+          exclusive
+          value={tabular ? "table" : "grid"}
+          onChange={(e, newValue) => {
+            if (newValue !== null) {
+              setView(newValue === "table");
+            }
+          }}
+          aria-label="View Mode"
+          sx={{
+            backgroundColor: '#fff',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
+            borderRadius: 1,
+            '& .MuiToggleButton-root': {
+              border: 'none',
+              px: 3,
+              py: 1
+            }
+          }}
         >
-          <Tooltip arrow title="Grid View">
-            <ToggleButton 
-              value="grid" 
-              selected={!tabular}
-              onClick={()=>setView(false)} 
-              aria-label="gridView"
-            >
-              <FcOrgUnit/>
-            </ToggleButton>
-          </Tooltip>
-          <Tooltip arrow title="Table View">
-            <ToggleButton 
-              value="list" 
-              selected={tabular}
-              onClick={()=>setView(true)} 
-              aria-label="listView"
-            >
-              <FcTimeline />
-            </ToggleButton>
-          </Tooltip>
+          <ToggleButton value="grid" aria-label="grid view">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FcOrgUnit style={{ fontSize: 24 }} />
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Grid View</Typography>
+            </Box>
+          </ToggleButton>
+          <Divider orientation="vertical" flexItem />
+          <ToggleButton value="table" aria-label="table view">
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <FcTimeline style={{ fontSize: 24 }} />
+              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Table View</Typography>
+            </Box>
+          </ToggleButton>
         </ToggleButtonGroup>
-      </Grid>
+      </Paper>
       
-      <Grid item xs={12}>
+      {/* Filters */}
+      <Box sx={{ width: '100%' }}>
         <MulSelCom 
           selectedMockTests={selectedMockTests} 
           setSelectedMockTests={setSelectedMockTests} 
@@ -77,8 +109,10 @@ const FilterControls = ({
           successOnly={successOnly} 
           setSuccessOnly={setSuccessOnly} 
         />
-      </Grid>
-      <Grid item xs={12} sx={{maxWidth: { xs: 350, sm: 480, md: 700 }, marginBottom:"10px"}}>
+      </Box>
+      
+      {/* Sorting Options */}
+      <Box sx={{ width: '100%', mt: 2 }}>
         <TabContext value={sortBy}>
           <TabList 
             onChange={(e, v) => setSort(v)} 
@@ -96,8 +130,8 @@ const FilterControls = ({
             ))}
           </TabList>
         </TabContext>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 
