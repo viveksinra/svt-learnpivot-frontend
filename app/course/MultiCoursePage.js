@@ -95,6 +95,17 @@ function MultiCoursePage() {
     fetchAllData()
   }, [rowsPerPage,page,searchText,sortBy,selectedFilter])
 
+  // Add effect to ensure scrollbar is present
+  useEffect(() => {
+    // Force scrollbar visibility
+    document.documentElement.style.overflowY = 'scroll';
+    
+    // This runs on component unmount to prevent leaking styles
+    return () => {
+      // Do not remove the style when navigating away to preserve scrollbar
+    };
+  }, []);
+
   return (
     <>
       <Grid container >

@@ -3,6 +3,7 @@ import Navbar from '../Components/ITStartup/Common/Navbar/Navbar'
 import { Container } from '@mui/material'
 import Footer from '../Components/Footer/Footer'
 import MultiCoursePage from './MultiCoursePage'
+import '../../styles/scrollbar.css'
 
 function page() {
   const containerStyle = {

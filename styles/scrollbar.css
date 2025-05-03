@@ -1,0 +1,31 @@
+/* Global scrollbar styles */
+html, body {
+  scrollbar-width: auto;
+  scrollbar-color: #888 #f1f1f1;
+  overflow-y: auto;
+}
+
+/* For Chrome, Edge, and Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Force scrollbar to be visible always */
+html {
+  overflow-y: scroll;
+} 

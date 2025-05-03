@@ -10,6 +10,7 @@ import "swiper/css/bundle";
 // Global CSS
 import "../styles/style.css";
 import "../styles/responsive.css";
+import "../styles/scrollbar.css";
 
 import  './globals.css';
 
