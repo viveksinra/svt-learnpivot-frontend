@@ -62,37 +62,7 @@ const FilterControls = ({
           All Purchased Mock Tests
         </Typography>
 
-        {/* Local Search Feature */}
-        <Box sx={{ 
-          width: { 
-            xs: '100%', 
-            sm: '50%', 
-            md: '35%', 
-            lg: '25%' 
-          },
-          minWidth: { xs: '100%', sm: '200px' }
-        }}>
-          <TextField
-            fullWidth
-            variant="outlined"
-            size="small"
-            placeholder={isMobile ? "Search..." : "Search loaded data..."}
-            value={localSearchText || ''}
-            onChange={(e) => setLocalSearchText(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <BsSearch />
-                </InputAdornment>
-              ),
-            }}
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                borderRadius: '8px',
-              }
-            }}
-          />
-        </Box>
+     
       </Box>
 
       {/* View Toggle - Directly below the title */}
@@ -135,7 +105,37 @@ const FilterControls = ({
           setLoadAllData={setLoadAllData}
         />
       </Box>
-      
+         {/* Local Search Feature */}
+         <Box sx={{ 
+          width: { 
+            xs: '100%', 
+            sm: '50%', 
+            md: '35%', 
+            lg: '25%' 
+          },
+          minWidth: { xs: '100%', sm: '200px' }
+        }}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            size="small"
+            placeholder={isMobile ? "Search..." : "Search loaded data..."}
+            value={localSearchText || ''}
+            onChange={(e) => setLocalSearchText(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <BsSearch />
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+              }
+            }}
+          />
+        </Box>
       {/* Sorting Options */}
       <Box sx={{ width: '100%', mt: 2 }}>
         <TabContext value={sortBy}>
@@ -156,6 +156,7 @@ const FilterControls = ({
           </TabList>
         </TabContext>
       </Box>
+      
     </Box>
   );
 };
