@@ -8,7 +8,7 @@ import Select from '@mui/material/Select';
 import Checkbox from '@mui/material/Checkbox';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import { Box, Stack, useMediaQuery, useTheme, Paper } from '@mui/material';
+import { Box, Stack, useMediaQuery, useTheme } from '@mui/material';
 import { mockTestService } from '@/app/services';
 
 const ITEM_HEIGHT = 48;
@@ -115,13 +115,12 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
 
   return (
     <Box sx={{ width: '100%' }}>
-      {/* Two selects in a row */}
       <Stack 
         direction={{ xs: 'column', sm: 'row' }} 
         spacing={{ xs: 1, sm: 2 }} 
         flexWrap="wrap"
         alignItems="center"
-        sx={{ mb: 3 }}
+        sx={{ mb: 2 }}
       >
         <FormControl sx={{ width: getSelectWidth(), minWidth: isSmallScreen ? '100%' : 220 }}>
           <InputLabel id="mocktest-multiple-checkbox-label">Mock Tests</InputLabel>
@@ -164,48 +163,29 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
             ))}
           </Select>
         </FormControl>
-      </Stack>
 
-      {/* Success Only Toggle - Styled prominently */}
-      <Paper 
-        elevation={0} 
-        sx={{ 
-          p: 1.5, 
-          mb: 2, 
-          backgroundColor: successOnly ? '#e8f5e9' : '#f5f5f5',
-          border: `1px solid ${successOnly ? '#81c784' : '#e0e0e0'}`,
-          borderRadius: 2,
-          transition: 'background-color 0.3s, border-color 0.3s',
-          display: 'inline-flex'
-        }}
-      >
-        <FormControlLabel
-          control={
-            <Switch 
-              checked={successOnly} 
-              onChange={handleSwitchChange} 
-              color="success"
-              sx={{ 
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: '#2e7d32',
-                },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: '#81c784',
-                }
-              }}
-            />
-          }
-          label="Success Only"
+        {/* Simple Success Only Toggle */}
+        <Box 
           sx={{ 
-            m: 0,
-            '& .MuiFormControlLabel-label': { 
-              fontWeight: 500,
-              fontSize: '1rem',
-              color: successOnly ? '#2e7d32' : 'text.primary'
-            }
+            border: '1px solid #e0e0e0',
+            borderRadius: 1,
+            p: { xs: 0.5, sm: 1 },
+            backgroundColor: successOnly ? '#e8f5e9' : '#f5f5f5'
           }}
-        />
-      </Paper>
+        >
+          <FormControlLabel
+            control={
+              <Switch 
+                checked={successOnly} 
+                onChange={handleSwitchChange} 
+                color="success"
+              />
+            }
+            label="Success Only"
+            sx={{ m: 0 }}
+          />
+        </Box>
+      </Stack>
     </Box>
   );
 }
