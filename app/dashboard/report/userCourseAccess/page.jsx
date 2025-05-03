@@ -27,8 +27,10 @@ import { dashboardService, registrationService, myCourseService } from "@/app/se
 
 const UserCourseAccess = () => {
   const theme = useTheme();
+  const isXSmall = useMediaQuery(theme.breakpoints.down('xs'));
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const isLargeScreen = useMediaQuery(theme.breakpoints.up('lg'));
   
   // State for users and courses
   const [allUsers, setAllUsers] = useState([]);
@@ -76,8 +78,6 @@ const UserCourseAccess = () => {
       setLoading(false);
     }
   };
-
-
 
   // Load data on component mount
   useEffect(() => {
@@ -348,25 +348,33 @@ const UserCourseAccess = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-      <Box sx={{ py: { xs: 2, sm: 3, md: 4 } }}>
+    <Container maxWidth="lg" sx={{ px: { xs: 1.5, sm: 2, md: 3 }, overflow: 'hidden' }}>
+      <Box sx={{ py: { xs: 2, sm: 2.5, md: 3, lg: 4 } }}>
         <Typography 
           variant={isMobile ? "h5" : "h4"} 
           gutterBottom 
           fontWeight="bold" 
           color="primary"
-          sx={{ mb: { xs: 2, sm: 3 } }}
+          sx={{ 
+            mb: { xs: 2, sm: 3 },
+            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2.125rem' }
+          }}
         >
           User Course Access Management
         </Typography>
         
-        <Card elevation={3} sx={{ mb: { xs: 3, sm: 4 }, overflow: 'visible' }}>
-          <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-            <Typography variant={isMobile ? "subtitle1" : "h6"} gutterBottom color="text.secondary" sx={{ mb: { xs: 2, sm: 3 } }}>
+        <Card elevation={3} sx={{ mb: { xs: 2.5, sm: 3, md: 4 }, overflow: 'visible' }}>
+          <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
+            <Typography 
+              variant={isMobile ? "subtitle1" : "h6"} 
+              gutterBottom 
+              color="text.secondary" 
+              sx={{ mb: { xs: 1.5, sm: 2, md: 3 } }}
+            >
               Select User and Course
             </Typography>
             
-            <Grid container spacing={isMobile ? 2 : 3}>
+            <Grid container spacing={isMobile ? 1.5 : 2.5}>
               {/* Step 1: Select Parent */}
               <Grid item xs={12} md={6}>
                 <Autocomplete
@@ -401,6 +409,11 @@ const UserCourseAccess = () => {
                       InputLabelProps={{ shrink: true }}
                       fullWidth
                       size={isMobile ? "small" : "medium"}
+                      sx={{ 
+                        '& .MuiInputBase-root': {
+                          fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }
+                      }}
                     />
                   )}
                   loading={loading}
@@ -409,7 +422,12 @@ const UserCourseAccess = () => {
                   noOptionsText="No users found"
                   clearOnBlur={false}
                   clearOnEscape
-                  ListboxProps={{ style: { maxHeight: '200px' } }}
+                  ListboxProps={{ 
+                    style: { 
+                      maxHeight: isMobile ? '150px' : '200px' 
+                    } 
+                  }}
+                  popupIcon={<span style={{ fontSize: isMobile ? '0.8rem' : '1rem' }}>▼</span>}
                 />
               </Grid>
 
@@ -429,20 +447,35 @@ const UserCourseAccess = () => {
                   getOptionLabel={(option) => option.courseTitle || ''}
                   renderOption={(props, option) => (
                     <li {...props}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                        <Typography variant="body1">{option.courseTitle}</Typography>
-                        <Box sx={{ display: 'flex', gap: 1, mt: 0.5, flexWrap: 'wrap' }}>
+                      <Box sx={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        width: '100%',
+                        py: { xs: 0.5, sm: 0.75 }
+                      }}>
+                        <Typography variant="body1" sx={{ fontSize: { xs: '0.875rem', sm: '1rem' } }}>
+                          {option.courseTitle}
+                        </Typography>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          gap: 1, 
+                          mt: 0.5, 
+                          flexWrap: 'wrap',
+                          justifyContent: isMobile ? 'flex-start' : undefined
+                        }}>
                           <Chip 
                             label={option.isCourseAccess ? "Access" : "No Access"} 
                             color={option.isCourseAccess ? "success" : "error"} 
                             size="small"
                             variant="outlined"
+                            sx={{ height: isMobile ? '24px' : '32px', fontSize: isMobile ? '0.7rem' : '0.75rem' }}
                           />
                           <Chip 
                             label={option.isSeperateUserAccess ? "Custom Config" : "Default Config"} 
                             color={option.isSeperateUserAccess ? "primary" : "default"} 
                             size="small"
                             variant="outlined"
+                            sx={{ height: isMobile ? '24px' : '32px', fontSize: isMobile ? '0.7rem' : '0.75rem' }}
                           />
                         </Box>
                       </Box>
@@ -458,6 +491,11 @@ const UserCourseAccess = () => {
                       InputLabelProps={{ shrink: true }}
                       fullWidth
                       size={isMobile ? "small" : "medium"}
+                      sx={{ 
+                        '& .MuiInputBase-root': {
+                          fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }
+                      }}
                       InputProps={{
                         ...params.InputProps,
                         endAdornment: (
@@ -475,37 +513,63 @@ const UserCourseAccess = () => {
                   noOptionsText={selectedParent ? "No courses found" : "Please select a parent first"}
                   clearOnBlur={false}
                   clearOnEscape
-                  ListboxProps={{ style: { maxHeight: '200px' } }}
+                  ListboxProps={{ 
+                    style: { 
+                      maxHeight: isMobile ? '150px' : '200px' 
+                    } 
+                  }}
+                  popupIcon={<span style={{ fontSize: isMobile ? '0.8rem' : '1rem' }}>▼</span>}
                 />
               </Grid>
             </Grid>
           </CardContent>
           
           {courseDropDown.length > 0 && selectedParent && (
-            <Box sx={{ p: { xs: 1.5, sm: 2 }, bgcolor: 'action.hover', borderTop: '1px solid rgba(0, 0, 0, 0.12)' }}>
+            <Box sx={{ 
+              p: { xs: 1, sm: 1.5, md: 2 }, 
+              bgcolor: 'action.hover', 
+              borderTop: '1px solid rgba(0, 0, 0, 0.12)',
+              overflowX: 'auto'  
+            }}>
               <Stack 
                 direction={isMobile ? "column" : "row"} 
-                spacing={isMobile ? 1 : 2} 
+                spacing={isMobile ? 0.75 : 1.5} 
                 justifyContent={isMobile ? "flex-start" : "flex-end"}
                 alignItems={isMobile ? "flex-start" : "center"}
+                sx={{ minWidth: { xs: '100%', md: 'auto' } }}
               >
                 <Chip 
                   label={`${courseDropDown.filter(c => c.isCourseAccess).length} Courses with Access`} 
                   color="success"
                   size="small"
                   variant="outlined"
+                  sx={{ 
+                    my: isMobile ? 0.5 : 0,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                    height: { xs: '24px', sm: '32px' }
+                  }}
                 />
                 <Chip 
                   label={`${courseDropDown.filter(c => c.isSeperateUserAccess).length} with Custom Config`} 
                   color="primary"
                   size="small"
                   variant="outlined"
+                  sx={{ 
+                    my: isMobile ? 0.5 : 0,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                    height: { xs: '24px', sm: '32px' }
+                  }}
                 />
                 <Chip 
                   label={`${courseDropDown.length} Total Courses`} 
                   color="default"
                   size="small"
                   variant="outlined"
+                  sx={{ 
+                    my: isMobile ? 0.5 : 0,
+                    fontSize: { xs: '0.7rem', sm: '0.75rem' },
+                    height: { xs: '24px', sm: '32px' }
+                  }}
                 />
               </Stack>
             </Box>
@@ -514,33 +578,48 @@ const UserCourseAccess = () => {
 
         {/* Parent Course Access Toggle */}
         {selectedParent && selectedCourse && (
-          <Card elevation={3} sx={{ mb: { xs: 3, sm: 4 }, overflow: 'visible' }}>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+          <Card elevation={3} sx={{ mb: { xs: 2.5, sm: 3, md: 4 }, overflow: 'visible' }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
               <Stack 
                 direction={isMobile ? "column" : "row"} 
                 justifyContent="space-between" 
                 alignItems={isMobile ? "flex-start" : "center"} 
                 spacing={isMobile ? 1 : 0}
-                sx={{ mb: 2 }}
+                sx={{ mb: { xs: 1.5, sm: 2 } }}
               >
-                <Typography variant={isMobile ? "subtitle1" : "h6"} color="text.secondary">
+                <Typography 
+                  variant={isMobile ? "subtitle1" : "h6"} 
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                >
                   1. Parent Course Access 
                 </Typography>
                 <Chip 
                   label={onlySelectedParent ? "Has Access" : "No Access"} 
                   color={onlySelectedParent ? "success" : "error"} 
                   variant="filled" 
-                  sx={{ fontWeight: 'medium', mt: isMobile ? 0.5 : 0 }}
+                  sx={{ 
+                    fontWeight: 'medium', 
+                    mt: isMobile ? 0.5 : 0,
+                    fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                    height: { xs: '28px', sm: '32px' }
+                  }}
                 />
               </Stack>
               
               {parentAccessError && (
-                <Alert severity="error" sx={{ mb: 2 }}>
+                <Alert 
+                  severity="error" 
+                  sx={{ 
+                    mb: 2,
+                    fontSize: { xs: '0.75rem', sm: '0.875rem' }
+                  }}
+                >
                   {parentAccessError}
                 </Alert>
               )}
               
-              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+              <Divider sx={{ mb: { xs: 1.5, sm: 2, md: 3 } }} />
               
               <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                 <Button
@@ -550,12 +629,14 @@ const UserCourseAccess = () => {
                   disabled={loading}
                   fullWidth={isMobile}
                   sx={{ 
-                    px: { xs: 2, sm: 3 }, 
-                    py: { xs: 0.75, sm: 1 },
+                    px: { xs: 1.5, sm: 2, md: 3 }, 
+                    py: { xs: 0.5, sm: 0.75, md: 1 },
                     borderRadius: 2,
-                    boxShadow: 2
+                    boxShadow: 2,
+                    fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' },
+                    whiteSpace: 'nowrap'
                   }}
-                  startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                  startIcon={loading ? <CircularProgress size={isMobile ? 16 : 20} color="inherit" /> : null}
                 >
                   {!onlySelectedParent ? "Grant Access" : "Remove Access"}
                 </Button>
@@ -567,15 +648,19 @@ const UserCourseAccess = () => {
         {/* Configuration Options */}
         {selectedParent && selectedCourse && (
           <Card elevation={3}>
-            <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+            <CardContent sx={{ p: { xs: 1.5, sm: 2, md: 3 } }}>
               <Stack 
                 direction={isMobile ? "column" : "row"} 
                 justifyContent="space-between" 
                 alignItems={isMobile ? "flex-start" : "center"}
                 spacing={isMobile ? 1 : 0}
-                sx={{ mb: { xs: 1.5, sm: 2 } }}
+                sx={{ mb: { xs: 1, sm: 1.5, md: 2 } }}
               >
-                <Typography variant={isMobile ? "subtitle1" : "h6"} color="text.secondary">
+                <Typography 
+                  variant={isMobile ? "subtitle1" : "h6"} 
+                  color="text.secondary"
+                  sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}
+                >
                   2. Access Configuration
                 </Typography>
                 <FormControlLabel
@@ -587,21 +672,31 @@ const UserCourseAccess = () => {
                       size={isMobile ? "small" : "medium"}
                     />
                   }
-                  label="Enable Separate User Access"
+                  label={
+                    <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>
+                      Enable Separate User Access
+                    </Typography>
+                  }
+                  sx={{ 
+                    mr: 0,
+                    '& .MuiFormControlLabel-label': { 
+                      fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } 
+                    }
+                  }}
                 />
               </Stack>
               
-              <Divider sx={{ mb: { xs: 2, sm: 3 } }} />
+              <Divider sx={{ mb: { xs: 1.5, sm: 2, md: 3 } }} />
               
               {(hasCourseAccessFile === "yes" || hasCourseAccessFile === "no") ? (
                 <Box sx={{
                   border: enableSeperateUserAccessForCourse ? "1px solid #4caf50" : "1px solid #f44336",
                   borderRadius: "12px",
-                  p: { xs: 2, sm: 3 },
+                  p: { xs: 1.5, sm: 2, md: 3 },
                   backgroundColor: enableSeperateUserAccessForCourse ? "rgba(76, 175, 80, 0.05)" : "rgba(244, 67, 54, 0.05)",
                   transition: "all 0.3s ease",
                 }}>
-                  <Grid container spacing={isMobile ? 1.5 : 3}>
+                  <Grid container spacing={isMobile ? 1 : 2}>
                     <Grid item xs={12} sm={6} md={4}>
                       <FormControlLabel
                         control={
@@ -612,7 +707,16 @@ const UserCourseAccess = () => {
                             size={isMobile ? "small" : "medium"}
                           />
                         }
-                        label="Restrict Start Date Change"
+                        label={
+                          <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>
+                            Restrict Start Date Change
+                          </Typography>
+                        }
+                        sx={{ 
+                          '& .MuiFormControlLabel-label': { 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } 
+                          }
+                        }}
                       />
                     </Grid>
                     
@@ -626,7 +730,16 @@ const UserCourseAccess = () => {
                             size={isMobile ? "small" : "medium"}
                           />
                         }
-                        label="Force Full Buy Course"
+                        label={
+                          <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>
+                            Force Full Buy Course
+                          </Typography>
+                        }
+                        sx={{ 
+                          '& .MuiFormControlLabel-label': { 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } 
+                          }
+                        }}
                       />
                     </Grid>
                     
@@ -640,12 +753,21 @@ const UserCourseAccess = () => {
                             size={isMobile ? "small" : "medium"}
                           />
                         }
-                        label="Force Continuous Set Buy"
+                        label={
+                          <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>
+                            Force Continuous Set Buy
+                          </Typography>
+                        }
+                        sx={{ 
+                          '& .MuiFormControlLabel-label': { 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } 
+                          }
+                        }}
                       />
                     </Grid>
                     
                     <Grid item xs={12}>
-                      <Divider sx={{ my: { xs: 1, sm: 2 } }} />
+                      <Divider sx={{ my: { xs: 0.75, sm: 1, md: 2 } }} />
                     </Grid>
                     
                     <Grid item xs={12} sm={6} md={4}>
@@ -658,7 +780,16 @@ const UserCourseAccess = () => {
                             size={isMobile ? "small" : "medium"}
                           />
                         }
-                        label="Allow Back Date Buy"
+                        label={
+                          <Typography sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } }}>
+                            Allow Back Date Buy
+                          </Typography>
+                        }
+                        sx={{ 
+                          '& .MuiFormControlLabel-label': { 
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' } 
+                          }
+                        }}
                       />
                     </Grid>
                     
@@ -676,19 +807,23 @@ const UserCourseAccess = () => {
                         variant="outlined"
                         disabled={!allowBackDateBuy}
                         size={isMobile ? "small" : "medium"}
+                        sx={{ 
+                          '& .MuiInputBase-root': {
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                          },
+                          '& .MuiInputLabel-root': {
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                          }
+                        }}
                       />
                     </Grid>
-                    
-               
-                    
-               
                     
                     <Grid item xs={12}>
                       <Stack 
                         direction={isMobile ? "column" : "row"} 
-                        spacing={isMobile ? 1.5 : 2} 
+                        spacing={isMobile ? 1 : 2} 
                         justifyContent="flex-end" 
-                        sx={{ mt: { xs: 2, sm: 3 } }}
+                        sx={{ mt: { xs: 1.5, sm: 2, md: 3 } }}
                       >
                         {hasCourseAccessFile === "yes" && <Button
                           variant="outlined"
@@ -696,7 +831,10 @@ const UserCourseAccess = () => {
                           onClick={DeleteOneUserOneCourseAccess}
                           disabled={loading}
                           fullWidth={isMobile}
-                          sx={{ borderRadius: 2 }}
+                          sx={{ 
+                            borderRadius: 2,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                          }}
                         >
                           Delete All Access
                         </Button>}
@@ -707,11 +845,12 @@ const UserCourseAccess = () => {
                           disabled={loading}
                           fullWidth={isMobile}
                           sx={{ 
-                            px: { xs: 2, sm: 3 }, 
+                            px: { xs: 1.5, sm: 2, md: 3 }, 
                             borderRadius: 2,
-                            boxShadow: 2
+                            boxShadow: 2,
+                            fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
                           }}
-                          startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
+                          startIcon={loading ? <CircularProgress size={isMobile ? 16 : 20} color="inherit" /> : null}
                         >
                           {loading ? "Saving..." : hasCourseAccessFile === "yes" ? "Update Configuration" : "Save Configuration"}
                         </Button>
@@ -725,11 +864,20 @@ const UserCourseAccess = () => {
                   flexDirection: 'column',
                   alignItems: 'center', 
                   justifyContent: 'center',
-                  p: { xs: 3, sm: 5 },
+                  p: { xs: 2, sm: 3, md: 5 },
                   backgroundColor: "rgba(0, 0, 0, 0.02)",
                   borderRadius: 2
                 }}>
-                  <Typography variant="body1" gutterBottom color="text.secondary" sx={{ mb: 2, textAlign: 'center' }}>
+                  <Typography 
+                    variant="body1" 
+                    gutterBottom 
+                    color="text.secondary" 
+                    sx={{ 
+                      mb: { xs: 1.5, sm: 2 },
+                      textAlign: 'center',
+                      fontSize: { xs: '0.875rem', sm: '1rem' }
+                    }}
+                  >
                     Not able to fetch Access Configuration
                   </Typography>
                   <Button
@@ -737,8 +885,11 @@ const UserCourseAccess = () => {
                     color="primary"
                     onClick={GetOneUserOneCourseAccess}
                     disabled={loading}
-                    startIcon={loading ? <CircularProgress size={20} color="inherit" /> : null}
-                    sx={{ borderRadius: 2 }}
+                    startIcon={loading ? <CircularProgress size={isMobile ? 16 : 20} color="inherit" /> : null}
+                    sx={{ 
+                      borderRadius: 2,
+                      fontSize: { xs: '0.8rem', sm: '0.875rem', md: '1rem' }
+                    }}
                     fullWidth={isMobile}
                   >
                     Fetch Data ~ {hasCourseAccessFile}
@@ -755,8 +906,17 @@ const UserCourseAccess = () => {
           autoHideDuration={4000} 
           onClose={handleCloseAlert}
           anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
+          sx={{ bottom: { xs: 16, sm: 24 } }}
         >
-          <Alert onClose={handleCloseAlert} severity="success" variant="filled" sx={{ width: '100%' }}>
+          <Alert 
+            onClose={handleCloseAlert} 
+            severity="success" 
+            variant="filled" 
+            sx={{ 
+              width: '100%',
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
             Configuration saved successfully!
           </Alert>
         </Snackbar>
@@ -766,8 +926,17 @@ const UserCourseAccess = () => {
           autoHideDuration={6000} 
           onClose={handleCloseAlert}
           anchorOrigin={{ vertical: 'bottom', horizontal: isMobile ? 'center' : 'right' }}
+          sx={{ bottom: { xs: 16, sm: 24 } }}
         >
-          <Alert onClose={handleCloseAlert} severity="error" variant="filled" sx={{ width: '100%' }}>
+          <Alert 
+            onClose={handleCloseAlert} 
+            severity="error" 
+            variant="filled" 
+            sx={{ 
+              width: '100%',
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
             {error || "Error saving configuration. Please try again."}
           </Alert>
         </Snackbar>
