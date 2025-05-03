@@ -1,17 +1,13 @@
 import React from 'react';
 import { 
-  Grid, 
   Typography, 
   ToggleButtonGroup, 
   ToggleButton, 
-  Tooltip, 
-  Tab,
   Box,
   useMediaQuery,
   useTheme,
-  Stack,
   Divider,
-  Paper
+  Tab
 } from '@mui/material';
 import { TabContext, TabList } from "@mui/lab";
 import { FcOrgUnit, FcTimeline } from "react-icons/fc";
@@ -38,31 +34,21 @@ const FilterControls = ({
 
   return (
     <Box sx={{ width: '100%', mb: 3 }}>
+      {/* Page Title */}
       <Typography 
         color="primary" 
         variant='h5' 
         sx={{ 
           fontFamily: 'Courgette', 
           fontSize: { xs: '1.5rem', md: '2rem' },
-          mb: 2
+          mb: 1.5
         }}
       >
         All Purchased Mock Tests
       </Typography>
 
-      {/* View Type Toggle Buttons - Placed at the top for maximum visibility */}
-      <Paper 
-        elevation={0}
-        sx={{ 
-          display: 'flex',
-          justifyContent: 'center',
-          mb: 3,
-          p: 1,
-          backgroundColor: '#f5f5f5',
-          border: '1px solid #e0e0e0',
-          borderRadius: 2
-        }}
-      >
+      {/* View Toggle - Directly below the title */}
+      <Box sx={{ mb: 2.5 }}>
         <ToggleButtonGroup 
           exclusive
           value={tabular ? "table" : "grid"}
@@ -71,33 +57,22 @@ const FilterControls = ({
               setView(newValue === "table");
             }
           }}
-          aria-label="View Mode"
-          sx={{
-            backgroundColor: '#fff',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.05)',
-            borderRadius: 1,
-            '& .MuiToggleButton-root': {
-              border: 'none',
-              px: 3,
-              py: 1
-            }
-          }}
+          size="small"
         >
-          <ToggleButton value="grid" aria-label="grid view">
+          <ToggleButton value="grid">
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FcOrgUnit style={{ fontSize: 24 }} />
-              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Grid View</Typography>
+              <FcOrgUnit />
+              <Typography variant="body2">Grid View</Typography>
             </Box>
           </ToggleButton>
-          <Divider orientation="vertical" flexItem />
-          <ToggleButton value="table" aria-label="table view">
+          <ToggleButton value="table">
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <FcTimeline style={{ fontSize: 24 }} />
-              <Typography sx={{ display: { xs: 'none', sm: 'block' } }}>Table View</Typography>
+              <FcTimeline />
+              <Typography variant="body2">Table View</Typography>
             </Box>
           </ToggleButton>
         </ToggleButtonGroup>
-      </Paper>
+      </Box>
       
       {/* Filters */}
       <Box sx={{ width: '100%' }}>
