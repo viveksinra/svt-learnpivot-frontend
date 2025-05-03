@@ -100,10 +100,12 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [tabular, setView] = useState(true);
   const [sortBy, setSort] = useState("newToOld");
   const [searchText, setSearchText] = useState("");
+  const [localSearchText, setLocalSearchText] = useState("");
   const [totalCount, setTotalCount] = useState(0);
   const [selectedMockTests, setSelectedMockTests] = useState([]);
   const [selectedBatches, setSelectedBatches] = useState([]);
   const [successOnly, setSuccessOnly] = useState(true);
+  const [loadAllData, setLoadAllData] = useState(false);
   const [containerWidth, setContainerWidth] = useState(1250);
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
@@ -232,7 +234,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       try {
         let response = await registrationService.getMockWithFilter({ 
           sortBy, 
-          rowsPerPage: pageSize, 
+          rowsPerPage: loadAllData ? 10000 : pageSize, 
           page: page + 1, // backend expects 1-based page numbers
           searchText, 
           selectedMockTests, 
@@ -257,7 +259,41 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       }
     }
     fetchAllData();
-  }, [page, pageSize, searchText, sortBy, selectedMockTests, selectedBatches, successOnly]);
+  }, [page, pageSize, searchText, sortBy, selectedMockTests, selectedBatches, successOnly, loadAllData]);
+
+  // Function to filter rows based on local search text
+  const filterRows = (rows) => {
+    if (!localSearchText) return rows;
+    
+    const searchTermLower = localSearchText.toLowerCase();
+    
+    return rows.filter(row => {
+      // Check all searchable fields
+      return (
+        // Mock Test
+        (row.mockTestId?.mockTestTitle?.toLowerCase().includes(searchTermLower)) ||
+        // Parent
+        (`${row.user?.firstName} ${row.user?.lastName}`.toLowerCase().includes(searchTermLower)) ||
+        // Email
+        (row.user?.email?.toLowerCase().includes(searchTermLower)) ||
+        // Child 
+        (row.childId?.childName?.toLowerCase().includes(searchTermLower)) ||
+        (row.childId?.childGender?.toLowerCase().includes(searchTermLower)) ||
+        // Batch
+        (row.selectedBatch?.date?.toString().toLowerCase().includes(searchTermLower)) ||
+        (`${row.selectedBatch?.startTime}-${row.selectedBatch?.endTime}`.toLowerCase().includes(searchTermLower)) ||
+        // Status
+        (row.status?.toLowerCase().includes(searchTermLower)) ||
+        // Mobile
+        (row.user?.mobile?.toString().includes(searchTermLower)) ||
+        // Address
+        (row.user?.address?.toLowerCase().includes(searchTermLower))
+      );
+    });
+  };
+
+  // Apply local filtering
+  const filteredRows = filterRows(rows);
 
   const handleSelectionChange = (newSelectionModel) => {
     console.log("newSelectionModel", newSelectionModel);
@@ -303,6 +339,10 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
         setSelectedBatches={setSelectedBatches}
         successOnly={successOnly}
         setSuccessOnly={setSuccessOnly}
+        loadAllData={loadAllData}
+        setLoadAllData={setLoadAllData}
+        localSearchText={localSearchText}
+        setLocalSearchText={setLocalSearchText}
       />
 
       {loading ? (
@@ -319,18 +359,18 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
             Loading Mock Tests...
           </Typography>
         </Box>
-      ) : rows.length === 0 ? (
-        <NoResult label="No Mock Tests Available" />
+      ) : filteredRows.length === 0 ? (
+        <NoResult label={localSearchText ? "No matching results found" : "No Mock Tests Available"} />
       ) : tabular ? (
         <DataGridView
-          rows={rows}
+          rows={filteredRows}
           columns={columns}
           loading={loading}
           page={page}
           setPage={setPage}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          totalCount={totalCount}
+          totalCount={localSearchText ? filteredRows.length : totalCount}
           selectedItems={selectedItems}
           handleSelectionChange={handleSelectionChange}
           containerWidth={containerWidth}
@@ -344,7 +384,7 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       ) : (
         <>
           <CardView
-            rows={rows}
+            rows={filteredRows}
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
           />

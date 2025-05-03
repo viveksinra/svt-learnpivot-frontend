@@ -22,7 +22,7 @@ const MenuProps = {
   },
 };
 
-export default function MulSelCom({ selectedMockTests, setSelectedMockTests, selectedBatches, setSelectedBatches, successOnly, setSuccessOnly }) {
+export default function MulSelCom({ selectedMockTests, setSelectedMockTests, selectedBatches, setSelectedBatches, successOnly, setSuccessOnly, loadAllData, setLoadAllData }) {
   const [sortBy, setSort] = useState("newToOld");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(1000);
@@ -106,6 +106,10 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
   const handleSwitchChange = (event) => {
     setSuccessOnly(event.target.checked);
   };
+  
+  const handleLoadAllDataChange = (event) => {
+    setLoadAllData(event.target.checked);
+  };
 
   const getSelectWidth = () => {
     if (isSmallScreen) return '100%';
@@ -164,7 +168,7 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
           </Select>
         </FormControl>
 
-        {/* Simple Success Only Toggle */}
+        {/* Success Only Toggle */}
         <Box 
           sx={{ 
             border: '1px solid #e0e0e0',
@@ -182,6 +186,28 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
               />
             }
             label="Success Only"
+            sx={{ m: 0 }}
+          />
+        </Box>
+        
+        {/* Load All Data Toggle */}
+        <Box 
+          sx={{ 
+            border: '1px solid #e0e0e0',
+            borderRadius: 1,
+            p: { xs: 0.5, sm: 1 },
+            backgroundColor: loadAllData ? '#e3f2fd' : '#f5f5f5'
+          }}
+        >
+          <FormControlLabel
+            control={
+              <Switch 
+                checked={loadAllData} 
+                onChange={handleLoadAllDataChange} 
+                color="primary"
+              />
+            }
+            label="Load All Data"
             sx={{ m: 0 }}
           />
         </Box>
