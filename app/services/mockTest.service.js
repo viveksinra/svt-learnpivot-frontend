@@ -84,16 +84,38 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
+  // CSSE Mock Test Report Maker methods
+  getAllChildOfMockTest = async ({mockTestId, batchId}) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getAllChildOfMockTest/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  getCsseMockReport = async ({mockTestId, batchId}) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getCsseMockReport/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  addCsseMockReport = async (data) => {
+    return this.instance
+      .post(`/api/v1/privateRoute/mockReportMaker/admin/addCsseMockReport`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
-
-
-
-
-
-
-
+  getCssePastMockTest = async () => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getCssePastMockTest`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
   add = async (id, data) => {
     return this.instance
@@ -127,10 +149,6 @@ export class MockTestService {
       .catch((err) => err);
   };
 
-
-
-
-
   imgUpload = async (imgData)=>{
     return this.instance
     .post(`/api/v1/other/fileupload/upload`, imgData, {
@@ -144,5 +162,4 @@ export class MockTestService {
     .catch((err) => {console.log(err) });
   };
   
-
 }

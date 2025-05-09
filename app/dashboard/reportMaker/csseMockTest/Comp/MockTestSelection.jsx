@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, 
   Typography, 
@@ -35,6 +35,12 @@ const MockTestSelection = ({
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
+  // Add debugging for batches
+  useEffect(() => {
+    console.log('MockTestSelection - availableBatches:', availableBatches);
+    console.log('MockTestSelection - selectedBatch:', selectedBatch);
+  }, [availableBatches, selectedBatch]);
 
   return (
     <Card elevation={4} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
@@ -95,10 +101,23 @@ const MockTestSelection = ({
                   availableBatches.map((batch) => (
                     <MenuItem key={batch._id} value={batch._id}>
                       {new Date(batch.date).toLocaleDateString()} ({batch.startTime} - {batch.endTime})
+                      {batch.children && batch.children.length > 0 && (
+                        <Chip 
+                          size="small" 
+                          label={`${batch.children.length} students`} 
+                          color="primary" 
+                          sx={{ ml: 1 }} 
+                        />
+                      )}
                     </MenuItem>
                   ))
                 )}
               </Select>
+              <Typography variant="caption" sx={{ mt: 1, ml: 2, color: 'text.secondary' }}>
+                {availableBatches.length > 0 
+                  ? `${availableBatches.length} batches available` 
+                  : 'No past batches available for this mock test'}
+              </Typography>
             </FormControl>
           </Grid>
         )}

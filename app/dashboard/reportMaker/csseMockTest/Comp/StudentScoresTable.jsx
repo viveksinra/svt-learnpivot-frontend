@@ -16,23 +16,47 @@ import {
   Tooltip,
   Chip,
   useTheme,
-  TableSortLabel
+  TableSortLabel,
+  Button
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
-import { useState } from 'react';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { useState, useEffect } from 'react';
 
 const StudentScoresTable = ({ 
   students, 
   maxScores, 
   actionLoading, 
-  handleScoreChange 
+  handleScoreChange,
+  onReloadStudents
 }) => {
   const theme = useTheme();
   
   // Add sorting state
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
+  const [isReloading, setIsReloading] = useState(false);
+  
+  // Debug students array
+  useEffect(() => {
+    console.log('StudentScoresTable received students:', students);
+    console.log('Students array length:', students ? students.length : 0);
+  }, [students]);
+  
+  // Handle reload button click
+  const handleReload = () => {
+    setIsReloading(true);
+    if (onReloadStudents) {
+      onReloadStudents();
+      // Reset reloading state after 1.5 seconds to show the spinner for a bit
+      setTimeout(() => {
+        setIsReloading(false);
+      }, 1500);
+    } else {
+      setIsReloading(false);
+    }
+  };
   
   // Calculate progress for a student
   const calculateProgress = (mathScore, englishScore) => {
@@ -56,6 +80,8 @@ const StudentScoresTable = ({
 
   // Sorting function for student data
   const sortStudents = (students) => {
+    if (!students || students.length === 0) return [];
+    
     return [...students].sort((a, b) => {
       let aValue, bValue;
       
@@ -105,16 +131,38 @@ const StudentScoresTable = ({
         </Tooltip>
       </Box>
       <Divider sx={{ mb: 2 }} />
-      {students.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 6 }}>
+      {!students || students.length === 0 ? (
+        <Box sx={{ textAlign: 'center', py: 4 }}>
           <Alert
             severity="info"
             variant="outlined"
             icon={<InfoOutlinedIcon fontSize="inherit" />}
-            sx={{ borderRadius: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            sx={{ borderRadius: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}
           >
             No students found for this mock test and batch.
           </Alert>
+          
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={isReloading ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
+              onClick={handleReload}
+              disabled={isReloading || actionLoading}
+              sx={{ 
+                borderRadius: 2,
+                px: 3,
+                py: 1,
+                fontWeight: 'medium'
+              }}
+            >
+              {isReloading ? 'Reloading...' : 'Reload Students'}
+            </Button>
+          </Box>
+          
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+            If students should be available, try reloading or check if the student data is correctly uploaded.
+          </Typography>
         </Box>
       ) : (
         <TableContainer

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
-import { Box, Snackbar } from '@mui/material';
+import { Box, Snackbar, Typography } from '@mui/material';
 import { mockTestService } from '@/app/services';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
 
@@ -47,7 +47,10 @@ const CSSEMockTestMaker = () => {
   async function fetchPastMockTest() {
     setLoading(true)
     try {
+      console.log('Fetching past mock tests...');
       const response = await mockTestService.getCssePastMockTest();
+      console.log('Past mock tests response:', response);
+      
       if(response.variant === "success"){
         setLoading(false)
         // Process mock tests and filter past batches
@@ -59,12 +62,15 @@ const CSSEMockTestMaker = () => {
             return batchDate < currentDate;
           });
           
+          console.log(`Mock test: ${test.mockTestTitle}, Past batches: ${pastBatches.length}`);
+          
           return {
             ...test,
             pastBatches
           };
         });
         
+        console.log('Processed tests with past batches:', processedTests);
         setMockTests(processedTests);
       } else {
         console.log(response); 
@@ -111,6 +117,7 @@ const CSSEMockTestMaker = () => {
   // Handle batch selection
   const handleBatchChange = async (event) => {
     const batchId = event.target.value;
+    console.log('Batch selected:', batchId);
     setSelectedBatch(batchId);
     setShowCreateForm(false); // Reset form state when changing batches
     
@@ -123,6 +130,7 @@ const CSSEMockTestMaker = () => {
           batchId
         });
         
+        console.log('Mock report check response:', response);
         setMockTestExists(response.variant === "success");
         
         // Fetch students associated with this mock test and batch
@@ -147,13 +155,24 @@ const CSSEMockTestMaker = () => {
   const fetchStudents = async (mockTestId, batchId) => {
     try {
       setActionLoading(true);
+      
       // Use the service to fetch students for the mock test
+      console.log('Fetching students for mockTestId:', mockTestId, 'batchId:', batchId);
+      
       const response = await mockTestService.getAllChildOfMockTest({
         mockTestId,
         batchId
       });
       
-      if (response.variant === "success") {
+      console.log('Response from getAllChildOfMockTest:', response); // Add logging to debug
+      console.log('Response data structure:', {
+        variant: response.variant,
+        hasData: !!response.data,
+        dataLength: response.data ? response.data.length : 0,
+        firstItem: response.data && response.data.length > 0 ? response.data[0] : null
+      });
+      
+      if (response.variant === "success" && response.data && response.data.length > 0) {
         // Only check for existing report if not in create form mode
         let studentsWithScores = [];
         
@@ -163,6 +182,8 @@ const CSSEMockTestMaker = () => {
             mockTestId,
             batchId
           });
+          
+          console.log('Report response:', reportResponse);
           
           if (reportResponse.variant === "success") {
             // If report exists, use the scores from it
@@ -175,20 +196,42 @@ const CSSEMockTestMaker = () => {
             });
             
             // Map students with their scores
-            studentsWithScores = response.data.map(student => ({
-              id: student.childId,
-              name: student.childDetails.name,
-              gender: student.childDetails.gender,
-              year: student.childDetails.year,
-              parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
-              parentEmail: student.parentDetails.email,
-              parentMobile: student.parentDetails.mobile,
-              mathScore: childScore.find(score => score.childId === student.childId)?.mathsScore ?? '',
-              englishScore: childScore.find(score => score.childId === student.childId)?.englishScore ?? '',
-            }));
+            studentsWithScores = response.data.map(student => {
+              console.log('Processing student:', student);
+              return {
+                id: student.childId,
+                name: student.childDetails.name,
+                gender: student.childDetails.gender,
+                year: student.childDetails.year,
+                parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
+                parentEmail: student.parentDetails.email,
+                parentMobile: student.parentDetails.mobile,
+                mathScore: childScore.find(score => score.childId === student.childId)?.mathsScore ?? '',
+                englishScore: childScore.find(score => score.childId === student.childId)?.englishScore ?? '',
+              };
+            });
           } else {
             // If no report exists, initialize with empty scores
-            studentsWithScores = response.data.map(student => ({
+            studentsWithScores = response.data.map(student => {
+              console.log('Processing student (no report):', student);
+              return {
+                id: student.childId,
+                name: student.childDetails.name,
+                gender: student.childDetails.gender,
+                year: student.childDetails.year,
+                parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
+                parentEmail: student.parentDetails.email,
+                parentMobile: student.parentDetails.mobile,
+                mathScore: '',
+                englishScore: '',
+              };
+            });
+          }
+        } else {
+          // In create form mode, just initialize with empty scores
+          studentsWithScores = response.data.map(student => {
+            console.log('Processing student (create form):', student);
+            return {
               id: student.childId,
               name: student.childDetails.name,
               gender: student.childDetails.gender,
@@ -198,11 +241,21 @@ const CSSEMockTestMaker = () => {
               parentMobile: student.parentDetails.mobile,
               mathScore: '',
               englishScore: '',
-            }));
-          }
-        } else {
-          // In create form mode, just initialize with empty scores
-          studentsWithScores = response.data.map(student => ({
+            };
+          });
+        }
+        
+        console.log('Processed students data:', studentsWithScores); // Add logging to debug
+        console.log('Setting students array with length:', studentsWithScores.length);
+        setStudents(studentsWithScores);
+      } else {
+        // Handle case when no students are found
+        console.log('No students found or response not successful');
+        
+        // Check if we have the manual test student flag set
+        if (response.data && response.data.length > 0) {
+          // Process the data even if variant isn't success
+          const manualStudentsWithScores = response.data.map(student => ({
             id: student.childId,
             name: student.childDetails.name,
             gender: student.childDetails.gender,
@@ -213,12 +266,13 @@ const CSSEMockTestMaker = () => {
             mathScore: '',
             englishScore: '',
           }));
+          
+          console.log('Manual processing of student data:', manualStudentsWithScores);
+          setStudents(manualStudentsWithScores);
+        } else {
+          setStudents([]);
         }
         
-        setStudents(studentsWithScores);
-      } else {
-        // Handle case when no students are found
-        setStudents([]);
         snackRef.current.handleSnack({
           severity: "info",
           message: response.message || 'No students found for this mock test'
@@ -378,6 +432,14 @@ const CSSEMockTestMaker = () => {
     }
   };
 
+  // Function to reload student data
+  const handleReloadStudents = () => {
+    console.log('Reloading students for mockTest:', selectedMockTest, 'batch:', selectedBatch);
+    if (selectedMockTest && selectedBatch) {
+      fetchStudents(selectedMockTest, selectedBatch);
+    }
+  };
+
   // Handle snackbar close
   const handleSnackbarClose = () => {
     setSnackbar(prev => ({
@@ -431,12 +493,20 @@ const CSSEMockTestMaker = () => {
 
       {/* Student Scores Table */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <StudentScoresTable
-          students={students}
-          maxScores={maxScores}
-          actionLoading={actionLoading}
-          handleScoreChange={handleScoreChange}
-        />
+        <>
+          <Box sx={{ mb: 2 }}>
+            <Typography variant="subtitle2" color="text.secondary">
+              Debug Info: Students array length: {students ? students.length : 0}
+            </Typography>
+          </Box>
+          <StudentScoresTable
+            students={students}
+            maxScores={maxScores}
+            actionLoading={actionLoading}
+            handleScoreChange={handleScoreChange}
+            onReloadStudents={handleReloadStudents}
+          />
+        </>
       )}
 
       {/* Save Button */}
