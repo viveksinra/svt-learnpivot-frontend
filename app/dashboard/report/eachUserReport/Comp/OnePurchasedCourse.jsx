@@ -65,12 +65,13 @@ const OnePurchasedCourse = ({course,  profileType}) => {
   };
 
   const calculateRefundAmount = () => {
+let cancelDateLength = course.canceledDates?.length || 0;
+const perSessionAmount = (course.amount || 0) / (course.selectedDates?.length + cancelDateLength || 1 );
     if (cancelMode === 'full') {
       // Full refund for all dates
-      return course.amount;
+      return perSessionAmount * course.selectedDates.length;
     } else if (selectedDatesToCancel.length > 0) {
       // Calculate refund amount based on selected dates
-      const perSessionAmount = course.amount / course.selectedDates.length;
       return perSessionAmount * selectedDatesToCancel.length;
     }
     return 0;
@@ -109,14 +110,14 @@ const OnePurchasedCourse = ({course,  profileType}) => {
 
   const handleSelectFullCancel = () => {
     setCancelMode('full');
-    const calculatedRefund = course.amount;
+    const calculatedRefund = calculateRefundAmount();
     setRefundAmount(calculatedRefund);
     openConfirmationDialog();
   };
 
   const handleProceedWithSelected = () => {
     if (selectedDatesToCancel.length > 0) {
-      const calculatedRefund = (course.amount / course.selectedDates.length) * selectedDatesToCancel.length;
+      const calculatedRefund = calculateRefundAmount();
       setRefundAmount(calculatedRefund);
       openConfirmationDialog();
     }
@@ -231,6 +232,7 @@ const OnePurchasedCourse = ({course,  profileType}) => {
         <PaymentIcon sx={{ fontSize: 16, mr: 1, color: 'success.main' }} />
         <Typography variant="body2" color="text.secondary">
           £{course.amount?.toFixed(2)}
+          {course.canceledDates?.length > 0 && ` (for ${course.selectedDates?.length + course.canceledDates?.length} classes)`}
         </Typography>
       </Box>
       

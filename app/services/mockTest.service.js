@@ -35,6 +35,8 @@ export class MockTestService {
   isFullByBuyMock = async ({id}) => {
     return this.instance
       .get(`/api/v1/publicMaster/mockTest/getMockTest/isFree/${id}`, {
+        headers: getAuthorizationHeader(),
+
       })
       .then((res) => res.data);
   };

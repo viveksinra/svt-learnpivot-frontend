@@ -77,9 +77,14 @@ const MtBatchSelector = ({
     );
 
     const isSelected = (selectedBatch || []).some(b => b._id === batch._id);
+    let allowBuyOnBookingFull = false;
+
+    if ( batch.byPassBookingFull == true &&  batch.selectedUsers.includes(state.id)) {
+      allowBuyOnBookingFull = true;
+    }
     if (isSelected) {
       setSelectedBatch((selectedBatch || []).filter(b => b._id !== batch._id));
-    } else if (!batch.filled && new Date(batch.date) >= today) {
+    } else if ((!batch.filled || allowBuyOnBookingFull) && new Date(batch.date) >= today) {
       if (existingDateBatch || alreadyBookedDateBatch) {
         setConflictBatch(batch);
         setConflictDialogOpen(true);
@@ -90,7 +95,6 @@ const MtBatchSelector = ({
   };
 
   const isBatchSelectable = (batch) => {
-    console.log(batch)
     const batchDate = new Date(batch.date);
     batchDate.setHours(0, 0, 0, 0);
 
@@ -103,6 +107,7 @@ const MtBatchSelector = ({
     }
     // check if batchDate is today or after today
     const isAfterToday = batchDate >= today;
+
     let allowBuyOnBookingFull = false;
     if ( batch.byPassBookingFull == true &&  batch.selectedUsers.includes(state.id)) {
       allowBuyOnBookingFull = true;

@@ -68,7 +68,7 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
   
       if (cancelMode === 'full') {
         // Full refund for all batches
-        return test.amount || 0;
+        return perBatchAmount * test.selectedBatch?.length;
       } else if (selectedBatchesToCancel?.length > 0) {
         // Calculate refund amount based on selected batches
        

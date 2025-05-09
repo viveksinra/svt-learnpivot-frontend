@@ -295,7 +295,7 @@ const CoursePaymentCard = ({ courseData }) => {
                 Payment Due
               </Typography>
               <Typography variant="body2">
-                Payment due by {moment(nextUnpaidDate.dueDate).format('MMM D, YYYY')} for course on {moment(nextUnpaidDate.date).format('dddd, MMMM D')}
+                Payment due by {moment(nextUnpaidDate.dueDate).format('MMM D, YYYY')} for classes from {moment(nextUnpaidDate.date).format('dddd, MMMM D')}
               </Typography>
               <Button 
                 variant="contained" 
