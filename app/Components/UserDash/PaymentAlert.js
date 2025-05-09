@@ -76,7 +76,6 @@ const CoursePaymentCard = ({ courseData }) => {
   const theme = useTheme();
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  console.log(courseData);
   
   const [earliestPaidDate, setEarliestPaidDate] = useState(null);
 

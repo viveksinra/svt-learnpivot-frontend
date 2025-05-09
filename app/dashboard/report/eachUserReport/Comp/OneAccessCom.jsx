@@ -175,7 +175,6 @@ const OneAccessCom = ({ reportData, selectedChild, selectedChildName, profileTyp
   const mockTestComparison = getMockTestAccessComparison();
 
   const handleGiveAccess = (type) => {
-    console.log(`Give ${type} access clicked`);
     // Logic to handle giving access would go here
   };
 

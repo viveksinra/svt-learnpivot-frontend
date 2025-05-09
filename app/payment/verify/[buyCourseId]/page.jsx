@@ -22,16 +22,13 @@ function MyPayment({params}) {
     }
     
     try {
-      console.log("Fetching payment details for ID:", params.buyCourseId);
       let res = await myCourseService.publicVerifyOnePayment(`${params.buyCourseId}`);
       if (res.variant === "success") {
-        console.log("Payment status update:", res.myData?.status);
         setData(res.myData);
         if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }
       } else {
-        console.log("Payment fetch failed:", res.variant);
         if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }

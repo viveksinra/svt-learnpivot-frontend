@@ -324,10 +324,8 @@ export default function PaymentsPage() {
       const response = await reportService.getAdminAllPayment({ childId: selectedChild });
       if (response?.myData) {
         const { myBuyCourse, myBuyMock } = response.myData;
-        console.log('formattedPayments');
 
         const formattedPayments = await formatPaymentData(myBuyCourse, myBuyMock);
-        console.log('formattedPayments', formattedPayments);
         setPayments(formattedPayments);
       }
     } catch (error) {

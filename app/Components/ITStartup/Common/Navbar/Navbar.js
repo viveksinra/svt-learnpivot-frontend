@@ -32,9 +32,7 @@ const Navbar = () => {
 
 
   useEffect(() => {
-    console.log("state?.isAuthenticated",state?.isAuthenticated)
     if (state?.isAuthenticated && currentUser?.firstName) {
-    console.log("currentUser?.firstName",currentUser?.firstName)
 
       const checkUserStatus = async () => {
         try {

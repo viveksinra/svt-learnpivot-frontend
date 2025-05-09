@@ -144,7 +144,6 @@ const MtBatchSelector = ({
         }
       } else {
         alert(res);
-        console.log(res);
       }
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -166,7 +165,6 @@ const MtBatchSelector = ({
         }
       } else {
         alert(res);
-        console.log(res);
       }
     } catch (error) {
       console.error("Error fetching data:", error);

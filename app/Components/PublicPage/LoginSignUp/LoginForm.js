@@ -33,7 +33,6 @@ function LoginForm({ isRedirectToDashboard }) {
     setLoading(true);
     try {
       const res = await login(email, password);
-      console.log("res",res)
       if (res.success && res.token) {
         dispatch({ type: LOGIN_USER, payload: res });
         snackRef.current.handleSnack({

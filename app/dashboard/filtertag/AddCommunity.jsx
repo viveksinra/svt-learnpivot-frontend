@@ -42,7 +42,7 @@ const handleCommunity = async ()=>{
         snackRef.current.handleSnack(response);
         handleClear("")
         setComDialog();
-    }else {setLoadingCom(false);console.log(response); snackRef.current.handleSnack(response);}    
+    }else {setLoadingCom(false); snackRef.current.handleSnack(response);}    
 }
   return (
     <section>

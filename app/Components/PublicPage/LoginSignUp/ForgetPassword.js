@@ -33,7 +33,6 @@ function ForgetPassword({ setIsForget }) {
     try {
       // Send OTP, email, and new password to the backend for resetting the password
       const res = await authService.resetPassword({ email, password, otp });
-      console.log(res)
       if (res.variant === "success") {
         snackRef.current.handleSnack({
           message: "Password Reset Successful!",

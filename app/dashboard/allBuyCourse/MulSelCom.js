@@ -35,12 +35,10 @@ export default function MulSelCom({ selectedCourses, setSelectedCourses, selecte
     async function fetchAllData() {
       setLoading(true);
       let response = await myCourseService.publicGetAll({ sortBy, page, rowsPerPage, searchText, totalCount });
-      console.log(response);
       if (response.variant === "success") {
         setLoading(false);
         setCourses(response.data);
       } else {
-        console.log(response);
         setLoading(false);
       }
     }

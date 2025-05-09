@@ -121,10 +121,8 @@ const CourseDateSelector = ({
   };
 
   const checkForAvailableSeatForChild = async() => {
-    console.log("sdsd",preserveSelections)
 
     let res = await myCourseService.checkIfSeatAvailableForChild({id:data._id,childId:selectedChild._id});
-    console.log(res);
     if (res?.isAvailable === false) {
       setIsAvailableForChild(false);
     } else {
@@ -313,8 +311,6 @@ const CourseDateSelector = ({
   // useEffect(() => {
   //   // here check if any already bought date is in the selected dates if there remove it from selected dates
   //   if(selectedDates?.length > 0) {
-  //     console.log("selectedDates", selectedDates);
-  //     console.log("alreadyBoughtDate", alreadyBoughtDate);
   //   const newSelectedDates = selectedDates.filter(date => !alreadyBoughtDate.includes(date));
   //   setSelectedDates(newSelectedDates);
   //   }
@@ -358,7 +354,6 @@ const CourseDateSelector = ({
       if (res.variant === "success") {
         setAlreadyBoughtDate(res.boughtDates);
         if(res.userCourseAccess){
-          console.log(res.userCourseAccess);
           const userAccess = res?.userCourseAccess;
           setBookingRule({
             restrictStartDateChange: userAccess?.restrictStartDateChange,

@@ -99,7 +99,6 @@ const UserCourseAccess = () => {
 
         let res = await myCourseService.GetOneUserAllCourseAccessApi({userId});
         if (res.variant === "success") {
-          console.log(res.data);
 
           setCourseDropDown(res.data);
         } else {
@@ -230,7 +229,6 @@ const UserCourseAccess = () => {
     }
     try {
       let res = await myCourseService.GetOneUserOneCourseAccessApi(data);
-      console.log(res);
       if (res.variant == "success") {
         // Update the state with the configuration from API
         if (res.hasCourseAccessFile === "yes" || res.hasCourseAccessFile === "no") {
@@ -382,7 +380,6 @@ const UserCourseAccess = () => {
                   options={allUsers}
                   value={selectedParent}
                   onChange={(event, newValue) => {
-                    console.log("Parent selection changed", newValue, "loading:", loading);
                     
                     // If parent is cleared, clear course and config data
                     if (!newValue) {

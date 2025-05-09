@@ -21,7 +21,6 @@ const Dashboard = () => {
       const cookieData = Cookies.get("currentUser");
       if (cookieData) {
         const parsedData = JSON.parse(cookieData);
-        console.log({parsedData})
         setUserData(parsedData);
         // Update the heading state with the user data
         setHeading({
@@ -30,12 +29,9 @@ const Dashboard = () => {
           lastName: parsedData.lastName || "",
           designation: parsedData.jobRoleLabel || "Role"
         });
-        console.log('User data from cookies:', parsedData);
       } else {
-        console.log('No user data found in cookies');
       }
     } catch (error) {
-      console.error('Error retrieving user data:', error);
     }
   }, []);
 

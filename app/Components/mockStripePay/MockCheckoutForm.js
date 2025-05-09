@@ -108,7 +108,6 @@ export default function MockCheckoutForm({data, setClientSecret, selectedChild, 
           let res = await mockTestService.isFullByBuyMock({
             id: `${buyMockId}`
           });
-        console.log(res);
           if (res.variant === "success") {
 
             return res?.isFree;

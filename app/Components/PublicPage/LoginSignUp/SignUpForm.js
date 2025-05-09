@@ -105,17 +105,14 @@ const SignUpForm = ({ isRedirectToDashboard, setIsLogin }) => {
 
   const handleSendOtpClick = async () => {
     // Ensure Terms & Conditions are accepted
-console.log("got clocked")
 
     if (!acceptedTnC) {
       setAlert({ message: "Please accept the Terms and Conditions", severity: "error" });
       return;
     }
-console.log("i passed this point")
     if (!validateForm()) {
       return;
     }
-    console.log("i passed this point2")
 
     const emailOtpData = {
       email: formData.email,
@@ -127,7 +124,6 @@ console.log("i passed this point")
 
     try {
       const res = await authService.sendOtp(emailOtpData);
-      console.log(res)
       if (res.variant === "success") {
         setOtpSent(true);
         setAlert({ message: `OTP Sent to ${formData.email}`, severity: "success" });

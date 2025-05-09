@@ -23,7 +23,6 @@ import {
 } from '@mui/icons-material';
 
 const CourseBookingFullMessage = ({userInfo, data}) => {
-  console.log({userInfo,data});
   const handleEmailClick = () => {
     const subject = encodeURIComponent(`Booking Inquiry - ${data?.courseTitle || ''}`);
     const body = encodeURIComponent(

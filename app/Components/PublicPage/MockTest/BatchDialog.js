@@ -53,7 +53,6 @@ const BatchDialog = ({ open, onClose, data, loading: externalLoading }) => {
             if (snackRef.current) {
               snackRef.current.handleSnack(res);
             }
-            console.log(res);
           }
         } catch (error) {
           console.error("Error fetching data:", error);

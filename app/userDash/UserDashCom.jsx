@@ -40,7 +40,8 @@ function   UserDashCom () {
       let res = await dashboardService.getData(`api/v1/dashboard/getDashboard/welcomeMsg`);
       if(res.variant === "success"){
         setHeading(res.data)
-      }else {console.log(res)};    
+      }else {
+      };    
      }
      getHeading()
    }, [])
@@ -51,8 +52,8 @@ function   UserDashCom () {
       let res = await dashboardService.saveData(`api/v1/dashboard/getDashboard/summaryData`,"", date[0]);
       if(res.variant === "success"){
         setTCount(res.data)
-      }else {console.log(res)};    
-     }
+        }else {};    
+      }
      getSummary()
    }, [date])
 
@@ -62,7 +63,7 @@ function   UserDashCom () {
       let res = await dashboardService.getData(`api/v1/dashboard/getDashboard/pendingTask`);
       if(res.variant === "success"){
         setTask(res.data)
-      }else {console.log(res)};    
+      }else {};    
      }
      getTask()
    }, [])
@@ -74,7 +75,7 @@ function   UserDashCom () {
       if(res.variant === "success"){
         setReceipt(res?.data?.someReceipt)
         setPayment(res?.data?.somePayment)
-      }else {console.log(res)};    
+      }else {};    
      }
      getResPay()
    }, [])

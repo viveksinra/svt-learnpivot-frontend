@@ -13,10 +13,7 @@ export async function POST(request) {
       );
     }
     
-    // In a real application, you would save this data to your database
-    console.log('Saving scores for mock test:', mockTestId);
-    console.log('Max scores:', maxScores);
-    console.log('Student scores:', students);
+
     
     // Simulate successful save
     return NextResponse.json(

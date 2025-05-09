@@ -58,10 +58,7 @@ function CourseEnqForm({
   });
 
   
-  useEffect(() => {
-    console.log(bookingRule)
 
-  }, [bookingRule]);
 
   useEffect(() => {
     if(step !== 3) {

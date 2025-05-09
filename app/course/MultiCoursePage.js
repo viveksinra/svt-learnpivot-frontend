@@ -85,12 +85,12 @@ function MultiCoursePage() {
       let response = await myCourseService.publicGetAll(
         {sortBy,page,rowsPerPage,searchText,totalCount,selectedFilter}
         );
-     console.log(response)
       if(response.variant === "success"){
         setLoading(false)
         setRows(response.data)
         setTotalCount(response.totalCount)
-      }else {console.log(response); setLoading(false)}
+      }else {
+        setLoading(false)}
     }
     fetchAllData()
   }, [rowsPerPage,page,searchText,sortBy,selectedFilter])

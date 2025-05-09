@@ -129,7 +129,6 @@ const ChildSelector = memo(({
   const handleAddChild = useCallback(async () => {
     try {
       const response = await childService.add(newChild._id, newChild);
-      console.log('response:', response.variant);
       if (response.variant === 'success') {
         handleGetAllChildren(true); // Move this inside the success condition
         setOpen(false);

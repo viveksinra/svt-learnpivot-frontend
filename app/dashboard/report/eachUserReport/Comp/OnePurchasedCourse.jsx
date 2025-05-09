@@ -158,8 +158,6 @@ const perSessionAmount = (course.amount || 0) / (course.selectedDates?.length + 
         };
         response = await transactionService.cancelCourseDateAndRefund(data);
       }
-      console.log(response)
-      console.log("variant", response.variant)
       if (response && response.variant === "success") {
         // Replace router.refresh() with window.location.reload()
         window.location.reload();

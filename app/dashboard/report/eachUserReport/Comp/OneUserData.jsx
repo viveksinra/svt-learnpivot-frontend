@@ -22,8 +22,6 @@ const OneUserData = ({ reportData, onBlockUser, profileType }) => {
   const [openModal, setOpenModal] = useState(false);
 
   async function allowDisableLogin(userId, loginAllowed) {
-    console.log(userId, loginAllowed);
-    console.log(reportData);
     if (!userId) return;
     
     setLoading(true);

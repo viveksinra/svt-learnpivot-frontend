@@ -38,11 +38,7 @@ const StudentScoresTable = ({
   const [orderBy, setOrderBy] = useState('name');
   const [isReloading, setIsReloading] = useState(false);
   
-  // Debug students array
-  useEffect(() => {
-    console.log('StudentScoresTable received students:', students);
-    console.log('Students array length:', students ? students.length : 0);
-  }, [students]);
+
   
   // Handle reload button click
   const handleReload = () => {

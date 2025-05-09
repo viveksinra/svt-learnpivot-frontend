@@ -38,12 +38,10 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
     async function fetchAllData() {
       setLoading(true);
       let response = await mockTestService.publicGetAll({ sortBy, page, rowsPerPage, searchText, totalCount });
-      console.log(response);
       if (response.variant === "success") {
         setLoading(false);
         setMockTests(response.data);
       } else {
-        console.log(response);
         setLoading(false);
       }
     }
@@ -59,7 +57,6 @@ export default function MulSelCom({ selectedMockTests, setSelectedMockTests, sel
       const mockTest = mockTests.find(mt => mt.mockTestTitle === title);
       return { title, id: mockTest._id };
     });
-    console.log(selectedMockTestObjects)
     setSelectedMockTests(selectedMockTestObjects);
     setSelectedBatches([]); // Clear the second dropdown selection
   };

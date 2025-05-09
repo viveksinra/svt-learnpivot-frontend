@@ -17,18 +17,14 @@ export default function OneClassBuy({ params }) {
 
     async function getVoucher() {
       setLoading(true)
-      console.log("function got called")
     try{
       let res = await mockTestService.publicGetOne(`${params.oneMockTestId}`);
-      console.log({res,id:params.oneMockTestId})
     
       if (res.variant === "success") {
         setData(res.data)
-        console.log(res.data)
         // snackRef.current.handleSnack(res);
       } else {
         snackRef.current.handleSnack(res);
-        console.log(res);
       }
     }catch (error) {
       console.error("Error fetching data:", error);

@@ -13,22 +13,17 @@ export default function OneClassBuy({ params }) {
   const snackRef = useRef();
 
   useEffect(() => {
-    // Getting date from Voucher in URL
-    console.log("got loaded")
-    console.log({params})
+
 
     async function getVoucher() {
       setLoading(true)
-      console.log("function got called")
     try{
       let res = await myCourseService.publicGetOne(`${params.oneCourseId}`);
-      console.log({res,id:params.oneCourseId})
     
       if (res.variant === "success") {
         setData(res.data)
       } else {
         snackRef.current.handleSnack(res);
-        console.log(res);
       }
     }catch (error) {
       console.error("Error fetching data:", error);

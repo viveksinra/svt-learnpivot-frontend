@@ -162,8 +162,6 @@ const OnePurchasedMockTest = ({test,  profileType}) => {
           };
           response = await transactionService.cancelMockTestDateAndRefund(data);
         }
-        console.log(response)
-        console.log("variant", response.variant)
         if (response && response.variant === "success") {
           // Replace router.refresh() with window.location.reload()
           window.location.reload();

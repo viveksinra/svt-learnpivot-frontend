@@ -184,7 +184,6 @@ const UserReportMain = ({ reportData, profileType }) => {
     
     // Get upcoming mock test sessions from mock test access bought data
     if (reportData.mocktestBought) {
-      console.log(reportData.mocktestBought)
       reportData.mocktestBought.forEach(test => {
         // Check if this test is for the selected child
         if (test.childId && test.childId._id === selectedChild) {

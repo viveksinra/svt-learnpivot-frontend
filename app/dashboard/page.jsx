@@ -26,7 +26,6 @@ const Dashboard = () => {
       if (cookieData) {
         const parsedData = JSON.parse(cookieData);
         setUserData(parsedData);
-        console.log('User data from cookies:', parsedData);
       } else {
         console.log('No user data found in cookies');
       }

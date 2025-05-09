@@ -29,8 +29,6 @@ export async function POST(request) {
     }
     
     // In a real application, you would save this data to your database
-    console.log('Creating new mock test:', mockTestId);
-    console.log('Max scores:', maxScores);
     
     // Add to existing mock tests
     existingMockTests.push(mockTestId);

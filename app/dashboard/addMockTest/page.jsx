@@ -70,12 +70,12 @@ export function SearchArea({handleEdit}) {
     async function fetchAllData() {
       setLoading(true)
       let response = await mockTestService.getAll(`${sortBy}/${rowsPerPage}/${page}/${searchText}`);
-     console.log(response)
       if(response.variant === "success"){
         setLoading(false)
         setRows(response.data)
         setTotalCount(response.totalCount)
-      }else {console.log(response); setLoading(false)}
+      }else {
+        setLoading(false)}
     }
     fetchAllData()
   }, [rowsPerPage,page,searchText,sortBy])

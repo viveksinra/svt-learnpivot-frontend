@@ -21,16 +21,13 @@ function MyPayment({ params }) {
     }
     
     try {
-      console.log("Fetching mock payment details for ID:", params.buyMockId);
       let res = await mockTestService.publicVerifyOneMockPayment(`${params.buyMockId}`);
       if (res.variant === "success") {
-        console.log("Mock payment status update:", res.myData?.status);
         setData(res.myData);
         if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }
       } else {
-        console.log("Mock payment fetch failed:", res.variant);
         if (snackRef.current && !isPolling) {
           snackRef.current.handleSnack(res);
         }

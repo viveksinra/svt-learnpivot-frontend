@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { formatDateToMmDdYyyy } from '@/app/utils/dateFormat';
 
 const MockTestSelection = ({ 
   mockTests, 
@@ -36,11 +37,7 @@ const MockTestSelection = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
-  // Add debugging for batches
-  useEffect(() => {
-    console.log('MockTestSelection - availableBatches:', availableBatches);
-    console.log('MockTestSelection - selectedBatch:', selectedBatch);
-  }, [availableBatches, selectedBatch]);
+
 
   return (
     <Card elevation={4} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
@@ -100,11 +97,11 @@ const MockTestSelection = ({
                 ) : (
                   availableBatches.map((batch) => (
                     <MenuItem key={batch._id} value={batch._id}>
-                      {new Date(batch.date).toLocaleDateString()} ({batch.startTime} - {batch.endTime})
+                      {formatDateToMmDdYyyy(batch.date)} ({batch.startTime} - {batch.endTime})
                       {batch.children && batch.children.length > 0 && (
                         <Chip 
                           size="small" 
-                          label={`${batch.children.length} students`} 
+                          label="Has Students" 
                           color="primary" 
                           sx={{ ml: 1 }} 
                         />

@@ -49,9 +49,7 @@ function MyMockTest() {
   const [selectedItems, setSelectedItems] = useState([]);
   const entryRef = useRef();
 
-  useEffect(() => { 
-    console.log("selectedItems", selectedItems);
-  }, [selectedItems]);
+
 
   return (
     <main>
@@ -296,7 +294,6 @@ function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const filteredRows = filterRows(rows);
 
   const handleSelectionChange = (newSelectionModel) => {
-    console.log("newSelectionModel", newSelectionModel);
     const selectedRows = rows.filter(row => 
       newSelectionModel.includes(row._id)
     );

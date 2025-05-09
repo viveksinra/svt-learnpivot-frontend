@@ -47,9 +47,7 @@ const CSSEMockTestMaker = () => {
   async function fetchPastMockTest() {
     setLoading(true)
     try {
-      console.log('Fetching past mock tests...');
       const response = await mockTestService.getCssePastMockTest();
-      console.log('Past mock tests response:', response);
       
       if(response.variant === "success"){
         setLoading(false)
@@ -62,7 +60,6 @@ const CSSEMockTestMaker = () => {
             return batchDate < currentDate;
           });
           
-          console.log(`Mock test: ${test.mockTestTitle}, Past batches: ${pastBatches.length}`);
           
           return {
             ...test,
@@ -70,10 +67,8 @@ const CSSEMockTestMaker = () => {
           };
         });
         
-        console.log('Processed tests with past batches:', processedTests);
         setMockTests(processedTests);
       } else {
-        console.log(response); 
         setLoading(false);
         setSnackbar({
           open: true,
@@ -117,7 +112,6 @@ const CSSEMockTestMaker = () => {
   // Handle batch selection
   const handleBatchChange = async (event) => {
     const batchId = event.target.value;
-    console.log('Batch selected:', batchId);
     setSelectedBatch(batchId);
     setShowCreateForm(false); // Reset form state when changing batches
     
@@ -130,7 +124,6 @@ const CSSEMockTestMaker = () => {
           batchId
         });
         
-        console.log('Mock report check response:', response);
         setMockTestExists(response.variant === "success");
         
         // Fetch students associated with this mock test and batch
@@ -157,20 +150,13 @@ const CSSEMockTestMaker = () => {
       setActionLoading(true);
       
       // Use the service to fetch students for the mock test
-      console.log('Fetching students for mockTestId:', mockTestId, 'batchId:', batchId);
       
       const response = await mockTestService.getAllChildOfMockTest({
         mockTestId,
         batchId
       });
       
-      console.log('Response from getAllChildOfMockTest:', response); // Add logging to debug
-      console.log('Response data structure:', {
-        variant: response.variant,
-        hasData: !!response.data,
-        dataLength: response.data ? response.data.length : 0,
-        firstItem: response.data && response.data.length > 0 ? response.data[0] : null
-      });
+      
       
       if (response.variant === "success" && response.data && response.data.length > 0) {
         // Only check for existing report if not in create form mode
@@ -183,7 +169,6 @@ const CSSEMockTestMaker = () => {
             batchId
           });
           
-          console.log('Report response:', reportResponse);
           
           if (reportResponse.variant === "success") {
             // If report exists, use the scores from it
@@ -197,7 +182,6 @@ const CSSEMockTestMaker = () => {
             
             // Map students with their scores
             studentsWithScores = response.data.map(student => {
-              console.log('Processing student:', student);
               return {
                 id: student.childId,
                 name: student.childDetails.name,
@@ -213,7 +197,6 @@ const CSSEMockTestMaker = () => {
           } else {
             // If no report exists, initialize with empty scores
             studentsWithScores = response.data.map(student => {
-              console.log('Processing student (no report):', student);
               return {
                 id: student.childId,
                 name: student.childDetails.name,
@@ -230,7 +213,6 @@ const CSSEMockTestMaker = () => {
         } else {
           // In create form mode, just initialize with empty scores
           studentsWithScores = response.data.map(student => {
-            console.log('Processing student (create form):', student);
             return {
               id: student.childId,
               name: student.childDetails.name,
@@ -245,12 +227,9 @@ const CSSEMockTestMaker = () => {
           });
         }
         
-        console.log('Processed students data:', studentsWithScores); // Add logging to debug
-        console.log('Setting students array with length:', studentsWithScores.length);
         setStudents(studentsWithScores);
       } else {
         // Handle case when no students are found
-        console.log('No students found or response not successful');
         
         // Check if we have the manual test student flag set
         if (response.data && response.data.length > 0) {
@@ -267,7 +246,6 @@ const CSSEMockTestMaker = () => {
             englishScore: '',
           }));
           
-          console.log('Manual processing of student data:', manualStudentsWithScores);
           setStudents(manualStudentsWithScores);
         } else {
           setStudents([]);
@@ -434,7 +412,6 @@ const CSSEMockTestMaker = () => {
 
   // Function to reload student data
   const handleReloadStudents = () => {
-    console.log('Reloading students for mockTest:', selectedMockTest, 'batch:', selectedBatch);
     if (selectedMockTest && selectedBatch) {
       fetchStudents(selectedMockTest, selectedBatch);
     }
@@ -479,6 +456,7 @@ const CSSEMockTestMaker = () => {
         <BatchInformation
           selectedBatch={selectedBatch}
           availableBatches={availableBatches}
+          students={students}
         />
       )}
 
@@ -494,11 +472,6 @@ const CSSEMockTestMaker = () => {
       {/* Student Scores Table */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
         <>
-          <Box sx={{ mb: 2 }}>
-            <Typography variant="subtitle2" color="text.secondary">
-              Debug Info: Students array length: {students ? students.length : 0}
-            </Typography>
-          </Box>
           <StudentScoresTable
             students={students}
             maxScores={maxScores}
