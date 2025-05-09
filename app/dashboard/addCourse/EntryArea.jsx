@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
-import { TextField, Grid, ButtonGroup, Button, Typography, Accordion, AccordionSummary, AccordionDetails, IconButton, InputAdornment, CircularProgress, Stack, Checkbox, FormControlLabel, FormControl, InputLabel, OutlinedInput, FilledInput, Switch } from '@mui/material';
+import { TextField, Grid, ButtonGroup, Button, Typography, Accordion, AccordionSummary, AccordionDetails, IconButton, InputAdornment, CircularProgress, Stack, Checkbox, FormControlLabel, FormControl, InputLabel, OutlinedInput, FilledInput, Switch, Box } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import { FcNoIdea, FcOk, FcExpand } from "react-icons/fc";
 import { MdDeleteForever } from "react-icons/md";
@@ -682,14 +682,20 @@ const EntryArea = forwardRef((props, ref) => {
                     />
                 </Grid>                     
                 <Grid item xs={12} md={4}>
-                     <FormControlLabel control={
-                           <Checkbox
-                           checked={onlySelectedParent}
-                           onChange={() => setOnlySelectedParent(!onlySelectedParent)}
-                           inputProps={{ 'aria-label': 'controlled' }}
-                         />               
-                     } label={`Only Selected Parent`} />
-                  
+                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                       <FormControlLabel control={
+                             <Checkbox
+                             checked={onlySelectedParent}
+                             onChange={() => setOnlySelectedParent(!onlySelectedParent)}
+                             inputProps={{ 'aria-label': 'controlled' }}
+                           />               
+                       } label={`Only Selected Parent `} />
+                       {onlySelectedParent && (
+                         <Typography variant="caption" color="primary" sx={{ ml: 1, fontWeight: 600 }}>
+                           + {selectedUser.length}
+                         </Typography>
+                       )}
+                     </Box>
                 </Grid>
                 <Grid item xs={12} md={8}>
                 {renderUserSelect()}

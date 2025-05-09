@@ -94,12 +94,12 @@ export function SearchArea({handleEdit}) {
     async function fetchAllData() {
       setLoading(true)
       let response = await myCourseService.getAll(`${sortBy}/${rowsPerPage}/${page}/${searchText}`);
+     console.log(response)
       if(response.variant === "success"){
         setLoading(false)
         setRows(response.data)
         setTotalCount(response.totalCount)
-      }else {
-        setLoading(false)}
+      }else {console.log(response); setLoading(false)}
     }
     fetchAllData()
   }, [rowsPerPage,page,searchText,sortBy])
@@ -328,18 +328,25 @@ export function SearchArea({handleEdit}) {
                         <Typography variant="caption" color="success.main">-{c.discountOnFullClass}% on full course</Typography>
                       )}
                     </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="caption" color="text.secondary">Sort Date</Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {c.sortDate ? new Date(c.sortDate).toLocaleDateString() : 'Not set'}
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={6}>
+                      <Typography variant="caption" color="text.secondary">Parent Added</Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        {c.selectedUsers ? c.selectedUsers.length : 'Not set'}
+                      </Typography>
+                    </Grid>
                     <Grid item xs={12}>
                       <Typography variant="caption" color="text.secondary">Schedule</Typography>
                       <Typography variant="body2" fontWeight={500}>
                         ⏰ {c.startTime} - {c.endTime}
                       </Typography>
                     </Grid>
-                    <Grid item xs={12}>
-                      <Typography variant="caption" color="text.secondary">Sort Date</Typography>
-                      <Typography variant="body2" fontWeight={500}>
-                        {c.sortDate ? new Date(c.sortDate).toLocaleDateString() : 'Not set'}
-                      </Typography>
-                    </Grid>
+                   
         
                   </Grid>
                 </div>

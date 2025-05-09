@@ -293,27 +293,33 @@ const AddMockEntryArea = forwardRef((props, ref) => {
     };
 
     return (
-        <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20 }}>
-            <Grid sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between" }}>
-                <Typography color="secondary" style={{ fontFamily: 'Courgette' }} align='center' variant='h6'>
-                    Create MockTest
-                </Typography>
-                <ButtonGroup variant="text" aria-label="text button group">
-                    <Button 
-                        startIcon={isPublished ? <FcOk /> : <FcNoIdea />} 
-                        onClick={() => setIsPublished(!isPublished)}
-                    >
-                        {isPublished ? "Published" : "Un-Publish"}
-                    </Button>
-                    <Button 
-                        endIcon={<MdDeleteForever />} 
-                        onClick={handleDelete} 
-                        disabled={!props.id} 
-                        color="error"
-                    >
-                        Delete
-                    </Button>
-                </ButtonGroup>
+        <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20, maxWidth: '100vw', overflowX: 'hidden' }}>
+            <Grid container spacing={2} sx={{ flexDirection: { xs: "column", md: "row" }, alignItems: { xs: "flex-start", md: "center" }, justifyContent: "space-between", mb: 2 }}>
+                <Grid item xs={12} md={6}>
+                    <Typography color="secondary" style={{ fontFamily: 'Courgette' }} align='center' variant='h6'>
+                        Create MockTest
+                    </Typography>
+                </Grid>
+                <Grid item xs={12} md={6} sx={{ display: 'flex', justifyContent: { xs: 'center', md: 'flex-end' }, mt: { xs: 1, md: 0 } }}>
+                    <ButtonGroup variant="text" aria-label="text button group">
+                        <Button 
+                            startIcon={isPublished ? <FcOk /> : <FcNoIdea />} 
+                            onClick={() => setIsPublished(!isPublished)}
+                            sx={{ minWidth: 120 }}
+                        >
+                            {isPublished ? "Published" : "Un-Publish"}
+                        </Button>
+                        <Button 
+                            endIcon={<MdDeleteForever />} 
+                            onClick={handleDelete} 
+                            disabled={!props.id} 
+                            color="error"
+                            sx={{ minWidth: 120 }}
+                        >
+                            Delete
+                        </Button>
+                    </ButtonGroup>
+                </Grid>
             </Grid>
 
             <Grid container spacing={2}>
@@ -327,12 +333,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         placeholder='MockTest Title'
                         variant="standard"
                         required={true}
+                        sx={{ mb: { xs: 1, md: 0 } }}
                     />
-                    <Typography variant="subtitle2" gutterBottom>Link- {mockTestLink}</Typography>
-                </Grid>          
-
- 
-
+                    <Typography variant="subtitle2" gutterBottom sx={{ fontSize: { xs: '0.9rem', md: '1rem' } }}>Link- {mockTestLink}</Typography>
+                </Grid>
                 <Grid item xs={12} md={4}>
                     <TextField
                         fullWidth
@@ -342,6 +346,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         inputProps={{ minLength: "2", maxLength: "100" }}
                         placeholder='Pin Code'
                         variant="standard"
+                        sx={{ mb: { xs: 1, md: 0 } }}
                     />
                 </Grid>
                 <Grid item xs={12} md={4}>
@@ -353,9 +358,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         inputProps={{ minLength: "2", maxLength: "100" }}
                         placeholder='Highlighted Text'
                         variant="standard"
+                        sx={{ mb: { xs: 1, md: 0 } }}
                     />
                 </Grid>
-                <Grid item xs={12} md={12}>
+                <Grid item xs={12}>
                     <TextField
                         fullWidth
                         label="Short Description"
@@ -364,10 +370,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         inputProps={{ minLength: "2", maxLength: "100" }}
                         placeholder='Short Description'
                         variant="standard"
+                        sx={{ mb: { xs: 1, md: 0 } }}
                     />
                 </Grid>
-
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
                         options={AllBlinkText}
@@ -376,11 +382,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         renderOption={(props, option) => (
                             <li {...props} key={option.id}>{option.label}</li>
                         )}
-                        renderInput={(params) => <TextField {...params} label="Blink Text" variant="standard" />}
+                        renderInput={(params) => <TextField {...params} label="Blink Text" variant="standard" fullWidth />}
                     />
                 </Grid>
-
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
                         options={allTestType}
@@ -389,11 +394,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         renderOption={(props, option) => (
                             <li {...props} key={option.id}>{option.label}</li>
                         )}
-                        renderInput={(params) => <TextField {...params} label="Test Type" variant="standard" />}
+                        renderInput={(params) => <TextField {...params} label="Test Type" variant="standard" fullWidth />}
                     />
                 </Grid>
-
-                <Grid item xs={12} md={3}>
+                <Grid item xs={12} sm={12} md={3}>
                     <Autocomplete
                         isOptionEqualToValue={(option, value) => option?.id === value?.id}
                         options={allLocation}
@@ -402,10 +406,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         renderOption={(props, option) => (
                             <li {...props} key={option.id}>{option.label}</li>
                         )}
-                        renderInput={(params) => <TextField {...params} label="Location" variant="standard" />}
+                        renderInput={(params) => <TextField {...params} label="Location" variant="standard" fullWidth />}
                     />
                 </Grid>
-                <Grid item xs={12} md={12}>
+                <Grid item xs={12}>
                     <MultiImageUpload
                         images={imageUrls}
                         onImagesChange={setImageUrls}
@@ -413,13 +417,13 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         maxImages={5}
                         required={true}
                         title="Thumbnail Images"
-                          helperText="Drag images to reorder. First image will be used as cover."
+                        helperText="Drag images to reorder. First image will be used as cover."
                     />
                 </Grid>
             </Grid>
 
-            <div style={{ margin: '45px' }}></div>
-            <Accordion expanded={privateAccordion} style={{marginBottom:"30px"}}>
+            <div style={{ margin: '30px 0' }}></div>
+            <Accordion expanded={privateAccordion} style={{marginBottom:"30px"}} sx={{ width: '100%' }}>
                 <AccordionSummary
                     expandIcon={<IconButton > <FcExpand /> </IconButton>}
                     aria-controls="PrivateInformation"
@@ -435,12 +439,11 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 </AccordionDetails>
             </Accordion>
 
-
             {batch.map((entry, index) => (
-                <Paper variant="outlined" style={{ padding: '15px', marginBottom: '10px', borderRadius: '10px' }} key={index}>
-                    <Typography variant="subtitle1" style={{ marginBottom: '10px' }}>Batch {index + 1}</Typography>
+                <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, mb: 2, borderRadius: '10px', width: '100%', overflowX: 'auto' }} key={index}>
+                    <Typography variant="subtitle1" sx={{ mb: 2 }}>Batch {index + 1}</Typography>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <TextField
                                 label="Date"
                                 type="date"
@@ -451,7 +454,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 InputLabelProps={{ shrink: true }}
                             />
                         </Grid>
-                        <Grid item xs={6} md={2}>
+                        <Grid item xs={6} sm={6} md={2}>
                             <TextField
                                 label="Start Time"
                                 type="time"
@@ -462,7 +465,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 InputLabelProps={{ shrink: true }}
                             />
                         </Grid>
-                        <Grid item xs={6} md={2}>
+                        <Grid item xs={6} sm={6} md={2}>
                             <TextField
                                 label="End Time"
                                 type="time"
@@ -473,7 +476,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 InputLabelProps={{ shrink: true }}
                             />
                         </Grid>
-                        <Grid item xs={6} md={1}>
+                        <Grid item xs={6} sm={6} md={1}>
                             <TextField
                                 label="Total Seats"
                                 type="number"
@@ -483,7 +486,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 variant="standard"
                             />
                         </Grid>
-                        <Grid item xs={6} md={2}>
+                        <Grid item xs={6} sm={6} md={2}>
                             <TextField
                                 label="One Batch Price"
                                 type="number"
@@ -493,7 +496,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 variant="standard"
                             />
                         </Grid>
-                        <Grid item xs={12} md={2}>
+                        <Grid item xs={12} sm={6} md={2}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -505,23 +508,24 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                             />
                         </Grid>
                         {batch.length > 1 && (
-                            <Grid item xs={12} md={1}>
+                            <Grid item xs={12} sm={6} md={1}>
                                 <Button 
                                     variant="outlined" 
                                     color="error" 
                                     onClick={() => removeBatchEntry(index)}
+                                    fullWidth
+                                    sx={{ mt: { xs: 1, md: 0 } }}
                                 >
                                     Delete
                                 </Button>
                             </Grid>
                         )}
-                        
                         <Grid item xs={12}>
                             <Typography variant="subtitle2" gutterBottom sx={{ mt: 2 }}>
                                 Booking Rules for Batch {index + 1}
                             </Typography>
                         </Grid>
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} sm={6} md={4}>
                             <FormControlLabel 
                                 control={
                                     <Checkbox
@@ -533,29 +537,32 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 label={`By-Pass Booking Full`} 
                             />
                         </Grid>
-                        <Grid item xs={12} md={8}>
+                        <Grid item xs={12} sm={6} md={8}>
                             {renderUserSelect(index)}
                         </Grid>
                     </Grid>
                 </Paper>
             ))}
 
-            <Grid item xs={12}>
-                <Button
-                    variant="outlined"
-                    color="primary"
-                    onClick={addBatchEntry}
-                    disabled={!batch[batch.length - 1].date || 
-                             !batch[batch.length - 1].startTime || 
-                             !batch[batch.length - 1].endTime || 
-                             !batch[batch.length - 1].totalSeat}
-                >
-                    Add Batch Entry
-                </Button>
+            <Grid container>
+                <Grid item xs={12}>
+                    <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={addBatchEntry}
+                        fullWidth
+                        sx={{ mt: 1, mb: 2 }}
+                        disabled={!batch[batch.length - 1].date || 
+                                 !batch[batch.length - 1].startTime || 
+                                 !batch[batch.length - 1].endTime || 
+                                 !batch[batch.length - 1].totalSeat}
+                    >
+                        Add Batch Entry
+                    </Button>
+                </Grid>
             </Grid>
 
-            <br /> <br />
-            <Accordion expanded={PAccordion} onChange={() => setPAccordion(!PAccordion)}>
+            <Accordion expanded={PAccordion} onChange={() => setPAccordion(!PAccordion)} sx={{ width: '100%' }}>
                 <AccordionSummary
                     expandIcon={<IconButton><FcExpand /></IconButton>}
                     aria-controls="ProspectInformation"
@@ -576,6 +583,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 multiline
                                 rows={4}
                                 variant="outlined"
+                                sx={{ fontSize: { xs: '0.95rem', md: '1rem' } }}
                             />
                         </Grid>
                     </Grid>

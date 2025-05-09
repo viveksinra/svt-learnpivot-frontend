@@ -88,7 +88,7 @@ const DateSelector = ({allBatch, setAllBatch}) => {
                             />
                         </Grid>
                         {batch.oneBatch.map((date, dateIndex) => (
-                            <Grid item xs={3} key={dateIndex}>
+                            <Grid item xs={12} sm={6} md={3} key={dateIndex}>
                                 <TextField
                                     label={`Date ${dateIndex + 1}`}
                                     variant="outlined"
@@ -96,16 +96,20 @@ const DateSelector = ({allBatch, setAllBatch}) => {
                                     type='date'
                                     focused
                                     onChange={(e) => handleDateChange(batchIndex, dateIndex, e.target.value)}
+                                    fullWidth
+                                    sx={{ mb: 1 }}
                                 />
-                                <Button variant="outlined" color="error" onClick={() => handleRemoveDate(batchIndex, dateIndex)} sx={{ marginTop: '10px' }}>
+                                <Button variant="outlined" color="error" onClick={() => handleRemoveDate(batchIndex, dateIndex)} sx={{ marginTop: '10px', width: '100%' }}>
                                     Remove
                                 </Button>
                             </Grid>
                         ))}
-                        <Grid item xs={3}>
+                        <Grid item xs={12} sm={6} md={3}>
                             <Button
                                 variant="contained" color="success"
                                 onClick={() => handleAddTextField(batchIndex)}
+                                fullWidth
+                                sx={{ height: '56px' }}
                             >
                                 Add Date
                             </Button>
@@ -113,7 +117,7 @@ const DateSelector = ({allBatch, setAllBatch}) => {
                     </Grid>
                 </Box>
             ))}
-            <Button variant="contained" onClick={handleAddBatch}>
+            <Button variant="contained" onClick={handleAddBatch} fullWidth sx={{ mt: 2 }}>
                 Add Batch
             </Button>
         </div>
