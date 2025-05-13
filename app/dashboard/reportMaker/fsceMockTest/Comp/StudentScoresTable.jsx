@@ -21,7 +21,8 @@ import {
   Grid,
   Badge,
   Tabs,
-  Tab
+  Tab,
+  alpha
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
@@ -238,7 +239,7 @@ const StudentScoresTable = ({
   
   if (paperSections.length === 0) {
     return (
-      <Card elevation={2} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
+      <Card elevation={3} sx={{ mb: 4, borderRadius: 2, p: { xs: 2, sm: 3 }, bgcolor: '#f8f9fa' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <Typography variant="h6" fontWeight="bold" color="text.primary">
             Student Scores
@@ -259,7 +260,13 @@ const StudentScoresTable = ({
   const currentPaper = paperSections[currentPaperIndex] || { sections: [] };
   
   return (
-    <Card elevation={2} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
+    <Card elevation={3} sx={{ 
+      mb: 4, 
+      borderRadius: 2, 
+      p: { xs: 2, sm: 3 }, 
+      background: 'linear-gradient(to bottom, #ffffff, #f8fafc)',
+      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)'
+    }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
         <Typography variant="h6" fontWeight="bold" color="text.primary">
           Student Scores
@@ -282,7 +289,13 @@ const StudentScoresTable = ({
           borderColor: 'divider',
           '& .MuiTab-root': {
             fontWeight: 'bold',
-            fontSize: '0.9rem'
+            fontSize: '0.9rem',
+            transition: 'all 0.2s',
+            '&.Mui-selected': {
+              color: theme.palette.primary.main,
+              backgroundColor: alpha(theme.palette.primary.main, 0.1),
+              borderRadius: '6px 6px 0 0'
+            }
           }
         }}
       >
@@ -332,7 +345,7 @@ const StudentScoresTable = ({
           sx={{
             borderRadius: 2,
             overflow: 'hidden',
-            boxShadow: 1,
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
             '& .MuiTableCell-root': { 
               py: 2,
               px: { xs: 1, sm: 2 }
@@ -343,63 +356,71 @@ const StudentScoresTable = ({
         >
           <Box sx={{ overflowX: 'auto', width: '100%' }}>
             <Table>
-              <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
+              <TableHead sx={{ 
+                background: 'linear-gradient(135deg, #3949ab 0%, #303f9f 100%)'
+              }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 120, sm: 150 } }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: { xs: 120, sm: 150 } }}>
                     <TableSortLabel
                       active={orderBy === 'name'}
                       direction={orderBy === 'name' ? order : 'asc'}
                       onClick={() => handleRequestSort('name')}
+                      sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
                     >
                       Student Info
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 150, sm: 180 } }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: { xs: 150, sm: 180 } }}>
                     Parent Info
                   </TableCell>
                   
                   {/* Dynamic section columns for current paper */}
-                  {currentPaper.sections.map(section => (
-                    <TableCell 
-                      key={section.sectionId}
-                      sx={{ 
-                        fontWeight: 'bold', 
-                        color: theme.palette.primary.contrastText, 
-                        minWidth: { xs: 100, sm: 120 },
-                        backgroundColor: section.subject === 'math' 
-                          ? theme.palette.info.dark 
-                          : theme.palette.success.dark
-                      }}
-                    >
-                      <TableSortLabel
-                        active={orderBy === `section_${section.sectionId}`}
-                        direction={orderBy === `section_${section.sectionId}` ? order : 'asc'}
-                        onClick={() => handleRequestSort(`section_${section.sectionId}`)}
-                        sx={{ color: 'white' }}
+                  {currentPaper.sections.map(section => {
+                    // Get appropriate colors for subject
+                    const sectionColor = section.subject === 'math' 
+                      ? 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)' 
+                      : 'linear-gradient(135deg, #00897B 0%, #00695C 100%)';
+                    
+                    return (
+                      <TableCell 
+                        key={section.sectionId}
+                        sx={{ 
+                          fontWeight: 'bold', 
+                          color: 'white', 
+                          minWidth: { xs: 100, sm: 120 },
+                          background: sectionColor
+                        }}
                       >
-                        {section.sectionName || 'Unnamed Section'}
-                      </TableSortLabel> <br />
-                      <Chip 
-                        label={`Max: ${section.maxScore}`} 
-                        size="small" 
-                        sx={{ mt: 0.5, color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} 
-                      />
-                      <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.7)', mt: 0.5 }}>
-                        {section.subject === 'math' ? 'Mathematics' : 'English'}
-                      </Typography>
-                    </TableCell>
-                  ))}
+                        <TableSortLabel
+                          active={orderBy === `section_${section.sectionId}`}
+                          direction={orderBy === `section_${section.sectionId}` ? order : 'asc'}
+                          onClick={() => handleRequestSort(`section_${section.sectionId}`)}
+                          sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
+                        >
+                          {section.sectionName || 'Unnamed Section'}
+                        </TableSortLabel> <br />
+                        <Chip 
+                          label={`Max: ${section.maxScore}`} 
+                          size="small" 
+                          sx={{ mt: 0.5, color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} 
+                        />
+                        <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.7)', mt: 0.5 }}>
+                          {section.subject === 'math' ? 'Mathematics' : 'English'}
+                        </Typography>
+                      </TableCell>
+                    );
+                  })}
                   
                   {/* Total column for current paper */}
                   <TableCell 
                     sx={{ 
                       fontWeight: 'bold', 
-                      color: theme.palette.primary.contrastText, 
+                      color: 'white', 
                       minWidth: { xs: 80, sm: 100 },
-                      backgroundColor: theme.palette.warning.dark
+                      background: 'linear-gradient(135deg, #FF5722 0%, #E64A19 100%)'
                     }}
                   >
-                    <Typography sx={{ fontWeight: 'bold' }}>
+                    <Typography sx={{ fontWeight: 'bold', color: 'white' }}>
                       {currentPaper.paperName}<br />Total
                     </Typography>
                   </TableCell>
@@ -408,16 +429,16 @@ const StudentScoresTable = ({
                   <TableCell 
                     sx={{ 
                       fontWeight: 'bold', 
-                      color: theme.palette.primary.contrastText, 
+                      color: 'white', 
                       minWidth: { xs: 130, sm: 150 },
-                      backgroundColor: theme.palette.secondary.dark
+                      background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)'
                     }}
                   >
                     <TableSortLabel
                       active={orderBy === 'overallRank'}
                       direction={orderBy === 'overallRank' ? order : 'asc'}
                       onClick={() => handleRequestSort('overallRank')}
-                      sx={{ color: 'white' }}
+                      sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
                     >
                       Overall Total
                     </TableSortLabel>
@@ -425,7 +446,7 @@ const StudentScoresTable = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortStudents(students).map((student) => {
+                {sortStudents(students).map((student, index) => {
                   // Calculate totals for the current paper
                   let paperTotal = 0;
                   let paperMaxTotal = 0;
@@ -447,7 +468,13 @@ const StudentScoresTable = ({
                     <TableRow
                       key={student.id}
                       hover
-                      sx={{ '&:nth-of-type(odd)': { backgroundColor: theme.palette.action.hover } }}
+                      sx={{ 
+                        '&:nth-of-type(odd)': { backgroundColor: alpha(theme.palette.primary.light, 0.05) },
+                        transition: 'background-color 0.2s',
+                        '&:hover': {
+                          backgroundColor: alpha(theme.palette.primary.light, 0.1),
+                        } 
+                      }}
                     >
                       <TableCell>
                         <Typography fontWeight="medium">{student.name}</Typography>
@@ -486,7 +513,11 @@ const StudentScoresTable = ({
                                     max: section.maxScore,
                                     style: { textAlign: 'center' },
                                   },
-                                  sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
+                                  sx: { 
+                                    borderRadius: 1.5, 
+                                    height: { xs: '35px', sm: '40px' },
+                                    backgroundColor: 'white'
+                                  },
                                 }}
                                 size="small"
                                 disabled={actionLoading}
@@ -523,9 +554,9 @@ const StudentScoresTable = ({
                       ))}
                       
                       {/* Paper total column */}
-                      <TableCell>
+                      <TableCell sx={{ background: alpha(theme.palette.secondary.light, 0.1) }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                          <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>
+                          <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' }, color: theme.palette.text.primary }}>
                             {paperTotal}/{paperMaxTotal}
                           </Typography>
                           <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
@@ -557,7 +588,7 @@ const StudentScoresTable = ({
                             <Chip 
                               icon={
                                 <Box sx={{ 
-                                  bgcolor: theme.palette.info.main, 
+                                  background: 'linear-gradient(135deg, #4776E6 0%, #2756c4 100%)',
                                   color: 'white',
                                   width: 24,
                                   height: 24,
@@ -593,7 +624,17 @@ const StudentScoresTable = ({
                               }
                               size="small" 
                               variant="outlined"
-                              sx={{ width: '100%', justifyContent: 'space-between', height: 'auto', py: 0.5 }}
+                              sx={{ 
+                                width: '100%', 
+                                justifyContent: 'space-between', 
+                                height: 'auto', 
+                                py: 0.5,
+                                borderColor: alpha(theme.palette.info.main, 0.5),
+                                '&:hover': {
+                                  borderColor: theme.palette.info.main,
+                                  backgroundColor: alpha(theme.palette.info.main, 0.05)
+                                }
+                              }}
                             />
                           </Grid>
                           
@@ -602,7 +643,7 @@ const StudentScoresTable = ({
                             <Chip 
                               icon={
                                 <Box sx={{ 
-                                  bgcolor: theme.palette.success.main, 
+                                  background: 'linear-gradient(135deg, #1D976C 0%, #157252 100%)',
                                   color: 'white',
                                   width: 24,
                                   height: 24,
@@ -638,7 +679,17 @@ const StudentScoresTable = ({
                               }
                               size="small" 
                               variant="outlined"
-                              sx={{ width: '100%', justifyContent: 'space-between', height: 'auto', py: 0.5 }}
+                              sx={{ 
+                                width: '100%', 
+                                justifyContent: 'space-between', 
+                                height: 'auto', 
+                                py: 0.5,
+                                borderColor: alpha(theme.palette.success.main, 0.5),
+                                '&:hover': {
+                                  borderColor: theme.palette.success.main,
+                                  backgroundColor: alpha(theme.palette.success.main, 0.05)
+                                }
+                              }}
                             />
                           </Grid>
                           
@@ -669,7 +720,13 @@ const StudentScoresTable = ({
                               size="small" 
                               variant="filled"
                               color="secondary"
-                              sx={{ width: '100%', justifyContent: 'space-between', height: 'auto', py: 0.5 }}
+                              sx={{ 
+                                width: '100%', 
+                                justifyContent: 'space-between', 
+                                height: 'auto', 
+                                py: 0.5,
+                                background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)'
+                              }}
                             />
                           </Grid>
                         </Grid>
