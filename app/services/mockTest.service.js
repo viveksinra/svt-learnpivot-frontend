@@ -126,7 +126,13 @@ export class MockTestService {
   };
 
 
-
+  getPastFsceMockTest = async () => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastFsceMockTest`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
 
 

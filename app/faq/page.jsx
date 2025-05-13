@@ -37,7 +37,7 @@ function MyFaq() {
     { value: "faqData", label: "General FAQs", icon: <QuestionAnswerIcon /> },
     { value: "courseFaqData", label: "Course FAQs", icon: <SchoolIcon /> },
     { value: "csseMockFaqData", label: "CSSE Mock Test", icon: <AssignmentIcon /> },
-    { value: "fsseMockFaqData", label: "FSSE Mock Test", icon: <AssessmentIcon /> }
+    { value: "fsceMockFaqData", label: "FSCE Mock Test", icon: <AssessmentIcon /> }
   ];
 
   const handleTabChange = (event, newValue) => {
