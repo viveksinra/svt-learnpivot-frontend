@@ -28,7 +28,8 @@ export const userProtectedRoutes = [
     "/userDash/myProfile/myChild",
     "/userDash/reports/allPayment",
     "/userDash/reports/myAccount",
-    "/userDash/reports/myUserReport"
+    "/userDash/reports/myUserReport",
+    "/userDash/mockTestReport"
 ];
 
 export const authRoutes = ["/login"];

@@ -117,6 +117,23 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
+  getMyPastCsseMockTest = async ({childId}) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTest/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+
+
+
+
+
+
+
+
+
   add = async (id, data) => {
     return this.instance
       .post(`/api/v1/publicMaster/mockTest/addMockTest/${id}`, data, {

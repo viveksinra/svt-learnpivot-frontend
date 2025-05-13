@@ -10,7 +10,7 @@ export const formatDate = (dateString) => {
       return 'Invalid Date';
     }
 
-    return format(date, 'dd MMM yyyy');
+    return format(date, 'dd MM yyyy');
   } catch (error) {
     console.error('Date formatting error:', error);
     return 'Invalid Date';
