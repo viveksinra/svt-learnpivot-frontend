@@ -216,9 +216,13 @@ const CSSEMockTestMaker = () => {
                 parentMobile: student.parentDetails.mobile,
                 mathScore: score ? Number(score.mathsScore) : '',
                 englishScore: score ? Number(score.englishScore) : '',
+                // We won't use ranks from the API data since they might be outdated
+                // We'll recalculate them instead
               };
             });
-            setStudents(studentsWithScores);
+            // Calculate ranks using our utility function
+            const rankedStudents = calculateRanks(studentsWithScores);
+            setStudents(rankedStudents);
           } else {
             setStudents([]);
             snackRef.current.handleSnack({
@@ -284,6 +288,7 @@ const CSSEMockTestMaker = () => {
             
             // Map students with their scores
             studentsWithScores = response.data.map(student => {
+              const score = childScore.find(score => score.childId === student.childId);
               return {
                 id: student.childId,
                 name: student.childDetails.name,
@@ -292,10 +297,20 @@ const CSSEMockTestMaker = () => {
                 parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
                 parentEmail: student.parentDetails.email,
                 parentMobile: student.parentDetails.mobile,
-                mathScore: childScore.find(score => score.childId === student.childId)?.mathsScore ?? '',
-                englishScore: childScore.find(score => score.childId === student.childId)?.englishScore ?? '',
+                mathScore: score?.mathsScore ?? '',
+                englishScore: score?.englishScore ?? '',
+                // We'll recalculate these ranks after getting all students
+                genderMathRank: null,
+                genderEnglishRank: null,
+                genderTotalRank: null,
+                overallMathRank: null,
+                overallEnglishRank: null,
+                overallTotalRank: null,
               };
             });
+            
+            // Calculate ranks using our utility function instead of using the API-provided ranks
+            studentsWithScores = calculateRanks(studentsWithScores);
           } else {
             // If no report exists, initialize with empty scores
             studentsWithScores = response.data.map(student => {
@@ -442,8 +457,8 @@ const CSSEMockTestMaker = () => {
       const response = await mockTestService.addCsseMockReport(mockTestData);
       
       if (response.variant === "success") {
-        // Fetch students again to get the updated report
-        await fetchStudents(selectedMockTest, selectedBatch);
+        // Update students with the ranked data instead of fetching again
+        setStudents(rankedStudents);
         setMockTestExists(true);
         setShowCreateForm(false); // Hide form after successful save
         
@@ -512,8 +527,8 @@ const CSSEMockTestMaker = () => {
           message: response.message || 'Mock test scores saved successfully'
         });
         
-        // Refresh the mock test data
-        await fetchStudents(selectedMockTest, selectedBatch);
+        // Update students with the ranked data instead of fetching again
+        setStudents(rankedStudents);
         setMockTestExists(true);
       } else {
         // Show error message
