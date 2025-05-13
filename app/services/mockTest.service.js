@@ -109,9 +109,9 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
-  getCssePastMockTest = async () => {
+  getPastCsseMockTest = async () => {
     return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/admin/getCssePastMockTest`, {
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastCsseMockTest`, {
         headers: getAuthorizationHeader(),
       })
       .then((res) => res.data);

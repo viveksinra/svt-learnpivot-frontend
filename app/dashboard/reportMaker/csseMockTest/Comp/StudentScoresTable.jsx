@@ -17,11 +17,14 @@ import {
   Chip,
   useTheme,
   TableSortLabel,
-  Button
+  Button,
+  Grid,
+  Badge
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import RefreshIcon from '@mui/icons-material/Refresh';
+import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 import { useState, useEffect } from 'react';
 
 const StudentScoresTable = ({ 
@@ -73,6 +76,15 @@ const StudentScoresTable = ({
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
   };
+  
+  // Get badge color based on rank
+  const getRankBadgeColor = (rank) => {
+    if (rank === 0) return 'default';
+    if (rank === 1) return 'success';
+    if (rank === 2) return 'primary';
+    if (rank === 3) return 'secondary';
+    return 'default';
+  };
 
   // Sorting function for student data
   const sortStudents = (students) => {
@@ -110,6 +122,12 @@ const StudentScoresTable = ({
             ? a.name.localeCompare(b.name)
             : b.name.localeCompare(a.name);
         }
+      } else if (orderBy === 'overallTotalRank') {
+        aValue = a.overallTotalRank || 999;
+        bValue = b.overallTotalRank || 999;
+      } else if (orderBy === 'genderTotalRank') {
+        aValue = a.genderTotalRank || 999;
+        bValue = b.genderTotalRank || 999;
       }
       
       return order === 'asc' ? aValue - bValue : bValue - aValue;
@@ -168,14 +186,19 @@ const StudentScoresTable = ({
             borderRadius: 2,
             overflow: 'hidden',
             boxShadow: 1,
-            '& .MuiTableCell-root': { py: 2 },
+            '& .MuiTableCell-root': { 
+              py: 2,
+              px: { xs: 1, sm: 2 }
+            },
+            width: '100%',
+            maxWidth: '100vw'
           }}
         >
-          <Box sx={{ overflowX: 'auto' }}>
+          <Box sx={{ overflowX: 'auto', width: '100%' }}>
             <Table>
               <TableHead sx={{ backgroundColor: theme.palette.primary.light }}>
                 <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: 150 }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 120, sm: 150 } }}>
                     <TableSortLabel
                       active={orderBy === 'name'}
                       direction={orderBy === 'name' ? order : 'asc'}
@@ -184,10 +207,10 @@ const StudentScoresTable = ({
                       Student Info
                     </TableSortLabel>
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: 180 }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 150, sm: 180 } }}>
                     Parent Info
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: 120 }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 100, sm: 120 } }}>
                     <TableSortLabel
                       active={orderBy === 'mathScore'}
                       direction={orderBy === 'mathScore' ? order : 'asc'}
@@ -201,7 +224,7 @@ const StudentScoresTable = ({
                       sx={{ mt: 0.5, color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} 
                     />
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: 120 }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 100, sm: 120 } }}>
                     <TableSortLabel
                       active={orderBy === 'englishScore'}
                       direction={orderBy === 'englishScore' ? order : 'asc'}
@@ -215,13 +238,31 @@ const StudentScoresTable = ({
                       sx={{ mt: 0.5, color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} 
                     />
                   </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: 100 }}>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 80, sm: 100 } }}>
                     <TableSortLabel
                       active={orderBy === 'total'}
                       direction={orderBy === 'total' ? order : 'asc'}
                       onClick={() => handleRequestSort('total')}
                     >
                       Total
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 130, sm: 150 } }}>
+                    <TableSortLabel
+                      active={orderBy === 'overallTotalRank'}
+                      direction={orderBy === 'overallTotalRank' ? order : 'asc'}
+                      onClick={() => handleRequestSort('overallTotalRank')}
+                    >
+                      Overall Ranks
+                    </TableSortLabel>
+                  </TableCell>
+                  <TableCell sx={{ fontWeight: 'bold', color: theme.palette.primary.contrastText, minWidth: { xs: 130, sm: 150 } }}>
+                    <TableSortLabel
+                      active={orderBy === 'genderTotalRank'}
+                      direction={orderBy === 'genderTotalRank' ? order : 'asc'}
+                      onClick={() => handleRequestSort('genderTotalRank')}
+                    >
+                      Gender Ranks
                     </TableSortLabel>
                   </TableCell>
                 </TableRow>
@@ -246,8 +287,8 @@ const StudentScoresTable = ({
                         </Typography>
                       </TableCell>
                       <TableCell>
-                        <Typography variant="body2">{student.parentName}</Typography>
-                        <Typography variant="caption" color="text.secondary" display="block">
+                        <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>{student.parentName}</Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
                           {student.parentEmail}
                         </Typography>
                         <Typography variant="caption" color="text.secondary" display="block">
@@ -267,11 +308,11 @@ const StudentScoresTable = ({
                                   max: maxScores.math,
                                   style: { textAlign: 'center' },
                                 },
-                                sx: { borderRadius: 1.5 },
+                                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
                               }}
                               size="small"
                               disabled={actionLoading}
-                              sx={{ width: '90px' }}
+                              sx={{ width: { xs: '70px', sm: '90px' } }}
                             />
                           </Tooltip>
                           {Number(student.mathScore) === maxScores.math && maxScores.math > 0 && (
@@ -294,11 +335,11 @@ const StudentScoresTable = ({
                                   max: maxScores.english,
                                   style: { textAlign: 'center' },
                                 },
-                                sx: { borderRadius: 1.5 },
+                                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
                               }}
                               size="small"
                               disabled={actionLoading}
-                              sx={{ width: '90px' }}
+                              sx={{ width: { xs: '70px', sm: '90px' } }}
                             />
                           </Tooltip>
                           {Number(student.englishScore) === maxScores.english && maxScores.english > 0 && (
@@ -310,16 +351,214 @@ const StudentScoresTable = ({
                       </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography sx={{ mr: 1, fontWeight: 'bold' }}>{total}</Typography>
+                          <Typography sx={{ mr: 1, fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>{total}</Typography>
                           <Tooltip title={`${Math.round(progress)}% of maximum possible score`}>
                             <CircularProgress
                               variant="determinate"
                               value={progress}
-                              size={24}
+                              size={{ xs: 20, sm: 24 }}
                               color={progress > 70 ? 'success' : progress > 40 ? 'warning' : 'error'}
                             />
                           </Tooltip>
                         </Box>
+                      </TableCell>
+
+                      {/* Overall Ranks Column */}
+                      <TableCell>
+                        <Grid container spacing={1}>
+                          {/* Overall Math Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title="Overall Math Rank">
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.overallMathRank || '-'}
+                                      color={getRankBadgeColor(student.overallMathRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="outlined"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                          
+                          {/* Overall English Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title="Overall English Rank">
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.overallEnglishRank || '-'}
+                                      color={getRankBadgeColor(student.overallEnglishRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="outlined"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                          
+                          {/* Overall Total Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title="Overall Total Rank">
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.overallTotalRank || '-'}
+                                      color={getRankBadgeColor(student.overallTotalRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="filled"
+                                color="primary"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                        </Grid>
+                      </TableCell>
+                      
+                      {/* Gender-based Ranks Column */}
+                      <TableCell>
+                        <Grid container spacing={1}>
+                          {/* Gender Math Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title={`${student.gender} Math Rank`}>
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.genderMathRank || '-'}
+                                      color={getRankBadgeColor(student.genderMathRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="outlined"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                          
+                          {/* Gender English Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title={`${student.gender} English Rank`}>
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.genderEnglishRank || '-'}
+                                      color={getRankBadgeColor(student.genderEnglishRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="outlined"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                          
+                          {/* Gender Total Rank */}
+                          <Grid item xs={12}>
+                            <Tooltip title={`${student.gender} Total Rank`}>
+                              <Chip 
+                                icon={<EmojiEventsIcon fontSize="small" />} 
+                                label={
+                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                                    <Chip
+                                      size="small"
+                                      label={student.genderTotalRank || '-'}
+                                      color={getRankBadgeColor(student.genderTotalRank)}
+                                      sx={{ 
+                                        height: { xs: '18px', sm: '20px' }, 
+                                        minWidth: '20px',
+                                        '& .MuiChip-label': { 
+                                          px: 0.5,
+                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                                          fontWeight: 'bold'
+                                        }
+                                      }}
+                                    />
+                                  </Box>
+                                }
+                                size="small" 
+                                variant="filled"
+                                color="secondary"
+                                sx={{ width: '100%', justifyContent: 'space-between' }}
+                              />
+                            </Tooltip>
+                          </Grid>
+                        </Grid>
                       </TableCell>
                     </TableRow>
                   );

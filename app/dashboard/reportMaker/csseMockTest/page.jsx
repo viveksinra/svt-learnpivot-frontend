@@ -14,6 +14,68 @@ import {
   SaveButton
 } from './Comp';
 
+// Utility function to calculate ranks
+function calculateRanks(students) {
+  // Helper to rank an array of students by a score key
+  function rankByKey(arr, key) {
+    // Sort descending, higher score = better rank
+    const sorted = [...arr].sort((a, b) => (Number(b[key] || 0) - Number(a[key] || 0)));
+    let lastScore = null, lastRank = 0, skip = 0;
+    return sorted.map((student, idx) => {
+      const score = Number(student[key] || 0);
+      if (score !== lastScore) {
+        lastRank = idx + 1;
+        lastScore = score;
+        skip = 0;
+      } else {
+        skip++;
+      }
+      return { id: student.id, rank: lastRank };
+    });
+  }
+
+  // Calculate total scores
+  const studentsWithTotal = students.map(s => ({
+    ...s,
+    totalScore: Number(s.mathScore || 0) + Number(s.englishScore || 0)
+  }));
+
+  // Overall ranks
+  const overallMathRanks = rankByKey(studentsWithTotal, 'mathScore');
+  const overallEnglishRanks = rankByKey(studentsWithTotal, 'englishScore');
+  const overallTotalRanks = rankByKey(studentsWithTotal, 'totalScore');
+
+  // Gender-based ranks
+  const boys = studentsWithTotal.filter(s => s.gender === 'Boy');
+  const girls = studentsWithTotal.filter(s => s.gender === 'Girl');
+  const genderMathRanks = [
+    ...rankByKey(boys, 'mathScore'),
+    ...rankByKey(girls, 'mathScore')
+  ];
+  const genderEnglishRanks = [
+    ...rankByKey(boys, 'englishScore'),
+    ...rankByKey(girls, 'englishScore')
+  ];
+  const genderTotalRanks = [
+    ...rankByKey(boys, 'totalScore'),
+    ...rankByKey(girls, 'totalScore')
+  ];
+
+  // Helper to get rank by id
+  const getRank = (arr, id) => arr.find(r => r.id === id)?.rank || 0;
+
+  // Attach ranks to each student
+  return studentsWithTotal.map(s => ({
+    ...s,
+    genderMathRank: getRank(genderMathRanks, s.id),
+    genderEnglishRank: getRank(genderEnglishRanks, s.id),
+    genderTotalRank: getRank(genderTotalRanks, s.id),
+    overallMathRank: getRank(overallMathRanks, s.id),
+    overallEnglishRank: getRank(overallEnglishRanks, s.id),
+    overallTotalRank: getRank(overallTotalRanks, s.id),
+  }));
+}
+
 const CSSEMockTestMaker = () => {
   const snackRef = useRef();
   
@@ -47,7 +109,7 @@ const CSSEMockTestMaker = () => {
   async function fetchPastMockTest() {
     setLoading(true)
     try {
-      const response = await mockTestService.getCssePastMockTest();
+      const response = await mockTestService.getPastCsseMockTest();
       
       if(response.variant === "success"){
         setLoading(false)
@@ -125,9 +187,49 @@ const CSSEMockTestMaker = () => {
         });
         
         setMockTestExists(response.variant === "success");
-        
+        if(response.variant === "success"){
+          // Update max scores from the report
+          setMaxScores({
+            math: response.data.mathsMaxScore,
+            english: response.data.englishMaxScore
+          });
+
+          // Fetch students for this mock test and batch
+          const studentsResponse = await mockTestService.getAllChildOfMockTest({
+            mockTestId: selectedMockTest,
+            batchId
+          });
+
+          if (studentsResponse.variant === "success" && studentsResponse.data) {
+            // Map students with their scores from the report
+            const studentsWithScores = studentsResponse.data.map(student => {
+              const score = response.data.childScore.find(
+                s => s.childId === student.childId
+              );
+              return {
+                id: student.childId,
+                name: student.childDetails.name,
+                gender: student.childDetails.gender,
+                year: student.childDetails.year,
+                parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
+                parentEmail: student.parentDetails.email,
+                parentMobile: student.parentDetails.mobile,
+                mathScore: score ? Number(score.mathsScore) : '',
+                englishScore: score ? Number(score.englishScore) : '',
+              };
+            });
+            setStudents(studentsWithScores);
+          } else {
+            setStudents([]);
+            snackRef.current.handleSnack({
+              severity: "info",
+              message: studentsResponse.message || 'No students found for this mock test'
+            });
+          }
+        } else {
+          await fetchStudents(selectedMockTest, batchId);
+        }
         // Fetch students associated with this mock test and batch
-        await fetchStudents(selectedMockTest, batchId);
       } catch (error) {
         console.error('Error checking mock test:', error);
         setMockTestExists(false);
@@ -278,13 +380,15 @@ const CSSEMockTestMaker = () => {
       return;
     }
     
-    setStudents(prev => 
-      prev.map(student => 
+    setStudents(prev => {
+      const updated = prev.map(student => 
         student.id === studentId 
           ? { ...student, [`${subject}Score`]: numericValue } 
           : student
-      )
-    );
+      );
+      // Calculate ranks after score change
+      return calculateRanks(updated);
+    });
   };
 
   // Handle max score change
@@ -308,11 +412,21 @@ const CSSEMockTestMaker = () => {
     try {
       setActionLoading(true);
       
-      // Prepare scores for all students
-      const childScoreData = students.map(student => ({
+      // Calculate ranks before preparing the payload
+      const rankedStudents = calculateRanks(students);
+      
+      // Prepare scores for all students with ranks
+      const childScoreData = rankedStudents.map(student => ({
         childId: student.id,
+        childGender: student.gender,
         mathsScore: student.mathScore === '' ? 0 : Number(student.mathScore),
-        englishScore: student.englishScore === '' ? 0 : Number(student.englishScore)
+        englishScore: student.englishScore === '' ? 0 : Number(student.englishScore),
+        genderMathRank: student.genderMathRank,
+        genderEnglishRank: student.genderEnglishRank,
+        genderTotalRank: student.genderTotalRank,
+        overallMathRank: student.overallMathRank,
+        overallEnglishRank: student.overallEnglishRank,
+        overallTotalRank: student.overallTotalRank,
       }));
       
       // Create a new mock test report with the current scores
@@ -362,11 +476,21 @@ const CSSEMockTestMaker = () => {
     try {
       setActionLoading(true);
       
-      // Format the data according to the API requirements
-      const childScoreData = students.map(student => ({
+      // Calculate ranks before preparing the payload
+      const rankedStudents = calculateRanks(students);
+      
+      // Format the data according to the API requirements with ranks
+      const childScoreData = rankedStudents.map(student => ({
         childId: student.id,
+        childGender: student.gender,
         mathsScore: student.mathScore === '' ? 0 : Number(student.mathScore),
-        englishScore: student.englishScore === '' ? 0 : Number(student.englishScore)
+        englishScore: student.englishScore === '' ? 0 : Number(student.englishScore),
+        genderMathRank: student.genderMathRank,
+        genderEnglishRank: student.genderEnglishRank,
+        genderTotalRank: student.genderTotalRank,
+        overallMathRank: student.overallMathRank,
+        overallEnglishRank: student.overallEnglishRank,
+        overallTotalRank: student.overallTotalRank,
       }));
       
       // Prepare the data for submission using the required API format
