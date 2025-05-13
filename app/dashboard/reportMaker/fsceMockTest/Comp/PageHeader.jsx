@@ -15,7 +15,7 @@ const PageHeader = ({ actionLoading }) => {
         mb: 4,
         py: 3,
         borderRadius: 4,
-        background: 'linear-gradient(90deg, #1976d2 0%, #42a5f5 100%)',
+        background: 'linear-gradient(90deg, #673ab7 0%, #9c27b0 100%)',
         boxShadow: 3,
         color: 'white',
         position: 'relative',
