@@ -37,7 +37,19 @@ const MockTestSelection = ({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
+  // Auto-select mock test if there's only one
+  useEffect(() => {
+    if (!loading && mockTests.length === 1 && !selectedMockTest) {
+      handleMockTestChange({ target: { value: mockTests[0]._id } });
+    }
+  }, [loading, mockTests, selectedMockTest, handleMockTestChange]);
 
+  // Auto-select batch if there's only one
+  useEffect(() => {
+    if (availableBatches.length === 1 && !selectedBatch) {
+      handleBatchChange({ target: { value: availableBatches[0]._id } });
+    }
+  }, [availableBatches, selectedBatch, handleBatchChange]);
 
   return (
     <Card elevation={4} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
