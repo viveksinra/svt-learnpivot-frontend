@@ -555,160 +555,7 @@ const Dashboard = () => {
           </Box>
         ) : selectedChild && mockTestReport.length > 0 ? (
           <>
-            {/* Progress visualization section */}
-            <Paper 
-              elevation={0} 
-              sx={{ 
-                p: { xs: 2, sm: 3 }, 
-                mb: 4, 
-                borderRadius: 2, 
-                border: '1px solid #e0e0e0',
-                bgcolor: '#fafafa' 
-              }}
-            >
-              <Typography variant="h5" sx={{ 
-                mb: 3, 
-                display: 'flex', 
-                alignItems: 'center',
-                fontSize: { xs: '1.25rem', sm: '1.5rem' }
-              }}>
-                <TrendingUp sx={{ mr: 1 }} /> Performance Progress
-              </Typography>
-              {renderProgressCharts()}
-            </Paper>
-            {/* Reports comparison table (for at-a-glance view) */}
-            {mockTestReport.length > 1 && (
-              <Paper 
-                elevation={0} 
-                sx={{ 
-                  p: { xs: 2, sm: 3 }, 
-                  mb: 4, 
-                  borderRadius: 2, 
-                  border: '1px solid #e0e0e0' 
-                }}
-              >
-                <Typography variant="h5" sx={{ 
-                  mb: 3, 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
-                }}>
-                  <CompareArrows sx={{ mr: 1 }} /> Test Comparison
-                </Typography>
-                
-                {/* Desktop table view - hidden on xs screens */}
-                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                  <TableContainer>
-                    <Table sx={{ minWidth: 650 }}>
-                      <TableHead>
-                        <TableRow>
-                          <TableCell>Batch Date</TableCell>
-                          <TableCell>Time</TableCell>
-                          <TableCell>English</TableCell>
-                          <TableCell>Maths</TableCell>
-                          <TableCell>Total</TableCell>
-                          <TableCell>Overall Rank</TableCell>
-                        </TableRow>
-                      </TableHead>
-                      <TableBody>
-                        {mockTestReport.map((report) => (
-                          <TableRow key={report._id}>
-                            <TableCell>{report.batchDetails?.date}</TableCell>
-                            <TableCell>
-                              {report.batchDetails?.startTime} - {report.batchDetails?.endTime}
-                            </TableCell>
-                            <TableCell>
-                              {report.childScore?.englishScore}/{report.englishMaxScore} 
-                              ({((report.childScore?.englishScore / report.englishMaxScore) * 100).toFixed(1)}%)
-                            </TableCell>
-                            <TableCell>
-                              {report.childScore?.mathsScore}/{report.mathsMaxScore}
-                              ({((report.childScore?.mathsScore / report.mathsMaxScore) * 100).toFixed(1)}%)
-                            </TableCell>
-                            <TableCell>
-                              {(report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)}/
-                              {(report.englishMaxScore || 0) + (report.mathsMaxScore || 0)}
-                              ({(((report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)) / 
-                                ((report.englishMaxScore || 0) + (report.mathsMaxScore || 0)) * 100).toFixed(1)}%)
-                            </TableCell>
-                            <TableCell>{report.childScore?.overallTotalRank}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </TableContainer>
-                </Box>
-                
-                {/* Mobile card view - only shown on xs screens */}
-                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
-                  <Stack spacing={2}>
-                    {mockTestReport.map((report) => (
-                      <Paper 
-                        key={report._id} 
-                        elevation={2} 
-                        sx={{ p: 2, borderRadius: 2 }}
-                      >
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                          {report.batchDetails?.date}
-                        </Typography>
-                        
-                        <Grid container spacing={1}>
-                          <Grid item xs={4}>
-                            <Typography variant="caption" color="text.secondary">Time</Typography>
-                            <Typography variant="body2" fontWeight="medium">
-                              {report.batchDetails?.startTime} - {report.batchDetails?.endTime}
-                            </Typography>
-                          </Grid>
-                          <Grid item xs={8}>
-                            <Typography variant="caption" color="text.secondary">Overall Rank</Typography>
-                            <Typography variant="body2" fontWeight="bold">
-                              {renderRankBadge(report.childScore?.overallTotalRank, 'Overall')} 
-                              {report.childScore?.overallTotalRank}
-                            </Typography>
-                          </Grid>
-                          
-                          <Grid item xs={12}>
-                            <Divider sx={{ my: 1 }} />
-                          </Grid>
-                          
-                          <Grid item xs={4}>
-                            <Typography variant="caption" color="text.secondary">English</Typography>
-                            <Typography variant="body2">
-                              {report.childScore?.englishScore}/{report.englishMaxScore}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              ({((report.childScore?.englishScore / report.englishMaxScore) * 100).toFixed(1)}%)
-                            </Typography>
-                          </Grid>
-                          
-                          <Grid item xs={4}>
-                            <Typography variant="caption" color="text.secondary">Maths</Typography>
-                            <Typography variant="body2">
-                              {report.childScore?.mathsScore}/{report.mathsMaxScore}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              ({((report.childScore?.mathsScore / report.mathsMaxScore) * 100).toFixed(1)}%)
-                            </Typography>
-                          </Grid>
-                          
-                          <Grid item xs={4}>
-                            <Typography variant="caption" color="text.secondary">Total</Typography>
-                            <Typography variant="body2">
-                              {(report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)}/
-                              {(report.englishMaxScore || 0) + (report.mathsMaxScore || 0)}
-                            </Typography>
-                            <Typography variant="caption" color="text.secondary">
-                              ({(((report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)) / 
-                                ((report.englishMaxScore || 0) + (report.mathsMaxScore || 0)) * 100).toFixed(1)}%)
-                            </Typography>
-                          </Grid>
-                        </Grid>
-                      </Paper>
-                    ))}
-                  </Stack>
-                </Box>
-              </Paper>
-            )}
+ 
             {/* Individual test report cards */}
             <Typography variant="h5" sx={{ 
               mb: 3, 
@@ -917,6 +764,160 @@ const Dashboard = () => {
                 </Grid>
               ))}
             </Grid>
+                       {/* Progress visualization section */}
+                       <Paper 
+              elevation={0} 
+              sx={{ 
+                p: { xs: 2, sm: 3 }, 
+                mb: 4, 
+                borderRadius: 2, 
+                border: '1px solid #e0e0e0',
+                bgcolor: '#fafafa' 
+              }}
+            >
+              <Typography variant="h5" sx={{ 
+                mb: 3, 
+                display: 'flex', 
+                alignItems: 'center',
+                fontSize: { xs: '1.25rem', sm: '1.5rem' }
+              }}>
+                <TrendingUp sx={{ mr: 1 }} /> Performance Progress
+              </Typography>
+              {renderProgressCharts()}
+            </Paper>
+            {/* Reports comparison table (for at-a-glance view) */}
+            {mockTestReport.length > 1 && (
+              <Paper 
+                elevation={0} 
+                sx={{ 
+                  p: { xs: 2, sm: 3 }, 
+                  mb: 4, 
+                  borderRadius: 2, 
+                  border: '1px solid #e0e0e0' 
+                }}
+              >
+                <Typography variant="h5" sx={{ 
+                  mb: 3, 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  fontSize: { xs: '1.25rem', sm: '1.5rem' }
+                }}>
+                  <CompareArrows sx={{ mr: 1 }} /> Test Comparison
+                </Typography>
+                
+                {/* Desktop table view - hidden on xs screens */}
+                <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                  <TableContainer>
+                    <Table sx={{ minWidth: 650 }}>
+                      <TableHead>
+                        <TableRow>
+                          <TableCell>Batch Date</TableCell>
+                          <TableCell>Time</TableCell>
+                          <TableCell>English</TableCell>
+                          <TableCell>Maths</TableCell>
+                          <TableCell>Total</TableCell>
+                          <TableCell>Overall Rank</TableCell>
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {mockTestReport.map((report) => (
+                          <TableRow key={report._id}>
+                            <TableCell>{report.batchDetails?.date}</TableCell>
+                            <TableCell>
+                              {report.batchDetails?.startTime} - {report.batchDetails?.endTime}
+                            </TableCell>
+                            <TableCell>
+                              {report.childScore?.englishScore}/{report.englishMaxScore} 
+                              ({((report.childScore?.englishScore / report.englishMaxScore) * 100).toFixed(1)}%)
+                            </TableCell>
+                            <TableCell>
+                              {report.childScore?.mathsScore}/{report.mathsMaxScore}
+                              ({((report.childScore?.mathsScore / report.mathsMaxScore) * 100).toFixed(1)}%)
+                            </TableCell>
+                            <TableCell>
+                              {(report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)}/
+                              {(report.englishMaxScore || 0) + (report.mathsMaxScore || 0)}
+                              ({(((report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)) / 
+                                ((report.englishMaxScore || 0) + (report.mathsMaxScore || 0)) * 100).toFixed(1)}%)
+                            </TableCell>
+                            <TableCell>{report.childScore?.overallTotalRank}</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                </Box>
+                
+                {/* Mobile card view - only shown on xs screens */}
+                <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+                  <Stack spacing={2}>
+                    {mockTestReport.map((report) => (
+                      <Paper 
+                        key={report._id} 
+                        elevation={2} 
+                        sx={{ p: 2, borderRadius: 2 }}
+                      >
+                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
+                          {report.batchDetails?.date}
+                        </Typography>
+                        
+                        <Grid container spacing={1}>
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary">Time</Typography>
+                            <Typography variant="body2" fontWeight="medium">
+                              {report.batchDetails?.startTime} - {report.batchDetails?.endTime}
+                            </Typography>
+                          </Grid>
+                          <Grid item xs={8}>
+                            <Typography variant="caption" color="text.secondary">Overall Rank</Typography>
+                            <Typography variant="body2" fontWeight="bold">
+                              {renderRankBadge(report.childScore?.overallTotalRank, 'Overall')} 
+                              {report.childScore?.overallTotalRank}
+                            </Typography>
+                          </Grid>
+                          
+                          <Grid item xs={12}>
+                            <Divider sx={{ my: 1 }} />
+                          </Grid>
+                          
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary">English</Typography>
+                            <Typography variant="body2">
+                              {report.childScore?.englishScore}/{report.englishMaxScore}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              ({((report.childScore?.englishScore / report.englishMaxScore) * 100).toFixed(1)}%)
+                            </Typography>
+                          </Grid>
+                          
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary">Maths</Typography>
+                            <Typography variant="body2">
+                              {report.childScore?.mathsScore}/{report.mathsMaxScore}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              ({((report.childScore?.mathsScore / report.mathsMaxScore) * 100).toFixed(1)}%)
+                            </Typography>
+                          </Grid>
+                          
+                          <Grid item xs={4}>
+                            <Typography variant="caption" color="text.secondary">Total</Typography>
+                            <Typography variant="body2">
+                              {(report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)}/
+                              {(report.englishMaxScore || 0) + (report.mathsMaxScore || 0)}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              ({(((report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0)) / 
+                                ((report.englishMaxScore || 0) + (report.mathsMaxScore || 0)) * 100).toFixed(1)}%)
+                            </Typography>
+                          </Grid>
+                        </Grid>
+                      </Paper>
+                    ))}
+                  </Stack>
+                </Box>
+              </Paper>
+            )}
           </>
         ) : selectedChild ? (
           <Paper sx={{ 

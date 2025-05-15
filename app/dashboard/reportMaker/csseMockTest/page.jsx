@@ -11,7 +11,8 @@ import {
   BatchInformation,
   MaxScoresSection,
   StudentScoresTable,
-  SaveButton
+  SaveButton,
+  ResultsVisualization
 } from './Comp';
 
 // Utility function to calculate ranks
@@ -682,6 +683,27 @@ const CSSEMockTestMaker = () => {
         />
       )}
 
+      {/* Student Scores Table - SHOW FIRST */}
+      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
+        <>
+          <StudentScoresTable
+            students={students}
+            maxScores={maxScores}
+            actionLoading={actionLoading}
+            handleScoreChange={handleScoreChange}
+            onReloadStudents={handleReloadStudents}
+          />
+        </>
+      )}
+
+      {/* Results Visualization - SHOW SECOND */}
+      {selectedMockTest && selectedBatch && mockTestExists && students.length > 0 && (
+        <ResultsVisualization
+          students={students}
+          maxScores={maxScores}
+        />
+      )}
+
       {/* Max Scores Section */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
         <MaxScoresSection
@@ -693,19 +715,6 @@ const CSSEMockTestMaker = () => {
           girlsThresholds={girlsThresholds}
           handleGirlsThresholdChange={handleGirlsThresholdChange}
         />
-      )}
-
-      {/* Student Scores Table */}
-      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <>
-          <StudentScoresTable
-            students={students}
-            maxScores={maxScores}
-            actionLoading={actionLoading}
-            handleScoreChange={handleScoreChange}
-            onReloadStudents={handleReloadStudents}
-          />
-        </>
       )}
 
       {/* Save Button */}
