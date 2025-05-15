@@ -96,6 +96,39 @@ const CSSEMockTestMaker = () => {
     message: '',
     severity: 'success'
   });
+  // State for thresholds
+  const [boysThresholds, setBoysThresholds] = useState({
+    kegs: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    },
+    colchester: {
+      inside: { safe: 85, borderline: 65, concern: 64 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    },
+    westcliff: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    },
+    southend: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    }
+  });
+  const [girlsThresholds, setGirlsThresholds] = useState({
+    colchester: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    },
+    westcliff: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    },
+    southend: {
+      inside: { safe: 90, borderline: 70, concern: 69 },
+      outside: { safe: 90, borderline: 70, concern: 69 }
+    }
+  });
   // State for available batches
   const [availableBatches, setAvailableBatches] = useState([]);
   // State to show form without calling API
@@ -194,6 +227,14 @@ const CSSEMockTestMaker = () => {
             english: response.data.englishMaxScore
           });
 
+          // Update thresholds from the report if they exist
+          if (response.data.boysThresholds) {
+            setBoysThresholds(response.data.boysThresholds);
+          }
+          if (response.data.girlsThresholds) {
+            setGirlsThresholds(response.data.girlsThresholds);
+          }
+
           // Fetch students for this mock test and batch
           const studentsResponse = await mockTestService.getAllChildOfMockTest({
             mockTestId: selectedMockTest,
@@ -278,13 +319,21 @@ const CSSEMockTestMaker = () => {
           
           if (reportResponse.variant === "success") {
             // If report exists, use the scores from it
-            const { childScore, mathsMaxScore, englishMaxScore } = reportResponse.data;
+            const { childScore, mathsMaxScore, englishMaxScore, boysThresholds: reportBoysThresholds, girlsThresholds: reportGirlsThresholds } = reportResponse.data;
             
             // Update max scores from the report
             setMaxScores({
               math: mathsMaxScore,
               english: englishMaxScore
             });
+            
+            // Update thresholds from the report if they exist
+            if (reportBoysThresholds) {
+              setBoysThresholds(reportBoysThresholds);
+            }
+            if (reportGirlsThresholds) {
+              setGirlsThresholds(reportGirlsThresholds);
+            }
             
             // Map students with their scores
             studentsWithScores = response.data.map(student => {
@@ -422,7 +471,37 @@ const CSSEMockTestMaker = () => {
     fetchStudents(selectedMockTest, selectedBatch);
   };
 
-  // New function to actually save the created test when user clicks save
+  // Handle boys threshold change
+  const handleBoysThresholdChange = (school, location, level, value) => {
+    const numericValue = Number(value);
+    setBoysThresholds(prev => ({
+      ...prev,
+      [school]: {
+        ...prev[school],
+        [location]: {
+          ...prev[school][location],
+          [level]: numericValue
+        }
+      }
+    }));
+  };
+
+  // Handle girls threshold change
+  const handleGirlsThresholdChange = (school, location, level, value) => {
+    const numericValue = Number(value);
+    setGirlsThresholds(prev => ({
+      ...prev,
+      [school]: {
+        ...prev[school],
+        [location]: {
+          ...prev[school][location],
+          [level]: numericValue
+        }
+      }
+    }));
+  };
+
+  // Update the handleSaveChanges function to include thresholds
   const handleSaveChanges = async () => {
     try {
       setActionLoading(true);
@@ -450,7 +529,9 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
-        childScore: childScoreData
+        childScore: childScoreData,
+        boysThresholds,
+        girlsThresholds
       };
       
       // Make the API call using the service
@@ -486,7 +567,7 @@ const CSSEMockTestMaker = () => {
     }
   };
 
-  // Update the save function to use the snackbar ref
+  // Update the handleSave function to include thresholds
   const handleSave = async () => {
     try {
       setActionLoading(true);
@@ -514,7 +595,9 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
-        childScore: childScoreData
+        childScore: childScoreData,
+        boysThresholds,
+        girlsThresholds
       };
       
       // Make the API call using the service
@@ -605,6 +688,10 @@ const CSSEMockTestMaker = () => {
           maxScores={maxScores}
           handleMaxScoreChange={handleMaxScoreChange}
           actionLoading={actionLoading}
+          boysThresholds={boysThresholds}
+          handleBoysThresholdChange={handleBoysThresholdChange}
+          girlsThresholds={girlsThresholds}
+          handleGirlsThresholdChange={handleGirlsThresholdChange}
         />
       )}
 
