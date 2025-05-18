@@ -682,8 +682,20 @@ const CSSEMockTestMaker = () => {
           students={students}
         />
       )}
+     {/* Max Scores Section - SHOW FIRST  */}
+     {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
+        <MaxScoresSection
+          maxScores={maxScores}
+          handleMaxScoreChange={handleMaxScoreChange}
+          actionLoading={actionLoading}
+          boysThresholds={boysThresholds}
+          handleBoysThresholdChange={handleBoysThresholdChange}
+          girlsThresholds={girlsThresholds}
+          handleGirlsThresholdChange={handleGirlsThresholdChange}
+        />
+      )}
 
-      {/* Student Scores Table - SHOW FIRST */}
+      {/* Student Scores Table - SHOW SECOND  */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
         <>
           <StudentScoresTable
@@ -696,7 +708,7 @@ const CSSEMockTestMaker = () => {
         </>
       )}
 
-      {/* Results Visualization - SHOW SECOND */}
+      {/* Results Visualization */}
       {selectedMockTest && selectedBatch && mockTestExists && students.length > 0 && (
         <ResultsVisualization
           students={students}
@@ -704,18 +716,7 @@ const CSSEMockTestMaker = () => {
         />
       )}
 
-      {/* Max Scores Section */}
-      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <MaxScoresSection
-          maxScores={maxScores}
-          handleMaxScoreChange={handleMaxScoreChange}
-          actionLoading={actionLoading}
-          boysThresholds={boysThresholds}
-          handleBoysThresholdChange={handleBoysThresholdChange}
-          girlsThresholds={girlsThresholds}
-          handleGirlsThresholdChange={handleGirlsThresholdChange}
-        />
-      )}
+ 
 
       {/* Save Button */}
       {selectedMockTest && selectedBatch && (
