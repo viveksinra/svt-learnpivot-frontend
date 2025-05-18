@@ -13,6 +13,7 @@ import {
 import MySnackbar from '../../Components/MySnackbar/MySnackbar';
 import { childService, mockTestService } from '@/app/services';
 import AllInOneMain from './ReportComp/AllInOne/AllInOneMain';
+import JustOneMain from './ReportComp/JustOne/JustOneMain';
 
 const MockTestReport = () => {
   const [selectedChild, setSelectedChild] = useState('');
@@ -27,6 +28,7 @@ const MockTestReport = () => {
   const [selectedMockTestId, setSelectedMockTestId] = useState('all');
   const [selectedBatchId, setSelectedBatchId] = useState('all');
   const [mockTestReports, setMockTestReports] = useState([]);
+  const [oneMockTestReport, setOneMockTestReport] = useState({});
 
   useEffect(() => {
     handleGetAllChildren();
@@ -107,7 +109,7 @@ const MockTestReport = () => {
     try {
       const response = await mockTestService.getMyPastCsseMockTestResultByBatchId({childId, mockTestId, batchId});
       if (response.variant === "success") {
-        setMockTestReports(response.data);
+        setOneMockTestReport(response.data);
       }
     } catch (error) {
       console.error("Error fetching mock test reports:", error);
@@ -259,7 +261,9 @@ const MockTestReport = () => {
         
         /> 
       :
-      <JustOneMain />
+      <JustOneMain
+      oneMockTestReport={oneMockTestReport}
+      />
       
       }
         
