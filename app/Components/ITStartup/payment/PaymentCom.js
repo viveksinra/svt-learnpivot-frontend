@@ -78,6 +78,7 @@ const PaymentCom = ({ data, isLoading = false, onRefresh }) => {
     paymentDate: data.paymentDate ? formatDateToShortMonth(data.paymentDate) : "N/A",
     status: data.status || "pending",
     testUrl: data.testUrl || "#",
+    childName: data.childName || "N/A",
   };
 
   const stateConfig = {
@@ -142,6 +143,11 @@ const PaymentCom = ({ data, isLoading = false, onRefresh }) => {
         <li>
           <span>
             <i className="bx bxs-badge-check"></i> Ref : {paymentDetails.refNo}
+          </span>
+        </li>
+        <li>
+          <span>
+            <i className="bx bxs-badge-check"></i> Child Name: {paymentDetails.childName}
           </span>
         </li>
         <li>
