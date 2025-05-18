@@ -21,6 +21,13 @@ const MockTestReport = () => {
   const [mockTestReport, setMockTestReport] = useState([]);
   const [loading, setLoading] = useState(false);
   const [catchmentType, setCatchmentType] = useState('inside'); // 'inside' or 'outside'
+  const [children, setChildren] = useState([]);
+  const [selectedChildId, setSelectedChildId] = useState('');
+  const [availableMockTests, setAvailableMockTests] = useState([]);
+  const [selectedMockTestId, setSelectedMockTestId] = useState('all');
+  const [selectedBatchId, setSelectedBatchId] = useState('all');
+  const [mockTestReports, setMockTestReports] = useState([]);
+
   useEffect(() => {
     handleGetAllChildren();
   }, []);
@@ -33,9 +40,10 @@ const MockTestReport = () => {
   // Effect to fetch report when a child is selected
   useEffect(() => {
     if (selectedChild) {
-      handleGetAllMockTestReport();
+      handleGetMockTestReport(selectedChild, selectedMockTestId || 'all', selectedBatchId || 'all');
     }
   }, [selectedChild]);
+
   const handleGetAllChildren = async () => {
     try {
       const response = await childService.getAll();
@@ -49,35 +57,91 @@ const MockTestReport = () => {
       snackRef.current.handleSnack({ message: 'Failed to fetch children.', variant: 'error' });
     }
   };
-  const handleChildSelect = (childId) => {
-    setMockTestReport([]);
-    setSelectedChild(childId);
-  };
-  const handleGetAllMockTestReport = async () => {
+
+  const handleGetAllMockResultForSelectedChild = async (childId) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      console.log('Fetching mock test report for child:', selectedChild);
-      const response = await mockTestService.getMyPastCsseMockTest({childId: selectedChild});
-      console.log('Mock test report response:', response);
-      if (response.data) {
-        // Sort reports by date for chronological display
-        const sortedReports = [...response.data].sort((a, b) => 
-          new Date(a.date || a.createdAt) - new Date(b.date || b.createdAt)
-        );
-        setMockTestReport(sortedReports);
-      } else {
-        if(response.message){
-          snackRef.current.handleSnack({ message: response.message, variant: 'error' });
-        }else{
-          throw new Error('No data received');
-        }
+      const response = await mockTestService.getMockTestIdsByChildId({childId});
+      if (response.variant === "success") {
+        setAvailableMockTests(response.data);
+        // Reset selected mock test to "all"
+        setSelectedMockTestId('all');
+        setSelectedBatchId('all');
+        // Fetch all reports by default
+        await handleGetMockTestReport(childId, 'all', 'all');
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
-      snackRef.current.handleSnack({ message: 'Failed to fetch mock test report.', variant: 'error' });
+      console.error("Error fetching mock tests:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChildSelect = async (childId) => {
+    setSelectedChildId(childId);
+    setSelectedChild(childId);
+    if (childId) {
+      await handleGetAllMockResultForSelectedChild(childId);
+    } else {
+      setAvailableMockTests([]);
+      setMockTestReports([]);
+    }
+  };
+
+  const handleGetMockTestReport = async (childId, mockTestId, batchId) => {
+    setLoading(true);
+    try {
+      if (batchId === 'all') {
+        await getMyPastCsseMockTestResultForAll(childId);
+      } else {
+        await getMyPastCsseMockTestResultByBatchId(childId, mockTestId, batchId);
+      }
+    } catch (error) {
+      console.error("Error fetching mock test reports:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getMyPastCsseMockTestResultByBatchId = async (childId, mockTestId, batchId) => {
+    setLoading(true);
+    try {
+      const response = await mockTestService.getMyPastCsseMockTestResultByBatchId({childId, mockTestId, batchId});
+      if (response.variant === "success") {
+        setMockTestReports(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching mock test reports:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const getMyPastCsseMockTestResultForAll = async (childId) => {
+    setLoading(true);
+    try {
+      const response = await mockTestService.getMyPastCsseMockTestResultForAll({childId});
+      if (response.variant === "success") {
+        console.log(response.data)
+        setMockTestReports(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching mock test reports:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+
+
+
+
+
+
+  const handleMockTestSelect = async (mockTestId, batchId) => {
+    setSelectedMockTestId(mockTestId);
+    setSelectedBatchId(batchId);
+    await handleGetMockTestReport(selectedChildId, mockTestId, batchId);
   };
 
   return (
@@ -133,18 +197,71 @@ const MockTestReport = () => {
           </Paper>
         )}
         
-        <AllInOneMain 
+        {selectedChild && availableMockTests.length > 0 && (
+          <Paper elevation={0} sx={{ 
+            p: { xs: 2, sm: 3 }, 
+            mb: 4, 
+            borderRadius: 2, 
+            border: '1px solid #e0e0e0' 
+          }}>
+            <Typography variant="h6" sx={{ 
+              mb: 2,
+              fontSize: { xs: '1rem', sm: '1.25rem' } 
+            }}>
+              Select Mock Test
+            </Typography>
+            <Box sx={{ 
+              display: 'flex', 
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              gap: { xs: 1, sm: 2 }
+            }}>
+              <Button
+                variant={selectedMockTestId === 'all' ? "contained" : "outlined"}
+                onClick={() => handleMockTestSelect('all', 'all')}
+                size={['xs', 'sm'].includes(typeof window !== 'undefined' && window.innerWidth < 600) ? "small" : "medium"}
+                sx={{
+                  borderRadius: 2,
+                  py: { xs: 0.5, sm: 1 },
+                  px: { xs: 1, sm: 2 },
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                }}
+              >
+                All Mock Tests
+              </Button>
+              {availableMockTests.map((mockTest) => (
+                <Button
+                  key={`${mockTest.mockTestId}-${mockTest.batchId}`}
+                  variant={selectedMockTestId === mockTest.mockTestId && selectedBatchId === mockTest.batchId ? "contained" : "outlined"}
+                  onClick={() => handleMockTestSelect(mockTest.mockTestId, mockTest.batchId)}
+                  size={['xs', 'sm'].includes(typeof window !== 'undefined' && window.innerWidth < 600) ? "small" : "medium"}
+                  sx={{
+                    borderRadius: 2,
+                    py: { xs: 0.5, sm: 1 },
+                    px: { xs: 1, sm: 2 },
+                    fontSize: { xs: '0.8rem', sm: '0.875rem' }
+                  }}
+                >
+                  {mockTest.mockTestTitle} - {new Date(mockTest.date).toLocaleDateString()}
+                </Button>
+              ))}
+            </Box>
+          </Paper>
+        )}
+        
+{  selectedBatchId === 'all' ?     <AllInOneMain 
           selectedChild={selectedChild}
           allChildren={allChildren}
-          mockTestReport={mockTestReport}
+          mockTestReports={mockTestReports}
           loading={loading}
           catchmentType={catchmentType}
           setCatchmentType={setCatchmentType}
-          handleChildSelect={handleChildSelect}
-          handleGetAllChildren={handleGetAllChildren}
-          handleGetMockTestReport={handleGetAllMockTestReport}
-          snackRef={snackRef}
-        />
+        
+        /> 
+      :
+      <JustOneMain />
+      
+      }
         
         <MySnackbar ref={snackRef} />
       </Container>

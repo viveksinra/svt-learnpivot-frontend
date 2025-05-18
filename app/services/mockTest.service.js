@@ -117,9 +117,23 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
-  getMyPastCsseMockTest = async ({childId}) => {
+  getMyPastCsseMockTestResultByBatchId = async ({childId, mockTestId, batchId}) => {
     return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTest/${childId}`, {
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultByBatchId/${childId}/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  getMyPastCsseMockTestResultForAll = async ({childId}) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultForAll/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+  getMockTestIdsByChildId = async ({childId}) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMockTestIdsByChildId/${childId}`, {
         headers: getAuthorizationHeader(),
       })
       .then((res) => res.data);

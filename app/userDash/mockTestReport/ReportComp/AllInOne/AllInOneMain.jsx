@@ -49,17 +49,14 @@ import {
 const AllInOneMain = ({
   selectedChild,
   allChildren,
-  mockTestReport,
+  mockTestReports,
   loading,
   catchmentType,
   setCatchmentType,
-  handleChildSelect,
-  handleGetAllChildren,
-  handleGetAllMockTestReport,
-  snackRef
+
 }) => {
     // Removed redundant useEffect hooks as parent component (page.jsx) handles this logic.
-
+console.log(mockTestReports)
     // Function to render rank badge
     const renderRankBadge = (rank, label) => {
       const badgeColors = {
@@ -161,10 +158,10 @@ const AllInOneMain = ({
 
     // Function to prepare chart data from reports
     const prepareProgressChartData = () => {
-      if (mockTestReport.length <= 0) return [];
+      if (mockTestReports.length <= 0) return [];
 
       // Find the most recent report for threshold data
-      const latestReport = [...mockTestReport].sort((a, b) => 
+      const latestReport = [...mockTestReports].sort((a, b) => 
         new Date(b.date || b.createdAt) - new Date(a.date || a.createdAt)
       )[0];
       
@@ -185,7 +182,7 @@ const AllInOneMain = ({
         });
       }
 
-      return mockTestReport.map(report => {
+      return mockTestReports.map(report => {
         const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
         const maxTotalScore = (report.englishMaxScore || 0) + (report.mathsMaxScore || 0);
         const totalPercentage = maxTotalScore > 0 ? (totalScore / maxTotalScore) * 100 : 0;
@@ -706,7 +703,7 @@ const AllInOneMain = ({
             </Typography>
             <LinearProgress sx={{ mt: 2, maxWidth: 300, mx: 'auto' }} />
           </Box>
-        ) : selectedChild && mockTestReport.length > 0 ? (
+        ) : selectedChild && mockTestReports && mockTestReports?.length > 0 ? (
           <>
             {/* Individual test report cards */}
             <Typography variant="h5" sx={{ 
@@ -716,7 +713,7 @@ const AllInOneMain = ({
               Individual Test Reports
             </Typography>
             <Grid container spacing={3}>
-              {mockTestReport.map((report, index) => (
+              {mockTestReports.map((report, index) => (
                 <Grid item xs={12} key={report._id || index}>
                   <Card 
                     sx={{ 
@@ -943,7 +940,7 @@ const AllInOneMain = ({
               {renderProgressCharts()}
             </Paper>
             {/* Reports comparison table (for at-a-glance view) */}
-            {mockTestReport.length > 1 && (
+            {mockTestReports.length > 1 && (
               <Paper 
                 elevation={0} 
                 sx={{ 
@@ -977,7 +974,7 @@ const AllInOneMain = ({
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {mockTestReport.map((report) => (
+                        {mockTestReports.map((report) => (
                           <TableRow key={report._id}>
                             <TableCell>{report.batchDetails?.date}</TableCell>
                             <TableCell>
@@ -1008,7 +1005,7 @@ const AllInOneMain = ({
                 {/* Mobile card view - only shown on xs screens */}
                 <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
                   <Stack spacing={2}>
-                    {mockTestReport.map((report) => (
+                    {mockTestReports.map((report) => (
                       <Paper 
                         key={report._id} 
                         elevation={2} 
