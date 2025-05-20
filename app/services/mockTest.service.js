@@ -83,70 +83,18 @@ export class MockTestService {
       })
       .then((res) => res.data);
   };
-
-  // CSSE Mock Test Report Maker methods
-  getAllChildOfMockTest = async ({mockTestId, batchId}) => {
+  sendOneEmail = async ( data) => {
     return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/admin/getAllChildOfMockTest/${mockTestId}/${batchId}`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-
-  getCsseMockReport = async ({mockTestId, batchId}) => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/admin/getCsseMockReport/${mockTestId}/${batchId}`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-
-  addCsseMockReport = async (data) => {
-    return this.instance
-      .post(`/api/v1/privateRoute/mockReportMaker/admin/addCsseMockReport`, data, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-
-  getPastCsseMockTest = async () => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastCsseMockTest`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-
-  getMyPastCsseMockTestResultByBatchId = async ({childId, mockTestId, batchId}) => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultByBatchId/${childId}/${mockTestId}/${batchId}`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-  getMyPastCsseMockTestResultForAll = async ({childId}) => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultForAll/${childId}`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
-  getMockTestIdsByChildId = async ({childId}) => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMockTestIdsByChildId/${childId}`, {
+      .post(`/api/v1/publicMaster/otherApi/email/sendOneEmail`, data, {
         headers: getAuthorizationHeader(),
       })
       .then((res) => res.data);
   };
 
 
-  getPastFsceMockTest = async () => {
-    return this.instance
-      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastFsceMockTest`, {
-        headers: getAuthorizationHeader(),
-      })
-      .then((res) => res.data);
-  };
+
+
+
 
 
 
@@ -186,6 +134,10 @@ export class MockTestService {
       .catch((err) => err);
   };
 
+
+
+
+
   imgUpload = async (imgData)=>{
     return this.instance
     .post(`/api/v1/other/fileupload/upload`, imgData, {
@@ -199,4 +151,5 @@ export class MockTestService {
     .catch((err) => {console.log(err) });
   };
   
+
 }

@@ -95,7 +95,7 @@ const EmailMainCom = forwardRef(({
                         attachmentUrls,
                     };
 
-                const response = await mockTestService.sendMultiEmail(emailData);
+                const response = await mockTestService.sendOneEmail(emailData);
 
                 if (response.variant !== "success") {
                     snackRef.current.handleSnack(response);
