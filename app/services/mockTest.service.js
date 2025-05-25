@@ -91,16 +91,127 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
+  // ==================== MOCK REPORT MAKER METHODS ====================
 
+  /**
+   * Get all past CSSE mock tests for admin dropdown
+   * @returns {Promise} Response with past mock tests
+   */
+  getPastCsseMockTest = async () => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastCsseMockTest`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Get all past FSCE mock tests for admin dropdown
+   * @returns {Promise} Response with past mock tests
+   */
+  getPastFsceMockTest = async () => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getPastFsceMockTest`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Get all children registered for a specific mock test and batch
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockTestId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @returns {Promise} Response with children data
+   */
+  getAllChildOfMockTest = async ({ mockTestId, batchId }) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getAllChildOfMockTest/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Get CSSE mock test report by mock test ID and batch ID
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockTestId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @returns {Promise} Response with mock test report
+   */
+  getCsseMockReport = async ({ mockTestId, batchId }) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getCsseMockReport/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Create or update CSSE mock test report
+   * @param {Object} data - Mock test report data
+   * @param {string} data.mockTestId - Mock test ID
+   * @param {string} data.batchId - Batch ID
+   * @param {number} data.mathsMaxScore - Maximum math score
+   * @param {number} data.englishMaxScore - Maximum English score
+   * @param {Array} data.childScore - Array of child scores with ranks
+   * @param {Object} data.boysThresholds - Boys thresholds for different schools
+   * @param {Object} data.girlsThresholds - Girls thresholds for different schools
+   * @returns {Promise} Response with success/error message
+   */
+  addCsseMockReport = async (data) => {
+    return this.instance
+      .post(`/api/v1/privateRoute/mockReportMaker/admin/addCsseMockReport`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  // ==================== PARENT METHODS ====================
 
+  /**
+   * Get all past CSSE mock test results for a specific child (for parents)
+   * @param {string} childId - Child ID
+   * @returns {Promise} Response with child's mock test results
+   */
+  getMyPastCsseMockTestResultForAll = async (childId) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultForAll/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Get specific CSSE mock test result by batch ID for a child (for parents)
+   * @param {Object} params - Parameters object
+   * @param {string} params.childId - Child ID
+   * @param {string} params.mockTestId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @returns {Promise} Response with specific mock test result
+   */
+  getMyPastCsseMockTestResultByBatchId = async ({ childId, mockTestId, batchId }) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastCsseMockTestResultByBatchId/${childId}/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  /**
+   * Get mock test IDs by child ID (for parents)
+   * @param {string} childId - Child ID
+   * @returns {Promise} Response with mock test IDs for the child
+   */
+  getMockTestIdsByChildId = async (childId) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/parent/getMockTestIdsByChildId/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
+  // ==================== EXISTING METHODS ====================
 
   add = async (id, data) => {
     return this.instance
@@ -134,10 +245,6 @@ export class MockTestService {
       .catch((err) => err);
   };
 
-
-
-
-
   imgUpload = async (imgData)=>{
     return this.instance
     .post(`/api/v1/other/fileupload/upload`, imgData, {
@@ -150,6 +257,4 @@ export class MockTestService {
     .then((res) => res.data.result.secure_url)
     .catch((err) => {console.log(err) });
   };
-  
-
 }
