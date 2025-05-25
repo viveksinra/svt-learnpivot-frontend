@@ -72,7 +72,7 @@ const getSelectionChance = (score, threshold) => {
   return 'Concern';
 };
 
-const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalScore }) => {
+const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalScore, englishMaxScore, mathsMaxScore }) => {
   // Get relevant school types for the gender
   const schoolTypes = isGirl 
     ? ['Colchester Girls', 'Westcliff Girls', 'Southend Girls'] 
@@ -86,6 +86,32 @@ const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalSc
     return {};
   };
 
+  // Get total score styling based on performance
+  const getTotalScoreStyle = () => {
+    const percentage = (totalScore / (englishMaxScore + mathsMaxScore)) * 100;
+    if (percentage >= 80) return { 
+      backgroundColor: '#e8f5e9', 
+      color: '#2e7d32', 
+      fontWeight: 'bold',
+      fontSize: '1.1rem',
+      border: '2px solid #4caf50'
+    };
+    if (percentage >= 60) return { 
+      backgroundColor: '#fff3e0', 
+      color: '#ed6c02', 
+      fontWeight: 'bold',
+      fontSize: '1.1rem',
+      border: '2px solid #ff9800'
+    };
+    return { 
+      backgroundColor: '#ffebee', 
+      color: '#d32f2f', 
+      fontWeight: 'bold',
+      fontSize: '1.1rem',
+      border: '2px solid #f44336'
+    };
+  };
+
   return (
     <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #f0f0f0', mb: 2, mt: 2 }}>
       <Table size="small">
@@ -96,7 +122,13 @@ const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalSc
             </TableCell>
           </TableRow>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell sx={{ 
+              fontWeight: 'bold', 
+              fontSize: '0.95rem',
+              backgroundColor: '#e3f2fd',
+              color: '#1976d2'
+            }}>
+            </TableCell>
             {schoolTypes.map(school => (
               <TableCell colSpan={2} align="center" key={school} sx={{ fontWeight: 'medium' }}>
                 {school}
@@ -104,7 +136,13 @@ const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalSc
             ))}
           </TableRow>
           <TableRow>
-            <TableCell></TableCell>
+            <TableCell sx={{ 
+              fontWeight: 'medium',
+              backgroundColor: '#f8f9fa',
+              color: '#495057'
+            }}>
+              Your Score
+            </TableCell>
             {schoolTypes.map(school => (
               <React.Fragment key={`${school}-catchment`}>
                 <TableCell align="center" sx={{ fontWeight: 'medium' }}>Inside Catchment</TableCell>
@@ -115,7 +153,9 @@ const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalSc
         </TableHead>
         <TableBody>
           <TableRow>
-            <TableCell sx={{ fontWeight: 'medium' }}>{totalScore}</TableCell>
+            <TableCell sx={getTotalScoreStyle()}>
+              {totalScore}
+            </TableCell>
             {schoolTypes.map(school => {
               // Convert school name to key for thresholds
               const schoolKey = school.toLowerCase().split(' ')[0];
@@ -141,8 +181,21 @@ const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, totalSc
   );
 };
 
-const ScoreCard = ({ title, score, maxScore, rank, statusColor }) => {
+const ScoreCard = ({ title, score, maxScore, genderRank, overallRank, totalGenderStudents, totalOverallStudents }) => {
   const percentage = (score / maxScore) * 100;
+  
+  // Get rank-based color (better rank = better color)
+  const getRankColor = (rank, total) => {
+    const percentile = (rank / total) * 100;
+    if (percentile <= 20) return { color: '#2e7d32', background: '#e8f5e9' }; // Top 20% - Green
+    if (percentile <= 40) return { color: '#388e3c', background: '#f1f8e9' }; // Top 40% - Light Green
+    if (percentile <= 60) return { color: '#fbc02d', background: '#fffde7' }; // Top 60% - Yellow
+    if (percentile <= 80) return { color: '#f57c00', background: '#fff8e1' }; // Top 80% - Orange
+    return { color: '#d32f2f', background: '#ffebee' }; // Bottom 20% - Red
+  };
+  
+  const genderRankColor = getRankColor(genderRank, totalGenderStudents);
+  const overallRankColor = getRankColor(overallRank, totalOverallStudents);
   
   return (
     <Card sx={{ height: '100%' }}>
@@ -151,7 +204,7 @@ const ScoreCard = ({ title, score, maxScore, rank, statusColor }) => {
           {title}
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-          <Typography variant="h4" component="span" sx={{ fontWeight: 'bold', color: statusColor.color }}>
+          <Typography variant="h4" component="span" sx={{ fontWeight: 'bold', color: genderRankColor.color }}>
             {score}
           </Typography>
           <Typography variant="body1" component="span" sx={{ ml: 1 }}>
@@ -168,7 +221,7 @@ const ScoreCard = ({ title, score, maxScore, rank, statusColor }) => {
               backgroundColor: 'rgba(0,0,0,0.05)',
               '& .MuiLinearProgress-bar': {
                 borderRadius: 5,
-                backgroundColor: statusColor.color,
+                backgroundColor: genderRankColor.color,
               }
             }} 
           />
@@ -178,15 +231,27 @@ const ScoreCard = ({ title, score, maxScore, rank, statusColor }) => {
             size="small" 
             label={`${percentage.toFixed(0)}%`} 
             sx={{ 
-              backgroundColor: statusColor.background, 
-              color: statusColor.color,
+              backgroundColor: genderRankColor.background, 
+              color: genderRankColor.color,
               fontWeight: 'bold'
             }} 
           />
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <EmojiEvents fontSize="small" sx={{ color: '#ffc107', mr: 0.5 }} />
-            <Typography variant="body2">Rank: {rank}</Typography>
-          </Box>
+        </Box>
+        
+        {/* Gender Rank */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 1.5 }}>
+          <EmojiEvents fontSize="small" sx={{ color: genderRankColor.color, mr: 0.5 }} />
+          <Typography variant="body2" sx={{ color: genderRankColor.color, fontWeight: 'medium' }}>
+            Gender Rank: {genderRank}/{totalGenderStudents}
+          </Typography>
+        </Box>
+        
+        {/* Overall Rank */}
+        <Box sx={{ display: 'flex', alignItems: 'center', mt: 0.5 }}>
+          <EmojiEvents fontSize="small" sx={{ color: overallRankColor.color, mr: 0.5 }} />
+          <Typography variant="body2" sx={{ color: overallRankColor.color, fontWeight: 'medium' }}>
+            Overall Rank: {overallRank}/{totalOverallStudents}
+          </Typography>
         </Box>
       </CardContent>
     </Card>
@@ -442,9 +507,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
               <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
                 {currentChild?.childName || childScore?.childName || 'Student Name'}
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {currentChild?.childGender || childScore?.childGender || 'Gender'}
-              </Typography>
+         
             </Box>
           </Box>
         </Box>
@@ -496,8 +559,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
             title="English Score" 
             score={childScore.englishScore} 
             maxScore={englishMaxScore}
-            rank={childScore.genderEnglishRank}
-            statusColor={englishStatus}
+            genderRank={childScore.genderEnglishRank}
+            overallRank={childScore.overallEnglishRank}
+            totalGenderStudents={isGirl ? girlsRanking?.length || 0 : boysRanking?.length || 0}
+            totalOverallStudents={(boysRanking?.length || 0) + (girlsRanking?.length || 0)}
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -505,8 +570,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
             title="Maths Score" 
             score={childScore.mathsScore} 
             maxScore={mathsMaxScore}
-            rank={childScore.genderMathRank}
-            statusColor={mathsStatus}
+            genderRank={childScore.genderMathRank}
+            overallRank={childScore.overallMathRank}
+            totalGenderStudents={isGirl ? girlsRanking?.length || 0 : boysRanking?.length || 0}
+            totalOverallStudents={(boysRanking?.length || 0) + (girlsRanking?.length || 0)}
           />
         </Grid>
         <Grid item xs={12} md={4}>
@@ -514,8 +581,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
             title="Total Score" 
             score={totalScore} 
             maxScore={totalMaxScore}
-            rank={childScore.genderTotalRank}
-            statusColor={totalStatus}
+            genderRank={childScore.genderTotalRank}
+            overallRank={childScore.overallTotalRank}
+            totalGenderStudents={isGirl ? girlsRanking?.length || 0 : boysRanking?.length || 0}
+            totalOverallStudents={(boysRanking?.length || 0) + (girlsRanking?.length || 0)}
           />
         </Grid>
       </Grid>
@@ -531,10 +600,12 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
           isGirl={isGirl}
           schoolThresholds={isGirl ? girlsScoreThresholds : boysScoreThresholds}
           totalScore={totalScore}
+          englishMaxScore={englishMaxScore}
+          mathsMaxScore={mathsMaxScore}
         />
         
         <Typography variant="body2" color="text.secondary">
-          This table shows your chances of selection at different schools based on your current performance and their historical acceptance thresholds.
+          This table shows your child’s selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
         </Typography>
       </Paper>
 

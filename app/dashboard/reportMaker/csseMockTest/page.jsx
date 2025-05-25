@@ -16,7 +16,7 @@ import {
 } from './Comp';
 
 // Utility function to calculate ranks
-function calculateRanks(students) {
+function calculateRanks(students, factors = { total: 3.5, english: 1.1 }) {
   console.log('calculateRanks called with', students.length, 'students');
   // Helper to rank an array of students by a score key with tie-breaking logic
   function rankByKey(arr, key) {
@@ -48,16 +48,16 @@ function calculateRanks(students) {
      });
   }
 
-  // Helper to rank students by total score with specific tie-breaking logic
+  // Helper to rank students by standardized score with specific tie-breaking logic
   function rankByTotalScore(arr) {
-    // Sort with tie-breaking logic for total scores
+    // Sort with tie-breaking logic for standardized scores
     const sorted = [...arr].sort((a, b) => {
-      const totalA = a.totalScore;
-      const totalB = b.totalScore;
+      const standardizedA = a.standardizedScore;
+      const standardizedB = b.standardizedScore;
       
-      // Primary sort: higher total score = better rank
-      if (totalA !== totalB) {
-        return totalB - totalA;
+      // Primary sort: higher standardized score = better rank
+      if (standardizedA !== standardizedB) {
+        return standardizedB - standardizedA;
       }
       
       // First tie-breaker: better English score gets better rank
@@ -85,11 +85,18 @@ function calculateRanks(students) {
      });
   }
 
-  // Calculate total scores
-  const studentsWithTotal = students.map(s => ({
-    ...s,
-    totalScore: Number(s.mathScore || 0) + Number(s.englishScore || 0)
-  }));
+  // Calculate standardized scores
+  const studentsWithTotal = students.map(s => {
+    const mathScore = Number(s.mathScore || 0);
+    const englishScore = Number(s.englishScore || 0);
+    // Total Standardised Score = (Math Score * Total Factor) + (English Score * English Factor * Total Factor)
+    const standardizedScore = (mathScore * factors.total) + (englishScore * factors.english * factors.total);
+    return {
+      ...s,
+      totalScore: mathScore + englishScore, // Keep raw total for display
+      standardizedScore: standardizedScore // New standardized score for ranking
+    };
+  });
 
   // Overall ranks
   const overallMathRanks = rankByKey(studentsWithTotal, 'mathScore');
@@ -141,6 +148,22 @@ const CSSEMockTestMaker = () => {
     math: 80,
     english: 70
   });
+  const [factors, setFactors] = useState({
+    total: 3.5,
+    english: 1.1
+  });
+  const [performanceBoundaries, setPerformanceBoundaries] = useState({
+    math: {
+      excellent: 45,
+      good: 35,
+      average: 25
+    },
+    english: {
+      excellent: 40,
+      good: 30,
+      average: 20
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -152,34 +175,34 @@ const CSSEMockTestMaker = () => {
   // State for thresholds
   const [boysThresholds, setBoysThresholds] = useState({
     kegs: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     },
     colchester: {
-      inside: { safe: 85, borderline: 65, concern: 64 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 85, borderline: 65 },
+      outside: { safe: 90, borderline: 70 }
     },
     westcliff: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     },
     southend: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     }
   });
   const [girlsThresholds, setGirlsThresholds] = useState({
     colchester: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     },
     westcliff: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     },
     southend: {
-      inside: { safe: 90, borderline: 70, concern: 69 },
-      outside: { safe: 90, borderline: 70, concern: 69 }
+      inside: { safe: 90, borderline: 70 },
+      outside: { safe: 90, borderline: 70 }
     }
   });
   // State for available batches
@@ -292,6 +315,19 @@ const CSSEMockTestMaker = () => {
             english: response.data.englishMaxScore
           });
 
+          // Update factors from the report if they exist
+          if (response.data.totalFactor !== undefined && response.data.englishFactor !== undefined) {
+            setFactors({
+              total: response.data.totalFactor,
+              english: response.data.englishFactor
+            });
+          }
+
+          // Update performance boundaries from the report if they exist
+          if (response.data.performanceBoundaries) {
+            setPerformanceBoundaries(response.data.performanceBoundaries);
+          }
+
           // Update thresholds from the report if they exist
           if (response.data.boysThresholds) {
             setBoysThresholds(response.data.boysThresholds);
@@ -328,7 +364,7 @@ const CSSEMockTestMaker = () => {
               };
             });
             // Calculate ranks using our utility function
-            const rankedStudents = calculateRanks(studentsWithScores);
+            const rankedStudents = calculateRanks(studentsWithScores, factors);
             setStudents(rankedStudents);
           } else {
             setStudents([]);
@@ -393,6 +429,19 @@ const CSSEMockTestMaker = () => {
               english: englishMaxScore
             });
             
+            // Update factors from the report if they exist
+            if (reportResponse.data.totalFactor !== undefined && reportResponse.data.englishFactor !== undefined) {
+              setFactors({
+                total: reportResponse.data.totalFactor,
+                english: reportResponse.data.englishFactor
+              });
+            }
+            
+            // Update performance boundaries from the report if they exist
+            if (reportResponse.data.performanceBoundaries) {
+              setPerformanceBoundaries(reportResponse.data.performanceBoundaries);
+            }
+            
             // Update thresholds from the report if they exist
             if (reportBoysThresholds) {
               setBoysThresholds(reportBoysThresholds);
@@ -426,7 +475,7 @@ const CSSEMockTestMaker = () => {
             });
             
             // Calculate ranks using our utility function instead of using the API-provided ranks
-            studentsWithScores = calculateRanks(studentsWithScores);
+            studentsWithScores = calculateRanks(studentsWithScores, factors);
           } else {
             // If no report exists, initialize with empty scores
             studentsWithScores = response.data.map(student => {
@@ -536,6 +585,27 @@ const CSSEMockTestMaker = () => {
     }));
   };
 
+  // Handle factor change
+  const handleFactorChange = (factorType, value) => {
+    const numericValue = value === '' ? (factorType === 'total' ? 3.5 : 1.1) : Number(value);
+    setFactors(prev => ({
+      ...prev,
+      [factorType]: numericValue
+    }));
+  };
+
+  // Handle performance boundary change
+  const handlePerformanceBoundaryChange = (subject, grade, value) => {
+    const numericValue = value === '' ? 0 : Number(value);
+    setPerformanceBoundaries(prev => ({
+      ...prev,
+      [subject]: {
+        ...prev[subject],
+        [grade]: numericValue
+      }
+    }));
+  };
+
   // Create a new mock test with the selected ID - now just shows the form
   const handleCreateNew = () => {
     setShowCreateForm(true);
@@ -579,7 +649,7 @@ const CSSEMockTestMaker = () => {
       setActionLoading(true);
       
       // Always recalculate ranks before saving to ensure accuracy
-      const rankedStudents = calculateRanks(students);
+      const rankedStudents = calculateRanks(students, factors);
       
       // Prepare scores for all students with ranks
       const childScoreData = rankedStudents.map(student => ({
@@ -602,6 +672,9 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
+        totalFactor: factors.total,
+        englishFactor: factors.english,
+        performanceBoundaries,
         childScore: childScoreData,
         boysThresholds,
         girlsThresholds
@@ -646,7 +719,7 @@ const CSSEMockTestMaker = () => {
       setActionLoading(true);
       
       // Always recalculate ranks before saving to ensure accuracy
-      const rankedStudents = calculateRanks(students);
+      const rankedStudents = calculateRanks(students, factors);
       
       // Format the data according to the API requirements with ranks
       const childScoreData = rankedStudents.map(student => ({
@@ -668,6 +741,9 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
+        totalFactor: factors.total,
+        englishFactor: factors.english,
+        performanceBoundaries,
         childScore: childScoreData,
         boysThresholds,
         girlsThresholds
@@ -717,7 +793,7 @@ const CSSEMockTestMaker = () => {
     if (students && students.length > 0) {
       setIsRecalculating(true);
       console.log('Recalculating ranks for students:', students.length);
-      const rankedStudents = calculateRanks(students);
+      const rankedStudents = calculateRanks(students, factors);
       console.log('Ranks recalculated successfully');
       setStudents(rankedStudents);
       
@@ -730,7 +806,7 @@ const CSSEMockTestMaker = () => {
         });
       }, 1000);
     }
-  }, [students]);
+  }, [students, factors]);
 
   // Handle snackbar close
   const handleSnackbarClose = () => {
@@ -779,6 +855,10 @@ const CSSEMockTestMaker = () => {
         <MaxScoresSection
           maxScores={maxScores}
           handleMaxScoreChange={handleMaxScoreChange}
+          factors={factors}
+          handleFactorChange={handleFactorChange}
+          performanceBoundaries={performanceBoundaries}
+          handlePerformanceBoundaryChange={handlePerformanceBoundaryChange}
           actionLoading={actionLoading}
           boysThresholds={boysThresholds}
           handleBoysThresholdChange={handleBoysThresholdChange}
