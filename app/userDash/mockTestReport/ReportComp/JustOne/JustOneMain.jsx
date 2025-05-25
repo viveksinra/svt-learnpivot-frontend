@@ -45,6 +45,17 @@ import {
   Legend,
   Filler
 } from 'chart.js';
+import { 
+  ScoreCard, 
+  ChancesOfSelectionTable, 
+  RankingTable, 
+  ScoreDistributionChart, 
+  TestHeader,
+  calculateStandardizedScore,
+  getStatusColor,
+  getSelectionChance,
+  getPerformanceGrade
+} from '../Common';
 
 // Register Chart.js components
 ChartJS.register(
@@ -59,496 +70,28 @@ ChartJS.register(
   Filler
 );
 
-// Function to calculate standardized score
-const calculateStandardizedScore = (mathScore, englishScore, totalFactor = 3.5, englishFactor = 1.1) => {
-  return (mathScore * totalFactor) + (englishScore * englishFactor * totalFactor);
-};
+// Using utility functions from Common components
 
-const getStatusColor = (score, thresholds) => {
-  if (score >= thresholds.safe) return { color: '#2e7d32', label: 'Safe', background: '#e8f5e9' };
-  if (score >= thresholds.borderline) return { color: '#ed6c02', label: 'Borderline', background: '#fff3e0' };
-  return { color: '#d32f2f', label: 'Concern', background: '#ffebee' };
-};
+// Using ChancesOfSelectionTable component from Common
 
-const getSelectionChance = (standardizedScore, threshold) => {
-  if (!threshold) return 'N/A';
-  if (standardizedScore >= threshold.safe) return 'Safe';
-  if (standardizedScore >= threshold.borderline) return 'Borderline';
-  return 'Concern';
-};
+// Using ScoreCard component from Common
 
-// Function to get performance grade based on boundaries
-const getPerformanceGrade = (score, subject, performanceBoundaries) => {
-  if (!performanceBoundaries) return { label: 'N/A', color: '#757575' };
-  
-  // Handle Total Score differently
-  if (subject.toLowerCase().includes('total')) {
-    // For total score, combine math and english boundaries
-    const mathBoundaries = performanceBoundaries.math;
-    const englishBoundaries = performanceBoundaries.english;
-    
-    if (!mathBoundaries || !englishBoundaries) return { label: 'N/A', color: '#757575' };
-    
-    // Create combined boundaries for total score
-    const totalExcellent = mathBoundaries.excellent + englishBoundaries.excellent;
-    const totalGood = mathBoundaries.good + englishBoundaries.good;
-    const totalAverage = mathBoundaries.average + englishBoundaries.average;
-    
-    if (score >= totalExcellent) return { label: 'Excellent', color: '#2e7d32' };
-    if (score >= totalGood) return { label: 'Good', color: '#1976d2' };
-    if (score >= totalAverage) return { label: 'Average', color: '#ed6c02' };
-    return { label: 'Concern', color: '#d32f2f' };
-  }
-  
-  // Handle individual subjects
-  let subjectKey;
-  if (subject.toLowerCase().includes('mathematics') || subject.toLowerCase().includes('math')) {
-    subjectKey = 'math';
-  } else if (subject.toLowerCase().includes('english')) {
-    subjectKey = 'english';
-  } else {
-    return { label: 'N/A', color: '#757575' };
-  }
-  
-  const boundaries = performanceBoundaries[subjectKey];
-  
-  if (!boundaries) return { label: 'N/A', color: '#757575' };
-  
-  if (score >= boundaries.excellent) return { label: 'Excellent', color: '#2e7d32' };
-  if (score >= boundaries.good) return { label: 'Good', color: '#1976d2' };
-  if (score >= boundaries.average) return { label: 'Average', color: '#ed6c02' };
-  return { label: 'Concern', color: '#d32f2f' };
-};
+// Using RankingTable component from Common
 
-const ChancesOfSelectionTable = ({ childScore, isGirl, schoolThresholds, standardizedScore, totalFactor, englishFactor }) => {
-  // Get relevant school types for the gender
-  const schoolTypes = isGirl 
-    ? ['Colchester Girls', 'Westcliff Girls', 'Southend Girls'] 
-    : ['KEGS', 'Colchester Boys', 'Westcliff Boys', 'Southend Boys'];
-  
-  // Get cell color based on status
-  const getStatusCellStyle = (status) => {
-    if (status === 'Safe') return { backgroundColor: '#e8f5e9', color: '#2e7d32', fontWeight: 'medium' };
-    if (status === 'Borderline') return { backgroundColor: '#fff3e0', color: '#ed6c02', fontWeight: 'medium' };
-    if (status === 'Concern') return { backgroundColor: '#ffebee', color: '#d32f2f', fontWeight: 'medium' };
-    return {};
-  };
-
-  // Get standardized score styling based on performance
-  const getStandardizedScoreStyle = () => {
-    // Use a more sophisticated grading based on standardized score ranges
-    if (standardizedScore >= 400) return { 
-      backgroundColor: '#e8f5e9', 
-      color: '#2e7d32', 
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      border: '2px solid #4caf50'
-    };
-    if (standardizedScore >= 300) return { 
-      backgroundColor: '#e3f2fd', 
-      color: '#1976d2', 
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      border: '2px solid #2196f3'
-    };
-    if (standardizedScore >= 200) return { 
-      backgroundColor: '#fff3e0', 
-      color: '#ed6c02', 
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      border: '2px solid #ff9800'
-    };
-    return { 
-      backgroundColor: '#ffebee', 
-      color: '#d32f2f', 
-      fontWeight: 'bold',
-      fontSize: '1.1rem',
-      border: '2px solid #f44336'
-    };
-  };
-
-  return (
-    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #f0f0f0', mb: 2, mt: 2 }}>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-            <TableCell colSpan={9} align="center" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-              School Selection Chances (Based on Standardized Score)
-            </TableCell>
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ 
-              fontWeight: 'bold', 
-              fontSize: '0.95rem',
-              backgroundColor: '#e3f2fd',
-              color: '#1976d2'
-            }}>
-              Standardized Score
-            </TableCell>
-            {schoolTypes.map(school => (
-              <TableCell colSpan={2} align="center" key={school} sx={{ fontWeight: 'medium' }}>
-                {school}
-              </TableCell>
-            ))}
-          </TableRow>
-          <TableRow>
-            <TableCell sx={{ 
-              fontWeight: 'medium',
-              backgroundColor: '#f8f9fa',
-              color: '#495057',
-              fontSize: '0.8rem'
-            }}>
-              Math×{totalFactor} + Eng×{englishFactor}×{totalFactor}
-            </TableCell>
-            {schoolTypes.map(school => (
-              <React.Fragment key={`${school}-catchment`}>
-                <TableCell align="center" sx={{ fontWeight: 'medium', fontSize: '0.85rem' }}>Inside Catchment</TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'medium', fontSize: '0.85rem' }}>Outside Catchment</TableCell>
-              </React.Fragment>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          <TableRow>
-            <TableCell sx={getStandardizedScoreStyle()}>
-              <Box>
-                <Typography variant="h6" component="span">
-                  {standardizedScore.toFixed(1)}
-                </Typography>
-                <Typography variant="caption" sx={{ display: 'block', mt: 0.5, opacity: 0.8 }}>
-                  {childScore.mathsScore}×{totalFactor} + {childScore.englishScore}×{englishFactor}×{totalFactor}
-                </Typography>
-              </Box>
-            </TableCell>
-            {schoolTypes.map(school => {
-              // Convert school name to key for thresholds
-              const schoolKey = school.toLowerCase().split(' ')[0];
-              
-              const insideStatus = getSelectionChance(standardizedScore, schoolThresholds?.[schoolKey]?.inside);
-              const outsideStatus = getSelectionChance(standardizedScore, schoolThresholds?.[schoolKey]?.outside);
-              
-              return (
-                <React.Fragment key={`${school}-status`}>
-                  <TableCell align="center" sx={getStatusCellStyle(insideStatus)}>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {insideStatus}
-                      </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                        Target: {schoolThresholds?.[schoolKey]?.inside?.safe || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                  <TableCell align="center" sx={getStatusCellStyle(outsideStatus)}>
-                    <Box>
-                      <Typography variant="body2" fontWeight="medium">
-                        {outsideStatus}
-                      </Typography>
-                      <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                        Target: {schoolThresholds?.[schoolKey]?.outside?.safe || 'N/A'}
-                      </Typography>
-                    </Box>
-                  </TableCell>
-                </React.Fragment>
-              );
-            })}
-          </TableRow>
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
-
-const ScoreCard = ({ title, score, maxScore, genderRank, overallRank, totalGenderStudents, totalOverallStudents, performanceBoundaries }) => {
-  const percentage = (score / maxScore) * 100;
-  
-  // Get performance grade based on boundaries
-  const performanceGrade = getPerformanceGrade(score, title, performanceBoundaries);
-  
-  // Get rank-based color (better rank = better color)
-  const getRankColor = (rank, total) => {
-    const percentile = (rank / total) * 100;
-    if (percentile <= 20) return { color: '#2e7d32', background: '#e8f5e9' }; // Top 20% - Green
-    if (percentile <= 40) return { color: '#388e3c', background: '#f1f8e9' }; // Top 40% - Light Green
-    if (percentile <= 60) return { color: '#fbc02d', background: '#fffde7' }; // Top 60% - Yellow
-    if (percentile <= 80) return { color: '#f57c00', background: '#fff8e1' }; // Top 80% - Orange
-    return { color: '#d32f2f', background: '#ffebee' }; // Bottom 20% - Red
-  };
-  
-  const genderRankColor = getRankColor(genderRank, totalGenderStudents);
-  const overallRankColor = getRankColor(overallRank, totalOverallStudents);
-  
-  return (
-    <Card sx={{ height: '100%', borderRadius: 3, boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-      <CardContent sx={{ p: 3 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#1e3a8a' }}>
-          {title}
-        </Typography>
-        
-        {/* Score Display */}
-        <Box sx={{ display: 'flex', alignItems: 'baseline', mb: 2 }}>
-          <Typography variant="h3" component="span" sx={{ fontWeight: 'bold', color: performanceGrade.color }}>
-            {score}
-          </Typography>
-          <Typography variant="h6" component="span" sx={{ ml: 1, color: 'text.secondary' }}>
-            / {maxScore}
-          </Typography>
-        </Box>
-
-        {/* Performance Grade */}
-        <Box sx={{ mb: 2 }}>
-          <Chip 
-            label={performanceGrade.label} 
-            size="medium"
-            sx={{ 
-              backgroundColor: `${performanceGrade.color}20`, 
-              color: performanceGrade.color,
-              fontWeight: 'bold',
-              fontSize: '0.8rem'
-            }} 
-          />
-        </Box>
-        
-        {/* Progress Bar */}
-        <Box sx={{ mb: 2 }}>
-          <LinearProgress 
-            variant="determinate" 
-            value={percentage} 
-            sx={{ 
-              height: 12, 
-              borderRadius: 6,
-              backgroundColor: 'rgba(0,0,0,0.05)',
-              '& .MuiLinearProgress-bar': {
-                borderRadius: 6,
-                backgroundColor: performanceGrade.color,
-              }
-            }} 
-          />
-          <Typography variant="body2" sx={{ mt: 0.5, textAlign: 'center', fontWeight: 'medium' }}>
-            {percentage.toFixed(1)}%
-          </Typography>
-        </Box>
-        
-        {/* Rankings */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: 1,
-          p: 1.5,
-          bgcolor: 'grey.50',
-          borderRadius: 2
-        }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <EmojiEvents fontSize="small" sx={{ color: genderRankColor.color, mr: 0.5 }} />
-              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                Gender Rank
-              </Typography>
-            </Box>
-            <Chip 
-              size="small" 
-              label={`${genderRank}/${totalGenderStudents}`}
-              sx={{ 
-                backgroundColor: genderRankColor.background, 
-                color: genderRankColor.color,
-                fontWeight: 'bold',
-                fontSize: '0.75rem'
-              }} 
-            />
-          </Box>
-          
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <EmojiEvents fontSize="small" sx={{ color: overallRankColor.color, mr: 0.5 }} />
-              <Typography variant="body2" sx={{ fontWeight: 'medium' }}>
-                Overall Rank
-              </Typography>
-            </Box>
-            <Chip 
-              size="small" 
-              label={`${overallRank}/${totalOverallStudents}`}
-              sx={{ 
-                backgroundColor: overallRankColor.background, 
-                color: overallRankColor.color,
-                fontWeight: 'bold',
-                fontSize: '0.75rem'
-              }} 
-            />
-          </Box>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-};
-
-const RankingTable = ({ data, isBoysTable, currentChildId, englishMaxScore, mathsMaxScore, schoolThresholds, totalFactor, englishFactor }) => {
-  // Get relevant school types based on gender
-  const schoolTypes = isBoysTable 
-    ? ['KEGS', 'Colchester', 'Westcliff', 'Southend'] 
-    : ['Colchester', 'Westcliff', 'Southend'];
-
-  return (
-    <TableContainer component={Paper} elevation={0} sx={{ border: '1px solid #f0f0f0', mb: 3, overflowX: 'auto' }}>
-      <Table size="small">
-        <TableHead>
-          <TableRow sx={{ backgroundColor: isBoysTable ? '#e3f2fd' : '#fce4ec' }}>
-            <TableCell sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Rank</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Maths</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>English</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Total</TableCell>
-            <TableCell sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}>Standardized</TableCell>
-            {schoolTypes.map(school => (
-              <TableCell 
-                key={school} 
-                align="center" 
-                sx={{ fontWeight: 'bold', whiteSpace: 'nowrap' }}
-              >
-                {school}
-              </TableCell>
-            ))}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {data.map((child, index) => {
-            const isCurrentChild = child.childId.toString() === currentChildId;
-            const totalScore = child.mathsScore + child.englishScore;
-            const standardizedScore = calculateStandardizedScore(child.mathsScore, child.englishScore, totalFactor, englishFactor);
-
-            return (
-              <TableRow key={index} sx={{ 
-                backgroundColor: isCurrentChild ? (isBoysTable ? '#e3f2fd55' : '#fce4ec55') : 'inherit',
-                '&:hover': { backgroundColor: isCurrentChild ? (isBoysTable ? '#e3f2fd88' : '#fce4ec88') : '#f5f5f5' }
-              }}>
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    {isBoysTable ? `Boy ${child.rank}` : `Girl ${child.rank}`}
-                    {isCurrentChild && (
-                      <Chip size="small" label="You" 
-                        sx={{ ml: 1, backgroundColor: isBoysTable ? '#2196f3' : '#e91e63', color: 'white', height: 20 }} 
-                      />
-                    )}
-                  </Box>
-                </TableCell>
-                <TableCell>{child.mathsScore}</TableCell>
-                <TableCell>{child.englishScore}</TableCell>
-                <TableCell sx={{ fontWeight: isCurrentChild ? 'bold' : 'normal' }}>
-                  {totalScore}
-                </TableCell>
-                <TableCell sx={{ fontWeight: isCurrentChild ? 'bold' : 'normal' }}>
-                  <Box>
-                    <Typography variant="body2" fontWeight={isCurrentChild ? 'bold' : 'normal'}>
-                      {standardizedScore.toFixed(1)}
-                    </Typography>
-                    {isCurrentChild && (
-                      <Typography variant="caption" sx={{ color: 'text.secondary', fontSize: '0.65rem' }}>
-                        {child.mathsScore}×{totalFactor} + {child.englishScore}×{englishFactor}×{totalFactor}
-                      </Typography>
-                    )}
-                  </Box>
-                </TableCell>
-                
-                {/* School-specific status chips */}
-                {schoolTypes.map(school => {
-                  const schoolKey = school.toLowerCase();
-                  // Assuming inside catchment area for all students
-                  const status = getSelectionChance(standardizedScore, schoolThresholds?.[schoolKey]?.inside);
-                  
-                  return (
-                    <TableCell key={`${child.childId}-${school}`} align="center">
-                      <Chip 
-                        size="small" 
-                        label={status} 
-                        sx={{ 
-                          backgroundColor: 
-                            status === 'Safe' ? '#e8f5e9' : 
-                            status === 'Borderline' ? '#fff3e0' : 
-                            status === 'Concern' ? '#ffebee' : '#f5f5f5',
-                          color: 
-                            status === 'Safe' ? '#2e7d32' : 
-                            status === 'Borderline' ? '#ed6c02' : 
-                            status === 'Concern' ? '#d32f2f' : '#757575',
-                          height: 20,
-                          fontSize: '0.7rem'
-                        }} 
-                      />
-                    </TableCell>
-                  );
-                })}
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </TableContainer>
-  );
-};
-
-const ScoreDistributionChart = ({ boysRanking, girlsRanking, englishMaxScore, mathsMaxScore }) => {
-  // Format data for chart
-  const allScores = [...boysRanking, ...girlsRanking].map(child => child.mathsScore + child.englishScore);
-  
-  // Create bins for score ranges
-  const bins = [
-    '40-50', '51-60', '61-70', '71-80', '81-90', '91-100', '101-110'
-  ];
-  
-  const scoreDistribution = bins.map(bin => {
-    const [min, max] = bin.split('-').map(Number);
-    return allScores.filter(score => score >= min && score <= max).length;
-  });
-
-  const data = {
-    labels: bins,
-    datasets: [
-      {
-        label: 'Number of students',
-        data: scoreDistribution,
-        backgroundColor: 'rgba(54, 162, 235, 0.5)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1,
-      },
-    ],
-  };
-
-  const options = {
-    responsive: true,
-    plugins: {
-      legend: {
-        position: 'top',
-      },
-      title: {
-        display: true,
-        text: 'Score Distribution',
-      },
-    },
-    scales: {
-      x: {
-        title: {
-          display: true,
-          text: 'Score Range',
-        },
-      },
-      y: {
-        title: {
-          display: true,
-          text: 'Number of Students',
-        },
-        beginAtZero: true,
-      },
-    },
-  };
-
-  return <Box sx={{ height: 300, mt: 2 }}><Chart type='bar' data={data} options={options} /></Box>;
-};
+// Using ScoreDistributionChart component from Common
 
 const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
-  const [tabValue, setTabValue] = React.useState(0);
+  // Find the selected child from allChildren array
+  const currentChild = allChildren?.find(child => child._id === selectedChild);
+  
+  // Determine default tab based on child's gender
+  const isGirl = oneMockTestReport?.childScore?.childGender === 'Girl';
+  const defaultTab = isGirl ? 0 : 1; // 0 for girls, 1 for boys
+  
+  const [tabValue, setTabValue] = React.useState(defaultTab);
   console.log("allChildren");
   console.log(allChildren);
   console.log(selectedChild);
-
-  // Find the selected child from allChildren array
-  const currentChild = allChildren?.find(child => child._id === selectedChild);
   
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
@@ -579,7 +122,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
   } = oneMockTestReport;
 
   // Determine which thresholds to use based on gender and location
-  const isGirl = childScore.childGender === 'Girl';
+  // const isGirl = childScore.childGender === 'Girl'; // Already defined above
   const schoolLocation = mockTestDetails?.location?.label?.toLowerCase() || '';
   
   // Determine catchment area (defaulting to 'inside')
@@ -627,71 +170,13 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
   return (
     <Box sx={{ mb: 4 }}>
       {/* Header with test details */}
-      <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', mb: 2 }}>
-          <Box>
-            <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 1 }}>
-              {mockTestDetails?.title || 'Mock Test'}
-            </Typography>
-            {mockTestDetails?.highlightedText && (
-              <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
-                {mockTestDetails.highlightedText}
-              </Typography>
-            )}
-          </Box>
-          <Box sx={{ display: 'flex', alignItems: 'center', mt: { xs: 2, md: 0 } }}>
-            <Avatar sx={{ bgcolor: '#f5f5f5', color: 'primary.main', mr: 1 }}>
-              <Person />
-            </Avatar>
-            <Box>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Student</Typography>
-              <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                {currentChild?.childName || childScore?.childName || 'Student Name'}
-              </Typography>
-         
-            </Box>
-          </Box>
-        </Box>
-
-        <Divider sx={{ my: 2 }} />
-        
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <CalendarToday fontSize="small" sx={{ color: 'primary.main', mr: 1 }} />
-              <Typography variant="body2">
-                Date: {batchDetails?.date ? moment(batchDetails.date).format('DD MMM YYYY') : 'N/A'}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <AccessTime fontSize="small" sx={{ color: 'primary.main', mr: 1 }} />
-              <Typography variant="body2">
-                Time: {batchDetails?.startTime || 'N/A'} - {batchDetails?.endTime || 'N/A'}
-              </Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={4}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <School fontSize="small" sx={{ color: 'primary.main', mr: 1 }} />
-              <Typography variant="body2">
-                Test Type: {mockTestDetails?.testType?.label || 'N/A'}
-              </Typography>
-            </Box>
-          </Grid>
-          {mockTestDetails?.location && (
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
-                <LocationOn fontSize="small" sx={{ color: 'primary.main', mr: 1, mt: 0.5 }} />
-                <Typography variant="body2">
-                  Location: {mockTestDetails.location.label}
-                </Typography>
-              </Box>
-            </Grid>
-          )}
-        </Grid>
-      </Paper>
+      <TestHeader 
+        mockTestDetails={mockTestDetails}
+        batchDetails={batchDetails}
+        currentChild={currentChild}
+        childScore={childScore}
+        variant="detailed"
+      />
 
       {/* Scores Section */}
       <Grid container spacing={3}>
@@ -769,8 +254,8 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
             textColor="primary"
             indicatorColor="primary"
           >
-            <Tab icon={<Boy />} label="Boys Ranking" />
             <Tab icon={<Girl />} label="Girls Ranking" />
+            <Tab icon={<Boy />} label="Boys Ranking" />
             <Tab icon={<BarChart />} label="Score Distribution" />
           </Tabs>
         </Box>
@@ -778,15 +263,16 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
         {tabValue === 0 && (
           <Box>
             <Typography variant="subtitle1" gutterBottom>
-              Boys Ranking (CSSE Style Mock Result - {moment(createdAt).format('DD MMMM YYYY')})
+              Girls Ranking (CSSE Style Mock Result - {moment(createdAt).format('DD MMMM YYYY')})
             </Typography>
             <RankingTable 
-              data={boysRanking || []} 
-              isBoysTable={true} 
+              data={girlsRanking || []} 
+              isBoysTable={false} 
               currentChildId={childScore?.childId?.toString()} 
+              currentChildName={currentChild?.childName || childScore?.childName}
               englishMaxScore={englishMaxScore}
               mathsMaxScore={mathsMaxScore}
-              schoolThresholds={boysScoreThresholds}
+              schoolThresholds={girlsScoreThresholds}
               totalFactor={totalFactor}
               englishFactor={englishFactor}
             />
@@ -796,15 +282,16 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
         {tabValue === 1 && (
           <Box>
             <Typography variant="subtitle1" gutterBottom>
-              Girls Ranking (CSSE Style Mock Result - {moment(createdAt).format('DD MMMM YYYY')})
+              Boys Ranking (CSSE Style Mock Result - {moment(createdAt).format('DD MMMM YYYY')})
             </Typography>
             <RankingTable 
-              data={girlsRanking || []} 
-              isBoysTable={false} 
+              data={boysRanking || []} 
+              isBoysTable={true} 
               currentChildId={childScore?.childId?.toString()} 
+              currentChildName={currentChild?.childName || childScore?.childName}
               englishMaxScore={englishMaxScore}
               mathsMaxScore={mathsMaxScore}
-              schoolThresholds={girlsScoreThresholds}
+              schoolThresholds={boysScoreThresholds}
               totalFactor={totalFactor}
               englishFactor={englishFactor}
             />
