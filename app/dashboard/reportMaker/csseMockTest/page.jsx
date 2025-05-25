@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { Box, Snackbar, Typography } from '@mui/material';
 import { mockTestService } from '@/app/services';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
@@ -79,6 +79,7 @@ function calculateRanks(students) {
 
 const CSSEMockTestMaker = () => {
   const snackRef = useRef();
+  const rankCalculationTimeoutRef = useRef();
   
   // State management
   const [mockTests, setMockTests] = useState([]);
@@ -139,6 +140,27 @@ const CSSEMockTestMaker = () => {
   useEffect(() => {
     fetchPastMockTest()
   }, [])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (rankCalculationTimeoutRef.current) {
+        clearTimeout(rankCalculationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // Debounced rank calculation
+  const debouncedCalculateRanks = useCallback((studentsToRank) => {
+    if (rankCalculationTimeoutRef.current) {
+      clearTimeout(rankCalculationTimeoutRef.current);
+    }
+    
+    rankCalculationTimeoutRef.current = setTimeout(() => {
+      const rankedStudents = calculateRanks(studentsToRank);
+      setStudents(rankedStudents);
+    }, 300); // 300ms delay
+  }, []);
 
   async function fetchPastMockTest() {
     setLoading(true)
@@ -436,7 +458,7 @@ const CSSEMockTestMaker = () => {
   };
 
   // Handle score change for a student
-  const handleScoreChange = (studentId, subject, value) => {
+  const handleScoreChange = useCallback((studentId, subject, value) => {
     const numericValue = value === '' ? '' : Number(value);
     const maxValue = subject === 'math' ? maxScores.math : maxScores.english;
     
@@ -451,10 +473,14 @@ const CSSEMockTestMaker = () => {
           ? { ...student, [`${subject}Score`]: numericValue } 
           : student
       );
-      // Calculate ranks after score change
-      return calculateRanks(updated);
+      
+      // Debounce rank calculation to avoid lag during typing
+      debouncedCalculateRanks(updated);
+      
+      // Return updated students without ranks for immediate UI update
+      return updated;
     });
-  };
+  }, [maxScores.math, maxScores.english, debouncedCalculateRanks]);
 
   // Handle max score change
   const handleMaxScoreChange = (subject, value) => {

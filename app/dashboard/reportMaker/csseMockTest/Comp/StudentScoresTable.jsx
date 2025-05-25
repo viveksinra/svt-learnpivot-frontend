@@ -25,7 +25,320 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, memo } from 'react';
+
+// Memoized student row component to prevent unnecessary re-renders
+const StudentRow = memo(({ 
+  student, 
+  maxScores, 
+  actionLoading, 
+  handleScoreChange, 
+  calculateProgress, 
+  getRankBadgeColor,
+  theme 
+}) => {
+  const mathScore = student.mathScore === '' ? 0 : Number(student.mathScore);
+  const englishScore = student.englishScore === '' ? 0 : Number(student.englishScore);
+  const total = student.mathScore !== '' || student.englishScore !== '' ? mathScore + englishScore : '-';
+  const progress = calculateProgress(student.mathScore, student.englishScore);
+
+  // Memoized onChange handlers to prevent function recreation
+  const handleMathChange = useCallback((e) => {
+    handleScoreChange(student.id, 'math', e.target.value);
+  }, [student.id, handleScoreChange]);
+
+  const handleEnglishChange = useCallback((e) => {
+    handleScoreChange(student.id, 'english', e.target.value);
+  }, [student.id, handleScoreChange]);
+
+  return (
+    <TableRow
+      hover
+      sx={{ '&:nth-of-type(odd)': { backgroundColor: theme.palette.action.hover } }}
+    >
+      <TableCell>
+        <Typography fontWeight="medium">{student.name}</Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {student.gender} • {student.year}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>{student.parentName}</Typography>
+        <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
+          {student.parentEmail}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" display="block">
+          {student.parentMobile}
+        </Typography>
+      </TableCell>
+      <TableCell>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title={`Enter Math score (max ${maxScores.math})`}>
+            <TextField
+              type="number"
+              value={student.mathScore}
+              onChange={handleMathChange}
+              InputProps={{
+                inputProps: {
+                  min: 0,
+                  max: maxScores.math,
+                  style: { textAlign: 'center' },
+                },
+                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
+              }}
+              size="small"
+              disabled={actionLoading}
+              sx={{ width: { xs: '70px', sm: '90px' } }}
+            />
+          </Tooltip>
+          {Number(student.mathScore) === maxScores.math && maxScores.math > 0 && (
+            <Tooltip title="Max Score!">
+              <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1.2rem' }} />
+            </Tooltip>
+          )}
+        </Box>
+      </TableCell>
+      <TableCell>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Tooltip title={`Enter English score (max ${maxScores.english})`}>
+            <TextField
+              type="number"
+              value={student.englishScore}
+              onChange={handleEnglishChange}
+              InputProps={{
+                inputProps: {
+                  min: 0,
+                  max: maxScores.english,
+                  style: { textAlign: 'center' },
+                },
+                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
+              }}
+              size="small"
+              disabled={actionLoading}
+              sx={{ width: { xs: '70px', sm: '90px' } }}
+            />
+          </Tooltip>
+          {Number(student.englishScore) === maxScores.english && maxScores.english > 0 && (
+            <Tooltip title="Max Score!">
+              <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1.2rem' }} />
+            </Tooltip>
+          )}
+        </Box>
+      </TableCell>
+      <TableCell>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography sx={{ mr: 1, fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>{total}</Typography>
+          <Tooltip title={`${Math.round(progress)}% of maximum possible score`}>
+            <CircularProgress
+              variant="determinate"
+              value={progress}
+              size={{ xs: 20, sm: 24 }}
+              color={progress > 70 ? 'success' : progress > 40 ? 'warning' : 'error'}
+            />
+          </Tooltip>
+        </Box>
+      </TableCell>
+
+      {/* Overall Ranks Column */}
+      <TableCell>
+        <Grid container spacing={1}>
+          {/* Overall Math Rank */}
+          <Grid item xs={12}>
+            <Tooltip title="Overall Math Rank">
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
+                    <Chip
+                      size="small"
+                      label={student.overallMathRank || '-'}
+                      color={getRankBadgeColor(student.overallMathRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="outlined"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+          
+          {/* Overall English Rank */}
+          <Grid item xs={12}>
+            <Tooltip title="Overall English Rank">
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
+                    <Chip
+                      size="small"
+                      label={student.overallEnglishRank || '-'}
+                      color={getRankBadgeColor(student.overallEnglishRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="outlined"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+          
+          {/* Overall Total Rank */}
+          <Grid item xs={12}>
+            <Tooltip title="Overall Total Rank">
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                    <Chip
+                      size="small"
+                      label={student.overallTotalRank || '-'}
+                      color={getRankBadgeColor(student.overallTotalRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="filled"
+                color="primary"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+        </Grid>
+      </TableCell>
+      
+      {/* Gender-based Ranks Column */}
+      <TableCell>
+        <Grid container spacing={1}>
+          {/* Gender Math Rank */}
+          <Grid item xs={12}>
+            <Tooltip title={`${student.gender} Math Rank`}>
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
+                    <Chip
+                      size="small"
+                      label={student.genderMathRank || '-'}
+                      color={getRankBadgeColor(student.genderMathRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="outlined"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+          
+          {/* Gender English Rank */}
+          <Grid item xs={12}>
+            <Tooltip title={`${student.gender} English Rank`}>
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
+                    <Chip
+                      size="small"
+                      label={student.genderEnglishRank || '-'}
+                      color={getRankBadgeColor(student.genderEnglishRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="outlined"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+          
+          {/* Gender Total Rank */}
+          <Grid item xs={12}>
+            <Tooltip title={`${student.gender} Total Rank`}>
+              <Chip 
+                icon={<EmojiEventsIcon fontSize="small" />} 
+                label={
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                    <Chip
+                      size="small"
+                      label={student.genderTotalRank || '-'}
+                      color={getRankBadgeColor(student.genderTotalRank)}
+                      sx={{ 
+                        height: { xs: '18px', sm: '20px' }, 
+                        minWidth: '20px',
+                        '& .MuiChip-label': { 
+                          px: 0.5,
+                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
+                          fontWeight: 'bold'
+                        }
+                      }}
+                    />
+                  </Box>
+                }
+                size="small" 
+                variant="filled"
+                color="secondary"
+                sx={{ width: '100%', justifyContent: 'space-between' }}
+              />
+            </Tooltip>
+          </Grid>
+        </Grid>
+      </TableCell>
+    </TableRow>
+  );
+});
 
 const StudentScoresTable = ({ 
   students, 
@@ -44,7 +357,7 @@ const StudentScoresTable = ({
 
   
   // Handle reload button click
-  const handleReload = () => {
+  const handleReload = useCallback(() => {
     setIsReloading(true);
     if (onReloadStudents) {
       onReloadStudents();
@@ -55,10 +368,10 @@ const StudentScoresTable = ({
     } else {
       setIsReloading(false);
     }
-  };
+  }, [onReloadStudents]);
   
-  // Calculate progress for a student
-  const calculateProgress = (mathScore, englishScore) => {
+  // Calculate progress for a student - memoized
+  const calculateProgress = useCallback((mathScore, englishScore) => {
     if (mathScore === '' && englishScore === '') return 0;
     
     const mathValue = mathScore === '' ? 0 : Number(mathScore);
@@ -68,26 +381,26 @@ const StudentScoresTable = ({
     const studentTotal = mathValue + englishValue;
     
     return (studentTotal / maxTotal) * 100;
-  };
+  }, [maxScores.math, maxScores.english]);
 
   // Handle sort request
-  const handleRequestSort = (property) => {
+  const handleRequestSort = useCallback((property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
     setOrderBy(property);
-  };
+  }, [orderBy, order]);
   
-  // Get badge color based on rank
-  const getRankBadgeColor = (rank) => {
+  // Get badge color based on rank - memoized
+  const getRankBadgeColor = useCallback((rank) => {
     if (rank === 0) return 'default';
     if (rank === 1) return 'success';
     if (rank === 2) return 'primary';
     if (rank === 3) return 'secondary';
     return 'default';
-  };
+  }, []);
 
-  // Sorting function for student data
-  const sortStudents = (students) => {
+  // Memoized sorted students to avoid re-sorting on every render
+  const sortedStudents = useMemo(() => {
     if (!students || students.length === 0) return [];
     
     return [...students].sort((a, b) => {
@@ -132,7 +445,7 @@ const StudentScoresTable = ({
       
       return order === 'asc' ? aValue - bValue : bValue - aValue;
     });
-  };
+  }, [students, order, orderBy]);
   
   return (
     <Card elevation={2} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
@@ -268,301 +581,18 @@ const StudentScoresTable = ({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {sortStudents(students).map((student) => {
-                  const mathScore = student.mathScore === '' ? 0 : Number(student.mathScore);
-                  const englishScore = student.englishScore === '' ? 0 : Number(student.englishScore);
-                  const total = student.mathScore !== '' || student.englishScore !== '' ? mathScore + englishScore : '-';
-                  const progress = calculateProgress(student.mathScore, student.englishScore);
-
-                  return (
-                    <TableRow
-                      key={student.id}
-                      hover
-                      sx={{ '&:nth-of-type(odd)': { backgroundColor: theme.palette.action.hover } }}
-                    >
-                      <TableCell>
-                        <Typography fontWeight="medium">{student.name}</Typography>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          {student.gender} • {student.year}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>{student.parentName}</Typography>
-                        <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
-                          {student.parentEmail}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          {student.parentMobile}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Tooltip title={`Enter Math score (max ${maxScores.math})`}>
-                            <TextField
-                              type="number"
-                              value={student.mathScore}
-                              onChange={(e) => handleScoreChange(student.id, 'math', e.target.value)}
-                              InputProps={{
-                                inputProps: {
-                                  min: 0,
-                                  max: maxScores.math,
-                                  style: { textAlign: 'center' },
-                                },
-                                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
-                              }}
-                              size="small"
-                              disabled={actionLoading}
-                              sx={{ width: { xs: '70px', sm: '90px' } }}
-                            />
-                          </Tooltip>
-                          {Number(student.mathScore) === maxScores.math && maxScores.math > 0 && (
-                            <Tooltip title="Max Score!">
-                              <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1.2rem' }} />
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Tooltip title={`Enter English score (max ${maxScores.english})`}>
-                            <TextField
-                              type="number"
-                              value={student.englishScore}
-                              onChange={(e) => handleScoreChange(student.id, 'english', e.target.value)}
-                              InputProps={{
-                                inputProps: {
-                                  min: 0,
-                                  max: maxScores.english,
-                                  style: { textAlign: 'center' },
-                                },
-                                sx: { borderRadius: 1.5, height: { xs: '35px', sm: '40px' } },
-                              }}
-                              size="small"
-                              disabled={actionLoading}
-                              sx={{ width: { xs: '70px', sm: '90px' } }}
-                            />
-                          </Tooltip>
-                          {Number(student.englishScore) === maxScores.english && maxScores.english > 0 && (
-                            <Tooltip title="Max Score!">
-                              <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1.2rem' }} />
-                            </Tooltip>
-                          )}
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                          <Typography sx={{ mr: 1, fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' } }}>{total}</Typography>
-                          <Tooltip title={`${Math.round(progress)}% of maximum possible score`}>
-                            <CircularProgress
-                              variant="determinate"
-                              value={progress}
-                              size={{ xs: 20, sm: 24 }}
-                              color={progress > 70 ? 'success' : progress > 40 ? 'warning' : 'error'}
-                            />
-                          </Tooltip>
-                        </Box>
-                      </TableCell>
-
-                      {/* Overall Ranks Column */}
-                      <TableCell>
-                        <Grid container spacing={1}>
-                          {/* Overall Math Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title="Overall Math Rank">
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.overallMathRank || '-'}
-                                      color={getRankBadgeColor(student.overallMathRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="outlined"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                          
-                          {/* Overall English Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title="Overall English Rank">
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.overallEnglishRank || '-'}
-                                      color={getRankBadgeColor(student.overallEnglishRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="outlined"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                          
-                          {/* Overall Total Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title="Overall Total Rank">
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.overallTotalRank || '-'}
-                                      color={getRankBadgeColor(student.overallTotalRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="filled"
-                                color="primary"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                        </Grid>
-                      </TableCell>
-                      
-                      {/* Gender-based Ranks Column */}
-                      <TableCell>
-                        <Grid container spacing={1}>
-                          {/* Gender Math Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title={`${student.gender} Math Rank`}>
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Math</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.genderMathRank || '-'}
-                                      color={getRankBadgeColor(student.genderMathRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="outlined"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                          
-                          {/* Gender English Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title={`${student.gender} English Rank`}>
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center' }}>Eng</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.genderEnglishRank || '-'}
-                                      color={getRankBadgeColor(student.genderEnglishRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="outlined"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                          
-                          {/* Gender Total Rank */}
-                          <Grid item xs={12}>
-                            <Tooltip title={`${student.gender} Total Rank`}>
-                              <Chip 
-                                icon={<EmojiEventsIcon fontSize="small" />} 
-                                label={
-                                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
-                                    <Chip
-                                      size="small"
-                                      label={student.genderTotalRank || '-'}
-                                      color={getRankBadgeColor(student.genderTotalRank)}
-                                      sx={{ 
-                                        height: { xs: '18px', sm: '20px' }, 
-                                        minWidth: '20px',
-                                        '& .MuiChip-label': { 
-                                          px: 0.5,
-                                          fontSize: { xs: '0.6rem', sm: '0.7rem' },
-                                          fontWeight: 'bold'
-                                        }
-                                      }}
-                                    />
-                                  </Box>
-                                }
-                                size="small" 
-                                variant="filled"
-                                color="secondary"
-                                sx={{ width: '100%', justifyContent: 'space-between' }}
-                              />
-                            </Tooltip>
-                          </Grid>
-                        </Grid>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                {sortedStudents.map((student) => (
+                  <StudentRow
+                    key={student.id}
+                    student={student}
+                    maxScores={maxScores}
+                    actionLoading={actionLoading}
+                    handleScoreChange={handleScoreChange}
+                    calculateProgress={calculateProgress}
+                    getRankBadgeColor={getRankBadgeColor}
+                    theme={theme}
+                  />
+                ))}
               </TableBody>
             </Table>
           </Box>
