@@ -432,9 +432,12 @@ const JustOneMain = ({ oneMockTestReport }) => {
               <Person />
             </Avatar>
             <Box>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Student</Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Students</Typography>
               <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                {childScore?.childGender || ''} Student
+                {childScore?.childName || 'Student Name'}
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                {childScore?.childGender || 'Gender'}
               </Typography>
             </Box>
           </Box>
