@@ -607,57 +607,17 @@ console.log(mockTestReports)
       // Calculate the child's current standardized score
       const standardizedScore = calculateStandardizedScore(report);
 
-      // Check if both inside and outside data is available
-      const hasBothCatchmentTypes = schoolEntries.some(([_, chance]) => chance.inside && chance.outside);
-
       return (
         <Box>
-          <Box sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
+          <Typography variant="h6" sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            color: '#1e3a8a',
+            fontSize: { xs: '1rem', sm: '1.25rem' },
             mb: 2
           }}>
-            <Typography variant="h6" sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              color: '#1e3a8a',
-              fontSize: { xs: '1rem', sm: '1.25rem' }
-            }}>
-              <SchoolOutlined sx={{ mr: 1, fontSize: { xs: 18, sm: 20 } }} /> School Selection Chances
-            </Typography>
-            
-            {hasBothCatchmentTypes && (
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button 
-                  size="small" 
-                  variant={catchmentType === 'inside' ? 'contained' : 'outlined'}
-                  onClick={() => setCatchmentType('inside')}
-                  sx={{ 
-                    minWidth: 'auto', 
-                    px: 1.5,
-                    fontSize: '0.7rem',
-                    textTransform: 'none'
-                  }}
-                >
-                  Inside
-                </Button>
-                <Button 
-                  size="small" 
-                  variant={catchmentType === 'outside' ? 'contained' : 'outlined'}
-                  onClick={() => setCatchmentType('outside')}
-                  sx={{ 
-                    minWidth: 'auto', 
-                    px: 1.5,
-                    fontSize: '0.7rem',
-                    textTransform: 'none'
-                  }}
-                >
-                  Outside
-                </Button>
-              </Box>
-            )}
-          </Box>
+            <SchoolOutlined sx={{ mr: 1, fontSize: { xs: 18, sm: 20 } }} /> School Selection Chances
+          </Typography>
 
           {/* Current score indicator */}
           <Box sx={{ 
@@ -684,12 +644,6 @@ console.log(mockTestReports)
             gap: 2
           }}>
             {schoolEntries.map(([school, chance]) => {
-              // Get the relevant chance data based on selected catchment type
-              const relevantChance = chance[catchmentType];
-              
-              // Skip if no data for the selected catchment type
-              if (!relevantChance) return null;
-              
               return (
                 <Paper
                   key={school}
@@ -700,41 +654,66 @@ console.log(mockTestReports)
                     border: '1px solid #e0e0e0',
                   }}
                 >
-                  <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 'bold' }}>
+                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontWeight: 'bold' }}>
                     {formatSchoolName(school)} School
                   </Typography>
 
-                  <Box sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    p: 1,
-                    borderRadius: 1,
-                    bgcolor: `${relevantChance.color}10`,
-                  }}>
-                    <Box>
-                      <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
-                        {catchmentType.charAt(0).toUpperCase() + catchmentType.slice(1)} Catchment
-                      </Typography>
-                      <Typography variant="body2" sx={{ fontWeight: 'medium', display: 'flex', alignItems: 'center' }}>
-                        Target: {relevantChance.threshold}
-                        {standardizedScore >= relevantChance.threshold && (
-                          <Tooltip title="Your standardized score meets this threshold">
-                            <ArrowUpward sx={{ ml: 0.5, fontSize: 14, color: '#4caf50' }} />
-                          </Tooltip>
-                        )}
-                      </Typography>
-                    </Box>
-                    <Chip 
-                      label={relevantChance.label} 
-                      size="small"
-                      sx={{ 
-                        bgcolor: relevantChance.color, 
-                        color: '#fff',
-                        fontWeight: 'bold',
-                        fontSize: '0.7rem'
-                      }}
-                    />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {/* Inside Catchment */}
+                    {chance.inside && (
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        p: 1,
+                        borderRadius: 1,
+                        bgcolor: `${chance.inside.color}10`,
+                      }}>
+                        <Box>
+                          <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                            Inside Catchment
+                          </Typography>
+                        </Box>
+                        <Chip 
+                          label={chance.inside.label} 
+                          size="small"
+                          sx={{ 
+                            bgcolor: chance.inside.color, 
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            fontSize: '0.7rem'
+                          }}
+                        />
+                      </Box>
+                    )}
+
+                    {/* Outside Catchment */}
+                    {chance.outside && (
+                      <Box sx={{ 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        p: 1,
+                        borderRadius: 1,
+                        bgcolor: `${chance.outside.color}10`,
+                      }}>
+                        <Box>
+                          <Typography variant="caption" sx={{ display: 'block', color: 'text.secondary' }}>
+                            Outside Catchment
+                          </Typography>
+                        </Box>
+                        <Chip 
+                          label={chance.outside.label} 
+                          size="small"
+                          sx={{ 
+                            bgcolor: chance.outside.color, 
+                            color: '#fff',
+                            fontWeight: 'bold',
+                            fontSize: '0.7rem'
+                          }}
+                        />
+                      </Box>
+                    )}
                   </Box>
                 </Paper>
               );
