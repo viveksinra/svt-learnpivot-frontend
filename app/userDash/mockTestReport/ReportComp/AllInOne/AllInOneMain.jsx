@@ -90,21 +90,59 @@ console.log(mockTestReports)
     };
 
     // Function to render score progress
-    const renderScoreProgress = (score, maxScore, subject) => {
+    const renderScoreProgress = (score, maxScore, subject, performanceBoundaries) => {
       const percentage = (score / maxScore) * 100;
       
-      const getColor = () => {
-        if (percentage >= 80) return '#4caf50';  // Green for excellent
-        if (percentage >= 60) return '#2196f3';  // Blue for good
-        if (percentage >= 40) return '#ff9800';  // Orange for average
-        return '#f44336';  // Red for needs improvement
+      const getColor = (score, subject, boundaries) => {
+        if (!boundaries) {
+          // Fallback to percentage-based grading
+          if (percentage >= 80) return '#4caf50';
+          if (percentage >= 60) return '#2196f3';
+          if (percentage >= 40) return '#ff9800';
+          return '#f44336';
+        }
+        
+        const subjectKey = subject.toLowerCase() === 'mathematics' ? 'math' : subject.toLowerCase();
+        const subjectBoundaries = boundaries[subjectKey];
+        
+        if (!subjectBoundaries) {
+          // Fallback for total score or unknown subjects
+          if (percentage >= 80) return '#4caf50';
+          if (percentage >= 60) return '#2196f3';
+          if (percentage >= 40) return '#ff9800';
+          return '#f44336';
+        }
+        
+        if (score >= subjectBoundaries.excellent) return '#4caf50';  // Green for excellent
+        if (score >= subjectBoundaries.good) return '#2196f3';       // Blue for good
+        if (score >= subjectBoundaries.average) return '#ff9800';    // Orange for average
+        return '#f44336';  // Red for concern (below average)
       };
       
-      const getGradeLabel = () => {
-        if (percentage >= 80) return 'Excellent';
-        if (percentage >= 60) return 'Good';
-        if (percentage >= 40) return 'Average';
-        return 'Needs Improvement';
+      const getGradeLabel = (score, subject, boundaries) => {
+        if (!boundaries) {
+          // Fallback to percentage-based grading
+          if (percentage >= 80) return 'Excellent';
+          if (percentage >= 60) return 'Good';
+          if (percentage >= 40) return 'Average';
+          return 'Needs Improvement';
+        }
+        
+        const subjectKey = subject.toLowerCase() === 'mathematics' ? 'math' : subject.toLowerCase();
+        const subjectBoundaries = boundaries[subjectKey];
+        
+        if (!subjectBoundaries) {
+          // Fallback for total score or unknown subjects
+          if (percentage >= 80) return 'Excellent';
+          if (percentage >= 60) return 'Good';
+          if (percentage >= 40) return 'Average';
+          return 'Needs Improvement';
+        }
+        
+        if (score >= subjectBoundaries.excellent) return 'Excellent';
+        if (score >= subjectBoundaries.good) return 'Good';
+        if (score >= subjectBoundaries.average) return 'Average';
+        return 'Concern';
       };
       
       return (
@@ -127,12 +165,12 @@ console.log(mockTestReports)
                 {score} / {maxScore} ({percentage.toFixed(1)}%)
               </Typography>
               <Chip 
-                label={getGradeLabel()} 
+                label={getGradeLabel(score, subject, performanceBoundaries)} 
                 size="small"
                 sx={{ 
                   height: 20, 
                   fontSize: '0.7rem',
-                  backgroundColor: getColor(),
+                  backgroundColor: getColor(score, subject, performanceBoundaries),
                   color: '#fff',
                   fontWeight: 'bold'
                 }} 
@@ -148,7 +186,7 @@ console.log(mockTestReports)
                 height: '100%',
                 width: `${percentage}%`,
                 borderRadius: 5,
-                backgroundImage: `linear-gradient(to right, ${getColor()}80, ${getColor()})`,
+                backgroundImage: `linear-gradient(to right, ${getColor(score, subject, performanceBoundaries)}80, ${getColor(score, subject, performanceBoundaries)})`,
                 transition: 'width 1s ease-in-out'
               }}
             />
@@ -478,12 +516,25 @@ console.log(mockTestReports)
       );
     };
 
-    // Function to evaluate school selection chances based on total score and thresholds
+    // Function to calculate standardized score
+    const calculateStandardizedScore = (report) => {
+      if (!report) return 0;
+      
+      const mathScore = report.childScore?.mathsScore || 0;
+      const englishScore = report.childScore?.englishScore || 0;
+      const totalFactor = report.totalFactor || 3.5;
+      const englishFactor = report.englishFactor || 1.1;
+      
+      // Standardised Score = (Math Score × Total Factor) + (English Score × English Factor × Total Factor)
+      return (mathScore * totalFactor) + (englishScore * englishFactor * totalFactor);
+    };
+
+    // Function to evaluate school selection chances based on standardized score and thresholds
     const evaluateSchoolChances = (report) => {
       if (!report) return {};
 
-      // Calculate total score
-      const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
+      // Calculate standardized score instead of total score
+      const standardizedScore = calculateStandardizedScore(report);
       
       // Determine which thresholds to use based on gender
       const isGirl = report.childScore?.childGender === 'Girl';
@@ -498,26 +549,26 @@ console.log(mockTestReports)
       schoolKeys.forEach(school => {
         // Create an entry for the school with both inside and outside chances
         chances[school] = { 
-          inside: evaluateChanceLevel(totalScore, thresholds[school]?.inside),
-          outside: evaluateChanceLevel(totalScore, thresholds[school]?.outside)
+          inside: evaluateChanceLevel(standardizedScore, thresholds[school]?.inside),
+          outside: evaluateChanceLevel(standardizedScore, thresholds[school]?.outside)
         };
       });
       
       return chances;
     };
 
-    // Helper function to evaluate chance level based on total score and thresholds
-    const evaluateChanceLevel = (totalScore, thresholds) => {
+    // Helper function to evaluate chance level based on standardized score and thresholds
+    const evaluateChanceLevel = (standardizedScore, thresholds) => {
       if (!thresholds) return null;
       
-      if (totalScore >= thresholds.safe) {
+      if (standardizedScore >= thresholds.safe) {
         return { 
           level: 'safe', 
           label: 'High Chance', 
           color: '#4caf50',
           threshold: thresholds.safe 
         };
-      } else if (totalScore >= thresholds.borderline) {
+      } else if (standardizedScore >= thresholds.borderline) {
         return { 
           level: 'borderline', 
           label: 'Borderline', 
@@ -529,7 +580,7 @@ console.log(mockTestReports)
           level: 'concern', 
           label: 'Needs Improvement', 
           color: '#f44336',
-          threshold: thresholds.concern 
+          threshold: thresholds.borderline // Show borderline threshold as target
         };
       }
     };
@@ -553,8 +604,8 @@ console.log(mockTestReports)
       
       if (schoolEntries.length === 0) return null;
 
-      // Calculate the child's current total score
-      const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
+      // Calculate the child's current standardized score
+      const standardizedScore = calculateStandardizedScore(report);
 
       // Check if both inside and outside data is available
       const hasBothCatchmentTypes = schoolEntries.some(([_, chance]) => chance.inside && chance.outside);
@@ -617,10 +668,13 @@ console.log(mockTestReports)
             border: '1px solid #e0e8ff'
           }}>
             <Typography variant="body2" color="text.secondary">
-              Current Total Score
+              Current Standardized Score
             </Typography>
             <Typography variant="h6" fontWeight="bold" sx={{ color: '#1976d2' }}>
-              {totalScore}
+              {standardizedScore.toFixed(1)}
+            </Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+              Math: {report.childScore?.mathsScore || 0} × {report.totalFactor || 3.5} + English: {report.childScore?.englishScore || 0} × {report.englishFactor || 1.1} × {report.totalFactor || 3.5}
             </Typography>
           </Box>
           
@@ -664,8 +718,8 @@ console.log(mockTestReports)
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 'medium', display: 'flex', alignItems: 'center' }}>
                         Target: {relevantChance.threshold}
-                        {totalScore >= relevantChance.threshold && (
-                          <Tooltip title="Your score meets this threshold">
+                        {standardizedScore >= relevantChance.threshold && (
+                          <Tooltip title="Your standardized score meets this threshold">
                             <ArrowUpward sx={{ ml: 0.5, fontSize: 14, color: '#4caf50' }} />
                           </Tooltip>
                         )}
@@ -832,21 +886,24 @@ console.log(mockTestReports)
                           {renderScoreProgress(
                             report.childScore?.englishScore, 
                             report.englishMaxScore, 
-                            'English'
+                            'English',
+                            report.performanceBoundaries
                           )}
 
                           {/* Maths Score */}
                           {renderScoreProgress(
                             report.childScore?.mathsScore, 
                             report.mathsMaxScore, 
-                            'Mathematics'
+                            'Mathematics',
+                            report.performanceBoundaries
                           )}
 
                           {/* Total Score */}
                           {renderScoreProgress(
                             (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0),
                             (report.englishMaxScore || 0) + (report.mathsMaxScore || 0),
-                            'Total Score'
+                            'Total Score',
+                            null // No performance boundaries for total score, will use percentage-based
                           )}
                         </Grid>
 
