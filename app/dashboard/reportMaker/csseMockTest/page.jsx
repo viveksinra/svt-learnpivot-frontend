@@ -148,6 +148,7 @@ const CSSEMockTestMaker = () => {
     message: '',
     severity: 'success'
   });
+  const [isRecalculating, setIsRecalculating] = useState(false);
   // State for thresholds
   const [boysThresholds, setBoysThresholds] = useState({
     kegs: {
@@ -714,10 +715,20 @@ const CSSEMockTestMaker = () => {
   // Function to manually recalculate ranks
   const handleRecalculateRanks = useCallback(() => {
     if (students && students.length > 0) {
+      setIsRecalculating(true);
       console.log('Recalculating ranks for students:', students.length);
       const rankedStudents = calculateRanks(students);
       console.log('Ranks recalculated successfully');
       setStudents(rankedStudents);
+      
+      // Reset recalculating state and show success message after a short delay
+      setTimeout(() => {
+        setIsRecalculating(false);
+        snackRef.current.handleSnack({
+          severity: "success",
+          message: `Ranks recalculated successfully for ${students.length} students`
+        });
+      }, 1000);
     }
   }, [students]);
 
@@ -785,7 +796,6 @@ const CSSEMockTestMaker = () => {
             actionLoading={actionLoading}
             handleScoreChange={handleScoreChange}
             onReloadStudents={handleReloadStudents}
-            onRecalculateRanks={handleRecalculateRanks}
           />
         </>
       )}
@@ -808,6 +818,9 @@ const CSSEMockTestMaker = () => {
           actionLoading={actionLoading}
           handleSave={handleSave}
           handleSaveChanges={handleSaveChanges}
+          onRecalculateRanks={handleRecalculateRanks}
+          students={students}
+          isRecalculating={isRecalculating}
         />
       )}
 
