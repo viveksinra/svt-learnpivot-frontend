@@ -63,7 +63,7 @@ const MockTestReport = () => {
   const handleGetAllMockResultForSelectedChild = async (childId) => {
     setLoading(true);
     try {
-      const response = await mockTestService.getMockTestIdsByChildId({childId});
+      const response = await mockTestService.getMockTestIdsByChildId(childId);
       if (response.variant === "success") {
         setAvailableMockTests(response.data);
         // Reset selected mock test to "all"
@@ -120,7 +120,7 @@ const MockTestReport = () => {
   const getMyPastCsseMockTestResultForAll = async (childId) => {
     setLoading(true);
     try {
-      const response = await mockTestService.getMyPastCsseMockTestResultForAll({childId});
+      const response = await mockTestService.getMyPastCsseMockTestResultForAll(childId);
       if (response.variant === "success") {
         console.log(response.data)
         setMockTestReports(response.data);
