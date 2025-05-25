@@ -33,7 +33,7 @@ import {
   TrendingUp,
   CompareArrows
 } from '@mui/icons-material';
-import { formatDate } from '@/app/utils/dateUtils';
+import { formatDateToShortMonth } from '@/app/utils/dateFormat';
 import {
   LineChart,
   Line,
@@ -53,6 +53,7 @@ const AllInOneMain = ({
   loading,
   catchmentType,
   setCatchmentType,
+  onViewDetail
 
 }) => {
     // Removed redundant useEffect hooks as parent component (page.jsx) handles this logic.
@@ -194,7 +195,7 @@ console.log(mockTestReports)
           : 0;
 
         return {
-          name: formatDate(report.date || report.createdAt),
+          name: formatDateToShortMonth(report.date || report.createdAt),
           englishScore: report.childScore?.englishScore || 0,
           mathsScore: report.childScore?.mathsScore || 0,
           totalScore: totalScore,
@@ -477,14 +478,12 @@ console.log(mockTestReports)
       );
     };
 
-    // Function to evaluate school selection chances based on score percentage and thresholds
+    // Function to evaluate school selection chances based on total score and thresholds
     const evaluateSchoolChances = (report) => {
       if (!report) return {};
 
-      // Calculate total percentage
+      // Calculate total score
       const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
-      const maxTotalScore = (report.englishMaxScore || 0) + (report.mathsMaxScore || 0);
-      const totalPercentage = maxTotalScore > 0 ? (totalScore / maxTotalScore) * 100 : 0;
       
       // Determine which thresholds to use based on gender
       const isGirl = report.childScore?.childGender === 'Girl';
@@ -499,26 +498,26 @@ console.log(mockTestReports)
       schoolKeys.forEach(school => {
         // Create an entry for the school with both inside and outside chances
         chances[school] = { 
-          inside: evaluateChanceLevel(totalPercentage, thresholds[school]?.inside),
-          outside: evaluateChanceLevel(totalPercentage, thresholds[school]?.outside)
+          inside: evaluateChanceLevel(totalScore, thresholds[school]?.inside),
+          outside: evaluateChanceLevel(totalScore, thresholds[school]?.outside)
         };
       });
       
       return chances;
     };
 
-    // Helper function to evaluate chance level based on percentage and thresholds
-    const evaluateChanceLevel = (percentage, thresholds) => {
+    // Helper function to evaluate chance level based on total score and thresholds
+    const evaluateChanceLevel = (totalScore, thresholds) => {
       if (!thresholds) return null;
       
-      if (percentage >= thresholds.safe) {
+      if (totalScore >= thresholds.safe) {
         return { 
           level: 'safe', 
           label: 'High Chance', 
           color: '#4caf50',
           threshold: thresholds.safe 
         };
-      } else if (percentage >= thresholds.borderline) {
+      } else if (totalScore >= thresholds.borderline) {
         return { 
           level: 'borderline', 
           label: 'Borderline', 
@@ -554,11 +553,8 @@ console.log(mockTestReports)
       
       if (schoolEntries.length === 0) return null;
 
-      // Calculate the child's current percentage
+      // Calculate the child's current total score
       const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
-      const maxTotalScore = (report.englishMaxScore || 0) + (report.mathsMaxScore || 0);
-      const totalPercentage = maxTotalScore > 0 ? (totalScore / maxTotalScore) * 100 : 0;
-      const formattedPercentage = totalPercentage.toFixed(1);
 
       // Check if both inside and outside data is available
       const hasBothCatchmentTypes = schoolEntries.some(([_, chance]) => chance.inside && chance.outside);
@@ -621,10 +617,10 @@ console.log(mockTestReports)
             border: '1px solid #e0e8ff'
           }}>
             <Typography variant="body2" color="text.secondary">
-              Current Score
+              Current Total Score
             </Typography>
             <Typography variant="h6" fontWeight="bold" sx={{ color: '#1976d2' }}>
-              {formattedPercentage}%
+              {totalScore}
             </Typography>
           </Box>
           
@@ -667,8 +663,8 @@ console.log(mockTestReports)
                         {catchmentType.charAt(0).toUpperCase() + catchmentType.slice(1)} Catchment
                       </Typography>
                       <Typography variant="body2" sx={{ fontWeight: 'medium', display: 'flex', alignItems: 'center' }}>
-                        Target: {relevantChance.threshold}%
-                        {totalPercentage >= relevantChance.threshold && (
+                        Target: {relevantChance.threshold}
+                        {totalScore >= relevantChance.threshold && (
                           <Tooltip title="Your score meets this threshold">
                             <ArrowUpward sx={{ ml: 0.5, fontSize: 14, color: '#4caf50' }} />
                           </Tooltip>
@@ -745,12 +741,28 @@ console.log(mockTestReports)
                         }}>
                           {report.mockTestDetails?.title || 'Test Name Not Available'}
                         </Typography>
-                        <Chip 
-                          label={report.mockTestDetails?.testType?.label || 'Type Not Available'} 
-                          color="primary"
-                          icon={<School />}
-                          sx={{ fontWeight: 'medium' }}
-                        />
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                          <Chip 
+                            label={report.mockTestDetails?.testType?.label || 'Type Not Available'} 
+                            color="primary"
+                            icon={<School />}
+                            sx={{ fontWeight: 'medium' }}
+                          />
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => onViewDetail && onViewDetail(report.mockTestDetails?._id, report.batchDetails?._id)}
+                            sx={{
+                              borderRadius: 2,
+                              textTransform: 'none',
+                              fontWeight: 'medium',
+                              fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                              px: { xs: 1, sm: 2 }
+                            }}
+                          >
+                            View in Detail
+                          </Button>
+                        </Box>
                       </Box>
 
                       {/* Enhanced batch details */}
@@ -769,7 +781,7 @@ console.log(mockTestReports)
                               <Box>
                                 <Typography variant="caption" color="text.secondary">Test Date</Typography>
                                 <Typography variant="body2" fontWeight="medium">
-                                  {report.batchDetails?.date || 'N/A'}
+                                  {report.batchDetails?.date ? formatDateToShortMonth(report.batchDetails.date) : 'N/A'}
                                 </Typography>
                               </Box>
                             </Box>
@@ -971,12 +983,13 @@ console.log(mockTestReports)
                           <TableCell>Maths</TableCell>
                           <TableCell>Total</TableCell>
                           <TableCell>Overall Rank</TableCell>
+                          <TableCell>Actions</TableCell>
                         </TableRow>
                       </TableHead>
                       <TableBody>
                         {mockTestReports.map((report) => (
                           <TableRow key={report._id}>
-                            <TableCell>{report.batchDetails?.date}</TableCell>
+                            <TableCell>{report.batchDetails?.date ? formatDateToShortMonth(report.batchDetails.date) : 'N/A'}</TableCell>
                             <TableCell>
                               {report.batchDetails?.startTime} - {report.batchDetails?.endTime}
                             </TableCell>
@@ -995,6 +1008,21 @@ console.log(mockTestReports)
                                 ((report.englishMaxScore || 0) + (report.mathsMaxScore || 0)) * 100).toFixed(1)}%)
                             </TableCell>
                             <TableCell>{report.childScore?.overallTotalRank}</TableCell>
+                            <TableCell>
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => onViewDetail && onViewDetail(report.mockTestDetails?._id, report.batchDetails?._id)}
+                                sx={{
+                                  borderRadius: 1,
+                                  textTransform: 'none',
+                                  fontSize: '0.75rem',
+                                  px: 1.5
+                                }}
+                              >
+                                View Detail
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         ))}
                       </TableBody>
@@ -1011,9 +1039,24 @@ console.log(mockTestReports)
                         elevation={2} 
                         sx={{ p: 2, borderRadius: 2 }}
                       >
-                        <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1 }}>
-                          {report.batchDetails?.date}
-                        </Typography>
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                          <Typography variant="subtitle1" fontWeight="bold">
+                            {report.batchDetails?.date ? formatDateToShortMonth(report.batchDetails.date) : 'N/A'}
+                          </Typography>
+                          <Button
+                            variant="outlined"
+                            size="small"
+                            onClick={() => onViewDetail && onViewDetail(report.mockTestDetails?._id, report.batchDetails?._id)}
+                            sx={{
+                              borderRadius: 1,
+                              textTransform: 'none',
+                              fontSize: '0.7rem',
+                              px: 1
+                            }}
+                          >
+                            View Detail
+                          </Button>
+                        </Box>
                         
                         <Grid container spacing={1}>
                           <Grid item xs={4}>

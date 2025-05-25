@@ -14,6 +14,7 @@ import MySnackbar from '../../Components/MySnackbar/MySnackbar';
 import { childService, mockTestService } from '@/app/services';
 import AllInOneMain from './ReportComp/AllInOne/AllInOneMain';
 import JustOneMain from './ReportComp/JustOne/JustOneMain';
+import { formatDateToShortMonth } from '@/app/utils/dateFormat';
 
 const MockTestReport = () => {
   const [selectedChild, setSelectedChild] = useState('');
@@ -146,6 +147,10 @@ const MockTestReport = () => {
     await handleGetMockTestReport(selectedChildId, mockTestId, batchId);
   };
 
+  const handleViewDetail = (mockTestId, batchId) => {
+    handleMockTestSelect(mockTestId, batchId);
+  };
+
   return (
     <Box sx={{ 
       background: 'linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 100%)',
@@ -243,9 +248,9 @@ const MockTestReport = () => {
                     px: { xs: 1, sm: 2 },
                     fontSize: { xs: '0.8rem', sm: '0.875rem' }
                   }}
-                >
-                  {mockTest.mockTestTitle} - {new Date(mockTest.date).toLocaleDateString()}
-                </Button>
+                                  >
+                    {mockTest.mockTestTitle} - {formatDateToShortMonth(mockTest.date)}
+                  </Button>
               ))}
             </Box>
           </Paper>
@@ -258,6 +263,7 @@ const MockTestReport = () => {
           loading={loading}
           catchmentType={catchmentType}
           setCatchmentType={setCatchmentType}
+          onViewDetail={handleViewDetail}
         
         /> 
       :
