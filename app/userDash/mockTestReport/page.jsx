@@ -269,6 +269,10 @@ const MockTestReport = () => {
       :
       <JustOneMain
       oneMockTestReport={oneMockTestReport}
+      allChildren={allChildren}
+      selectedChild={selectedChild}
+
+
       />
       
       }

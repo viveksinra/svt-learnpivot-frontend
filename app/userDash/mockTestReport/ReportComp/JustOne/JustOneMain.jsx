@@ -339,9 +339,15 @@ const ScoreDistributionChart = ({ boysRanking, girlsRanking, englishMaxScore, ma
   return <Box sx={{ height: 300, mt: 2 }}><Chart type='bar' data={data} options={options} /></Box>;
 };
 
-const JustOneMain = ({ oneMockTestReport }) => {
+const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
   const [tabValue, setTabValue] = React.useState(0);
+  console.log("allChildren");
+  console.log(allChildren);
+  console.log(selectedChild);
 
+  // Find the selected child from allChildren array
+  const currentChild = allChildren?.find(child => child._id === selectedChild);
+  
   const handleTabChange = (event, newValue) => {
     setTabValue(newValue);
   };
@@ -432,12 +438,12 @@ const JustOneMain = ({ oneMockTestReport }) => {
               <Person />
             </Avatar>
             <Box>
-              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Students</Typography>
+              <Typography variant="body2" sx={{ color: 'text.secondary' }}>Student</Typography>
               <Typography variant="body1" sx={{ fontWeight: 'medium' }}>
-                {childScore?.childName || 'Student Name'}
+                {currentChild?.childName || childScore?.childName || 'Student Name'}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {childScore?.childGender || 'Gender'}
+                {currentChild?.childGender || childScore?.childGender || 'Gender'}
               </Typography>
             </Box>
           </Box>
