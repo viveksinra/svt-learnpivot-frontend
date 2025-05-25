@@ -25,6 +25,7 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
+import CalculateIcon from '@mui/icons-material/Calculate';
 import { useState, useEffect, useMemo, useCallback, memo } from 'react';
 
 // Memoized student row component to prevent unnecessary re-renders
@@ -211,7 +212,7 @@ const StudentRow = memo(({
                 icon={<EmojiEventsIcon fontSize="small" />} 
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white !important' }}>Total</Typography>
                     <Chip
                       size="small"
                       label={student.overallTotalRank || '-'}
@@ -231,7 +232,13 @@ const StudentRow = memo(({
                 size="small" 
                 variant="filled"
                 color="primary"
-                sx={{ width: '100%', justifyContent: 'space-between' }}
+                sx={{ 
+                  width: '100%', 
+                  justifyContent: 'space-between',
+                  '& .MuiChip-label': {
+                    color: 'white !important'
+                  }
+                }}
               />
             </Tooltip>
           </Grid>
@@ -310,7 +317,7 @@ const StudentRow = memo(({
                 icon={<EmojiEventsIcon fontSize="small" />} 
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white' }}>Total</Typography>
+                    <Typography variant="body2" sx={{ mr: 1, fontSize: { xs: '0.7rem', sm: '0.8rem' }, flex: 1, textAlign: 'center', color: 'white !important' }}>Total</Typography>
                     <Chip
                       size="small"
                       label={student.genderTotalRank || '-'}
@@ -330,7 +337,13 @@ const StudentRow = memo(({
                 size="small" 
                 variant="filled"
                 color="secondary"
-                sx={{ width: '100%', justifyContent: 'space-between' }}
+                sx={{ 
+                  width: '100%', 
+                  justifyContent: 'space-between',
+                  '& .MuiChip-label': {
+                    color: 'white !important'
+                  }
+                }}
               />
             </Tooltip>
           </Grid>
@@ -345,7 +358,8 @@ const StudentScoresTable = ({
   maxScores, 
   actionLoading, 
   handleScoreChange,
-  onReloadStudents
+  onReloadStudents,
+  onRecalculateRanks
 }) => {
   const theme = useTheme();
   
@@ -353,6 +367,7 @@ const StudentScoresTable = ({
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
   const [isReloading, setIsReloading] = useState(false);
+  const [isRecalculating, setIsRecalculating] = useState(false);
   
 
   
@@ -369,6 +384,20 @@ const StudentScoresTable = ({
       setIsReloading(false);
     }
   }, [onReloadStudents]);
+
+  // Handle recalculate ranks button click
+  const handleRecalculateRanks = useCallback(() => {
+    setIsRecalculating(true);
+    if (onRecalculateRanks) {
+      onRecalculateRanks();
+      // Reset recalculating state after 1 second to show the spinner for a bit
+      setTimeout(() => {
+        setIsRecalculating(false);
+      }, 1000);
+    } else {
+      setIsRecalculating(false);
+    }
+  }, [onRecalculateRanks]);
   
   // Calculate progress for a student - memoized
   const calculateProgress = useCallback((mathScore, englishScore) => {
@@ -449,14 +478,52 @@ const StudentScoresTable = ({
   
   return (
     <Card elevation={2} sx={{ mb: 4, borderRadius: 3, p: { xs: 2, sm: 3 } }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold" color="text.primary">
-          Student Scores
-        </Typography>
-        <Tooltip title="Enter or edit scores for each student" placement="right">
-          <InfoOutlinedIcon color="info" sx={{ ml: 1 }} />
-        </Tooltip>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography variant="h6" fontWeight="bold" color="text.primary">
+            Student Scores
+          </Typography>
+          <Tooltip title="Enter or edit scores for each student" placement="right">
+            <InfoOutlinedIcon color="info" sx={{ ml: 1 }} />
+          </Tooltip>
+        </Box>
+        
+        {students && students.length > 0 && (
+          <Button
+            variant="outlined"
+            color="primary"
+            size="small"
+            startIcon={isRecalculating ? <CircularProgress size={16} color="inherit" /> : <CalculateIcon />}
+            onClick={handleRecalculateRanks}
+            disabled={isRecalculating || actionLoading}
+            sx={{ 
+              borderRadius: 2,
+              px: 2,
+              py: 0.5,
+              fontWeight: 'medium',
+              fontSize: '0.875rem'
+            }}
+          >
+            {isRecalculating ? 'Recalculating...' : 'Recalculate Ranks'}
+          </Button>
+        )}
       </Box>
+      
+      {students && students.length > 0 && (
+        <Alert 
+          severity="info" 
+          variant="outlined" 
+          sx={{ mb: 2, borderRadius: 2 }}
+          icon={<InfoOutlinedIcon fontSize="inherit" />}
+        >
+          <Typography variant="body2">
+            <strong>Ranking System:</strong> For tied scores, younger students get better ranks. 
+            For total scores, English scores are considered first, then age. 
+            Click "Recalculate Ranks" after entering scores to update rankings.
+          </Typography>
+        </Alert>
+      )}
+      
       <Divider sx={{ mb: 2 }} />
       {!students || students.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 4 }}>

@@ -17,22 +17,72 @@ import {
 
 // Utility function to calculate ranks
 function calculateRanks(students) {
-  // Helper to rank an array of students by a score key
+  console.log('calculateRanks called with', students.length, 'students');
+  // Helper to rank an array of students by a score key with tie-breaking logic
   function rankByKey(arr, key) {
-    // Sort descending, higher score = better rank
-    const sorted = [...arr].sort((a, b) => (Number(b[key] || 0) - Number(a[key] || 0)));
-    let lastScore = null, lastRank = 0, skip = 0;
-    return sorted.map((student, idx) => {
-      const score = Number(student[key] || 0);
-      if (score !== lastScore) {
-        lastRank = idx + 1;
-        lastScore = score;
-        skip = 0;
-      } else {
-        skip++;
+    // Sort with tie-breaking logic
+    const sorted = [...arr].sort((a, b) => {
+      const scoreA = Number(a[key] || 0);
+      const scoreB = Number(b[key] || 0);
+      
+      // Primary sort: higher score = better rank
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
       }
-      return { id: student.id, rank: lastRank };
+      
+      // Tie-breaking for subject scores: younger child gets better rank
+      if (a.childDob && b.childDob) {
+        const dobA = new Date(a.childDob);
+        const dobB = new Date(b.childDob);
+        return dobB - dobA; // Younger child (later date) gets better rank
+      }
+      
+      // If no DOB available, maintain original order
+      return 0;
     });
+    
+         let currentRank = 1;
+     return sorted.map((student, idx) => {
+       // Since we've already sorted with tie-breaking, each student gets a unique rank
+       return { id: student.id, rank: currentRank++ };
+     });
+  }
+
+  // Helper to rank students by total score with specific tie-breaking logic
+  function rankByTotalScore(arr) {
+    // Sort with tie-breaking logic for total scores
+    const sorted = [...arr].sort((a, b) => {
+      const totalA = a.totalScore;
+      const totalB = b.totalScore;
+      
+      // Primary sort: higher total score = better rank
+      if (totalA !== totalB) {
+        return totalB - totalA;
+      }
+      
+      // First tie-breaker: better English score gets better rank
+      const englishA = Number(a.englishScore || 0);
+      const englishB = Number(b.englishScore || 0);
+      if (englishA !== englishB) {
+        return englishB - englishA;
+      }
+      
+      // Second tie-breaker: younger child gets better rank
+      if (a.childDob && b.childDob) {
+        const dobA = new Date(a.childDob);
+        const dobB = new Date(b.childDob);
+        return dobB - dobA; // Younger child (later date) gets better rank
+      }
+      
+      // If no DOB available, maintain original order
+      return 0;
+    });
+    
+         let currentRank = 1;
+     return sorted.map((student, idx) => {
+       // Since we've already sorted with tie-breaking, each student gets a unique rank
+       return { id: student.id, rank: currentRank++ };
+     });
   }
 
   // Calculate total scores
@@ -44,7 +94,7 @@ function calculateRanks(students) {
   // Overall ranks
   const overallMathRanks = rankByKey(studentsWithTotal, 'mathScore');
   const overallEnglishRanks = rankByKey(studentsWithTotal, 'englishScore');
-  const overallTotalRanks = rankByKey(studentsWithTotal, 'totalScore');
+  const overallTotalRanks = rankByTotalScore(studentsWithTotal);
 
   // Gender-based ranks
   const boys = studentsWithTotal.filter(s => s.gender === 'Boy');
@@ -58,8 +108,8 @@ function calculateRanks(students) {
     ...rankByKey(girls, 'englishScore')
   ];
   const genderTotalRanks = [
-    ...rankByKey(boys, 'totalScore'),
-    ...rankByKey(girls, 'totalScore')
+    ...rankByTotalScore(boys),
+    ...rankByTotalScore(girls)
   ];
 
   // Helper to get rank by id
@@ -150,17 +200,8 @@ const CSSEMockTestMaker = () => {
     };
   }, []);
 
-  // Debounced rank calculation
-  const debouncedCalculateRanks = useCallback((studentsToRank) => {
-    if (rankCalculationTimeoutRef.current) {
-      clearTimeout(rankCalculationTimeoutRef.current);
-    }
-    
-    rankCalculationTimeoutRef.current = setTimeout(() => {
-      const rankedStudents = calculateRanks(studentsToRank);
-      setStudents(rankedStudents);
-    }, 300); // 300ms delay
-  }, []);
+  // Note: Removed debounced rank calculation to avoid issues with ties during typing
+  // Users can manually recalculate ranks using the "Recalculate Ranks" button
 
   async function fetchPastMockTest() {
     setLoading(true)
@@ -275,6 +316,7 @@ const CSSEMockTestMaker = () => {
                 name: student.childDetails.name,
                 gender: student.childDetails.gender,
                 year: student.childDetails.year,
+                childDob: student.childDetails.dob,
                 parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
                 parentEmail: student.parentDetails.email,
                 parentMobile: student.parentDetails.mobile,
@@ -366,6 +408,7 @@ const CSSEMockTestMaker = () => {
                 name: student.childDetails.name,
                 gender: student.childDetails.gender,
                 year: student.childDetails.year,
+                childDob: student.childDetails.dob,
                 parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
                 parentEmail: student.parentDetails.email,
                 parentMobile: student.parentDetails.mobile,
@@ -391,6 +434,7 @@ const CSSEMockTestMaker = () => {
                 name: student.childDetails.name,
                 gender: student.childDetails.gender,
                 year: student.childDetails.year,
+                childDob: student.childDetails.dob,
                 parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
                 parentEmail: student.parentDetails.email,
                 parentMobile: student.parentDetails.mobile,
@@ -407,6 +451,7 @@ const CSSEMockTestMaker = () => {
               name: student.childDetails.name,
               gender: student.childDetails.gender,
               year: student.childDetails.year,
+              childDob: student.childDetails.dob,
               parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
               parentEmail: student.parentDetails.email,
               parentMobile: student.parentDetails.mobile,
@@ -428,6 +473,7 @@ const CSSEMockTestMaker = () => {
             name: student.childDetails.name,
             gender: student.childDetails.gender,
             year: student.childDetails.year,
+            childDob: student.childDetails.dob,
             parentName: `${student.parentDetails.firstName} ${student.parentDetails.lastName}`,
             parentEmail: student.parentDetails.email,
             parentMobile: student.parentDetails.mobile,
@@ -474,13 +520,11 @@ const CSSEMockTestMaker = () => {
           : student
       );
       
-      // Debounce rank calculation to avoid lag during typing
-      debouncedCalculateRanks(updated);
-      
-      // Return updated students without ranks for immediate UI update
+      // Don't auto-calculate ranks during typing to avoid issues with ties
+      // Users can manually recalculate ranks using the button
       return updated;
     });
-  }, [maxScores.math, maxScores.english, debouncedCalculateRanks]);
+  }, [maxScores.math, maxScores.english]);
 
   // Handle max score change
   const handleMaxScoreChange = (subject, value) => {
@@ -533,13 +577,14 @@ const CSSEMockTestMaker = () => {
     try {
       setActionLoading(true);
       
-      // Calculate ranks before preparing the payload
+      // Always recalculate ranks before saving to ensure accuracy
       const rankedStudents = calculateRanks(students);
       
       // Prepare scores for all students with ranks
       const childScoreData = rankedStudents.map(student => ({
         childId: student.id,
         childGender: student.gender,
+        childDob: student.childDob,
         mathsScore: student.mathScore === '' ? 0 : Number(student.mathScore),
         englishScore: student.englishScore === '' ? 0 : Number(student.englishScore),
         genderMathRank: student.genderMathRank,
@@ -599,7 +644,7 @@ const CSSEMockTestMaker = () => {
     try {
       setActionLoading(true);
       
-      // Calculate ranks before preparing the payload
+      // Always recalculate ranks before saving to ensure accuracy
       const rankedStudents = calculateRanks(students);
       
       // Format the data according to the API requirements with ranks
@@ -666,6 +711,16 @@ const CSSEMockTestMaker = () => {
     }
   };
 
+  // Function to manually recalculate ranks
+  const handleRecalculateRanks = useCallback(() => {
+    if (students && students.length > 0) {
+      console.log('Recalculating ranks for students:', students.length);
+      const rankedStudents = calculateRanks(students);
+      console.log('Ranks recalculated successfully');
+      setStudents(rankedStudents);
+    }
+  }, [students]);
+
   // Handle snackbar close
   const handleSnackbarClose = () => {
     setSnackbar(prev => ({
@@ -730,6 +785,7 @@ const CSSEMockTestMaker = () => {
             actionLoading={actionLoading}
             handleScoreChange={handleScoreChange}
             onReloadStudents={handleReloadStudents}
+            onRecalculateRanks={handleRecalculateRanks}
           />
         </>
       )}
