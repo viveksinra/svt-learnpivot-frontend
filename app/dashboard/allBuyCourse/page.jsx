@@ -148,6 +148,7 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
   const [tabular, setView] = useState(true);
   const [columnVisibilityModel, setColumnVisibilityModel] = useState({
     email: false,
+    mobile: false,
     bookingDate: false,
     status: false,
     address1: false,
@@ -177,6 +178,13 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       headerName: 'Email',
       width: 200,
       valueGetter: (params) => params?.row?.user?.email,
+      filterable: true,
+    },
+    {
+      field: 'mobile',
+      headerName: 'Mobile',
+      width: 150,
+      valueGetter: (params) => params?.row?.user?.mobile,
       filterable: true,
     },
     {
