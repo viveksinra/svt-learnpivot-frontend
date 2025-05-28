@@ -150,7 +150,11 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
     email: false,
     bookingDate: false,
     status: false,
-    address: false,
+    address1: false,
+    address2: false,
+    address3: false,
+    city: false,
+    postcode: false,
   });
 
   const columns = [
@@ -203,6 +207,41 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
       valueGetter: (params) => params.row.date,
       valueFormatter: (params) => formatDateToShortMonth(params.value),
       sortComparator: (v1, v2) => new Date(v1) - new Date(v2),
+      filterable: true,
+    },
+    {
+      field: 'address1',
+      headerName: 'Address 1',
+      width: 150,
+      valueGetter: (params) => params?.row?.user?.address1 || '',
+      filterable: true,
+    },
+    {
+      field: 'address2',
+      headerName: 'Address 2',
+      width: 150,
+      valueGetter: (params) => params?.row?.user?.address2 || '',
+      filterable: true,
+    },
+    {
+      field: 'address3',
+      headerName: 'Address 3',
+      width: 150,
+      valueGetter: (params) => params?.row?.user?.address3 || '',
+      filterable: true,
+    },
+    {
+      field: 'city',
+      headerName: 'City',
+      width: 120,
+      valueGetter: (params) => params?.row?.user?.city || '',
+      filterable: true,
+    },
+    {
+      field: 'postcode',
+      headerName: 'Postcode',
+      width: 100,
+      valueGetter: (params) => params?.row?.user?.postcode || '',
       filterable: true,
     },
     {
@@ -641,6 +680,34 @@ export function SearchArea({ handleEdit, selectedItems, setSelectedItems }) {
                         <Typography variant="caption" color="text.secondary" display="block">
                           {course.user?.email}
                         </Typography>
+                      </Grid>
+                      <Grid item xs={12}>
+                        <Typography variant="caption" color="text.secondary">Address</Typography>
+                        {course.user?.address1 && (
+                          <Typography variant="body2" fontWeight={500}>
+                            Address 1: {course.user.address1}
+                          </Typography>
+                        )}
+                        {course.user?.address2 && (
+                          <Typography variant="body2" fontWeight={500}>
+                            Address 2: {course.user.address2}
+                          </Typography>
+                        )}
+                        {course.user?.address3 && (
+                          <Typography variant="body2" fontWeight={500}>
+                            Address 3: {course.user.address3}
+                          </Typography>
+                        )}
+                        {course.user?.city && (
+                          <Typography variant="body2" fontWeight={500}>
+                            City: {course.user.city}
+                          </Typography>
+                        )}
+                        {course.user?.postcode && (
+                          <Typography variant="body2" fontWeight={500}>
+                            Postcode: {course.user.postcode}
+                          </Typography>
+                        )}
                       </Grid>
                       <Grid item xs={12}>
                         <Typography variant="caption" color="text.secondary">Batch Dates</Typography>
