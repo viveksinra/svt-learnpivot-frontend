@@ -15,8 +15,10 @@ const SchoolChances = ({ report }) => {
   const standardizedScore = calculateStandardizedScore(
     report.childScore?.mathsScore || 0,
     report.childScore?.englishScore || 0,
-    report.totalFactor || 3.5,
-    report.englishFactor || 1.1
+    report.englishMean || 34.35675165,
+    report.englishStdDev || 7.757773879,
+    report.mathsMean || 27.49480642,
+    report.mathsStdDev || 11.77128731
   );
 
   return (

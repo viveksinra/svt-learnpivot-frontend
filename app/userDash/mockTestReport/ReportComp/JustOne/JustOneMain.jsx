@@ -117,8 +117,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
     boysRanking,
     girlsRanking,
     performanceBoundaries,
-    totalFactor = 3.5,
-    englishFactor = 1.1
+    englishMean = 34.35675165,
+    englishStdDev = 7.757773879,
+    mathsMean = 27.49480642,
+    mathsStdDev = 11.77128731
   } = oneMockTestReport;
 
   // Determine which thresholds to use based on gender and location
@@ -161,7 +163,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
 
   const totalMaxScore = englishMaxScore + mathsMaxScore;
   const totalScore = childScore.englishScore + childScore.mathsScore;
-  const standardizedScore = calculateStandardizedScore(childScore.mathsScore, childScore.englishScore, totalFactor, englishFactor);
+  const standardizedScore = calculateStandardizedScore(childScore.mathsScore, childScore.englishScore, englishMean, englishStdDev, mathsMean, mathsStdDev);
   
   const englishStatus = getStatusColor(childScore.englishScore, thresholds);
   const mathsStatus = getStatusColor(childScore.mathsScore, thresholds);
@@ -229,12 +231,14 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
           isGirl={isGirl}
           schoolThresholds={isGirl ? girlsScoreThresholds : boysScoreThresholds}
           standardizedScore={standardizedScore}
-          totalFactor={totalFactor}
-          englishFactor={englishFactor}
+          englishMean={englishMean}
+          englishStdDev={englishStdDev}
+          mathsMean={mathsMean}
+          mathsStdDev={mathsStdDev}
         />
         
         <Typography variant="body2" color="text.secondary">
-          This table shows your child’s selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
+          This table shows your child's selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
         </Typography>
       </Paper>
 
@@ -273,8 +277,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
               englishMaxScore={englishMaxScore}
               mathsMaxScore={mathsMaxScore}
               schoolThresholds={girlsScoreThresholds}
-              totalFactor={totalFactor}
-              englishFactor={englishFactor}
+              englishMean={englishMean}
+              englishStdDev={englishStdDev}
+              mathsMean={mathsMean}
+              mathsStdDev={mathsStdDev}
             />
           </Box>
         )}
@@ -292,8 +298,10 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
               englishMaxScore={englishMaxScore}
               mathsMaxScore={mathsMaxScore}
               schoolThresholds={boysScoreThresholds}
-              totalFactor={totalFactor}
-              englishFactor={englishFactor}
+              englishMean={englishMean}
+              englishStdDev={englishStdDev}
+              mathsMean={mathsMean}
+              mathsStdDev={mathsStdDev}
             />
           </Box>
         )}

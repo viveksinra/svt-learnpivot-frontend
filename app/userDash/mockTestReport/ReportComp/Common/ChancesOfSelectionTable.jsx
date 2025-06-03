@@ -15,8 +15,10 @@ const ChancesOfSelectionTable = ({
   isGirl, 
   schoolThresholds, 
   standardizedScore, 
-  totalFactor, 
-  englishFactor 
+  englishMean, 
+  englishStdDev,
+  mathsMean,
+  mathsStdDev 
 }) => {
   // Get relevant school types for the gender
   const schoolTypes = isGirl 

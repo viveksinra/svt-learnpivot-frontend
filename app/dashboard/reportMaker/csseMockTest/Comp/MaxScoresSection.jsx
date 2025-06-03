@@ -21,8 +21,8 @@ import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 const MaxScoresSection = ({ 
   maxScores, 
   handleMaxScoreChange, 
-  factors,
-  handleFactorChange,
+  standardizationParams,
+  handleStandardizationParamChange,
   performanceBoundaries,
   handlePerformanceBoundaryChange,
   actionLoading, 
@@ -33,20 +33,26 @@ const MaxScoresSection = ({
 }) => {
   const theme = useTheme();
   
-  // Calculate total max standardized score
+  // Calculate total max standardized score using the new formula
   const mathMaxScore = parseInt(maxScores.math || 0);
   const englishMaxScore = parseInt(maxScores.english || 0);
-  const totalFactor = parseFloat(factors?.total || 3.5);
-  const englishFactor = parseFloat(factors?.english || 1.1);
+  const englishMean = parseFloat(standardizationParams?.englishMean || 34.35675165);
+  const englishStdDev = parseFloat(standardizationParams?.englishStdDev || 7.757773879);
+  const mathsMean = parseFloat(standardizationParams?.mathsMean || 27.49480642);
+  const mathsStdDev = parseFloat(standardizationParams?.mathsStdDev || 11.77128731);
   
-  // Total Standardised Score = (Math Max Score * Total Factor) + (English Max Score * English Factor * Total Factor)
-  const totalMaxStandardizedScore = (mathMaxScore * totalFactor) + (englishMaxScore * englishFactor * totalFactor);
+  // New standardization formula: Standardised score = (((raw score - μ) ÷ σ) × 15) + 100
+  const englishMaxStandardized = (((englishMaxScore - englishMean) / englishStdDev) * 15) + 100;
+  const mathMaxStandardized = (((mathMaxScore - mathsMean) / mathsStdDev) * 15) + 100;
+  
+  // Total score = 1.5 × (standardised English + standardised Mathematics)
+  const totalMaxStandardizedScore = 1.5 * (englishMaxStandardized + mathMaxStandardized);
   
   // Default values for boys if not provided (scaled for max score of 450)
   const boysThresholdsData = boysThresholds || {
     kegs: {
       inside: { safe: 338, borderline: 263 },
-      outside: { safe: 338, borderline: 263 }
+      outside: { safe: 328, borderline: 263 }
     },
     colchester: {
       inside: { safe: 319, borderline: 244 },
@@ -127,33 +133,65 @@ const MaxScoresSection = ({
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="Total Factor"
+              label="English Mean"
               type="number"
-              value={factors?.total || 3.5}
-              onChange={(e) => handleFactorChange('total', e.target.value)}
+              value={standardizationParams?.englishMean || 34.35675165}
+              onChange={(e) => handleStandardizationParamChange('englishMean', e.target.value)}
               InputProps={{
-                inputProps: { min: 0, step: 0.1 },
+                inputProps: { min: 0 },
                 sx: { borderRadius: 2 },
               }}
               disabled={actionLoading}
               variant="outlined"
-              helperText="Factor for Math score in standardized calculation"
+              helperText="Mean for English score in standardized calculation"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
             <TextField
               fullWidth
-              label="English Factor"
+              label="English Standard Deviation"
               type="number"
-              value={factors?.english || 1.1}
-              onChange={(e) => handleFactorChange('english', e.target.value)}
+              value={standardizationParams?.englishStdDev || 7.757773879}
+              onChange={(e) => handleStandardizationParamChange('englishStdDev', e.target.value)}
               InputProps={{
-                inputProps: { min: 0, step: 0.1 },
+                inputProps: { min: 0 },
                 sx: { borderRadius: 2 },
               }}
               disabled={actionLoading}
               variant="outlined"
-              helperText="Factor for English score in standardized calculation"
+              helperText="Standard deviation for English score in standardized calculation"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Maths Mean"
+              type="number"
+              value={standardizationParams?.mathsMean || 27.49480642}
+              onChange={(e) => handleStandardizationParamChange('mathsMean', e.target.value)}
+              InputProps={{
+                inputProps: { min: 0 },
+                sx: { borderRadius: 2 },
+              }}
+              disabled={actionLoading}
+              variant="outlined"
+              helperText="Mean for Math score in standardized calculation"
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              fullWidth
+              label="Maths Standard Deviation"
+              type="number"
+              value={standardizationParams?.mathsStdDev || 11.77128731}
+              onChange={(e) => handleStandardizationParamChange('mathsStdDev', e.target.value)}
+              InputProps={{
+                inputProps: { min: 0 },
+                sx: { borderRadius: 2 },
+              }}
+              disabled={actionLoading}
+              variant="outlined"
+              helperText="Standard deviation for Math score in standardized calculation"
             />
           </Grid>
         </Grid>
@@ -161,7 +199,13 @@ const MaxScoresSection = ({
         {/* Display standardized score calculation */}
         <Box sx={{ mt: 2, p: 2, bgcolor: 'grey.50', borderRadius: 2 }}>
           <Typography variant="body2" color="text.secondary">
-            <strong>Standardized Score Formula:</strong> (Math Score × {totalFactor}) + (English Score × {englishFactor} × {totalFactor})
+            <strong>CSSE Standardized Score Formula:</strong>
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            • Individual Subject: (((raw score - μ) ÷ σ) × 15) + 100
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+            • Total Score: 1.5 × (standardised English + standardised Mathematics)
           </Typography>
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             <strong>Maximum Standardized Score:</strong> {totalMaxStandardizedScore.toFixed(1)}

@@ -1,8 +1,14 @@
 // Utility functions for mock test reports
 
 // Function to calculate standardized score
-export const calculateStandardizedScore = (mathScore, englishScore, totalFactor = 3.5, englishFactor = 1.1) => {
-  return (mathScore * totalFactor) + (englishScore * englishFactor * totalFactor);
+export const calculateStandardizedScore = (mathScore, englishScore, englishMean = 34.35675165, englishStdDev = 7.757773879, mathsMean = 27.49480642, mathsStdDev = 11.77128731) => {
+  // New standardization formula: Standardised score = (((raw score - μ) ÷ σ) × 15) + 100
+  const englishStandardized = (((englishScore - englishMean) / englishStdDev) * 15) + 100;
+  const mathStandardized = (((mathScore - mathsMean) / mathsStdDev) * 15) + 100;
+  
+  // Total score = 1.5 × (standardised English + standardised Mathematics)
+  // Note: We're ignoring age adjustment as requested
+  return 1.5 * (englishStandardized + mathStandardized);
 };
 
 // Function to get status color based on score and thresholds
@@ -88,12 +94,14 @@ export const formatSchoolName = (school) => {
 export const evaluateSchoolChances = (report) => {
   if (!report) return {};
 
-  // Calculate standardized score instead of total score
+  // Calculate standardized score using the new formula
   const standardizedScore = calculateStandardizedScore(
     report.childScore?.mathsScore || 0,
     report.childScore?.englishScore || 0,
-    report.totalFactor || 3.5,
-    report.englishFactor || 1.1
+    report.englishMean || 34.35675165,
+    report.englishStdDev || 7.757773879,
+    report.mathsMean || 27.49480642,
+    report.mathsStdDev || 11.77128731
   );
   
   // Determine which thresholds to use based on gender
@@ -124,7 +132,7 @@ export const evaluateChanceLevel = (standardizedScore, thresholds) => {
   if (standardizedScore >= thresholds.safe) {
     return { 
       level: 'safe', 
-      label: 'High Chance', 
+      label: 'Safe', 
       color: '#4caf50',
       threshold: thresholds.safe 
     };
@@ -138,7 +146,7 @@ export const evaluateChanceLevel = (standardizedScore, thresholds) => {
   } else {
     return { 
       level: 'concern', 
-      label: 'Needs Improvement', 
+      label: 'Concern', 
       color: '#f44336',
       threshold: thresholds.borderline // Show borderline threshold as target
     };

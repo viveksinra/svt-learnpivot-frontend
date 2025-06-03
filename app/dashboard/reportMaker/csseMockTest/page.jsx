@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
-import { Box, Snackbar, Typography } from '@mui/material';
+import { Box, Snackbar, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { mockTestService } from '@/app/services';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
 
@@ -16,7 +17,7 @@ import {
 } from './Comp';
 
 // Utility function to calculate ranks
-function calculateRanks(students, factors = { total: 3.5, english: 1.1 }) {
+function calculateRanks(students, params = { englishMean: 34.35675165, englishStdDev: 7.757773879, mathsMean: 27.49480642, mathsStdDev: 11.77128731 }) {
   console.log('calculateRanks called with', students.length, 'students');
   // Helper to rank an array of students by a score key with tie-breaking logic
   function rankByKey(arr, key) {
@@ -85,12 +86,19 @@ function calculateRanks(students, factors = { total: 3.5, english: 1.1 }) {
      });
   }
 
-  // Calculate standardized scores
+  // Calculate standardized scores using the new formula
   const studentsWithTotal = students.map(s => {
     const mathScore = Number(s.mathScore || 0);
     const englishScore = Number(s.englishScore || 0);
-    // Total Standardised Score = (Math Score * Total Factor) + (English Score * English Factor * Total Factor)
-    const standardizedScore = (mathScore * factors.total) + (englishScore * factors.english * factors.total);
+    
+    // New standardization formula: Standardised score = (((raw score - μ) ÷ σ) × 15) + 100
+    const englishStandardized = (((englishScore - params.englishMean) / params.englishStdDev) * 15) + 100;
+    const mathStandardized = (((mathScore - params.mathsMean) / params.mathsStdDev) * 15) + 100;
+    
+    // Total score = 1.5 × (standardised English + standardised Mathematics)
+    // Note: We're ignoring age adjustment as requested
+    const standardizedScore = 1.5 * (englishStandardized + mathStandardized);
+    
     return {
       ...s,
       totalScore: mathScore + englishScore, // Keep raw total for display
@@ -148,9 +156,11 @@ const CSSEMockTestMaker = () => {
     math: 80,
     english: 70
   });
-  const [factors, setFactors] = useState({
-    total: 3.5,
-    english: 1.1
+  const [standardizationParams, setStandardizationParams] = useState({
+    englishMean: 34.35675165,
+    englishStdDev: 7.757773879,
+    mathsMean: 27.49480642,
+    mathsStdDev: 11.77128731
   });
   const [performanceBoundaries, setPerformanceBoundaries] = useState({
     math: {
@@ -315,11 +325,14 @@ const CSSEMockTestMaker = () => {
             english: response.data.englishMaxScore
           });
 
-          // Update factors from the report if they exist
-          if (response.data.totalFactor !== undefined && response.data.englishFactor !== undefined) {
-            setFactors({
-              total: response.data.totalFactor,
-              english: response.data.englishFactor
+          // Update standardization parameters from the report if they exist
+          if (response.data.englishMean !== undefined && response.data.englishStdDev !== undefined && 
+              response.data.mathsMean !== undefined && response.data.mathsStdDev !== undefined) {
+            setStandardizationParams({
+              englishMean: response.data.englishMean,
+              englishStdDev: response.data.englishStdDev,
+              mathsMean: response.data.mathsMean,
+              mathsStdDev: response.data.mathsStdDev
             });
           }
 
@@ -329,11 +342,11 @@ const CSSEMockTestMaker = () => {
           }
 
           // Update thresholds from the report if they exist
-          if (response.data.boysThresholds) {
-            setBoysThresholds(response.data.boysThresholds);
+          if (response.data.boysScoreThresholds) {
+            setBoysThresholds(response.data.boysScoreThresholds);
           }
-          if (response.data.girlsThresholds) {
-            setGirlsThresholds(response.data.girlsThresholds);
+          if (response.data.girlsScoreThresholds) {
+            setGirlsThresholds(response.data.girlsScoreThresholds);
           }
 
           // Fetch students for this mock test and batch
@@ -364,7 +377,7 @@ const CSSEMockTestMaker = () => {
               };
             });
             // Calculate ranks using our utility function
-            const rankedStudents = calculateRanks(studentsWithScores, factors);
+            const rankedStudents = calculateRanks(studentsWithScores, standardizationParams);
             setStudents(rankedStudents);
           } else {
             setStudents([]);
@@ -421,7 +434,7 @@ const CSSEMockTestMaker = () => {
           
           if (reportResponse.variant === "success") {
             // If report exists, use the scores from it
-            const { childScore, mathsMaxScore, englishMaxScore, boysThresholds: reportBoysThresholds, girlsThresholds: reportGirlsThresholds } = reportResponse.data;
+            const { childScore, mathsMaxScore, englishMaxScore, boysScoreThresholds: reportBoysThresholds, girlsScoreThresholds: reportGirlsThresholds } = reportResponse.data;
             
             // Update max scores from the report
             setMaxScores({
@@ -429,11 +442,14 @@ const CSSEMockTestMaker = () => {
               english: englishMaxScore
             });
             
-            // Update factors from the report if they exist
-            if (reportResponse.data.totalFactor !== undefined && reportResponse.data.englishFactor !== undefined) {
-              setFactors({
-                total: reportResponse.data.totalFactor,
-                english: reportResponse.data.englishFactor
+            // Update standardization parameters from the report if they exist
+            if (reportResponse.data.englishMean !== undefined && reportResponse.data.englishStdDev !== undefined && 
+                reportResponse.data.mathsMean !== undefined && reportResponse.data.mathsStdDev !== undefined) {
+              setStandardizationParams({
+                englishMean: reportResponse.data.englishMean,
+                englishStdDev: reportResponse.data.englishStdDev,
+                mathsMean: reportResponse.data.mathsMean,
+                mathsStdDev: reportResponse.data.mathsStdDev
               });
             }
             
@@ -441,7 +457,7 @@ const CSSEMockTestMaker = () => {
             if (reportResponse.data.performanceBoundaries) {
               setPerformanceBoundaries(reportResponse.data.performanceBoundaries);
             }
-            
+
             // Update thresholds from the report if they exist
             if (reportBoysThresholds) {
               setBoysThresholds(reportBoysThresholds);
@@ -475,7 +491,7 @@ const CSSEMockTestMaker = () => {
             });
             
             // Calculate ranks using our utility function instead of using the API-provided ranks
-            studentsWithScores = calculateRanks(studentsWithScores, factors);
+            studentsWithScores = calculateRanks(studentsWithScores, standardizationParams);
           } else {
             // If no report exists, initialize with empty scores
             studentsWithScores = response.data.map(student => {
@@ -585,15 +601,6 @@ const CSSEMockTestMaker = () => {
     }));
   };
 
-  // Handle factor change
-  const handleFactorChange = (factorType, value) => {
-    const numericValue = value === '' ? (factorType === 'total' ? 3.5 : 1.1) : Number(value);
-    setFactors(prev => ({
-      ...prev,
-      [factorType]: numericValue
-    }));
-  };
-
   // Handle performance boundary change
   const handlePerformanceBoundaryChange = (subject, grade, value) => {
     const numericValue = value === '' ? 0 : Number(value);
@@ -603,6 +610,15 @@ const CSSEMockTestMaker = () => {
         ...prev[subject],
         [grade]: numericValue
       }
+    }));
+  };
+
+  // Handle standardization parameter change
+  const handleStandardizationParamChange = (paramType, value) => {
+    const numericValue = value === '' ? 0 : Number(value);
+    setStandardizationParams(prev => ({
+      ...prev,
+      [paramType]: numericValue
     }));
   };
 
@@ -649,7 +665,7 @@ const CSSEMockTestMaker = () => {
       setActionLoading(true);
       
       // Always recalculate ranks before saving to ensure accuracy
-      const rankedStudents = calculateRanks(students, factors);
+      const rankedStudents = calculateRanks(students, standardizationParams);
       
       // Prepare scores for all students with ranks
       const childScoreData = rankedStudents.map(student => ({
@@ -672,12 +688,14 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
-        totalFactor: factors.total,
-        englishFactor: factors.english,
+        englishMean: standardizationParams.englishMean,
+        englishStdDev: standardizationParams.englishStdDev,
+        mathsMean: standardizationParams.mathsMean,
+        mathsStdDev: standardizationParams.mathsStdDev,
         performanceBoundaries,
         childScore: childScoreData,
-        boysThresholds,
-        girlsThresholds
+        boysScoreThresholds: boysThresholds,
+        girlsScoreThresholds: girlsThresholds
       };
       
       // Make the API call using the service
@@ -719,7 +737,7 @@ const CSSEMockTestMaker = () => {
       setActionLoading(true);
       
       // Always recalculate ranks before saving to ensure accuracy
-      const rankedStudents = calculateRanks(students, factors);
+      const rankedStudents = calculateRanks(students, standardizationParams);
       
       // Format the data according to the API requirements with ranks
       const childScoreData = rankedStudents.map(student => ({
@@ -741,12 +759,14 @@ const CSSEMockTestMaker = () => {
         batchId: selectedBatch,
         mathsMaxScore: maxScores.math,
         englishMaxScore: maxScores.english,
-        totalFactor: factors.total,
-        englishFactor: factors.english,
+        englishMean: standardizationParams.englishMean,
+        englishStdDev: standardizationParams.englishStdDev,
+        mathsMean: standardizationParams.mathsMean,
+        mathsStdDev: standardizationParams.mathsStdDev,
         performanceBoundaries,
         childScore: childScoreData,
-        boysThresholds,
-        girlsThresholds
+        boysScoreThresholds: boysThresholds,
+        girlsScoreThresholds: girlsThresholds
       };
       
       // Make the API call using the service
@@ -793,7 +813,7 @@ const CSSEMockTestMaker = () => {
     if (students && students.length > 0) {
       setIsRecalculating(true);
       console.log('Recalculating ranks for students:', students.length);
-      const rankedStudents = calculateRanks(students, factors);
+      const rankedStudents = calculateRanks(students, standardizationParams);
       console.log('Ranks recalculated successfully');
       setStudents(rankedStudents);
       
@@ -806,7 +826,7 @@ const CSSEMockTestMaker = () => {
         });
       }, 1000);
     }
-  }, [students, factors]);
+  }, [students, standardizationParams]);
 
   // Handle snackbar close
   const handleSnackbarClose = () => {
@@ -828,64 +848,127 @@ const CSSEMockTestMaker = () => {
       <PageHeader actionLoading={actionLoading} />
       
       {/* Mock Test Selection */}
-      <MockTestSelection
-        mockTests={mockTests}
-        selectedMockTest={selectedMockTest}
-        selectedBatch={selectedBatch}
-        availableBatches={availableBatches}
-        mockTestExists={mockTestExists}
-        loading={loading}
-        actionLoading={actionLoading}
-        showCreateForm={showCreateForm}
-        handleMockTestChange={handleMockTestChange}
-        handleBatchChange={handleBatchChange}
-        handleCreateNew={handleCreateNew}
-      />
+      <Accordion defaultExpanded sx={{ mb: 2 }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="mock-test-selection-content"
+          id="mock-test-selection-header"
+        >
+          <Typography variant="h6" fontWeight="bold">
+            Mock Test & Batch Selection
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <MockTestSelection
+            mockTests={mockTests}
+            selectedMockTest={selectedMockTest}
+            selectedBatch={selectedBatch}
+            availableBatches={availableBatches}
+            mockTestExists={mockTestExists}
+            loading={loading}
+            actionLoading={actionLoading}
+            showCreateForm={showCreateForm}
+            handleMockTestChange={handleMockTestChange}
+            handleBatchChange={handleBatchChange}
+            handleCreateNew={handleCreateNew}
+          />
+        </AccordionDetails>
+      </Accordion>
 
       {/* Batch Information */}
       {selectedMockTest && selectedBatch && availableBatches.length > 0 && (
-        <BatchInformation
-          selectedBatch={selectedBatch}
-          availableBatches={availableBatches}
-          students={students}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="batch-information-content"
+            id="batch-information-header"
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Batch Information
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <BatchInformation
+              selectedBatch={selectedBatch}
+              availableBatches={availableBatches}
+              students={students}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
      {/* Max Scores Section - SHOW FIRST  */}
      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <MaxScoresSection
-          maxScores={maxScores}
-          handleMaxScoreChange={handleMaxScoreChange}
-          factors={factors}
-          handleFactorChange={handleFactorChange}
-          performanceBoundaries={performanceBoundaries}
-          handlePerformanceBoundaryChange={handlePerformanceBoundaryChange}
-          actionLoading={actionLoading}
-          boysThresholds={boysThresholds}
-          handleBoysThresholdChange={handleBoysThresholdChange}
-          girlsThresholds={girlsThresholds}
-          handleGirlsThresholdChange={handleGirlsThresholdChange}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="max-scores-content"
+            id="max-scores-header"
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Configuration & Thresholds
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <MaxScoresSection
+              maxScores={maxScores}
+              handleMaxScoreChange={handleMaxScoreChange}
+              standardizationParams={standardizationParams}
+              handleStandardizationParamChange={handleStandardizationParamChange}
+              performanceBoundaries={performanceBoundaries}
+              handlePerformanceBoundaryChange={handlePerformanceBoundaryChange}
+              actionLoading={actionLoading}
+              boysThresholds={boysThresholds}
+              handleBoysThresholdChange={handleBoysThresholdChange}
+              girlsThresholds={girlsThresholds}
+              handleGirlsThresholdChange={handleGirlsThresholdChange}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* Student Scores Table - SHOW SECOND  */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <>
-          <StudentScoresTable
-            students={students}
-            maxScores={maxScores}
-            actionLoading={actionLoading}
-            handleScoreChange={handleScoreChange}
-            onReloadStudents={handleReloadStudents}
-          />
-        </>
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="student-scores-content"
+            id="student-scores-header"
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Student Scores & Rankings
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <StudentScoresTable
+              students={students}
+              maxScores={maxScores}
+              actionLoading={actionLoading}
+              handleScoreChange={handleScoreChange}
+              onReloadStudents={handleReloadStudents}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* Results Visualization */}
       {selectedMockTest && selectedBatch && mockTestExists && students.length > 0 && (
-        <ResultsVisualization
-          students={students}
-          maxScores={maxScores}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2 }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            aria-controls="results-visualization-content"
+            id="results-visualization-header"
+          >
+            <Typography variant="h6" fontWeight="bold">
+              Results Visualization & Analytics
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <ResultsVisualization
+              students={students}
+              maxScores={maxScores}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
  

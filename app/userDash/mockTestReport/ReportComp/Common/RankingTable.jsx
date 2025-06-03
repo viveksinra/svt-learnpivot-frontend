@@ -20,8 +20,10 @@ const RankingTable = ({
   englishMaxScore, 
   mathsMaxScore, 
   schoolThresholds, 
-  totalFactor, 
-  englishFactor 
+  englishMean, 
+  englishStdDev,
+  mathsMean,
+  mathsStdDev 
 }) => {
   // Get relevant schools for the gender
   const relevantSchools = isBoysTable 
@@ -102,8 +104,10 @@ const RankingTable = ({
             const standardizedScore = calculateStandardizedScore(
               student.mathsScore, 
               student.englishScore, 
-              totalFactor, 
-              englishFactor
+              englishMean, 
+              englishStdDev,
+              mathsMean,
+              mathsStdDev
             );
             
             const getDisplayName = (student, index) => {
