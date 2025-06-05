@@ -123,7 +123,6 @@ const MockTestReport = () => {
     try {
       const response = await mockTestService.getMyPastCsseMockTestResultForAll(childId);
       if (response.variant === "success") {
-        console.log(response.data)
         setMockTestReports(response.data);
       }
     } catch (error) {
