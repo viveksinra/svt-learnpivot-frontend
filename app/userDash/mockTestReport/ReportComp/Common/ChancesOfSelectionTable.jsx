@@ -18,13 +18,20 @@ const ChancesOfSelectionTable = ({
   englishMean, 
   englishStdDev,
   mathsMean,
-  mathsStdDev 
+  mathsStdDev,
+  hideStandardisedScore = false,
+  englishMaxScore,
+  mathsMaxScore
 }) => {
   // Get relevant school types for the gender
   const schoolTypes = isGirl 
     ? ['Colchester Girls', 'Westcliff Girls', 'Southend Girls'] 
     : ['KEGS', 'Colchester Boys', 'Westcliff Boys', 'Southend Boys'];
   
+  // Calculate total score for display when standardized score is hidden
+  const totalScore = (childScore?.englishScore || 0) + (childScore?.mathsScore || 0);
+  const totalMaxScore = (englishMaxScore || 0) + (mathsMaxScore || 0);
+
   // Get cell color based on status
   const getStatusCellStyle = (status) => {
     if (status === 'Safe') return { backgroundColor: '#e8f5e9', color: '#2e7d32', fontWeight: 'medium' };
@@ -72,7 +79,7 @@ const ChancesOfSelectionTable = ({
         <TableHead>
           <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
             <TableCell colSpan={9} align="center" sx={{ fontWeight: 'bold', fontSize: '1rem' }}>
-              School Selection Chances (Based on Standardized Score)
+              School Selection Chances (Based on {hideStandardisedScore ? 'Total Score' : 'Standardized Score'})
             </TableCell>
           </TableRow>
           <TableRow>
@@ -82,7 +89,7 @@ const ChancesOfSelectionTable = ({
               backgroundColor: '#e3f2fd',
               color: '#1976d2'
             }}>
-              Standardized Score
+              {hideStandardisedScore ? 'Total Score' : 'Standardized Score'}
             </TableCell>
             {schoolTypes.map(school => (
               <TableCell colSpan={2} align="center" key={school} sx={{ fontWeight: 'medium' }}>
@@ -97,7 +104,7 @@ const ChancesOfSelectionTable = ({
               color: '#495057',
               fontSize: '0.8rem'
             }}>
-              {standardizedScore.toFixed(1)}
+              {hideStandardisedScore ? `${totalScore}/${totalMaxScore}` : standardizedScore.toFixed(1)}
             </TableCell>
             {schoolTypes.map(school => (
               <React.Fragment key={school}>
@@ -114,7 +121,7 @@ const ChancesOfSelectionTable = ({
         <TableBody>
           <TableRow>
             <TableCell sx={getStandardizedScoreStyle()}>
-              {standardizedScore.toFixed(1)}
+              {hideStandardisedScore ? `${totalScore}/${totalMaxScore}` : standardizedScore.toFixed(1)}
             </TableCell>
             {schoolTypes.map(school => {
               const schoolKey = school.toLowerCase().replace(/\s+/g, '').replace('girls', '').replace('boys', '');

@@ -21,6 +21,13 @@ const SchoolChances = ({ report }) => {
     report.mathsStdDev || 11.77128731
   );
 
+  // Check if standardized score should be hidden
+  const hideStandardisedScore = report.hideStandardisedScore || false;
+
+  // Calculate total score for display when standardized score is hidden
+  const totalScore = (report.childScore?.englishScore || 0) + (report.childScore?.mathsScore || 0);
+  const totalMaxScore = (report.englishMaxScore || 0) + (report.mathsMaxScore || 0);
+
   return (
     <Box>
       <Typography variant="h6" sx={{ 
@@ -42,10 +49,10 @@ const SchoolChances = ({ report }) => {
         border: '1px solid #e0e8ff'
       }}>
         <Typography variant="body2" color="text.secondary">
-          Current Standardized Score
+          Current {hideStandardisedScore ? 'Total Score' : 'Standardized Score'}
         </Typography>
         <Typography variant="h6" fontWeight="bold" sx={{ color: '#1976d2' }}>
-          {standardizedScore.toFixed(1)}
+          {hideStandardisedScore ? `${totalScore}/${totalMaxScore}` : standardizedScore.toFixed(1)}
         </Typography>
     
       </Box>

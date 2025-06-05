@@ -13,7 +13,9 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper
+  Paper,
+  FormControlLabel,
+  Switch
 } from '@mui/material';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -23,6 +25,8 @@ const MaxScoresSection = ({
   handleMaxScoreChange, 
   standardizationParams,
   handleStandardizationParamChange,
+  hideStandardisedScore,
+  handleHideStandardisedScoreChange,
   performanceBoundaries,
   handlePerformanceBoundaryChange,
   actionLoading, 
@@ -210,6 +214,30 @@ const MaxScoresSection = ({
           <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
             <strong>Maximum Standardized Score:</strong> {totalMaxStandardizedScore.toFixed(1)}
           </Typography>
+          
+          {/* Hide Standardised Score Toggle */}
+          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #e0e0e0' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={hideStandardisedScore}
+                  onChange={(e) => handleHideStandardisedScoreChange(e.target.checked)}
+                  disabled={actionLoading}
+                  color="warning"
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    Hide Standardised Score from Students
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    When enabled, students will not see their standardized scores in reports
+                  </Typography>
+                </Box>
+              }
+            />
+          </Box>
         </Box>
       </Card>
 

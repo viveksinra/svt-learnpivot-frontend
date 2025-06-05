@@ -23,7 +23,8 @@ const RankingTable = ({
   englishMean, 
   englishStdDev,
   mathsMean,
-  mathsStdDev 
+  mathsStdDev,
+  hideStandardisedScore = false
 }) => {
   // Get relevant schools for the gender
   const relevantSchools = isBoysTable 
@@ -78,7 +79,11 @@ const RankingTable = ({
             <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>English</TableCell>
             <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Maths</TableCell>
             <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Total</TableCell>
-            <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>Std Score</TableCell>
+            {!hideStandardisedScore && (
+              <TableCell align="center" sx={{ fontWeight: 'bold', backgroundColor: '#f5f5f5' }}>
+                Std Score
+              </TableCell>
+            )}
             {relevantSchools.map(school => (
               <TableCell 
                 key={school} 
@@ -110,6 +115,9 @@ const RankingTable = ({
               mathsStdDev
             );
             
+            const totalScore = student.englishScore + student.mathsScore;
+            const totalMaxScore = englishMaxScore + mathsMaxScore;
+            
             const getDisplayName = (student, index) => {
               // If this is the current child, show their actual name
               if (student.childId?.toString() === currentChildId) {
@@ -134,9 +142,11 @@ const RankingTable = ({
                 <TableCell align="center">
                   {student.englishScore + student.mathsScore}/{englishMaxScore + mathsMaxScore}
                 </TableCell>
-                <TableCell align="center" sx={{ fontWeight: 'medium' }}>
-                  {standardizedScore.toFixed(1)}
-                </TableCell>
+                {!hideStandardisedScore && (
+                  <TableCell align="center" sx={{ fontWeight: 'medium' }}>
+                    {standardizedScore.toFixed(1)}
+                  </TableCell>
+                )}
                 {relevantSchools.map(school => {
                   const insideStatus = getSelectionStatus(standardizedScore, school, 'inside');
                   const outsideStatus = getSelectionStatus(standardizedScore, school, 'outside');

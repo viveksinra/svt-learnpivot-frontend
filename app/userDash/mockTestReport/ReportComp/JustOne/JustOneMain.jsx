@@ -120,7 +120,8 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
     englishMean = 34.35675165,
     englishStdDev = 7.757773879,
     mathsMean = 27.49480642,
-    mathsStdDev = 11.77128731
+    mathsStdDev = 11.77128731,
+    hideStandardisedScore = false
   } = oneMockTestReport;
 
   // Determine which thresholds to use based on gender and location
@@ -235,6 +236,9 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
           englishStdDev={englishStdDev}
           mathsMean={mathsMean}
           mathsStdDev={mathsStdDev}
+          hideStandardisedScore={hideStandardisedScore}
+          englishMaxScore={englishMaxScore}
+          mathsMaxScore={mathsMaxScore}
         />
         
         <Typography variant="body2" color="text.secondary">
@@ -281,6 +285,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
               englishStdDev={englishStdDev}
               mathsMean={mathsMean}
               mathsStdDev={mathsStdDev}
+              hideStandardisedScore={hideStandardisedScore}
             />
           </Box>
         )}
@@ -302,6 +307,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
               englishStdDev={englishStdDev}
               mathsMean={mathsMean}
               mathsStdDev={mathsStdDev}
+              hideStandardisedScore={hideStandardisedScore}
             />
           </Box>
         )}

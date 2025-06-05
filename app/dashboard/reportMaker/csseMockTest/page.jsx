@@ -162,6 +162,7 @@ const CSSEMockTestMaker = () => {
     mathsMean: 27.49480642,
     mathsStdDev: 11.77128731
   });
+  const [hideStandardisedScore, setHideStandardisedScore] = useState(false);
   const [performanceBoundaries, setPerformanceBoundaries] = useState({
     math: {
       excellent: 45,
@@ -336,6 +337,13 @@ const CSSEMockTestMaker = () => {
             });
           }
 
+          // Update hideStandardisedScore from the report if it exists
+          if (response.data.hasOwnProperty('hideStandardisedScore')) {
+            setHideStandardisedScore(response.data.hideStandardisedScore);
+          } else {
+            setHideStandardisedScore(false);
+          }
+
           // Update performance boundaries from the report if they exist
           if (response.data.performanceBoundaries) {
             setPerformanceBoundaries(response.data.performanceBoundaries);
@@ -453,6 +461,13 @@ const CSSEMockTestMaker = () => {
               });
             }
             
+            // Update hideStandardisedScore from the report if it exists
+            if (reportResponse.data.hasOwnProperty('hideStandardisedScore')) {
+              setHideStandardisedScore(reportResponse.data.hideStandardisedScore);
+            } else {
+              setHideStandardisedScore(false);
+            }
+
             // Update performance boundaries from the report if they exist
             if (reportResponse.data.performanceBoundaries) {
               setPerformanceBoundaries(reportResponse.data.performanceBoundaries);
@@ -622,6 +637,11 @@ const CSSEMockTestMaker = () => {
     }));
   };
 
+  // Handle hide standardised score change
+  const handleHideStandardisedScoreChange = (value) => {
+    setHideStandardisedScore(value);
+  };
+
   // Create a new mock test with the selected ID - now just shows the form
   const handleCreateNew = () => {
     setShowCreateForm(true);
@@ -692,6 +712,7 @@ const CSSEMockTestMaker = () => {
         englishStdDev: standardizationParams.englishStdDev,
         mathsMean: standardizationParams.mathsMean,
         mathsStdDev: standardizationParams.mathsStdDev,
+        hideStandardisedScore,
         performanceBoundaries,
         childScore: childScoreData,
         boysScoreThresholds: boysThresholds,
@@ -763,6 +784,7 @@ const CSSEMockTestMaker = () => {
         englishStdDev: standardizationParams.englishStdDev,
         mathsMean: standardizationParams.mathsMean,
         mathsStdDev: standardizationParams.mathsStdDev,
+        hideStandardisedScore,
         performanceBoundaries,
         childScore: childScoreData,
         boysScoreThresholds: boysThresholds,
@@ -914,6 +936,8 @@ const CSSEMockTestMaker = () => {
               handleMaxScoreChange={handleMaxScoreChange}
               standardizationParams={standardizationParams}
               handleStandardizationParamChange={handleStandardizationParamChange}
+              hideStandardisedScore={hideStandardisedScore}
+              handleHideStandardisedScoreChange={handleHideStandardisedScoreChange}
               performanceBoundaries={performanceBoundaries}
               handlePerformanceBoundaryChange={handlePerformanceBoundaryChange}
               actionLoading={actionLoading}
