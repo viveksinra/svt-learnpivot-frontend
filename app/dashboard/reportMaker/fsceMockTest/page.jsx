@@ -11,6 +11,7 @@ import {
   BatchInformation,
   MaxScoresSection,
   GradingCriteriaSection,
+  PerformanceBoundariesSection,
   StudentScoresTable,
   SaveButton
 } from './Comp';
@@ -159,6 +160,27 @@ const getDefaultGradingCriteria = () => {
   };
 };
 
+// Function to generate default performance boundaries
+const getDefaultPerformanceBoundaries = () => {
+  return {
+    math: {
+      excellent: 45,
+      good: 35,
+      average: 25,
+    },
+    english: {
+      excellent: 40,
+      good: 30,
+      average: 20,
+    },
+    creativeWriting: {
+      excellent: 15,
+      good: 12,
+      average: 10,
+    }
+  };
+};
+
 const FSCEMockTestMaker = () => {
   const snackRef = useRef();
   
@@ -170,6 +192,7 @@ const FSCEMockTestMaker = () => {
   const [students, setStudents] = useState([]);
   const [paperSections, setPaperSections] = useState([]);
   const [gradingCriteria, setGradingCriteria] = useState(getDefaultGradingCriteria());
+  const [performanceBoundaries, setPerformanceBoundaries] = useState(getDefaultPerformanceBoundaries());
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -302,6 +325,14 @@ const FSCEMockTestMaker = () => {
           } else {
             // Use default grading criteria if not available
             setGradingCriteria(getDefaultGradingCriteria());
+          }
+
+          // Process performance boundaries from API response
+          if (response.data.performanceBoundaries) {
+            setPerformanceBoundaries(response.data.performanceBoundaries);
+          } else {
+            // Use default performance boundaries if not available
+            setPerformanceBoundaries(getDefaultPerformanceBoundaries());
           }
 
           // Fetch students for this mock test and batch
@@ -500,13 +531,19 @@ const FSCEMockTestMaker = () => {
     setGradingCriteria(updatedCriteria);
   };
 
+  // Handle updating performance boundaries
+  const handleUpdatePerformanceBoundaries = (updatedBoundaries) => {
+    setPerformanceBoundaries(updatedBoundaries);
+  };
+
   // Create a new mock test with the selected ID - now just shows the form
   const handleCreateNew = () => {
     setShowCreateForm(true);
     
-    // Initialize with default paper structure and grading criteria
+    // Initialize with default paper structure, grading criteria and performance boundaries
     setPaperSections(getDefaultPaperSections());
     setGradingCriteria(getDefaultGradingCriteria());
+    setPerformanceBoundaries(getDefaultPerformanceBoundaries());
     
     // Fetch students for this mock test without creating a report
     fetchStudents(selectedMockTest, selectedBatch);
@@ -551,6 +588,7 @@ const FSCEMockTestMaker = () => {
         batchId: selectedBatch,
         paperSections: paperSections,
         gradingCriteria: gradingCriteria,
+        performanceBoundaries: performanceBoundaries,
         childScore: sectionScoresData
       };
       
@@ -624,6 +662,7 @@ const FSCEMockTestMaker = () => {
         batchId: selectedBatch,
         paperSections: paperSections,
         gradingCriteria: gradingCriteria,
+        performanceBoundaries: performanceBoundaries,
         childScore: sectionScoresData
       };
       
@@ -721,6 +760,15 @@ const FSCEMockTestMaker = () => {
         <GradingCriteriaSection
           gradingCriteria={gradingCriteria}
           handleUpdateGradingCriteria={handleUpdateGradingCriteria}
+          actionLoading={actionLoading}
+        />
+      )}
+
+      {/* Performance Boundaries Component */}
+      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
+        <PerformanceBoundariesSection
+          performanceBoundaries={performanceBoundaries}
+          handleUpdatePerformanceBoundaries={handleUpdatePerformanceBoundaries}
           actionLoading={actionLoading}
         />
       )}
