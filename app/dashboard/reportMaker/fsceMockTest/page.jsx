@@ -10,6 +10,7 @@ import {
   MockTestSelection,
   BatchInformation,
   MaxScoresSection,
+  GradingCriteriaSection,
   StudentScoresTable,
   SaveButton
 } from './Comp';
@@ -118,10 +119,44 @@ const getDefaultPaperSections = () => {
       paperId: generateId(),
       paperName: 'Paper 3',
       sections: [
-        { sectionId: generateId(), sectionName: 'CW', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'CW', subject: 'creativeWriting', maxScore: 10 },
       ],
     },
   ];
+};
+
+// Function to generate default grading criteria
+const getDefaultGradingCriteria = () => {
+  return {
+    ICQ: {
+      math: {
+        safe: 24,
+        border: 23,
+      },
+      english: {
+        safe: 55,
+        border: 57.8,
+      },
+      creativeWriting: {
+        safe: 12,
+        border: 10,
+      }
+    },
+    OQ: {
+      math: {
+        safe: 33,
+        border: 41.7,
+      },
+      english: {
+        safe: 70,
+        border: 78.8,
+      },
+      creativeWriting: {
+        safe: 12,
+        border: 10,
+      }
+    }
+  };
 };
 
 const FSCEMockTestMaker = () => {
@@ -134,6 +169,7 @@ const FSCEMockTestMaker = () => {
   const [mockTestExists, setMockTestExists] = useState(false);
   const [students, setStudents] = useState([]);
   const [paperSections, setPaperSections] = useState([]);
+  const [gradingCriteria, setGradingCriteria] = useState(getDefaultGradingCriteria());
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -258,6 +294,14 @@ const FSCEMockTestMaker = () => {
               ]
             };
             setPaperSections([defaultPaper]);
+          }
+
+          // Process grading criteria from API response
+          if (response.data.gradingCriteria) {
+            setGradingCriteria(response.data.gradingCriteria);
+          } else {
+            // Use default grading criteria if not available
+            setGradingCriteria(getDefaultGradingCriteria());
           }
 
           // Fetch students for this mock test and batch
@@ -451,12 +495,18 @@ const FSCEMockTestMaker = () => {
     setPaperSections(updatedSections);
   };
 
+  // Handle updating grading criteria
+  const handleUpdateGradingCriteria = (updatedCriteria) => {
+    setGradingCriteria(updatedCriteria);
+  };
+
   // Create a new mock test with the selected ID - now just shows the form
   const handleCreateNew = () => {
     setShowCreateForm(true);
     
-    // Initialize with default paper structure
+    // Initialize with default paper structure and grading criteria
     setPaperSections(getDefaultPaperSections());
+    setGradingCriteria(getDefaultGradingCriteria());
     
     // Fetch students for this mock test without creating a report
     fetchStudents(selectedMockTest, selectedBatch);
@@ -500,6 +550,7 @@ const FSCEMockTestMaker = () => {
         mockTestId: selectedMockTest,
         batchId: selectedBatch,
         paperSections: paperSections,
+        gradingCriteria: gradingCriteria,
         childScore: sectionScoresData
       };
       
@@ -572,6 +623,7 @@ const FSCEMockTestMaker = () => {
         mockTestId: selectedMockTest,
         batchId: selectedBatch,
         paperSections: paperSections,
+        gradingCriteria: gradingCriteria,
         childScore: sectionScoresData
       };
       
@@ -660,6 +712,15 @@ const FSCEMockTestMaker = () => {
         <MaxScoresSection
           paperSections={paperSections}
           handleUpdatePaperSections={handleUpdatePaperSections}
+          actionLoading={actionLoading}
+        />
+      )}
+
+      {/* Grading Criteria Component */}
+      {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
+        <GradingCriteriaSection
+          gradingCriteria={gradingCriteria}
+          handleUpdateGradingCriteria={handleUpdateGradingCriteria}
           actionLoading={actionLoading}
         />
       )}

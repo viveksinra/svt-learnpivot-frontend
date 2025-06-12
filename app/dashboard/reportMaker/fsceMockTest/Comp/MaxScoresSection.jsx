@@ -22,7 +22,8 @@ import DeleteIcon from '@mui/icons-material/Delete';
 
 const SubjectOptions = [
   { value: 'math', label: 'Mathematics' },
-  { value: 'english', label: 'English' }
+  { value: 'english', label: 'English' },
+  { value: 'creativeWriting', label: 'Creative Writing' },
 ];
 
 const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoading }) => {
