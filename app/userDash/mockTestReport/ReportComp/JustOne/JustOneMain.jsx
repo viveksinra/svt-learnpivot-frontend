@@ -242,7 +242,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
         />
         
         <Typography variant="body2" color="text.secondary">
-          This table shows your child's selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
+          *This table shows your child's selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
         </Typography>
       </Paper>
 

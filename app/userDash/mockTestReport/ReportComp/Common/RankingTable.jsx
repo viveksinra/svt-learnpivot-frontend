@@ -53,10 +53,10 @@ const RankingTable = ({
   };
 
   const getStatusCellStyle = (status) => {
-    if (status === 'Safe') return { backgroundColor: '#e8f5e9', color: '#2e7d32', fontSize: '0.7rem' };
-    if (status === 'Borderline') return { backgroundColor: '#fff3e0', color: '#ed6c02', fontSize: '0.7rem' };
-    if (status === 'Concern') return { backgroundColor: '#ffebee', color: '#d32f2f', fontSize: '0.7rem' };
-    return { fontSize: '0.7rem' };
+    if (status === 'Safe') return { backgroundColor: '#e8f5e9', color: '#2e7d32', fontSize: '0.75rem' };
+    if (status === 'Borderline') return { backgroundColor: '#fff3e0', color: '#ed6c02', fontSize: '0.75rem' };
+    if (status === 'Concern') return { backgroundColor: '#ffebee', color: '#d32f2f', fontSize: '0.75rem' };
+    return { fontSize: '0.75rem' };
   };
 
   if (!data || data.length === 0) {
@@ -85,22 +85,40 @@ const RankingTable = ({
               </TableCell>
             )}
             {relevantSchools.map(school => (
-              <TableCell 
-                key={school} 
-                align="center" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  backgroundColor: '#f5f5f5',
-                  fontSize: '0.75rem',
-                  minWidth: 80
-                }}
-              >
-                {school.toUpperCase()}
-                <br />
-                <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>
-                  In/Out
-                </Typography>
-              </TableCell>
+              <React.Fragment key={school}>
+                <TableCell 
+                  align="center" 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    backgroundColor: '#f5f5f5',
+                    fontSize: '0.75rem',
+                    minWidth: 60,
+                    padding: '8px 4px'
+                  }}
+                >
+                  {school.toUpperCase()}
+                  <br />
+                  <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>
+                    In
+                  </Typography>
+                </TableCell>
+                <TableCell 
+                  align="center" 
+                  sx={{ 
+                    fontWeight: 'bold', 
+                    backgroundColor: '#f5f5f5',
+                    fontSize: '0.75rem',
+                    minWidth: 60,
+                    padding: '8px 4px'
+                  }}
+                >
+                  {school.toUpperCase()}
+                  <br />
+                  <Typography variant="caption" sx={{ fontSize: '0.6rem' }}>
+                    Out
+                  </Typography>
+                </TableCell>
+              </React.Fragment>
             ))}
           </TableRow>
         </TableHead>
@@ -152,26 +170,36 @@ const RankingTable = ({
                   const outsideStatus = getSelectionStatus(standardizedScore, school, 'outside');
                   
                   return (
-                    <TableCell key={school} align="center" sx={{ padding: '4px' }}>
-                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                    <React.Fragment key={school}>
+                      <TableCell align="center" sx={{ padding: '4px' }}>
                         <Box sx={{ 
                           ...getStatusCellStyle(insideStatus),
-                          padding: '2px 4px',
+                          padding: '4px 8px',
                           borderRadius: '4px',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          minHeight: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
                           {insideStatus}
                         </Box>
+                      </TableCell>
+                      <TableCell align="center" sx={{ padding: '4px' }}>
                         <Box sx={{ 
                           ...getStatusCellStyle(outsideStatus),
-                          padding: '2px 4px',
+                          padding: '4px 8px',
                           borderRadius: '4px',
-                          textAlign: 'center'
+                          textAlign: 'center',
+                          minHeight: '24px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}>
                           {outsideStatus}
                         </Box>
-                      </Box>
-                    </TableCell>
+                      </TableCell>
+                    </React.Fragment>
                   );
                 })}
               </TableRow>

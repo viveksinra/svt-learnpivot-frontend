@@ -94,7 +94,6 @@ export function SearchArea({handleEdit}) {
     async function fetchAllData() {
       setLoading(true)
       let response = await myCourseService.getAll(`${sortBy}/${rowsPerPage}/${page}/${searchText}`);
-     console.log(response)
       if(response.variant === "success"){
         setLoading(false)
         setRows(response.data)
