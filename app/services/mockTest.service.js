@@ -166,6 +166,13 @@ export class MockTestService {
       })
       .then((res) => res.data);
   };
+  addFsceMockReport = async (data) => {
+    return this.instance
+      .post(`/api/v1/privateRoute/mockReportMaker/admin/addFsceMockReport`, data, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
   // ==================== PARENT METHODS ====================
 

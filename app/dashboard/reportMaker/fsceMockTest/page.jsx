@@ -479,7 +479,7 @@ const FSCEMockTestMaker = () => {
       };
       
       // Make the API call using the service
-      const response = await mockTestService.addCsseMockReport(mockTestData);
+      const response = await mockTestService.addFsceMockReport(mockTestData);
       
       if (response.variant === "success") {
         // Show success message using the snackbar ref
@@ -551,7 +551,7 @@ const FSCEMockTestMaker = () => {
       };
       
       // Make the API call using the service
-      const response = await mockTestService.addCsseMockReport(mockTestData);
+      const response = await mockTestService.addFsceMockReport(mockTestData);
       
       if (response.variant === "success") {
         // Show success message using the snackbar ref

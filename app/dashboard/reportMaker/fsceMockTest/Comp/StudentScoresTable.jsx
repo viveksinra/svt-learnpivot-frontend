@@ -157,35 +157,30 @@ const StudentScoresTable = ({
       };
     });
     
-    // Sort students by math total (descending)
-    const mathRankList = [...studentsWithTotals]
-      .sort((a, b) => b.mathTotal - a.mathTotal)
-      .map((student, index) => ({ 
-        id: student.id, 
-        rank: index > 0 && student.mathTotal === studentsWithTotals[index - 1].mathTotal 
-          ? mathRankList[index - 1].rank 
-          : index + 1 
-      }));
+    // Helper function to calculate ranks for a given score property
+    const calculateRanks = (students, scoreProperty) => {
+      const sorted = [...students].sort((a, b) => b[scoreProperty] - a[scoreProperty]);
+      let currentRank = 1;
+      let lastScore = null;
+      
+      return sorted.map((student, index) => {
+        const score = student[scoreProperty];
+        if (lastScore !== null && score !== lastScore) {
+          currentRank = index + 1;
+        }
+        lastScore = score;
+        
+        return {
+          id: student.id,
+          rank: score > 0 ? currentRank : 0
+        };
+      });
+    };
     
-    // Sort students by english total (descending)
-    const englishRankList = [...studentsWithTotals]
-      .sort((a, b) => b.englishTotal - a.englishTotal)
-      .map((student, index) => ({ 
-        id: student.id, 
-        rank: index > 0 && student.englishTotal === studentsWithTotals[index - 1].englishTotal 
-          ? englishRankList[index - 1].rank 
-          : index + 1 
-      }));
-    
-    // Sort students by overall total (descending)
-    const overallRankList = [...studentsWithTotals]
-      .sort((a, b) => b.overallTotal - a.overallTotal)
-      .map((student, index) => ({ 
-        id: student.id, 
-        rank: index > 0 && student.overallTotal === studentsWithTotals[index - 1].overallTotal 
-          ? overallRankList[index - 1].rank 
-          : index + 1 
-      }));
+    // Calculate ranks for each subject
+    const mathRankList = calculateRanks(studentsWithTotals, 'mathTotal');
+    const englishRankList = calculateRanks(studentsWithTotals, 'englishTotal');
+    const overallRankList = calculateRanks(studentsWithTotals, 'overallTotal');
     
     // Add ranks to students
     return studentsWithTotals.map(student => ({
