@@ -89,6 +89,41 @@ function calculateRanks(students, paperSections) {
   }));
 }
 
+// Function to generate default paper sections
+const getDefaultPaperSections = () => {
+  const generateId = () => `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  return [
+    {
+      paperId: generateId(),
+      paperName: 'Paper 1',
+      sections: [
+        { sectionId: generateId(), sectionName: 'Comprehension', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'Math', subject: 'math', maxScore: 20 },
+        { sectionId: generateId(), sectionName: 'Antonym', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'Spelling', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'Missing Letters', subject: 'english', maxScore: 10 },
+      ],
+    },
+    {
+      paperId: generateId(),
+      paperName: 'Paper 2',
+      sections: [
+        { sectionId: generateId(), sectionName: 'Math', subject: 'math', maxScore: 20 },
+        { sectionId: generateId(), sectionName: 'Synonym', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'Antonym', subject: 'english', maxScore: 10 },
+        { sectionId: generateId(), sectionName: 'Word Definition', subject: 'english', maxScore: 10 },
+      ],
+    },
+    {
+      paperId: generateId(),
+      paperName: 'Paper 3',
+      sections: [
+        { sectionId: generateId(), sectionName: 'CW', subject: 'english', maxScore: 10 },
+      ],
+    },
+  ];
+};
+
 const FSCEMockTestMaker = () => {
   const snackRef = useRef();
   
@@ -244,11 +279,7 @@ const FSCEMockTestMaker = () => {
           }
         } else {
           // Initialize empty paper structure for new report
-          setPaperSections([{
-            paperId: Date.now().toString(),
-            paperName: "Paper 1",
-            sections: []
-          }]);
+          setPaperSections(getDefaultPaperSections());
           
           await fetchStudents(selectedMockTest, batchId);
         }
@@ -424,14 +455,8 @@ const FSCEMockTestMaker = () => {
   const handleCreateNew = () => {
     setShowCreateForm(true);
     
-    // Initialize with empty paper structure if needed
-    if (paperSections.length === 0) {
-      setPaperSections([{
-        paperId: Date.now().toString(),
-        paperName: "Paper 1",
-        sections: []
-      }]);
-    }
+    // Initialize with default paper structure
+    setPaperSections(getDefaultPaperSections());
     
     // Fetch students for this mock test without creating a report
     fetchStudents(selectedMockTest, selectedBatch);
