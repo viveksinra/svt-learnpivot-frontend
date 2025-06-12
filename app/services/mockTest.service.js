@@ -174,6 +174,21 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
+  /**
+   * Get FSCE mock test report by mock test ID and batch ID
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockTestId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @returns {Promise} Response with mock test report
+   */
+  getFsceMockReport = async ({ mockTestId, batchId }) => {
+    return this.instance
+      .get(`/api/v1/privateRoute/mockReportMaker/admin/getFsceMockReport/${mockTestId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
   // ==================== PARENT METHODS ====================
 
   /**

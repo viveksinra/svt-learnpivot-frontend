@@ -191,7 +191,7 @@ const FSCEMockTestMaker = () => {
       try {
         setActionLoading(true);
         // Check if the mock test report exists for this batch
-        const response = await mockTestService.getCsseMockReport({
+        const response = await mockTestService.getFsceMockReport({
           mockTestId: selectedMockTest,
           batchId
         });
