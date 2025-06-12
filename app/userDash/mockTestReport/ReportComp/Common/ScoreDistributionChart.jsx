@@ -124,7 +124,7 @@ const ScoreDistributionChart = ({ boysRanking, girlsRanking, englishMaxScore, ma
   }
   
   return (
-    <Box sx={{ height: 400, width: '100%' }}>
+    <Box sx={{ height: { xs: 250, sm: 350, md: 400 }, width: '100%' }}>
       <Chart type="bar" data={chartData} options={chartOptions} />
     </Box>
   );

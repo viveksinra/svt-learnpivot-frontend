@@ -222,8 +222,8 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
       </Grid>
 
       {/* Chances of Selection by School */}
-      <Paper elevation={0} sx={{ p: 3, mt: 3, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mt: 3, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           <School sx={{ mr: 1 }} /> Chances of Selection by School
         </Typography>
         
@@ -241,7 +241,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
           mathsMaxScore={mathsMaxScore}
         />
         
-        <Typography variant="body2" color="text.secondary">
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           *This table shows your child's selection chances at different schools, based on their current performance, CSSE data, and our judgement. It does not reflect their full potential.
         </Typography>
       </Paper>
@@ -249,8 +249,8 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
     
 
       {/* Overall Ranking Tables with Tabs */}
-      <Paper elevation={0} sx={{ p: 3, mt: 3, borderRadius: 2, border: '1px solid #e0e0e0' }}>
-        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+      <Paper elevation={0} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mt: 3, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+        <Typography variant="h6" sx={{ mb: 2, display: 'flex', alignItems: 'center', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
           <Assessment sx={{ mr: 1 }} /> Overall Student Rankings
         </Typography>
         
@@ -261,10 +261,24 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
             aria-label="ranking tabs"
             textColor="primary"
             indicatorColor="primary"
+            variant="scrollable"
+            scrollButtons="auto"
+            allowScrollButtonsMobile
+            sx={{
+              '& .MuiTab-root': {
+                minWidth: { xs: 'auto', sm: 120 },
+                fontSize: { xs: '0.75rem', sm: '0.875rem' },
+                padding: { xs: '6px 8px', sm: '12px 16px' },
+                '& .MuiSvgIcon-root': {
+                  fontSize: { xs: '1rem', sm: '1.25rem' },
+                  marginBottom: { xs: '2px', sm: '4px' }
+                }
+              }
+            }}
           >
-            <Tab icon={<Girl />} label="Girls Ranking" />
-            <Tab icon={<Boy />} label="Boys Ranking" />
-            <Tab icon={<BarChart />} label="Score Distribution" />
+            <Tab icon={<Girl />} label="Girls Ranking" iconPosition="top" />
+            <Tab icon={<Boy />} label="Boys Ranking" iconPosition="top" />
+            <Tab icon={<BarChart />} label="Score Distribution" iconPosition="top" />
           </Tabs>
         </Box>
         
