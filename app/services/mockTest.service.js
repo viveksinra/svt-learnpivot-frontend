@@ -233,6 +233,52 @@ export class MockTestService {
       .then((res) => res.data);
   };
 
+// for fsce
+ /**
+   * Get all past CSSE mock test results for a specific child (for parents)
+   * @param {string} childId - Child ID
+   * @returns {Promise} Response with child's mock test results
+   */
+ getMyPastFsceMockTestResultForAll = async (childId) => {
+  return this.instance
+    .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastFsceMockTestResultForAll/${childId}`, {
+      headers: getAuthorizationHeader(),
+    })
+    .then((res) => res.data);
+};
+
+/**
+ * Get specific CSSE mock test result by batch ID for a child (for parents)
+ * @param {Object} params - Parameters object
+ * @param {string} params.childId - Child ID
+ * @param {string} params.mockTestId - Mock test ID
+ * @param {string} params.batchId - Batch ID
+ * @returns {Promise} Response with specific mock test result
+ */
+  getMyPastFsceMockTestResultByBatchId = async ({ childId, mockTestId, batchId }) => {
+  return this.instance
+    .get(`/api/v1/privateRoute/mockReportMaker/parent/getMyPastFsceMockTestResultByBatchId/${childId}/${mockTestId}/${batchId}`, {
+      headers: getAuthorizationHeader(),
+    })
+    .then((res) => res.data);
+};
+
+getFsceMockTestIdsByChildId = async (childId) => {
+  return this.instance
+    .get(`/api/v1/privateRoute/mockReportMaker/parent/getFsceMockTestIdsByChildId/${childId}`, {
+      headers: getAuthorizationHeader(),
+    })
+    .then((res) => res.data);
+};
+
+
+
+
+
+
+
+
+
   // ==================== EXISTING METHODS ====================
 
   add = async (id, data) => {

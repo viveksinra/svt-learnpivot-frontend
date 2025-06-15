@@ -6,7 +6,8 @@ const SaveButton = ({
   showCreateForm,
   actionLoading,
   handleSave,
-  handleSaveChanges
+  handleSaveChanges,
+  onCalculateRanks
 }) => {
   const theme = useTheme();
 
@@ -21,6 +22,22 @@ const SaveButton = ({
         mb: 2,
       }}
     >
+      <Button
+        variant="outlined"
+        color="secondary"
+        onClick={onCalculateRanks}
+        disabled={actionLoading}
+        size="large"
+        sx={{
+          borderRadius: 8,
+          px: 3,
+          mr: 2,
+          fontWeight: 'bold'
+        }}
+      >
+        Calculate Ranks
+      </Button>
+
       {mockTestExists ? (
         <Tooltip title="Save all scores for this mock test">
           <Button

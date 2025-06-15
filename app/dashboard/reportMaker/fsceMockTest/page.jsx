@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from 'react';
-import { Box, Snackbar, Typography } from '@mui/material';
+import { Box, Snackbar, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { mockTestService } from '@/app/services';
 import MySnackbar from '@/app/Components/MySnackbar/MySnackbar';
 
@@ -204,6 +205,8 @@ const FSCEMockTestMaker = () => {
   const [availableBatches, setAvailableBatches] = useState([]);
   // State to show form without calling API
   const [showCreateForm, setShowCreateForm] = useState(false);
+  // flag to indicate if ranks calculated to show maybe
+  const [ranksCalculated, setRanksCalculated] = useState(false);
 
   // Fetch the list of available mock tests
   useEffect(() => {
@@ -345,6 +348,7 @@ const FSCEMockTestMaker = () => {
             // Map students with their scores from the report
             const processedStudents = processStudentScores(studentsResponse.data, response.data);
             setStudents(processedStudents);
+            setRanksCalculated(true);
           } else {
             setStudents([]);
             snackRef.current.handleSnack({
@@ -516,9 +520,15 @@ const FSCEMockTestMaker = () => {
         return student;
       });
       
-      // Calculate ranks after score change
-      return calculateRanks(updated, paperSections);
+      setRanksCalculated(false);
+      return updated;
     });
+  };
+
+  // manually calculate ranks
+  const handleCalculateRanks = () => {
+    setStudents(prev => calculateRanks(prev, paperSections));
+    setRanksCalculated(true);
   };
 
   // Handle updating paper sections structure
@@ -572,8 +582,10 @@ const FSCEMockTestMaker = () => {
         return;
       }
       
+      // Ensure ranks are calculated
+      const studentsWithRanks = ranksCalculated ? students : calculateRanks(students, paperSections);
       // Prepare student scores with section format
-      const sectionScoresData = students.map(student => ({
+      const sectionScoresData = studentsWithRanks.map(student => ({
         childId: student.id,
         sectionScores: student.scores || {},
         // Include ranks
@@ -646,8 +658,10 @@ const FSCEMockTestMaker = () => {
         return;
       }
       
+      // Ensure ranks are calculated
+      const studentsWithRanks = ranksCalculated ? students : calculateRanks(students, paperSections);
       // Prepare student scores with section format
-      const sectionScoresData = students.map(student => ({
+      const sectionScoresData = studentsWithRanks.map(student => ({
         childId: student.id,
         sectionScores: student.scores || {},
         // Include ranks
@@ -722,66 +736,198 @@ const FSCEMockTestMaker = () => {
       {/* Page Header */}
       <PageHeader actionLoading={actionLoading} />
       
-      {/* Mock Test Selection */}
-      <MockTestSelection
-        mockTests={mockTests}
-        selectedMockTest={selectedMockTest}
-        selectedBatch={selectedBatch}
-        availableBatches={availableBatches}
-        mockTestExists={mockTestExists}
-        loading={loading}
-        actionLoading={actionLoading}
-        showCreateForm={showCreateForm}
-        handleMockTestChange={handleMockTestChange}
-        handleBatchChange={handleBatchChange}
-        handleCreateNew={handleCreateNew}
-      />
+      {/* Mock Test Selection Accordion */}
+      <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          sx={{
+            backgroundColor: 'primary.main',
+            color: 'white',
+            borderRadius: '8px 8px 0 0',
+            '&.Mui-expanded': {
+              minHeight: 48,
+            },
+            '& .MuiAccordionSummary-content': {
+              margin: '12px 0',
+            }
+          }}
+        >
+          <Typography variant="h6" fontWeight="bold">
+            📋 Mock Test & Batch Selection
+          </Typography>
+        </AccordionSummary>
+        <AccordionDetails sx={{ p: 0 }}>
+          <MockTestSelection
+            mockTests={mockTests}
+            selectedMockTest={selectedMockTest}
+            selectedBatch={selectedBatch}
+            availableBatches={availableBatches}
+            mockTestExists={mockTestExists}
+            loading={loading}
+            actionLoading={actionLoading}
+            showCreateForm={showCreateForm}
+            handleMockTestChange={handleMockTestChange}
+            handleBatchChange={handleBatchChange}
+            handleCreateNew={handleCreateNew}
+          />
+        </AccordionDetails>
+      </Accordion>
 
-      {/* Batch Information */}
+      {/* Batch Information Accordion */}
       {selectedMockTest && selectedBatch && availableBatches.length > 0 && (
-        <BatchInformation
-          selectedBatch={selectedBatch}
-          availableBatches={availableBatches}
-          students={students}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor: 'info.main',
+              color: 'white',
+              borderRadius: '8px 8px 0 0',
+              '&.Mui-expanded': {
+                minHeight: 48,
+              },
+              '& .MuiAccordionSummary-content': {
+                margin: '12px 0',
+              }
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              ℹ️ Batch Information
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <BatchInformation
+              selectedBatch={selectedBatch}
+              availableBatches={availableBatches}
+              students={students}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
-      {/* Paper Sections Component */}
+      {/* Paper Sections Accordion */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <MaxScoresSection
-          paperSections={paperSections}
-          handleUpdatePaperSections={handleUpdatePaperSections}
-          actionLoading={actionLoading}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor: 'warning.main',
+              color: 'white',
+              borderRadius: '8px 8px 0 0',
+              '&.Mui-expanded': {
+                minHeight: 48,
+              },
+              '& .MuiAccordionSummary-content': {
+                margin: '12px 0',
+              }
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              📝 Exam Structure & Maximum Scores
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <MaxScoresSection
+              paperSections={paperSections}
+              handleUpdatePaperSections={handleUpdatePaperSections}
+              actionLoading={actionLoading}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
-      {/* Grading Criteria Component */}
+      {/* Grading Criteria Accordion */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <GradingCriteriaSection
-          gradingCriteria={gradingCriteria}
-          handleUpdateGradingCriteria={handleUpdateGradingCriteria}
-          actionLoading={actionLoading}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor: 'success.main',
+              color: 'white',
+              borderRadius: '8px 8px 0 0',
+              '&.Mui-expanded': {
+                minHeight: 48,
+              },
+              '& .MuiAccordionSummary-content': {
+                margin: '12px 0',
+              }
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              🎯 Grading Criteria
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <GradingCriteriaSection
+              gradingCriteria={gradingCriteria}
+              handleUpdateGradingCriteria={handleUpdateGradingCriteria}
+              actionLoading={actionLoading}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
-      {/* Performance Boundaries Component */}
+      {/* Performance Boundaries Accordion */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <PerformanceBoundariesSection
-          performanceBoundaries={performanceBoundaries}
-          handleUpdatePerformanceBoundaries={handleUpdatePerformanceBoundaries}
-          actionLoading={actionLoading}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor: 'secondary.main',
+              color: 'white',
+              borderRadius: '8px 8px 0 0',
+              '&.Mui-expanded': {
+                minHeight: 48,
+              },
+              '& .MuiAccordionSummary-content': {
+                margin: '12px 0',
+              }
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              📊 Performance Boundaries
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <PerformanceBoundariesSection
+              performanceBoundaries={performanceBoundaries}
+              handleUpdatePerformanceBoundaries={handleUpdatePerformanceBoundaries}
+              actionLoading={actionLoading}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
-      {/* Student Scores Table */}
+      {/* Student Scores Accordion */}
       {selectedMockTest && selectedBatch && (mockTestExists || showCreateForm) && (
-        <StudentScoresTable
-          students={students}
-          paperSections={paperSections}
-          actionLoading={actionLoading}
-          handleScoreChange={handleScoreChange}
-          onReloadStudents={handleReloadStudents}
-        />
+        <Accordion defaultExpanded sx={{ mb: 2, borderRadius: 2, '&:before': { display: 'none' } }}>
+          <AccordionSummary
+            expandIcon={<ExpandMoreIcon />}
+            sx={{
+              backgroundColor: 'error.main',
+              color: 'white',
+              borderRadius: '8px 8px 0 0',
+              '&.Mui-expanded': {
+                minHeight: 48,
+              },
+              '& .MuiAccordionSummary-content': {
+                margin: '12px 0',
+              }
+            }}
+          >
+            <Typography variant="h6" fontWeight="bold">
+              🎓 Student Scores
+            </Typography>
+          </AccordionSummary>
+          <AccordionDetails sx={{ p: 0 }}>
+            <StudentScoresTable
+              students={students}
+              paperSections={paperSections}
+              actionLoading={actionLoading}
+              handleScoreChange={handleScoreChange}
+              onReloadStudents={handleReloadStudents}
+            />
+          </AccordionDetails>
+        </Accordion>
       )}
 
       {/* Save Button */}
@@ -792,6 +938,7 @@ const FSCEMockTestMaker = () => {
           actionLoading={actionLoading}
           handleSave={handleSave}
           handleSaveChanges={handleSaveChanges}
+          onCalculateRanks={handleCalculateRanks}
         />
       )}
 

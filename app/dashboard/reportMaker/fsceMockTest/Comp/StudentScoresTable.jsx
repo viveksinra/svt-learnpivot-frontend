@@ -22,7 +22,8 @@ import {
   Badge,
   Tabs,
   Tab,
-  alpha
+  alpha,
+  Fade
 } from '@mui/material';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarIcon from '@mui/icons-material/Star';
@@ -56,9 +57,11 @@ const StudentScoresTable = ({
     }
   }, [paperSections, currentPaperIndex]);
   
-  // Handle tab change
+  // Handle tab change with smooth transition
   const handleTabChange = (event, newValue) => {
-    setCurrentPaperIndex(newValue);
+    if (newValue !== currentPaperIndex) {
+      setCurrentPaperIndex(newValue);
+    }
   };
   
   // Handle reload button click
@@ -139,66 +142,19 @@ const StudentScoresTable = ({
     return 'default';
   };
 
-  // Calculate student ranks
-  const calculateStudentRanks = () => {
-    if (!students || students.length === 0) return [];
-    
-    // Create a copy of students with calculated totals
-    const studentsWithTotals = students.map(student => {
-      const { total: mathTotal } = calculateSubjectTotal(student, 'math');
-      const { total: englishTotal } = calculateSubjectTotal(student, 'english');
-      const { total: overallTotal } = calculateOverallTotal(student);
-      
-      return {
-        ...student,
-        mathTotal,
-        englishTotal,
-        overallTotal
-      };
-    });
-    
-    // Helper function to calculate ranks for a given score property
-    const calculateRanks = (students, scoreProperty) => {
-      const sorted = [...students].sort((a, b) => b[scoreProperty] - a[scoreProperty]);
-      let currentRank = 1;
-      let lastScore = null;
-      
-      return sorted.map((student, index) => {
-        const score = student[scoreProperty];
-        if (lastScore !== null && score !== lastScore) {
-          currentRank = index + 1;
-        }
-        lastScore = score;
-        
-        return {
-          id: student.id,
-          rank: score > 0 ? currentRank : 0
-        };
-      });
-    };
-    
-    // Calculate ranks for each subject
-    const mathRankList = calculateRanks(studentsWithTotals, 'mathTotal');
-    const englishRankList = calculateRanks(studentsWithTotals, 'englishTotal');
-    const overallRankList = calculateRanks(studentsWithTotals, 'overallTotal');
-    
-    // Add ranks to students
-    return studentsWithTotals.map(student => ({
-      ...student,
-      mathRank: mathRankList.find(r => r.id === student.id)?.rank || 0,
-      englishRank: englishRankList.find(r => r.id === student.id)?.rank || 0,
-      overallRank: overallRankList.find(r => r.id === student.id)?.rank || 0
-    }));
-  };
-
   // Sorting function for student data
   const sortStudents = (students) => {
     if (!students || students.length === 0) return [];
     
-    // Calculate ranks and add them to students
-    const studentsWithRanks = calculateStudentRanks();
+    // Add display totals for sorting, but use ranks from props
+    const studentsWithDisplayTotals = students.map(student => {
+      const { total: mathTotal } = calculateSubjectTotal(student, 'math');
+      const { total: englishTotal } = calculateSubjectTotal(student, 'english');
+      const { total: overallTotal } = calculateOverallTotal(student);
+      return { ...student, mathTotal, englishTotal, overallTotal };
+    });
     
-    return [...studentsWithRanks].sort((a, b) => {
+    return [...studentsWithDisplayTotals].sort((a, b) => {
       let aValue, bValue;
       
       if (orderBy === 'name') {
@@ -219,8 +175,11 @@ const StudentScoresTable = ({
         aValue = a.overallTotal || 0;
         bValue = b.overallTotal || 0;
       } else if (orderBy === 'overallRank') {
-        aValue = a.overallRank || 999;
-        bValue = b.overallRank || 999;
+        // Use a large number for unranked students to push them to the bottom
+        aValue = a.overallRank || 9999;
+        bValue = b.overallRank || 9999;
+        // For ranks, ascending order is what's usually wanted (1, 2, 3...)
+        return order === 'asc' ? aValue - bValue : bValue - aValue;
       } else if (orderBy.startsWith('section_')) {
         // Sort by individual section score
         const sectionId = orderBy.replace('section_', '');
@@ -228,23 +187,15 @@ const StudentScoresTable = ({
         bValue = Number(b.scores?.[sectionId] || 0);
       }
       
+      // Default score sorting (higher is better)
       return order === 'asc' ? aValue - bValue : bValue - aValue;
     });
   };
   
   if (paperSections.length === 0) {
     return (
-      <Card elevation={3} sx={{ mb: 4, borderRadius: 2, p: { xs: 2, sm: 3 }, bgcolor: '#f8f9fa' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h6" fontWeight="bold" color="text.primary">
-            Student Scores
-          </Typography>
-          <Tooltip title="Enter or edit scores for each student" placement="right">
-            <InfoOutlinedIcon color="info" sx={{ ml: 1 }} />
-          </Tooltip>
-        </Box>
-        <Divider sx={{ mb: 2 }} />
-        <Alert severity="warning">
+      <Card elevation={0} sx={{ mb: 2, borderRadius: 2, p: 2, bgcolor: 'transparent' }}>
+        <Alert severity="warning" sx={{ borderRadius: 2 }}>
           Please define papers and sections in the Exam Structure section above before entering student scores.
         </Alert>
       </Card>
@@ -255,58 +206,82 @@ const StudentScoresTable = ({
   const currentPaper = paperSections[currentPaperIndex] || { sections: [] };
   
   return (
-    <Card elevation={3} sx={{ 
-      mb: 4, 
+    <Card elevation={0} sx={{ 
+      mb: 2, 
       borderRadius: 2, 
-      p: { xs: 2, sm: 3 }, 
-      background: 'linear-gradient(to bottom, #ffffff, #f8fafc)',
-      boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.08)'
+      p: 2, 
+      bgcolor: 'transparent'
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h6" fontWeight="bold" color="text.primary">
-          Student Scores
-        </Typography>
-        <Tooltip title="Enter or edit scores for each student" placement="right">
-          <InfoOutlinedIcon color="info" sx={{ ml: 1 }} />
-        </Tooltip>
-      </Box>
-      <Divider sx={{ mb: 2 }} />
-      
-      {/* Paper Tabs for navigation */}
-      <Tabs 
-        value={currentPaperIndex}
-        onChange={handleTabChange}
-        variant="scrollable"
-        scrollButtons="auto"
-        sx={{ 
-          mb: 3,
-          borderBottom: 1,
-          borderColor: 'divider',
-          '& .MuiTab-root': {
-            fontWeight: 'bold',
-            fontSize: '0.9rem',
-            transition: 'all 0.2s',
-            '&.Mui-selected': {
-              color: theme.palette.primary.main,
-              backgroundColor: alpha(theme.palette.primary.main, 0.1),
-              borderRadius: '6px 6px 0 0'
+      {/* Enhanced Paper Tabs for navigation */}
+      <Box sx={{ 
+        borderBottom: 1, 
+        borderColor: 'divider', 
+        mb: 2,
+        backgroundColor: 'white',
+        borderRadius: '8px 8px 0 0',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
+        <Tabs 
+          value={currentPaperIndex}
+          onChange={handleTabChange}
+          variant="fullWidth"
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          TabIndicatorProps={{
+            style: {
+              height: 3,
+              borderRadius: '3px 3px 0 0',
+              backgroundColor: theme.palette.primary.main,
             }
-          }
-        }}
-      >
-        {paperSections.map((paper, index) => (
-          <Tab key={paper.paperId} label={paper.paperName} value={index} />
-        ))}
-      </Tabs>
+          }}
+          sx={{ 
+            '& .MuiTab-root': {
+              fontWeight: 'bold',
+              fontSize: '0.85rem',
+              minHeight: 48,
+              py: 1.5,
+              px: 2,
+              transition: 'all 0.3s ease',
+              textTransform: 'none',
+              '&.Mui-selected': {
+                color: theme.palette.primary.main,
+                backgroundColor: alpha(theme.palette.primary.main, 0.08),
+                fontWeight: 'bold'
+              },
+              '&:hover': {
+                backgroundColor: alpha(theme.palette.primary.main, 0.04),
+                color: theme.palette.primary.main,
+              }
+            }
+          }}
+        >
+          {paperSections.map((paper, index) => (
+            <Tab 
+              key={paper.paperId} 
+              label={
+                <Box sx={{ textAlign: 'center' }}>
+                  <Typography variant="body2" fontWeight="inherit">
+                    {paper.paperName}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {paper.sections.length} sections
+                  </Typography>
+                </Box>
+              } 
+              value={index} 
+            />
+          ))}
+        </Tabs>
+      </Box>
       
-      {/* Students Table */}
+      {/* Students Table with Smooth Transitions */}
       {!students || students.length === 0 ? (
-        <Box sx={{ textAlign: 'center', py: 4 }}>
+        <Box sx={{ textAlign: 'center', py: 3 }}>
           <Alert
             severity="info"
             variant="outlined"
             icon={<InfoOutlinedIcon fontSize="inherit" />}
-            sx={{ borderRadius: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', mb: 3 }}
+            sx={{ borderRadius: 2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}
           >
             No students found for this mock test and batch.
           </Alert>
@@ -315,424 +290,407 @@ const StudentScoresTable = ({
             <Button
               variant="contained"
               color="primary"
-              startIcon={isReloading ? <CircularProgress size={20} color="inherit" /> : <RefreshIcon />}
+              startIcon={isReloading ? <CircularProgress size={16} color="inherit" /> : <RefreshIcon />}
               onClick={handleReload}
               disabled={isReloading || actionLoading}
+              size="small"
               sx={{ 
                 borderRadius: 2,
-                px: 3,
-                py: 1,
-                fontWeight: 'medium'
+                px: 2,
+                py: 1
               }}
             >
               {isReloading ? 'Reloading...' : 'Reload Students'}
             </Button>
           </Box>
           
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
             If students should be available, try reloading or check if the student data is correctly uploaded.
           </Typography>
         </Box>
       ) : (
-        <TableContainer
-          component={Paper}
-          variant="outlined"
-          sx={{
-            borderRadius: 2,
-            overflow: 'hidden',
-            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
-            '& .MuiTableCell-root': { 
-              py: 2,
-              px: { xs: 1, sm: 2 }
-            },
-            width: '100%',
-            maxWidth: '100vw'
-          }}
-        >
-          <Box sx={{ overflowX: 'auto', width: '100%' }}>
-            <Table>
-              <TableHead sx={{ 
-                background: 'linear-gradient(135deg, #3949ab 0%, #303f9f 100%)'
-              }}>
-                <TableRow>
-                  <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: { xs: 120, sm: 150 } }}>
-                    <TableSortLabel
-                      active={orderBy === 'name'}
-                      direction={orderBy === 'name' ? order : 'asc'}
-                      onClick={() => handleRequestSort('name')}
-                      sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
-                    >
-                      Student Info
-                    </TableSortLabel>
-                  </TableCell>
-                  <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: { xs: 150, sm: 180 } }}>
-                    Parent Info
-                  </TableCell>
-                  
-                  {/* Dynamic section columns for current paper */}
-                  {currentPaper.sections.map(section => {
-                    // Get appropriate colors for subject
-                    const sectionColor = section.subject === 'math' 
-                      ? 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)' 
-                      : 'linear-gradient(135deg, #00897B 0%, #00695C 100%)';
-                    
-                    return (
-                      <TableCell 
-                        key={section.sectionId}
-                        sx={{ 
-                          fontWeight: 'bold', 
-                          color: 'white', 
-                          minWidth: { xs: 100, sm: 120 },
-                          background: sectionColor
-                        }}
+        <Fade in={true} timeout={300}>
+          <TableContainer
+            component={Paper}
+            variant="outlined"
+            sx={{
+              borderRadius: 2,
+              overflow: 'hidden',
+              boxShadow: '0 1px 8px rgba(0,0,0,0.08)',
+              '& .MuiTableCell-root': { 
+                py: 1,
+                px: 1,
+                fontSize: '0.8rem'
+              },
+              width: '100%',
+              maxWidth: '100vw'
+            }}
+          >
+            <Box sx={{ overflowX: 'auto', width: '100%' }}>
+              <Table size="small">
+                <TableHead sx={{ 
+                  background: 'linear-gradient(135deg, #3949ab 0%, #303f9f 100%)'
+                }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: 120, width: 120 }}>
+                      <TableSortLabel
+                        active={orderBy === 'name'}
+                        direction={orderBy === 'name' ? order : 'asc'}
+                        onClick={() => handleRequestSort('name')}
+                        sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
                       >
-                        <TableSortLabel
-                          active={orderBy === `section_${section.sectionId}`}
-                          direction={orderBy === `section_${section.sectionId}` ? order : 'asc'}
-                          onClick={() => handleRequestSort(`section_${section.sectionId}`)}
-                          sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
-                        >
-                          {section.sectionName || 'Unnamed Section'}
-                        </TableSortLabel> <br />
-                        <Chip 
-                          label={`Max: ${section.maxScore}`} 
-                          size="small" 
-                          sx={{ mt: 0.5, color: 'white', bgcolor: 'rgba(255,255,255,0.2)' }} 
-                        />
-                        <Typography variant="caption" sx={{ display: 'block', color: 'rgba(255,255,255,0.7)', mt: 0.5 }}>
-                          {section.subject === 'math' ? 'Mathematics' : 'English'}
+                        <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.8rem', lineHeight: 1.2 }}>
+                          Student Info
                         </Typography>
-                      </TableCell>
-                    );
-                  })}
-                  
-                  {/* Total column for current paper */}
-                  <TableCell 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white', 
-                      minWidth: { xs: 80, sm: 100 },
-                      background: 'linear-gradient(135deg, #FF5722 0%, #E64A19 100%)'
-                    }}
-                  >
-                    <Typography sx={{ fontWeight: 'bold', color: 'white' }}>
-                      {currentPaper.paperName}<br />Total
-                    </Typography>
-                  </TableCell>
-                  
-                  {/* Overall Ranks column */}
-                  <TableCell 
-                    sx={{ 
-                      fontWeight: 'bold', 
-                      color: 'white', 
-                      minWidth: { xs: 130, sm: 150 },
-                      background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)'
-                    }}
-                  >
-                    <TableSortLabel
-                      active={orderBy === 'overallRank'}
-                      direction={orderBy === 'overallRank' ? order : 'asc'}
-                      onClick={() => handleRequestSort('overallRank')}
-                      sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
-                    >
-                      Overall Total
-                    </TableSortLabel>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {sortStudents(students).map((student, index) => {
-                  // Calculate totals for the current paper
-                  let paperTotal = 0;
-                  let paperMaxTotal = 0;
-                  
-                  currentPaper.sections.forEach(section => {
-                    const score = student.scores?.[section.sectionId] || '';
-                    if (score !== '') {
-                      paperTotal += Number(score);
-                    }
-                    paperMaxTotal += section.maxScore;
-                  });
-                  
-                  // Calculate subject and overall totals
-                  const { total: mathTotal, maxTotal: mathMaxTotal } = calculateSubjectTotal(student, 'math');
-                  const { total: englishTotal, maxTotal: englishMaxTotal } = calculateSubjectTotal(student, 'english');
-                  const { total: overallTotal, maxTotal: overallMaxTotal, percentage: overallPercentage } = calculateOverallTotal(student);
-
-                  return (
-                    <TableRow
-                      key={student.id}
-                      hover
+                      </TableSortLabel>
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: 'white', minWidth: 130, width: 130 }}>
+                      <Typography variant="body2" sx={{ color: 'white',   fontWeight: 'bold', fontSize: '0.8rem', lineHeight: 1.2 }}>
+                        Parent Info
+                      </Typography>
+                    </TableCell>
+                    
+                    {/* Enhanced Dynamic section columns for current paper */}
+                    {currentPaper.sections.map(section => {
+                      // Get appropriate colors for subject
+                      const sectionColor = section.subject === 'math' 
+                        ? 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)' 
+                        : section.subject === 'english'
+                        ? 'linear-gradient(135deg, #00897B 0%, #00695C 100%)'
+                        : 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)';
+                      
+                      return (
+                        <TableCell 
+                          key={section.sectionId}
+                          sx={{ 
+                            fontWeight: 'bold', 
+                            color: 'white', 
+                            minWidth: 85,
+                            width: 85,
+                            background: sectionColor,
+                            textAlign: 'center',
+                            py: 1
+                          }}
+                        >
+                          <TableSortLabel
+                            active={orderBy === `section_${section.sectionId}`}
+                            direction={orderBy === `section_${section.sectionId}` ? order : 'asc'}
+                            onClick={() => handleRequestSort(`section_${section.sectionId}`)}
+                            sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
+                          >
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                              <Typography variant="body2" sx={{ 
+                                fontWeight: 'bold', 
+                                fontSize: '0.8rem', 
+                                lineHeight: 1.1,
+                                textAlign: 'center',
+                                wordBreak: 'break-word',
+                                color: 'white'
+                              }}>
+                                {section.sectionName || 'Unnamed'}
+                              </Typography>
+                              <Typography variant="caption" sx={{ 
+                                fontSize: '0.7rem',
+                                opacity: 0.9,
+                                fontWeight: 'medium'
+                              }}>
+                                Max: {section.maxScore}
+                              </Typography>
+                              <Typography variant="caption" sx={{ 
+                                fontSize: '0.65rem',
+                                opacity: 0.8,
+                                textTransform: 'capitalize'
+                              }}>
+                                {section.subject === 'math' ? 'Mathematics' : 
+                                 section.subject === 'english' ? 'English' : 
+                                 section.subject === 'creativeWriting' ? 'Creative Writing' : section.subject}
+                              </Typography>
+                            </Box>
+                          </TableSortLabel>
+                        </TableCell>
+                      );
+                    })}
+                    
+                    {/* Enhanced Paper total column */}
+                    <TableCell 
                       sx={{ 
-                        '&:nth-of-type(odd)': { backgroundColor: alpha(theme.palette.primary.light, 0.05) },
-                        transition: 'background-color 0.2s',
-                        '&:hover': {
-                          backgroundColor: alpha(theme.palette.primary.light, 0.1),
-                        } 
+                        fontWeight: 'bold', 
+                        color: 'white', 
+                        minWidth: 85,
+                        width: 85,
+                        background: 'linear-gradient(135deg, #FF5722 0%, #E64A19 100%)',
+                        textAlign: 'center'
                       }}
                     >
-                      <TableCell>
-                        <Typography fontWeight="medium">{student.name}</Typography>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          {student.year}
+                      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                        <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.8rem', lineHeight: 1.1 }}>
+                          {currentPaper.paperName}
                         </Typography>
-                        <Chip 
-                          label={`Rank: ${student.overallRank || '-'}`} 
-                          color={getRankBadgeColor(student.overallRank)}
-                          size="small" 
-                          sx={{ mt: 0.5 }}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>{student.parentName}</Typography>
-                        <Typography variant="caption" color="text.secondary" display="block" sx={{ wordBreak: 'break-word' }}>
-                          {student.parentEmail}
+                        <Typography variant="caption" sx={{ fontSize: '0.7rem', opacity: 0.9 }}>
+                          Total Score
                         </Typography>
-                        <Typography variant="caption" color="text.secondary" display="block">
-                          {student.parentMobile}
-                        </Typography>
-                      </TableCell>
-                      
-                      {/* Render section score inputs for current paper */}
-                      {currentPaper.sections.map(section => (
-                        <TableCell key={section.sectionId}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <Tooltip title={`Enter ${section.sectionName} score (max ${section.maxScore})`}>
-                              <TextField
-                                type="number"
-                                value={student.scores?.[section.sectionId] || ''}
-                                onChange={(e) => handleScoreChange(student.id, section.sectionId, e.target.value)}
-                                InputProps={{
-                                  inputProps: {
-                                    min: 0,
-                                    max: section.maxScore,
-                                    style: { textAlign: 'center' },
-                                  },
-                                  sx: { 
-                                    borderRadius: 1.5, 
-                                    height: { xs: '35px', sm: '40px' },
-                                    backgroundColor: 'white'
-                                  },
-                                }}
-                                size="small"
-                                disabled={actionLoading}
-                                sx={{ width: { xs: '70px', sm: '90px' } }}
-                              />
-                            </Tooltip>
-                            {student.scores?.[section.sectionId] === String(section.maxScore) && section.maxScore > 0 && (
-                              <Tooltip title="Max Score!">
-                                <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1.2rem' }} />
-                              </Tooltip>
-                            )}
-                          </Box>
-                          <Box sx={{ mt: 1, display: 'flex', alignItems: 'center' }}>
-                            <Tooltip title={`${Math.round(calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore))}% of maximum score`}>
+                      </Box>
+                    </TableCell>
+                    
+                    {/* Enhanced Overall Summary column */}
+                    <TableCell 
+                      sx={{ 
+                        fontWeight: 'bold', 
+                        color: 'white', 
+                        minWidth: 140,
+                        width: 140,
+                        background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <TableSortLabel
+                        active={orderBy === 'overallRank'}
+                        direction={orderBy === 'overallRank' ? order : 'asc'}
+                        onClick={() => handleRequestSort('overallRank')}
+                        sx={{ color: 'white', '&.MuiTableSortLabel-active': { color: 'white' } }}
+                      >
+                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                          <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.8rem', lineHeight: 1.1 }}>
+                            Overall Summary
+                          </Typography>
+                          <Typography variant="caption" sx={{ fontSize: '0.7rem', opacity: 0.9 }}>
+                            All Subjects & Rank
+                          </Typography>
+                        </Box>
+                      </TableSortLabel>
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {sortStudents(students).map((student, index) => {
+                    // Calculate totals for the current paper
+                    let paperTotal = 0;
+                    let paperMaxTotal = 0;
+                    
+                    currentPaper.sections.forEach(section => {
+                      const score = student.scores?.[section.sectionId] || '';
+                      if (score !== '') {
+                        paperTotal += Number(score);
+                      }
+                      paperMaxTotal += section.maxScore;
+                    });
+                    
+                    // Calculate subject and overall totals
+                    const { total: mathTotal, maxTotal: mathMaxTotal } = calculateSubjectTotal(student, 'math');
+                    const { total: englishTotal, maxTotal: englishMaxTotal } = calculateSubjectTotal(student, 'english');
+                    const { total: overallTotal, maxTotal: overallMaxTotal, percentage: overallPercentage } = calculateOverallTotal(student);
+
+                    return (
+                      <TableRow
+                        key={student.id}
+                        hover
+                        sx={{ 
+                          '&:nth-of-type(odd)': { backgroundColor: alpha(theme.palette.primary.light, 0.03) },
+                          transition: 'all 0.2s ease',
+                          '&:hover': {
+                            backgroundColor: alpha(theme.palette.primary.light, 0.08),
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                          } 
+                        }}
+                      >
+                        <TableCell sx={{ width: 120 }}>
+                          <Typography variant="body2" fontWeight="medium" sx={{ fontSize: '0.8rem', lineHeight: 1.2 }}>
+                            {student.name}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.7rem' }}>
+                            {student.year}
+                          </Typography>
+                          <Chip 
+                            label={`#${student.overallRank || '-'}`} 
+                            color={getRankBadgeColor(student.overallRank)}
+                            size="small" 
+                            sx={{ 
+                              mt: 0.5, 
+                              height: 18,
+                              fontSize: '0.65rem',
+                              '& .MuiChip-label': { px: 0.5 }
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ width: 130 }}>
+                          <Typography variant="caption" sx={{ fontSize: '0.75rem', lineHeight: 1.2, fontWeight: 'medium' }}>
+                            {student.parentName}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem', display: 'block', wordBreak: 'break-word' }}>
+                            {student.parentEmail}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.65rem' }}>
+                            {student.parentMobile}
+                          </Typography>
+                        </TableCell>
+                        
+                        {/* Render section score inputs for current paper */}
+                        {currentPaper.sections.map(section => (
+                          <TableCell key={section.sectionId} sx={{ width: 85, textAlign: 'center' }}>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <TextField
+                                  type="number"
+                                  value={student.scores?.[section.sectionId] || ''}
+                                  onChange={(e) => handleScoreChange(student.id, section.sectionId, e.target.value)}
+                                  InputProps={{
+                                    inputProps: {
+                                      min: 0,
+                                      max: section.maxScore,
+                                      style: { textAlign: 'center', fontSize: '0.8rem' },
+                                    },
+                                    sx: { 
+                                      borderRadius: 1, 
+                                      height: 32,
+                                      backgroundColor: 'white',
+                                      '& input': { py: 0.5, px: 0.5 }
+                                    },
+                                  }}
+                                  size="small"
+                                  disabled={actionLoading}
+                                  sx={{ width: 55 }}
+                                />
+                                {student.scores?.[section.sectionId] === String(section.maxScore) && section.maxScore > 0 && (
+                                  <StarIcon sx={{ color: theme.palette.warning.main, fontSize: '1rem' }} />
+                                )}
+                              </Box>
+                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <CircularProgress
+                                  variant="determinate"
+                                  value={calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore)}
+                                  size={14}
+                                  color={
+                                    calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore) > 70 
+                                      ? 'success' 
+                                      : calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore) > 40 
+                                        ? 'warning' 
+                                        : 'error'
+                                  }
+                                />
+                                <Typography variant="caption" sx={{ fontSize: '0.65rem', color: 'text.secondary' }}>
+                                  {Math.round(calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore))}%
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </TableCell>
+                        ))}
+                        
+                        {/* Paper total column */}
+                        <TableCell sx={{ background: alpha(theme.palette.secondary.light, 0.1), width: 85, textAlign: 'center' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', gap: 0.5 }}>
+                            <Typography sx={{ fontWeight: 'bold', fontSize: '0.8rem', color: theme.palette.text.primary }}>
+                              {paperTotal}/{paperMaxTotal}
+                            </Typography>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                               <CircularProgress
                                 variant="determinate"
-                                value={calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore)}
-                                size={{ xs: 16, sm: 20 }}
+                                value={paperMaxTotal > 0 ? (paperTotal / paperMaxTotal) * 100 : 0}
+                                size={16}
                                 color={
-                                  calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore) > 70 
+                                  paperMaxTotal > 0 && (paperTotal / paperMaxTotal) > 0.7 
                                     ? 'success' 
-                                    : calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore) > 40 
+                                    : paperMaxTotal > 0 && (paperTotal / paperMaxTotal) > 0.4 
                                       ? 'warning' 
                                       : 'error'
                                 }
-                                sx={{ mr: 1 }}
                               />
-                            </Tooltip>
-                            <Typography variant="caption">
-                              {Math.round(calculateProgress(student.scores?.[section.sectionId] || 0, section.maxScore))}%
-                            </Typography>
+                              <Typography variant="caption" sx={{ fontSize: '0.65rem' }}>
+                                {paperMaxTotal > 0 ? Math.round((paperTotal / paperMaxTotal) * 100) : 0}%
+                              </Typography>
+                            </Box>
                           </Box>
                         </TableCell>
-                      ))}
-                      
-                      {/* Paper total column */}
-                      <TableCell sx={{ background: alpha(theme.palette.secondary.light, 0.1) }}>
-                        <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                          <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '0.9rem', sm: '1rem' }, color: theme.palette.text.primary }}>
-                            {paperTotal}/{paperMaxTotal}
-                          </Typography>
-                          <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                            <CircularProgress
-                              variant="determinate"
-                              value={paperMaxTotal > 0 ? (paperTotal / paperMaxTotal) * 100 : 0}
-                              size={{ xs: 20, sm: 24 }}
-                              color={
-                                paperMaxTotal > 0 && (paperTotal / paperMaxTotal) > 0.7 
-                                  ? 'success' 
-                                  : paperMaxTotal > 0 && (paperTotal / paperMaxTotal) > 0.4 
-                                    ? 'warning' 
-                                    : 'error'
-                              }
-                              sx={{ mr: 1 }}
-                            />
-                            <Typography variant="caption">
-                              {paperMaxTotal > 0 ? Math.round((paperTotal / paperMaxTotal) * 100) : 0}%
-                            </Typography>
-                          </Box>
-                        </Box>
-                      </TableCell>
-                      
-                      {/* Overall totals column */}
-                      <TableCell>
-                        <Grid container spacing={1}>
-                          {/* Math subject total */}
-                          <Grid item xs={12}>
+                        
+                        {/* Overall summary column */}
+                        <TableCell sx={{ width: 140 }}>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                            {/* Math subject total */}
                             <Chip 
                               icon={
                                 <Box sx={{ 
-                                  background: 'linear-gradient(135deg, #4776E6 0%, #2756c4 100%)',
+                                  background: '#2196F3',
                                   color: 'white',
-                                  width: 24,
-                                  height: 24,
+                                  width: 16,
+                                  height: 16,
                                   borderRadius: '50%',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  fontSize: '0.7rem',
+                                  fontSize: '0.65rem',
                                   fontWeight: 'bold'
                                 }}>
                                   M
                                 </Box>
                               } 
-                              label={
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                  <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
-                                    <strong>Math:</strong> {mathTotal}/{mathMaxTotal}
-                                  </Typography>
-                                  <Chip
-                                    size="small"
-                                    label={`#${student.mathRank || '-'}`}
-                                    color={getRankBadgeColor(student.mathRank)}
-                                    sx={{ 
-                                      height: '18px',
-                                      '& .MuiChip-label': { 
-                                        px: 0.5,
-                                        fontSize: '0.6rem',
-                                        fontWeight: 'bold'
-                                      }
-                                    }}
-                                  />
-                                </Box>
-                              }
+                              label={`${mathTotal}/${mathMaxTotal}`}
                               size="small" 
                               variant="outlined"
                               sx={{ 
-                                width: '100%', 
-                                justifyContent: 'space-between', 
-                                height: 'auto', 
-                                py: 0.5,
-                                borderColor: alpha(theme.palette.info.main, 0.5),
-                                '&:hover': {
-                                  borderColor: theme.palette.info.main,
-                                  backgroundColor: alpha(theme.palette.info.main, 0.05)
-                                }
+                                height: 20, 
+                                fontSize: '0.65rem',
+                                borderColor: alpha(theme.palette.info.main, 0.3),
+                                '& .MuiChip-label': { px: 0.5 },
+                                '& .MuiChip-icon': { mr: 0.5 }
                               }}
                             />
-                          </Grid>
-                          
-                          {/* English subject total */}
-                          <Grid item xs={12}>
+                            
+                            {/* English subject total */}
                             <Chip 
                               icon={
                                 <Box sx={{ 
-                                  background: 'linear-gradient(135deg, #1D976C 0%, #157252 100%)',
+                                  background: '#00897B',
                                   color: 'white',
-                                  width: 24,
-                                  height: 24,
+                                  width: 16,
+                                  height: 16,
                                   borderRadius: '50%',
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  fontSize: '0.7rem',
+                                  fontSize: '0.65rem',
                                   fontWeight: 'bold'
                                 }}>
                                   E
                                 </Box>
                               } 
-                              label={
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                  <Typography variant="body2" sx={{ fontSize: '0.7rem' }}>
-                                    <strong>Eng:</strong> {englishTotal}/{englishMaxTotal}
-                                  </Typography>
-                                  <Chip
-                                    size="small"
-                                    label={`#${student.englishRank || '-'}`}
-                                    color={getRankBadgeColor(student.englishRank)}
-                                    sx={{ 
-                                      height: '18px',
-                                      '& .MuiChip-label': { 
-                                        px: 0.5,
-                                        fontSize: '0.6rem',
-                                        fontWeight: 'bold'
-                                      }
-                                    }}
-                                  />
-                                </Box>
-                              }
+                              label={`${englishTotal}/${englishMaxTotal}`}
                               size="small" 
                               variant="outlined"
                               sx={{ 
-                                width: '100%', 
-                                justifyContent: 'space-between', 
-                                height: 'auto', 
-                                py: 0.5,
-                                borderColor: alpha(theme.palette.success.main, 0.5),
-                                '&:hover': {
-                                  borderColor: theme.palette.success.main,
-                                  backgroundColor: alpha(theme.palette.success.main, 0.05)
-                                }
+                                height: 20, 
+                                fontSize: '0.65rem',
+                                borderColor: alpha(theme.palette.success.main, 0.3),
+                                '& .MuiChip-label': { px: 0.5 },
+                                '& .MuiChip-icon': { mr: 0.5 }
                               }}
                             />
-                          </Grid>
-                          
-                          {/* Grand total */}
-                          <Grid item xs={12}>
+                            
+                            {/* Grand total */}
                             <Chip 
-                              icon={<EmojiEventsIcon fontSize="small" />}
-                              label={
-                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                                  <Typography variant="body2" sx={{ color: 'white', fontWeight: 'bold', fontSize: '0.75rem' }}>
-                                    {overallTotal}/{overallMaxTotal} ({Math.round(overallPercentage)}%)
-                                  </Typography>
-                                  <Chip
-                                    size="small"
-                                    label={`#${student.overallRank || '-'}`}
-                                    color={getRankBadgeColor(student.overallRank)}
-                                    sx={{ 
-                                      height: '20px',
-                                      '& .MuiChip-label': { 
-                                        px: 0.5,
-                                        fontSize: '0.7rem',
-                                        fontWeight: 'bold'
-                                      }
-                                    }}
-                                  />
-                                </Box>
-                              }
+                              icon={<EmojiEventsIcon sx={{ fontSize: '0.85rem' }} />}
+                              label={`${overallTotal}/${overallMaxTotal} (${Math.round(overallPercentage)}%) #${student.overallRank || '-'}`}
                               size="small" 
                               variant="filled"
                               color="secondary"
                               sx={{ 
-                                width: '100%', 
-                                justifyContent: 'space-between', 
-                                height: 'auto', 
-                                py: 0.5,
-                                background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)'
+                                height: 22, 
+                                fontSize: '0.65rem',
+                                background: 'linear-gradient(135deg, #7B1FA2 0%, #6A1B9A 100%)',
+                                color: 'white',
+                                '& .MuiChip-label': { px: 0.5 },
+                                '& .MuiChip-icon': { mr: 0.5, color: 'white' }
                               }}
                             />
-                          </Grid>
-                        </Grid>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          </Box>
-        </TableContainer>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </Box>
+          </TableContainer>
+        </Fade>
       )}
     </Card>
   );
