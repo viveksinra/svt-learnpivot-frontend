@@ -27,6 +27,8 @@ const MaxScoresSection = ({
   handleStandardizationParamChange,
   hideStandardisedScore,
   handleHideStandardisedScoreChange,
+  isPublished,
+  handleIsPublishedChange,
   performanceBoundaries,
   handlePerformanceBoundaryChange,
   actionLoading, 
@@ -233,6 +235,30 @@ const MaxScoresSection = ({
                   </Typography>
                   <Typography variant="caption" color="text.secondary">
                     When enabled, students will not see their standardized scores in reports
+                  </Typography>
+                </Box>
+              }
+            />
+          </Box>
+
+          {/* Publish Toggle */}
+          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid #e0e0e0' }}>
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isPublished}
+                  onChange={(e) => handleIsPublishedChange(e.target.checked)}
+                  disabled={actionLoading}
+                  color="success"
+                />
+              }
+              label={
+                <Box>
+                  <Typography variant="body2" fontWeight="medium">
+                    Publish Report to Students
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Toggle to make this report visible to students in their dashboard
                   </Typography>
                 </Box>
               }

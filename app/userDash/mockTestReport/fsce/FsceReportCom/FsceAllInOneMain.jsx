@@ -34,6 +34,8 @@ const FsceAllInOneMain = ({
   catchmentType = 'inside',
   onViewDetail,
 }) => {
+  const publishedReports = mockTestReports?.filter(r => r.isPublished);
+
   return (
     <>
       {loading ? (
@@ -43,7 +45,7 @@ const FsceAllInOneMain = ({
           </Typography>
           <LinearProgress sx={{ mt: 2, maxWidth: 300, mx: 'auto' }} />
         </Box>
-      ) : selectedChild && mockTestReports && mockTestReports?.length > 0 ? (
+      ) : selectedChild && publishedReports && publishedReports?.length > 0 ? (
         <>
           {/* Progress visualization section */}
           <Paper 
@@ -64,10 +66,10 @@ const FsceAllInOneMain = ({
             }}>
               <TrendingUp sx={{ mr: 1 }} /> Performance Progress
             </Typography>
-            <ProgressCharts mockTestReports={mockTestReports} catchmentType={catchmentType} />
+            <ProgressCharts mockTestReports={publishedReports} catchmentType={catchmentType} />
           </Paper>
           {/* Reports comparison table (for at-a-glance view) */}
-          <TestComparisonTable mockTestReports={mockTestReports} onViewDetail={onViewDetail} />
+          <TestComparisonTable mockTestReports={publishedReports} onViewDetail={onViewDetail} />
           {/* Individual test report cards */}
           <Typography variant="h5" sx={{ 
             mb: 3, 
@@ -76,7 +78,7 @@ const FsceAllInOneMain = ({
             Individual Test Reports
           </Typography>
           <Grid container spacing={3}>
-            {mockTestReports.map((report, index) => (
+            {publishedReports.map((report, index) => (
               <Grid item xs={12} key={report._id || index}>
                 <Card 
                   sx={{ 

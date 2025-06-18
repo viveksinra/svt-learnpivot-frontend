@@ -72,6 +72,14 @@ const FsceMainCom = ({ reportData }) => {
     return { text: "Below Expected", color: "error.main" };
   };
 
+  if(!reportData.isPublished){
+    return (
+      <Paper sx={{ p: 3, textAlign: 'center' }}>
+        <Typography variant="h6">Report not available</Typography>
+      </Paper>
+    );
+  }
+
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Typography variant="h4" align="center" gutterBottom>

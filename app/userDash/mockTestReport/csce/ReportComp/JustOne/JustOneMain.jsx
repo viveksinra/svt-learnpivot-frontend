@@ -97,7 +97,7 @@ const JustOneMain = ({ oneMockTestReport, allChildren, selectedChild }) => {
     setTabValue(newValue);
   };
 
-  if (!oneMockTestReport || Object.keys(oneMockTestReport).length === 0) {
+  if (!oneMockTestReport || Object.keys(oneMockTestReport).length === 0 || !oneMockTestReport.isPublished) {
     return (
       <Box sx={{ textAlign: 'center', my: 4 }}>
         <Typography variant="h6">No report data available</Typography>

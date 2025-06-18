@@ -601,7 +601,8 @@ const FSCEMockTestMaker = () => {
         paperSections: paperSections,
         gradingCriteria: gradingCriteria,
         performanceBoundaries: performanceBoundaries,
-        childScore: sectionScoresData
+        childScore: sectionScoresData,
+        isPublished: false
       };
       
       // Make the API call using the service
@@ -677,7 +678,8 @@ const FSCEMockTestMaker = () => {
         paperSections: paperSections,
         gradingCriteria: gradingCriteria,
         performanceBoundaries: performanceBoundaries,
-        childScore: sectionScoresData
+        childScore: sectionScoresData,
+        isPublished: false
       };
       
       // Make the API call using the service
