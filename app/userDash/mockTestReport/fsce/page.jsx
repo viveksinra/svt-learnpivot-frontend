@@ -199,7 +199,8 @@ const FsceReportPage = () => {
             <FsceMainCom reportData={reportData} />
         </Box>
       )}
-       {allReportData && !reportData && (
+      
+      {allReportData && !reportData && (
         <Box sx={{ mt: 4 }}>
             <FsceAllInOneMain 
                 selectedChild={selectedChild}
