@@ -107,7 +107,7 @@ const FsceAllInOneMain = ({
                       <Button
                         variant="outlined"
                         size="small"
-                        onClick={() => onViewDetail(report.mockTestDetails?._id, report.batchDetails?._id)}
+                        onClick={() => onViewDetail(report.mockTestId, report.batchId)}
                         sx={{
                           borderRadius: 2,
                           textTransform: 'none',

@@ -194,6 +194,7 @@ const FSCEMockTestMaker = () => {
   const [paperSections, setPaperSections] = useState([]);
   const [gradingCriteria, setGradingCriteria] = useState(getDefaultGradingCriteria());
   const [performanceBoundaries, setPerformanceBoundaries] = useState(getDefaultPerformanceBoundaries());
+  const [isPublished, setIsPublished] = useState(false);
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
@@ -336,6 +337,13 @@ const FSCEMockTestMaker = () => {
           } else {
             // Use default performance boundaries if not available
             setPerformanceBoundaries(getDefaultPerformanceBoundaries());
+          }
+
+          // Set publish status
+          if (response.data.hasOwnProperty('isPublished')) {
+            setIsPublished(response.data.isPublished);
+          } else {
+            setIsPublished(false);
           }
 
           // Fetch students for this mock test and batch
@@ -546,6 +554,11 @@ const FSCEMockTestMaker = () => {
     setPerformanceBoundaries(updatedBoundaries);
   };
 
+  // Handle publish status toggle
+  const handleIsPublishedChange = (value) => {
+    setIsPublished(value);
+  };
+
   // Create a new mock test with the selected ID - now just shows the form
   const handleCreateNew = () => {
     setShowCreateForm(true);
@@ -602,7 +615,7 @@ const FSCEMockTestMaker = () => {
         gradingCriteria: gradingCriteria,
         performanceBoundaries: performanceBoundaries,
         childScore: sectionScoresData,
-        isPublished: false
+        isPublished
       };
       
       // Make the API call using the service
@@ -679,7 +692,7 @@ const FSCEMockTestMaker = () => {
         gradingCriteria: gradingCriteria,
         performanceBoundaries: performanceBoundaries,
         childScore: sectionScoresData,
-        isPublished: false
+        isPublished
       };
       
       // Make the API call using the service
@@ -832,6 +845,8 @@ const FSCEMockTestMaker = () => {
               paperSections={paperSections}
               handleUpdatePaperSections={handleUpdatePaperSections}
               actionLoading={actionLoading}
+              isPublished={isPublished}
+              handleIsPublishedChange={handleIsPublishedChange}
             />
           </AccordionDetails>
         </Accordion>

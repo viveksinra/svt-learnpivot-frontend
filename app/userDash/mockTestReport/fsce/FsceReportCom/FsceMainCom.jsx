@@ -11,42 +11,43 @@ ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarEle
 
 const FsceMainCom = ({ reportData }) => {
   const {
-    mockTestId,
-    childScore,
-    paperSections,
-    englishMean,
-    englishStdDev,
-    mathsMean,
-    mathsStdDev,
-    performanceBoundaries,
-    boysScoreThresholds,
-    girlsScoreThresholds,
-    hideStandardisedScore
-  } = reportData;
+    mockTestDetails = {},
+    batchDetails = {},
+    childScore = {},
+    paperSections = [],
+    englishMean = 0,
+    englishStdDev = 1,
+    mathsMean = 0,
+    mathsStdDev = 1,
+    performanceBoundaries = {},
+    boysScoreThresholds = {},
+    girlsScoreThresholds = {},
+    hideStandardisedScore = false,
+  } = reportData || {};
 
   const { sectionScores } = childScore;
 
-  const getSectionScore = (sectionId) => sectionScores[sectionId] || 0;
+  const getSectionScore = (sectionId) => sectionScores?.[sectionId] || 0;
 
   const mathTotal = paperSections
     .flatMap(p => p.sections)
-    .filter(s => s.subject === 'Maths')
+    .filter(s => s.subject?.toLowerCase() === 'math')
     .reduce((acc, s) => acc + getSectionScore(s.sectionId), 0);
 
   const englishTotal = paperSections
     .flatMap(p => p.sections)
-    .filter(s => s.subject === 'English')
+    .filter(s => s.subject?.toLowerCase() === 'english')
     .reduce((acc, s) => acc + getSectionScore(s.sectionId), 0);
 
   const creativeWritingTotal = paperSections
     .flatMap(p => p.sections)
-    .filter(s => s.subject === 'Creative Writing')
+    .filter(s => s.subject?.toLowerCase() === 'creativewriting')
     .reduce((acc, s) => acc + getSectionScore(s.sectionId), 0);
   
   const overallTotal = mathTotal + englishTotal;
 
   const standardisedMaths = 100 + ((mathTotal - mathsMean) / mathsStdDev) * 15;
-  const standardisedEnglish = 100 + ((englishTotal - englishStdDev) / englishStdDev) * 15;
+  const standardisedEnglish = 100 + ((englishTotal - englishMean) / englishStdDev) * 15;
   const totalStandardisedScore = standardisedMaths + standardisedEnglish;
 
   const performanceChartData = {
@@ -59,7 +60,7 @@ const FsceMainCom = ({ reportData }) => {
       },
       {
         label: 'Average Score',
-        data: [performanceBoundaries.math.average, performanceBoundaries.english.average, performanceBoundaries.creativeWriting.average],
+        data: [performanceBoundaries?.math?.average || 0, performanceBoundaries?.english?.average || 0, performanceBoundaries?.creativeWriting?.average || 0],
         backgroundColor: 'rgba(255, 99, 132, 0.6)',
       },
     ],
@@ -68,9 +69,13 @@ const FsceMainCom = ({ reportData }) => {
   const getSchoolStatus = (score, thresholds) => {
     if (!thresholds) return { text: "N/A", color: "text.secondary" };
     if (score >= thresholds.safe) return { text: "Safe", color: "success.main" };
-    if (score >= thresholds.borderline) return { text: "Borderline", color: "warning.main" };
+    if (score >= thresholds.border) return { text: "Borderline", color: "warning.main" };
     return { text: "Below Expected", color: "error.main" };
   };
+
+  // Max scores could be useful for further analysis or charts, compute if needed:
+  // const mathsMaxScore = paperSections.flatMap(p => p.sections).filter(s => s.subject?.toLowerCase() === 'math').reduce((acc, s) => acc + (s.maxScore || 0), 0);
+  // const englishMaxScore = paperSections.flatMap(p => p.sections).filter(s => s.subject?.toLowerCase() === 'english').reduce((acc, s) => acc + (s.maxScore || 0), 0);
 
   if(!reportData.isPublished){
     return (
@@ -83,7 +88,7 @@ const FsceMainCom = ({ reportData }) => {
   return (
     <Paper elevation={3} sx={{ p: 3 }}>
       <Typography variant="h4" align="center" gutterBottom>
-        FSCE Mock Test Result: {mockTestId.testName}
+        {mockTestDetails.title || 'FSCE Mock Test'} - {batchDetails?.date}
       </Typography>
       <Divider sx={{ my: 2 }} />
 

@@ -18,7 +18,9 @@ import {
   Alert,
   Paper,
   alpha,
-  Collapse
+  Collapse,
+  FormControlLabel,
+  Switch
 } from '@mui/material';
 import EmojiObjectsIcon from '@mui/icons-material/EmojiObjects';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -34,7 +36,7 @@ const SubjectOptions = [
   { value: 'creativeWriting', label: 'Creative Writing', color: '#FF9800', icon: '✍️' },
 ];
 
-const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoading }) => {
+const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoading, isPublished, handleIsPublishedChange }) => {
   const theme = useTheme();
   const [expandedPapers, setExpandedPapers] = useState({});
   
@@ -215,8 +217,6 @@ const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoad
           </Box>
         </Alert>
       )}
-
-
 
       {paperSections.map((paper, paperIndex) => (
         <Paper 
@@ -459,7 +459,7 @@ const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoad
         </Paper>
       ))}
 
-{paperSections.length === 0 ? (
+      {paperSections.length === 0 ? (
         <Box sx={{ textAlign: 'center', py: 4 }}>
           <AutoFixHighIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 2 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
@@ -495,6 +495,30 @@ const MaxScoresSection = ({ paperSections, handleUpdatePaperSections, actionLoad
           </Button>
         </Box>
       )}
+
+      {/* Publish Toggle */}
+      <Card elevation={2} sx={{ p: 2, mt: 2 }}>
+        <FormControlLabel
+          control={
+            <Switch
+              checked={isPublished}
+              onChange={(e) => handleIsPublishedChange(e.target.checked)}
+              color="success"
+              disabled={actionLoading}
+            />
+          }
+          label={
+            <Box>
+              <Typography variant="body2" fontWeight="medium">
+                Publish Report to Students
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Toggle to make this report visible in student dashboards.
+              </Typography>
+            </Box>
+          }
+        />
+      </Card>
     </Card>
   );
 };

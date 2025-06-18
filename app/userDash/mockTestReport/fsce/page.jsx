@@ -3,17 +3,13 @@ import React, { useState, useEffect, useRef } from "react";
 import {
   Container,
   Typography,
-  Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
   Card,
   CardContent,
   CircularProgress,
   Box,
+  Chip,
+  Stack,
 } from "@mui/material";
-import axios from "axios";
 import { mockTestService } from "@/app/services";
 import FsceMainCom from "./FsceReportCom/FsceMainCom";
 import FsceAllInOneMain from "./FsceReportCom/FsceAllInOneMain";
@@ -83,11 +79,17 @@ const FsceReportPage = () => {
     }
   };
 
-  const handleMockTestChange = (event) => {
-    const value = event.target.value;
-    const [mockTestId, batchId] = value.split("_");
+  // Handle selection via chip clicks
+  const handleMockTestSelect = (mockTestId, batchId) => {
     setSelectedMockTest(mockTestId);
     setSelectedBatch(batchId);
+    setReportData(null);
+  };
+
+  const handleAllSelect = () => {
+    setSelectedMockTest("");
+    setSelectedBatch("");
+    setReportData(null);
   };
   
   const fetchMockTests = async (childId) => {
@@ -142,6 +144,7 @@ const FsceReportPage = () => {
   const handleViewDetail = (mockTestId, batchId) => {
     setSelectedMockTest(mockTestId);
     setSelectedBatch(batchId);
+    setReportData(null);
   };
 
   return (
@@ -156,29 +159,32 @@ const FsceReportPage = () => {
       />
       <Card>
         <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={12}>
-              <FormControl fullWidth disabled={!selectedChild || loading}>
-                <InputLabel>Select Mock Test</InputLabel>
-                <Select value={selectedMockTest && selectedBatch ? `${selectedMockTest}_${selectedBatch}` : ""} onChange={handleMockTestChange} label="Select Mock Test">
-                  {loading ? (
-                    <MenuItem value="">
-                      <CircularProgress size={20} /> Loading...
-                    </MenuItem>
-                  ) : (
-                    mockTests.map((test) => (
-                      <MenuItem
-                        key={`${test.mockTestId}_${test.selectedBatchId}`}
-                        value={`${test.mockTestId}_${test.selectedBatchId}`}
-                      >
-                        {test.testName}
-                      </MenuItem>
-                    ))
-                  )}
-                </Select>
-              </FormControl>
-            </Grid>
-          </Grid>
+          {loading ? (
+            <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <Stack direction="row" spacing={1} flexWrap="wrap">
+              <Chip
+                label="All"
+                clickable
+                disabled={!selectedChild}
+                color={!selectedMockTest && !selectedBatch ? "primary" : "default"}
+                onClick={handleAllSelect}
+              />
+              {mockTests.map((test) => (
+                <Chip
+                  key={`${test.mockTestId}_${test.batchId}`}
+                  label={`${test.mockTestTitle || test.testName} (${test.date})`}
+                  clickable
+                  disabled={!selectedChild}
+                  color={selectedMockTest === test.mockTestId && selectedBatch === test.batchId ? "primary" : "default"}
+                  onClick={() => handleMockTestSelect(test.mockTestId, test.batchId)}
+                  sx={{ mt: 1 }}
+                />
+              ))}
+            </Stack>
+          )}
         </CardContent>
       </Card>
       
