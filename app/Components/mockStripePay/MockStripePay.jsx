@@ -23,8 +23,9 @@ import MockCheckoutForm from "./MockCheckoutForm";
 import AnimatedButton from "../Common/AnimatedButton";
 import FullPageLoadingTransparent from "../Common/FullPageLoadingTransparent";
 import { FRONT_ENDPOINT } from "@/app/utils";
+import frontKey from "@/app/utils/frontKey";
 
-const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
+const stripeKeys = frontKey.stripeKeys || (frontKey.default ? frontKey.default.stripeKeys : []);
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
@@ -196,6 +197,15 @@ export default function MockStripePay({isMobile, setStep, data, selectedChild, s
     clientSecret,
     appearance,
   };
+
+  // compute dynamic publishable key
+  const publishableKey = React.useMemo(() => {
+    const keyId = data?.stripeAccount?.id || "key1";
+    const obj = stripeKeys.find(k => k.id === keyId) || stripeKeys[0];
+    return obj.LivePublishablekey;
+  }, [data]);
+
+  const stripePromise = React.useMemo(() => loadStripe(publishableKey), [publishableKey]);
 
   return (
     <>

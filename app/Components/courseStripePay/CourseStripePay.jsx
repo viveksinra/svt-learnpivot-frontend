@@ -19,10 +19,9 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import "./stripePayStyle.css";
 import { myCourseService, transactionService } from "../../services";
 import CourseCheckoutForm from "./CourseCheckoutForm";
+import frontKey from "@/app/utils/frontKey";
 
-const stripePromise = loadStripe("pk_live_51OutBL02jxqBr0evcB8JFdfck1DrMljCBL9QaAU2Qai5h3IUdGgh22m3DCu1VMmWvn4tqEFcFdwfT34l0xh8e28s00YTdA2C87");
-// const stripePromise = loadStripe("pk_test_51OutBL02jxqBr0ev5h0jPo7PWCsg0z3dDaAtKPF3fm8flUipuFtX7GFTWO2eLwVe6JzsJOZJ0f2tQ392tCgDWwdt00iCW9Qo66");
-
+const stripeKeys = frontKey.stripeKeys || (frontKey.default ? frontKey.default.stripeKeys : []);
 
 // this is for course
 export default function CourseStripePay({
@@ -142,6 +141,15 @@ export default function CourseStripePay({
     clientSecret,
     appearance,
   };
+
+  // Determine publishable key based on course's stripeAccount (default to key1)
+  const publishableKey = React.useMemo(() => {
+    const keyId = data?.stripeAccount?.id || "key1";
+    const obj = stripeKeys.find(k => k.id === keyId) || stripeKeys[0];
+    return obj.LivePublishablekey;
+  }, [data]);
+
+  const stripePromise = React.useMemo(() => loadStripe(publishableKey), [publishableKey]);
 
   return (
     <>

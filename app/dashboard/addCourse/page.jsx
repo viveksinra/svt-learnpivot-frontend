@@ -161,6 +161,7 @@ export function SearchArea({handleEdit}) {
               <TableCell align="left">Seats</TableCell>
               <TableCell align="left">Schedule</TableCell>
               <TableCell align="left">Sort Date</TableCell>
+              <TableCell align="left">Stripe</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
@@ -232,6 +233,7 @@ export function SearchArea({handleEdit}) {
               <TableCell align="left">
                 {r.sortDate ? new Date(r.sortDate).toLocaleDateString() : 'Not set'}
               </TableCell>
+              <TableCell align="left">{r.stripeAccount?.label || '-'}</TableCell>
               <TableCell align="center">
                 <Button onClick={()=>handleEdit(r._id)} variant="text" startIcon={<MdModeEdit />}>Edit</Button>
               </TableCell>
@@ -320,6 +322,12 @@ export function SearchArea({handleEdit}) {
                       <Typography variant="caption" color="text.secondary">Duration</Typography>
                       <Typography variant="body2" fontWeight={500}>{c.duration?.label}</Typography>
                     </Grid>
+                    {c.stripeAccount?.label && (
+                      <Grid item xs={6}>
+                        <Typography variant="caption" color="text.secondary">Stripe</Typography>
+                        <Typography variant="body2" fontWeight={500}>{c.stripeAccount.label}</Typography>
+                      </Grid>
+                    )}
                     <Grid item xs={6}>
                       <Typography variant="caption" color="text.secondary">Price</Typography>
                       <Typography variant="body2" fontWeight={500}>£{c.oneClassPrice}</Typography>

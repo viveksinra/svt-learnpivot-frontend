@@ -11,6 +11,9 @@ import { dashboardService, mockTestService } from "../../services";
 import { todayDate } from "../../Components/StaticData";
 import { useImgUpload } from "@/app/hooks/auth/useImgUpload";
 import MultiImageUpload from '@/app/Components/Common/MultiImageUpload';
+import frontKey from "@/app/utils/frontKey";
+
+const stripeKeys = frontKey.stripeKeys || (frontKey.default ? frontKey.default.stripeKeys : []);
 
 const AddMockEntryArea = forwardRef((props, ref) => {
     const snackRef = useRef();
@@ -39,6 +42,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
     const [PAccordion, setPAccordion] = useState(false);
     const [privateAccordion, setPrivateAccordion] = useState(true);
     const [allUsers, setAllUsers] = useState([]);
+    const [stripeAccount, setStripeAccount] = useState(null);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -88,7 +92,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 if (res.variant === "success") {
                     const {
                         isPublished, mockTestTitle, mockTestLink, shortDescription, pincode, highlightedText,
-                        blinkText, testType, location, imageUrls, fullDescription, totalSeat, batch,
+                        blinkText, testType, location, stripeAccount: stripeAccountData, imageUrls, fullDescription, totalSeat, batch,
                     } = res.data;
                     setIsPublished(isPublished);
                     setMockTestTitle(mockTestTitle);
@@ -99,6 +103,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                     setBlinkText(blinkText);
                     setTestType(testType);
                     setLocation(location);
+                    setStripeAccount(stripeAccountData || null);
                     setImageUrls(imageUrls?.length ? imageUrls : [""]);
                     setFullDescription(fullDescription);
                     setTotalSeat(totalSeat);
@@ -148,6 +153,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             byPassBookingFull: false,
             selectedUsers: []
         }]);
+        setStripeAccount(null);
         setPAccordion(true);
     };
 
@@ -208,6 +214,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                     blinkText,
                     testType,
                     location,
+                    stripeAccount,
                     fullDescription,
                     totalSeat,
                     imageUrls,
@@ -291,6 +298,22 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             />
         );
     };
+
+    /* Stripe Account dropdown */
+    const renderStripeAccountSelect = () => (
+        <Grid item xs={12} sm={6} md={3}>
+            <Autocomplete
+                isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                options={stripeKeys}
+                value={stripeAccount}
+                onChange={(e, v) => setStripeAccount(v)}
+                renderOption={(props, option) => (
+                    <li {...props} key={option.id}>{option.label}</li>
+                )}
+                renderInput={(params) => <TextField {...params} label="Stripe Account" variant="standard" fullWidth />}
+            />
+        </Grid>
+    );
 
     return (
         <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20, maxWidth: '100vw', overflowX: 'hidden' }}>
@@ -409,6 +432,8 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         renderInput={(params) => <TextField {...params} label="Location" variant="standard" fullWidth />}
                     />
                 </Grid>
+                {/* Stripe account selection */}
+                {renderStripeAccountSelect()}
                 <Grid item xs={12}>
                     <MultiImageUpload
                         images={imageUrls}
