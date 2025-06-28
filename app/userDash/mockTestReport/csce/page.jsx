@@ -12,9 +12,9 @@ import {
 } from '@mui/icons-material';
 import MySnackbar from '../../../Components/MySnackbar/MySnackbar';
 import { childService, mockTestService } from '@/app/services';
-import AllInOneMain from '../ReportComp/AllInOne/AllInOneMain';
-import JustOneMain from '../ReportComp/JustOne/JustOneMain';
 import { formatDateToShortMonth } from '@/app/utils/dateFormat';
+import AllInOneMain from './ReportComp/AllInOne/AllInOneMain';
+import JustOneMain from './ReportComp/JustOne/JustOneMain';
 
 const MockTestReport = () => {
   const [selectedChild, setSelectedChild] = useState('');
