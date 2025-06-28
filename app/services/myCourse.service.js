@@ -161,14 +161,13 @@ export class MyCourseService {
       .then((res) => res.data);
   };
 
-
-
-
-
-
-
-
-  
+  GetAllUserOfCourseWithAccessApi = async ({ courseId }) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/report/admin/courseAccess/getAllUserOfCourseWithAccess/${courseId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 
   imgUpload = async (imgData)=>{
     return this.instance

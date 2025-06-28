@@ -12,7 +12,10 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import { FiCopy } from "react-icons/fi"; // Add this import at the top
+import { FiCopy } from "react-icons/fi";
+import frontKey from "@/app/utils/frontKey";
+
+const stripeKeys = frontKey.stripeKeys || (frontKey.default ? frontKey.default.stripeKeys : []);
 
 const EntryArea = forwardRef((props, ref) => {
     const snackRef = useRef();
@@ -49,6 +52,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [allowBackDateBuy, setAllowBackDateBuy] = useState(false);
     const [backDayCount, setBackDayCount] = useState("0");
     const [stopSkipSet, setStopSkipSet] = useState(false);
+    const [stripeAccount, setStripeAccount] = useState(null);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -103,7 +107,7 @@ const EntryArea = forwardRef((props, ref) => {
                 if (res.variant === "success") {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
-                        courseClass, courseType, duration, subject, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
+                        courseClass, courseType, duration, subject, stripeAccount: stripeAccountData, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
                         onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,stopSkipSet } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
@@ -124,6 +128,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setCourseType(courseType);
                     setDuration(duration);
                     setSubject(subject);
+                    setStripeAccount(stripeAccountData || null);
                     setImageUrls(imageUrls?.length ? imageUrls : [""]);
                     setFullDescription(fullDescription);
                     setTotalSeat(totalSeat);
@@ -138,7 +143,6 @@ const EntryArea = forwardRef((props, ref) => {
                     setAllowBackDateBuy(backDateBuy || false);
                     setBackDayCount(days || "0");
                     setStopSkipSet(stopSkipSet || false);
-                    setPrivateAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
                     snackRef.current.handleSnack(res);
@@ -191,6 +195,7 @@ const EntryArea = forwardRef((props, ref) => {
         setAllowBackDateBuy(false);
         setBackDayCount("0");
         setStopSkipSet(false);
+        setStripeAccount(null);
     };
     
 
@@ -212,6 +217,7 @@ const EntryArea = forwardRef((props, ref) => {
                     courseType,
                     duration,
                     subject,
+                    stripeAccount,
                     fullDescription,
                     totalSeat,
                     restrictOnTotalSeat,
@@ -402,6 +408,25 @@ const EntryArea = forwardRef((props, ref) => {
         });
     };
 
+    /* -----------------------------
+       Stripe Account dropdown
+    ------------------------------*/
+
+    const renderStripeAccountSelect = () => (
+        <Grid item xs={12} md={3}>
+            <Autocomplete
+                isOptionEqualToValue={(option, value) => option?.id === value?.id}
+                options={stripeKeys}
+                value={stripeAccount}
+                onChange={(e, v) => setStripeAccount(v)}
+                renderOption={(props, option) => (
+                    <li {...props} key={option.id}>{option.label}</li>
+                )}
+                renderInput={(params) => <TextField {...params} label="Stripe Account" variant="standard" />}
+            />
+        </Grid>
+    );
+
     return (
         <main style={{ background: "#fff", boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px", borderRadius: "10px", padding: 20 }}>
             <Grid sx={{ display: "flex", flexDirection: { xs: "column", md: "row" }, justifyContent: "space-between" }}>
@@ -453,6 +478,8 @@ const EntryArea = forwardRef((props, ref) => {
                         }}
                     />
                 </Grid>
+                       {/* Stripe Account Selection */}
+                       {renderStripeAccountSelect()}
       
                 <Grid item xs={12} md={12}>
                     <MultiImageUpload
@@ -578,6 +605,8 @@ const EntryArea = forwardRef((props, ref) => {
                         renderInput={(params) => <TextField {...params} label="Subject" variant="standard" />}
                     />
                 </Grid>
+                
+         
                 
                 <br/>
                 

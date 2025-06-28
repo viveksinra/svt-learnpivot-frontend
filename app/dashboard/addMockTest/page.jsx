@@ -120,6 +120,7 @@ export function SearchArea({handleEdit}) {
       <TableCell align="left">Total Batches</TableCell>
       <TableCell align="left">Price Range</TableCell>
       <TableCell align="left">Total Seats</TableCell>
+      <TableCell align="left">Stripe</TableCell>
       <TableCell align="center">Action</TableCell>
       </TableRow>
       </TableHead>
@@ -146,6 +147,7 @@ export function SearchArea({handleEdit}) {
         <TableCell align="left">
           {r.batch?.reduce((total, b) => total + b.totalSeat, 0) || 0}
         </TableCell>
+        <TableCell align="left">{r.stripeAccount?.label || '-'}</TableCell>
         <TableCell align="center">
           <Button onClick={()=>handleEdit(r._id)} variant="text" startIcon={<MdModeEdit />}>Edit</Button>
         </TableCell>
@@ -239,6 +241,9 @@ export function SearchArea({handleEdit}) {
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1 }}>
         Available Batches ({c.batch?.length || 0})
       </Typography>
+      {c.stripeAccount?.label && (
+        <Chip label={c.stripeAccount.label} size="small" color="info" sx={{ mb: 1 }} />
+      )}
       <div style={{ 
         maxHeight: '150px', 
         overflowY: 'auto',
