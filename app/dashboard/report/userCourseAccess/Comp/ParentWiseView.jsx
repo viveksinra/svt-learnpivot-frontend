@@ -303,6 +303,13 @@ const ParentWiseView = () => {
       return;
     }
 
+    // Check if separate user access is enabled
+    if (!enableSeperateUserAccessForCourse) {
+      setError("Please enable 'Separate User Access' before saving the configuration");
+      setSaveError(true);
+      return;
+    }
+
     setLoading(true);
     try {
       // Prepare data to save
@@ -826,9 +833,9 @@ const ParentWiseView = () => {
                         </Button>}
                         <Button
                           variant="contained"
-                          color="primary"
+                          color={!enableSeperateUserAccessForCourse ? "warning" : "primary"}
                           onClick={handleSave}
-                          disabled={loading}
+                          disabled={loading || !enableSeperateUserAccessForCourse}
                           fullWidth={isMobile}
                           sx={{ 
                             px: { xs: 1.5, sm: 2, md: 3 }, 
@@ -838,7 +845,14 @@ const ParentWiseView = () => {
                           }}
                           startIcon={loading ? <CircularProgress size={isMobile ? 16 : 20} color="inherit" /> : null}
                         >
-                          {loading ? "Saving..." : hasCourseAccessFile === "yes" ? "Update Configuration" : "Save Configuration"}
+                          {loading 
+                            ? "Saving..." 
+                            : !enableSeperateUserAccessForCourse 
+                              ? "Enable Separate Access First" 
+                              : hasCourseAccessFile === "yes" 
+                                ? "Update Configuration" 
+                                : "Save Configuration"
+                          }
                         </Button>
                       </Stack>
                     </Grid>

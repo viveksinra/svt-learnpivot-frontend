@@ -129,6 +129,13 @@ const CourseWiseView = () => {
   const saveUserConfig = async (user) => {
     if (!selectedCourse || !user.userId) return;
     
+    // Check if separate user access is enabled
+    if (!user.enableSeperateUserAccessForCourse) {
+      setError("Please enable 'Separate User Access' before saving the configuration");
+      setSaveError(true);
+      return;
+    }
+    
     setLoading(true);
     try {
       const dataToSave = {
@@ -604,9 +611,9 @@ const CourseWiseView = () => {
                             )}
                             <Button
                               variant="contained"
-                              color="primary"
+                              color={!user.enableSeperateUserAccessForCourse ? "warning" : "primary"}
                               onClick={() => saveUserConfig(user)}
-                              disabled={loading}
+                              disabled={loading || !user.enableSeperateUserAccessForCourse}
                               fullWidth={isMobile}
                               sx={{ 
                                 px: { xs: 1.5, sm: 2, md: 3 }, 
@@ -616,7 +623,14 @@ const CourseWiseView = () => {
                               }}
                               startIcon={loading ? <CircularProgress size={isMobile ? 16 : 20} color="inherit" /> : null}
                             >
-                              {loading ? "Saving..." : user._id ? "Update Configuration" : "Save Configuration"}
+                              {loading 
+                                ? "Saving..." 
+                                : !user.enableSeperateUserAccessForCourse 
+                                  ? "Enable Separate Access First" 
+                                  : user._id 
+                                    ? "Update Configuration" 
+                                    : "Save Configuration"
+                              }
                             </Button>
                           </Stack>
                         </Grid>
