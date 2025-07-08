@@ -16,7 +16,9 @@ export const protectedRoutes = [
     "/dashboard/report/userCourseUpdate",
     "/dashboard/transaction/oneUserTransaction",
     "/dashboard/transaction/allUserReport",
-    "/dashboard/filtertag"
+    "/dashboard/filtertag",
+    "/dashboard/reportMaker/csseMockTest",
+    "/dashboard/reportMaker/fsceMockTest",
 ];
 
 export const userProtectedRoutes = [
@@ -29,7 +31,7 @@ export const userProtectedRoutes = [
     "/userDash/reports/allPayment",
     "/userDash/reports/myAccount",
     "/userDash/reports/myUserReport",
-    "/userDash/mockTestReport"
+    "/userDash/mockTestReport",
 ];
 
 export const authRoutes = ["/login"];
