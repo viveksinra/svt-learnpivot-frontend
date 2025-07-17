@@ -322,7 +322,7 @@ getFsceMockTestIdsByChildId = async (childId) => {
         "Content-Type": `multipart/form-data; boundary=${imgData._boundary}`,
       },
     })
-    .then((res) => res.data.result.secure_url)
+    .then((res) => res.data.result.Location)
     .catch((err) => {console.log(err) });
   };
 }

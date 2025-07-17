@@ -40,7 +40,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
   const [dashList, setDashList] = useState([
     { title: "Dashboard", active: true, link: "/userDash", icon: <MdDashboard className="drawer-icon" size={24} color="#1976d2" /> },
     { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <MdPayment className="drawer-icon" size={24} color="#2e7d32" /> },
-    { title: "My Report", active: false, link: "/userDash/mockTestReport", icon: <MdAssignment className="drawer-icon" size={24} color="#9c27b0" /> },
+    // { title: "My Report", active: false, link: "/userDash/mockTestReport", icon: <MdAssignment className="drawer-icon" size={24} color="#9c27b0" /> },
    
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <FaUser className="drawer-icon" size={22} color="#0288d1" /> },
     { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild className="drawer-icon" size={22} color="#d32f2f" /> },
