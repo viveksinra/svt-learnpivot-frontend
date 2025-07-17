@@ -181,4 +181,30 @@ export class MyCourseService {
     .then((res) => res.data.result.Location)
     .catch((err) => {console.log(err) });
   };
+
+  joinWaitingList = async ({ courseId, childId = null }) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/course/waitingList/join/${courseId}`, { childId }, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  // Admin: fetch waiting list
+  adminGetWaitingList = async ({ status = "" }) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/course/waitingList/admin/listAll${status ? `?status=${status}` : ""}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  // Admin: update status
+  adminUpdateWaitingStatus = async ({ entryId, status }) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/course/waitingList/admin/updateStatus/${entryId}`, { status }, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 }

@@ -22,7 +22,7 @@ import {
   Close
 } from '@mui/icons-material';
 
-const CourseBookingFullMessage = ({userInfo, data}) => {
+const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, isWaitListed = false, onJoinWaitingList }) => {
   const handleEmailClick = () => {
     const subject = encodeURIComponent(`Booking Inquiry - ${data?.courseTitle || ''}`);
     const body = encodeURIComponent(
@@ -69,7 +69,7 @@ const CourseBookingFullMessage = ({userInfo, data}) => {
 
         <Divider />
 
-        <CardActions sx={{ padding: 2 }}>
+        <CardActions sx={{ padding: 2, flexDirection: 'column', gap: 2 }}>
           <Box sx={{ width: '100%', display: 'flex', gap: 2 }}>
             <Button
               variant="contained"
@@ -115,6 +115,22 @@ const CourseBookingFullMessage = ({userInfo, data}) => {
               Close
             </Button>
           </Box>
+
+          {allowWaitingList && (
+            <Box sx={{ width: '100%' }}>
+              <Button
+                variant="outlined"
+                color={isWaitListed ? 'success' : 'primary'}
+                fullWidth
+                disabled={isWaitListed}
+                onClick={() => {
+                  if (onJoinWaitingList) onJoinWaitingList();
+                }}
+              >
+                {isWaitListed ? 'Already in Waiting List' : 'Join Waiting List'}
+              </Button>
+            </Box>
+          )}
         </CardActions>
         <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
           <IconButton aria-label="close" onClick={handleCloseClick}>

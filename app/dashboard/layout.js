@@ -85,6 +85,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
       link: "/dashboard/report/userCourseAccess",
       icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />
     },
+    { 
+      title: "Course Waiting List",
+      active: false,
+      link: "/dashboard/report/courseWaitingList",
+      icon: <MdAssessment className="drawer-icon" size={24} color="#0097a7" />
+    },
     {
       title: "Mock Test",
       active: false,

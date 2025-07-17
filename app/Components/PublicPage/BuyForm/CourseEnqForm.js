@@ -44,6 +44,8 @@ function CourseEnqForm({
   const [canBuy, setCanBuy] = useState(!data.onlySelectedParent);
   const [isAvailable, setIsAvailable] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [allowWaitingList, setAllowWaitingList] = useState(false);
+  const [isWaitListed, setIsWaitListed] = useState(false);
 
   const [alreadyBoughtDate, setAlreadyBoughtDate] = useState([]);
   const [hideStartDateSelector, setHideStartDateSelector] = useState(false);
@@ -86,6 +88,8 @@ function CourseEnqForm({
         try {
           let res = await myCourseService.checkIfSeatAvailable(`${data._id}`);
           setIsAvailable(res?.isAvailable !== false);
+          setAllowWaitingList(res?.allowWaitingList === true);
+          setIsWaitListed(res?.isWaitListed === true);
         } catch (error) {
           console.error("Error checking seat availability:", error);
           setIsAvailable(false);
@@ -105,6 +109,8 @@ function CourseEnqForm({
     } else {
       setIsAvailable(true);
     }
+    setAllowWaitingList(res?.allowWaitingList === true);
+    setIsWaitListed(res?.isWaitListed === true);
   };
 
   useEffect(() => {
@@ -137,7 +143,24 @@ function CourseEnqForm({
       )}
       
       {step !== 1 && !isLoading && (!canBuy || !isAvailable) && (
-        <CourseBookingFullMessage userInfo={state} data={data}/> 
+        <CourseBookingFullMessage 
+          userInfo={state} 
+          data={data}
+          allowWaitingList={allowWaitingList}
+          isWaitListed={isWaitListed}
+          onJoinWaitingList={async () => {
+            try {
+              const res = await myCourseService.joinWaitingList({ courseId: data._id, childId: selectedChild?._id });
+              snackRef.current.handleSnack(res);
+              if (res.variant === "success" || res.variant === "info") {
+                setIsWaitListed(true);
+              }
+            } catch (error) {
+              console.error(error);
+              snackRef.current.handleSnack({ variant: "error", message: "Failed to join waiting list" });
+            }
+          }}
+        /> 
       )}
       
       {step === 2 && !isLoading && canBuy && isAvailable && (

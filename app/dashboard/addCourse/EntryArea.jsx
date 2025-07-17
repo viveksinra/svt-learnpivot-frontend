@@ -52,6 +52,7 @@ const EntryArea = forwardRef((props, ref) => {
     const [allowBackDateBuy, setAllowBackDateBuy] = useState(false);
     const [backDayCount, setBackDayCount] = useState("0");
     const [stopSkipSet, setStopSkipSet] = useState(false);
+    const [allowWaitingList, setAllowWaitingList] = useState(false);
     const [stripeAccount, setStripeAccount] = useState(null);
 
     const getAllUsers = async () => {
@@ -108,7 +109,7 @@ const EntryArea = forwardRef((props, ref) => {
                     const { _id, isPublished, allBatch, startTime,sortDate,
                         endTime, courseTitle, courseLink, shortDescription, oneClassPrice, discountOnFullClass,
                         courseClass, courseType, duration, subject, stripeAccount: stripeAccountData, imageUrls, fullDescription, totalSeat, filledSeat, showRemaining,
-                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days,stopSkipSet } = res.data;
+                        onlySelectedParent: selectedParent, selectedUsers, restrictOnTotalSeat: restrictSeat, restrictStartDateChange, forcefullBuyCourse, allowBackDateBuy: backDateBuy, backDayCount: days, stopSkipSet, allowWaitingList: waitingList } = res.data;
                     props.setId(_id);
                     setIsPublished(isPublished);
                     setAllBatch(allBatch || [{
@@ -143,6 +144,7 @@ const EntryArea = forwardRef((props, ref) => {
                     setAllowBackDateBuy(backDateBuy || false);
                     setBackDayCount(days || "0");
                     setStopSkipSet(stopSkipSet || false);
+                    setAllowWaitingList(waitingList || false);
                     snackRef.current.handleSnack(res);
                 } else {
                     snackRef.current.handleSnack(res);
@@ -195,6 +197,7 @@ const EntryArea = forwardRef((props, ref) => {
         setAllowBackDateBuy(false);
         setBackDayCount("0");
         setStopSkipSet(false);
+        setAllowWaitingList(false);
         setStripeAccount(null);
     };
     
@@ -232,6 +235,7 @@ const EntryArea = forwardRef((props, ref) => {
                     allowBackDateBuy,
                     backDayCount,
                     stopSkipSet,
+                    allowWaitingList,
                 };
                 let response = await myCourseService.add(props.id, myCourseData);
                               
@@ -652,6 +656,16 @@ const EntryArea = forwardRef((props, ref) => {
                            inputProps={{ 'aria-label': 'controlled' }}
                          />               
                      } label={`Force Continuous Set Buy`} />
+                  
+                </Grid>
+                <Grid item xs={12} md={4}>
+                     <FormControlLabel control={
+                           <Checkbox
+                           checked={allowWaitingList}
+                           onChange={() => setAllowWaitingList(!allowWaitingList)}
+                           inputProps={{ 'aria-label': 'controlled' }}
+                         />               
+                     } label={`Allow Waiting List`} />
                   
                 </Grid>
                 <Grid item xs={0} md={2}></Grid>

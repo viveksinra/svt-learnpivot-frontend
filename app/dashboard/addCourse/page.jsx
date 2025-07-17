@@ -203,6 +203,11 @@ export function SearchArea({handleEdit}) {
                       <Chip size="small" label="No Skip" color="error" variant="outlined" />
                     </Tooltip>
                   )}
+                  {r.allowWaitingList && (
+                    <Tooltip title="Waiting list is allowed when course is full">
+                      <Chip size="small" label="Waiting List" color="primary" variant="outlined" />
+                    </Tooltip>
+                  )}
                 </Stack>
               </TableCell>
               <TableCell align="left">{r.courseTitle}</TableCell>
@@ -392,6 +397,13 @@ export function SearchArea({handleEdit}) {
                       <Grid item>
                         <Tooltip title="Class skipping is not allowed">
                           <Chip label="No Skip" size="small" color="error" variant="outlined" />
+                        </Tooltip>
+                      </Grid>
+                    )}
+                    {c.allowWaitingList && (
+                      <Grid item>
+                        <Tooltip title="Waiting list is allowed when course is full">
+                          <Chip label="Waiting List" size="small" color="primary" variant="outlined" />
                         </Tooltip>
                       </Grid>
                     )}
