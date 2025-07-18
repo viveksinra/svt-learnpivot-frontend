@@ -134,6 +134,30 @@ function CourseEnqForm({
     // If coming back from payment, preserveSelections stays true (already set)
   };
 
+  const joinWaiting = async () => {
+    try {
+      const res = await myCourseService.joinWaitingList({ courseId: data._id, childId: selectedChild?._id });
+      // snackRef.current.handleSnack(res);
+      if (res.variant === 'success' || res.variant === 'info') {
+        setIsWaitListed(true);
+      }
+    } catch (error) {
+      snackRef.current.handleSnack({ variant: 'error', message: 'Failed to join waiting list' });
+    }
+  };
+
+  const leaveWaiting = async () => {
+    try {
+      const res = await myCourseService.leaveWaitingList({ courseId: data._id, childId: selectedChild?._id });
+      // snackRef.current.handleSnack(res);
+      if (res.variant === 'success') {
+        setIsWaitListed(false);
+      }
+    } catch (error) {
+      snackRef.current.handleSnack({ variant: 'error', message: 'Failed to remove from waiting list' });
+    }
+  };
+
   return (
     <>
       {step === 1 && <ComLogSigForm isRedirectToDashboard={false} />}
@@ -148,18 +172,8 @@ function CourseEnqForm({
           data={data}
           allowWaitingList={allowWaitingList}
           isWaitListed={isWaitListed}
-          onJoinWaitingList={async () => {
-            try {
-              const res = await myCourseService.joinWaitingList({ courseId: data._id, childId: selectedChild?._id });
-              snackRef.current.handleSnack(res);
-              if (res.variant === "success" || res.variant === "info") {
-                setIsWaitListed(true);
-              }
-            } catch (error) {
-              console.error(error);
-              snackRef.current.handleSnack({ variant: "error", message: "Failed to join waiting list" });
-            }
-          }}
+          onJoinWaitingList={joinWaiting}
+          onLeaveWaitingList={leaveWaiting}
         /> 
       )}
       

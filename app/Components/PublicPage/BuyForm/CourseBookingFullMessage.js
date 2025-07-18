@@ -13,7 +13,12 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  IconButton
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from '@mui/material';
 import {
   ErrorOutline,
@@ -22,7 +27,10 @@ import {
   Close
 } from '@mui/icons-material';
 
-const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, isWaitListed = false, onJoinWaitingList }) => {
+const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, isWaitListed = false, onJoinWaitingList, onLeaveWaitingList }) => {
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogType, setDialogType] = React.useState('join'); // join or leave
+
   const handleEmailClick = () => {
     const subject = encodeURIComponent(`Booking Inquiry - ${data?.courseTitle || ''}`);
     const body = encodeURIComponent(
@@ -33,6 +41,12 @@ const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, is
 
   const handleCloseClick = () => {
     window.location.href = '/course';
+  };
+
+  const handleConfirm = () => {
+    setDialogOpen(false);
+    if (dialogType === 'join' && onJoinWaitingList) onJoinWaitingList();
+    if (dialogType === 'leave' && onLeaveWaitingList) onLeaveWaitingList();
   };
 
   return (
@@ -51,86 +65,91 @@ const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, is
             This course has reached its maximum capacity. We want to ensure each student gets the attention they deserve.
           </Alert>
 
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
-            Please contact our admin team to:
-          </Typography>
-
-          <List dense>
-            {['Join the waiting list', 'Learn about upcoming sessions', 'Explore alternative course dates'].map((text, index) => (
-              <ListItem key={index}>
-                <ListItemIcon>
-                  <FiberManualRecord sx={{ fontSize: 8 }} />
-                </ListItemIcon>
-                <ListItemText primary={text} />
-              </ListItem>
-            ))}
-          </List>
+          {allowWaitingList && (
+            isWaitListed ? (
+              <Box sx={{
+                mb: 3,
+                backgroundColor: '#FEF3C7',
+                border: '1px solid #F59E0B',
+                borderRadius: '6px',
+                p: 2
+              }}>
+                <Typography variant="body2" sx={{ color: '#1F2937', fontWeight: 500 }}>
+                  You're currently on the waiting list. We'll notify you if a seat opens, or you can leave the list below.
+                </Typography>
+              </Box>
+            ) : (
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+                Seats are full, but you can join the waiting list below and we'll notify you if a spot opens.
+              </Typography>
+            )
+          )}
         </CardContent>
 
         <Divider />
 
         <CardActions sx={{ padding: 2, flexDirection: 'column', gap: 2 }}>
-          <Box sx={{ width: '100%', display: 'flex', gap: 2 }}>
-            <Button
-              variant="contained"
-              startIcon={<Email />}
-              fullWidth
-              onClick={handleEmailClick}
-              sx={{
-                backgroundColor: 'green',
-                '&:hover': { backgroundColor: 'darkgreen' },
-                height: 'auto',
-                minHeight: { xs: '60px', sm: '48px' },
-                py: 1.5,
-                px: { xs: 1, sm: 2 },
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 1, sm: 0.5 },
-                '& .MuiButton-startIcon': {
-                  margin: { xs: '0 0 4px 0', sm: '0 8px 0 0' }
-                }
-              }}
-            >
-              <Typography
-                variant="button"
-                sx={{
-                  display: 'block',
-                  width: '100%',
-                  textAlign: 'center',
-                  fontSize: { xs: '0.75rem', sm: '0.875rem' },
-                  lineHeight: 1.2,
-                  wordBreak: 'break-word'
+
+
+          {allowWaitingList && (
+            <Box sx={{ width: '100%' }}>
+              <Button
+                variant="contained"
+                color={isWaitListed ? 'success' : 'warning'}
+                fullWidth
+                startIcon={isWaitListed ? <ErrorOutline sx={{ transform: 'scale(0.8)' }} /> : null}
+                onClick={() => {
+                  if (!isWaitListed) {
+                    setDialogType('join');
+                    setDialogOpen(true);
+                  } else {
+                    setDialogType('leave');
+                    setDialogOpen(true);
+                  }
+                }}
+                sx={isWaitListed ? {
+                  backgroundColor: '#22c55e',
+                  '&:hover': { backgroundColor: '#16a34a' }
+                } : {
+                  animation: 'pulse 2s infinite',
+                  '@keyframes pulse': {
+                    '0%': { boxShadow: '0 0 0 0 rgba(202, 189, 8, 0.7)' },
+                    '70%': { boxShadow: '0 0 0 10px rgba(255,165,0, 0)' },
+                    '100%': { boxShadow: '0 0 0 0 rgba(255,165,0, 0)' }
+                  }
                 }}
               >
-                Contact Support
-              </Typography>
+                {isWaitListed ? 'Leave Waiting List' : 'Join Waiting List'}
+              </Button>
+            </Box>
+          )}
+                    <Box sx={{ width: '100%', display: 'flex', gap: 2 }}>
+                    <Button
+              variant="contained"
+              startIcon={<Email />}
+              onClick={handleEmailClick}
+              fullWidth
+              sx={{
+                textTransform: 'none',
+                backgroundColor: '#059669',
+                '&:hover': { backgroundColor: '#047857' }
+              }}
+            >
+              Contact Support
             </Button>
             <Button
               onClick={handleCloseClick}
               sx={{
                 color: 'white',
-                backgroundColor: 'red',
-                '&:hover': { backgroundColor: 'darkred' }
+                backgroundColor: '#EF4444',
+                '&:hover': { backgroundColor: '#DC2626' }
               }}
+              fullWidth
             >
               Close
             </Button>
+       
           </Box>
-
-          {allowWaitingList && (
-            <Box sx={{ width: '100%' }}>
-              <Button
-                variant="outlined"
-                color={isWaitListed ? 'success' : 'primary'}
-                fullWidth
-                disabled={isWaitListed}
-                onClick={() => {
-                  if (onJoinWaitingList) onJoinWaitingList();
-                }}
-              >
-                {isWaitListed ? 'Already in Waiting List' : 'Join Waiting List'}
-              </Button>
-            </Box>
-          )}
         </CardActions>
         <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
           <IconButton aria-label="close" onClick={handleCloseClick}>
@@ -138,6 +157,30 @@ const CourseBookingFullMessage = ({ userInfo, data, allowWaitingList = false, is
           </IconButton>
         </Box>
       </Card>
+      <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)}>
+        <DialogTitle>{dialogType === 'join' ? 'Join Waiting List' : 'Leave Waiting List'}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {dialogType === 'join' ? 'Are you sure you want to join the waiting list for this course?' : 'Are you sure you want to remove yourself from the waiting list?'}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDialogOpen(false)}
+            sx={{
+              color: 'white',
+              backgroundColor: dialogType === 'leave' ? '#059669' : '#EF4444',
+              '&:hover': { backgroundColor: dialogType === 'leave' ? '#047857' : '#DC2626' }
+            }}
+          >{dialogType === 'leave' ? 'Stay in Waiting List' : 'Cancel'}</Button>
+          <Button onClick={handleConfirm} autoFocus
+            sx={{
+              color: 'white',
+              backgroundColor: dialogType === 'leave' ? '#EF4444' : '#059669',
+              '&:hover': { backgroundColor: dialogType === 'leave' ? '#DC2626' : '#047857' }
+            }}
+          >{dialogType === 'join' ? 'Join' : 'Remove'}</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
