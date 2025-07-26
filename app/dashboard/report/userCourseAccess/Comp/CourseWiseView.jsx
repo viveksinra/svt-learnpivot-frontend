@@ -23,7 +23,7 @@ import {
   CircularProgress,
   Snackbar
 } from "@mui/material";
-import { ExpandMore, ExpandLess, Person, Email, Phone } from '@mui/icons-material';
+import { ExpandMore, ExpandLess, Person, Email, Phone, FileDownload } from '@mui/icons-material';
 import { myCourseService } from "@/app/services";
 
 const CourseWiseView = () => {
@@ -206,6 +206,58 @@ const CourseWiseView = () => {
     setSaveError(false);
   };
 
+  /* ------------------------------ CSV Export ------------------------------ */
+  const exportToCSV = () => {
+    if (!accessData || accessData.length === 0) return;
+
+    // Define the headers you want in the CSV
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Email",
+      "Mobile",
+      "Has Access",
+      "Restrict Start Date Change",
+      "Force Full Buy Course",
+      "Continuous Set Buy",
+      "Allow Back Date Buy",
+      "Back Day Count",
+      "Restrict Total Seat",
+      "Total Seat"
+    ];
+
+    // Map accessData to rows
+    const rows = accessData.map(u => [
+      u.firstName || "",
+      u.lastName || "",
+      u.email || "",
+      u.mobile || "",
+      u.isSelectedUser ? "Yes" : "No",
+      u.restrictStartDateChange ? "Yes" : "No",
+      u.forcefullBuyCourse ? "Yes" : "No",
+      u.stopSkipSet ? "Yes" : "No",
+      u.allowBackDateBuy ? "Yes" : "No",
+      u.backDayCount || 0,
+      u.restrictOnTotalSeat ? "Yes" : "No",
+      u.totalSeat || 0
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(r => r.map(value => `"${String(value).replace(/"/g, '""')}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const fileName = selectedCourse ? `${selectedCourse.courseTitle.replace(/\s+/g, '_')}_Access.csv` : 'UserCourseAccess.csv';
+    link.setAttribute('download', fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   /* --------------------------------- Stats --------------------------------- */
   const totalUsers = accessData.length;
   const usersWithCustomConfig = accessData.filter(user => user._id || user.enableSeperateUserAccessForCourse).length;
@@ -268,7 +320,24 @@ const CourseWiseView = () => {
         {courseData && (
           <Card elevation={2} sx={{ mb: 3 }}>
             <CardContent sx={{ p: { xs: 1.5, sm: 2 } }}>
-              <Typography variant="h6" gutterBottom>{courseData.courseTitle}</Typography>
+              <Stack 
+                direction={isMobile ? 'column' : 'row'}
+                justifyContent="space-between"
+                alignItems={isMobile ? 'flex-start' : 'center'}
+                spacing={isMobile ? 1 : 2}
+                sx={{ mb: { xs: 1.5, sm: 2 } }}
+              >
+                <Typography variant="h6" gutterBottom>{courseData.courseTitle}</Typography>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<FileDownload />} 
+                  onClick={exportToCSV}
+                  size={isMobile ? 'small' : 'medium'}
+                  disabled={accessData.length === 0}
+                >
+                  Export CSV
+                </Button>
+              </Stack>
               <Stack direction="row" spacing={2} flexWrap="wrap">
                 <Chip label={courseData.courseClass?.label || 'N/A'} color="info" size="small" />
                 <Chip label={courseData.courseType?.label || 'N/A'} color="secondary" size="small" />

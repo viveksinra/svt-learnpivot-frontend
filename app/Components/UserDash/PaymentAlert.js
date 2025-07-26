@@ -453,15 +453,11 @@ export const PaymentAlert = ({ selectedChild }) => {
               ? new Date(Math.max(...allPaidDates))
               : new Date(0); // If no paid dates, use epoch time
             
-            const today = new Date();
-
-            // Check for any unpaid dates between latest paid date and today
+            // Check for any unpaid dates after the last paid date (include both upcoming and overdue)
             const hasUnpaidDates = course.courseDateSets.some(set => 
               set.dates.some(date => {
                 const dateObj = new Date(date.date);
-                return !date.purchased && 
-                       dateObj > latestPaidDate && 
-                       dateObj >= today;
+                return !date.purchased && dateObj > latestPaidDate;
               })
             );
 

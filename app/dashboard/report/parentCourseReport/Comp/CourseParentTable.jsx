@@ -32,6 +32,7 @@ import {
   Badge,
   Divider,
   Stack,
+  TableSortLabel,
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -88,6 +89,9 @@ const exportToCSV = (data) => {
     'Course Title',
     'Batch Time',
     'Parent Email',
+    'Child Name',
+    'Child Gender',
+    'Child Year',
     'Purchased Classes',
     'Total Classes',
     'Purchase Percentage',
@@ -109,6 +113,9 @@ const exportToCSV = (data) => {
       row.courseTitle,
       row.batchTime,
       row.parentEmail,
+      row.childName || '',
+      row.childGender || '',
+      row.childYear || '',
       row.totalPurchasedDates,
       row.totalDates,
       row.purchasePercentage,
@@ -391,6 +398,7 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
   const [viewMode, setViewMode] = useState(isMobile ? "grid" : "table");
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedRowForDetails, setSelectedRowForDetails] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
   useEffect(() => {
     const processed = processData(initialData);
@@ -405,25 +413,44 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
   const handleSearch = (e) => {
     const term = e.target.value;
     setSearchTerm(term);
-    applyFilters(term, setPurchaseFilter, courseFilter);
+    applyFilters(term, setPurchaseFilter, courseFilter, sortConfig);
   };
 
   const handleSetFilter = (e) => {
     const filters = e.target.value;
     setSetPurchaseFilter(filters);
-    applyFilters(searchTerm, filters, courseFilter);
+    applyFilters(searchTerm, filters, courseFilter, sortConfig);
   };
 
   const handleCourseFilter = (e) => {
     const filter = e.target.value;
     setCourseFilter(filter);
-    applyFilters(searchTerm, setPurchaseFilter, filter);
+    applyFilters(searchTerm, setPurchaseFilter, filter, sortConfig);
   };
 
-  const applyFilters = (term, setFilters, course) => {
+  const sortData = (data, sortCfg) => {
+    if (!sortCfg || !sortCfg.key) return data;
+
+    const { key, direction } = sortCfg;
+
+    return [...data].sort((a, b) => {
+      let aVal = a[key];
+      let bVal = b[key];
+
+      if (key === 'purchasePercentage') {
+        aVal = parseFloat(aVal);
+        bVal = parseFloat(bVal);
+      }
+
+      if (aVal < bVal) return direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+  };
+
+  const applyFilters = (term, setFilters, course, sortCfg = sortConfig) => {
     let filtered = processedData;
 
-    // Apply search term filter
     if (term) {
       const lowercaseTerm = term.toLowerCase();
       filtered = filtered.filter(row =>
@@ -436,7 +463,6 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
       );
     }
 
-    // Apply set purchase filters
     if (setFilters.length > 0 && !setFilters.includes("all")) {
       filtered = filtered.filter(row => {
         return setFilters.some(filter => {
@@ -450,14 +476,14 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
       });
     }
     
-    // Apply course filter
     if (course !== "all") {
       filtered = filtered.filter(row => row.courseTitle === course);
     } else {
       filtered = filtered;
     }
 
-    setFilteredData(filtered);
+    const sorted = sortData(filtered, sortCfg);
+    setFilteredData(sorted);
   };
 
   const handleSelectRow = (row, isSelected) => {
@@ -547,6 +573,13 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
         </Box>
       </Box>
     );
+  };
+
+  const handleSort = (key) => {
+    const isAsc = sortConfig.key === key && sortConfig.direction === 'asc';
+    const newSortConfig = { key, direction: isAsc ? 'desc' : 'asc' };
+    setSortConfig(newSortConfig);
+    applyFilters(searchTerm, setPurchaseFilter, courseFilter, newSortConfig);
   };
 
   return (
@@ -677,9 +710,25 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
                 <TableCell>Course Details</TableCell>
                 <TableCell>Parent Info</TableCell>
                 <TableCell>Child Info</TableCell>
-                <TableCell align="center">Purchased Classes</TableCell>
+                <TableCell align="center">
+                  <TableSortLabel
+                    active={sortConfig.key === 'totalPurchasedDates'}
+                    direction={sortConfig.key === 'totalPurchasedDates' ? sortConfig.direction : 'asc'}
+                    onClick={() => handleSort('totalPurchasedDates')}
+                  >
+                    Purchased Classes
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell align="center">Total Classes</TableCell>
-                <TableCell>Progress</TableCell>
+                <TableCell>
+                  <TableSortLabel
+                    active={sortConfig.key === 'purchasePercentage'}
+                    direction={sortConfig.key === 'purchasePercentage' ? sortConfig.direction : 'asc'}
+                    onClick={() => handleSort('purchasePercentage')}
+                  >
+                    Progress
+                  </TableSortLabel>
+                </TableCell>
                 <TableCell>Set Status</TableCell>
                 <TableCell>Details</TableCell>
               </TableRow>
@@ -775,7 +824,7 @@ const CourseParentTable = ({ data: initialData, courseDropDown = [], isMobile })
               },
               selectedDates: row.sortedDateSets.flatMap(set => 
                 set.dates.filter(d => d.purchased).map(d => formatDate(d.date))
-              ) // Only include purchased dates
+              )
             }))}
             setId={() => setEmailDialogOpen(false)}
           />
