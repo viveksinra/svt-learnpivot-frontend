@@ -10,13 +10,16 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  CircularProgress
 } from "@mui/material";
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EventIcon from '@mui/icons-material/Event';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import HourglassDisabledIcon from '@mui/icons-material/HourglassDisabled';
 import MockPayButton from "./MockPayButton";
 import { mockTestService } from "@/app/services";
 import Cookies from "js-cookie";
@@ -38,7 +41,9 @@ const MtBatchSelector = ({
   today.setHours(0, 0, 0, 0);
 
   const [loading, setLoading] = useState(true);
+  const [waitingListLoading, setWaitingListLoading] = useState({});
   const [alreadyBoughtBatch, setAlreadyBoughtBatch] = useState([]);
+  const [userWaitingList, setUserWaitingList] = useState([]);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictBatch, setConflictBatch] = useState(null);
   const { state } = useContext(MainContext);
@@ -64,8 +69,59 @@ const MtBatchSelector = ({
     setTotalAmount(newTotalAmount);
   }, [selectedBatch]);
 
+  // Handle joining waiting list
+  const handleJoinWaitingList = async (batch, event) => {
+    event.stopPropagation(); // Prevent batch selection
+    
+    setWaitingListLoading(prev => ({ ...prev, [batch._id]: true }));
+    
+    try {
+      const res = await mockTestService.joinWaitingList({
+        mockId: data._id,
+        batchId: batch._id,
+        childId: selectedChild._id
+      });
 
+      if (res.variant === "success") {
+        // Update waiting list state
+        setUserWaitingList(prev => [...prev, { batchId: batch._id, childId: selectedChild._id }]);
+      } else {
+        alert(res.message || "Failed to join waiting list");
+      }
+    } catch (error) {
+      console.error("Error joining waiting list:", error);
+      alert("Failed to join waiting list. Please try again.");
+    } finally {
+      setWaitingListLoading(prev => ({ ...prev, [batch._id]: false }));
+    }
+  };
 
+  // Handle leaving waiting list
+  const handleLeaveWaitingList = async (batch, event) => {
+    event.stopPropagation(); // Prevent batch selection
+    
+    setWaitingListLoading(prev => ({ ...prev, [batch._id]: true }));
+    
+    try {
+      const res = await mockTestService.leaveWaitingList({
+        mockId: data._id,
+        batchId: batch._id,
+        childId: selectedChild._id
+      });
+
+      if (res.variant === "success") {
+        // Update waiting list state
+        setUserWaitingList(prev => prev.filter(w => w.batchId !== batch._id));
+      } else {
+        alert(res.message || "Failed to leave waiting list");
+      }
+    } catch (error) {
+      console.error("Error leaving waiting list:", error);
+      alert("Failed to leave waiting list. Please try again.");
+    } finally {
+      setWaitingListLoading(prev => ({ ...prev, [batch._id]: false }));
+    }
+  };
 
   const handleCheckboxChange = (batch) => {
     const existingDateBatch = (selectedBatch || []).find(
@@ -119,6 +175,32 @@ const MtBatchSelector = ({
     return allowBuy || (!batch.filled && 
            new Date(batch.date) >= today );
   };
+  const isShowWaitingList = (batch) => {
+    const batchDate = new Date(batch.date);
+    batchDate.setHours(0, 0, 0, 0);
+
+    let alreadyBookedDateBatch = false;
+    alreadyBookedDateBatch = alreadyBoughtBatch.find(
+      b => new Date(b.date).toDateString() === new Date(batch.date).toDateString()
+    ) ;
+
+    if(alreadyBookedDateBatch == true){
+      return false;
+    }
+    // check if batchDate is today or after today
+    const isAfterToday = batchDate >= today;
+
+    let allowBuyOnBookingFull = false;
+    if ( batch.byPassBookingFull == true &&  batch.selectedUsers.includes(state.id)) {
+      allowBuyOnBookingFull = true;
+    }
+    const  allowWaitingList = batch.allowWaitingList;
+
+    if(!allowBuyOnBookingFull && allowWaitingList && isAfterToday ){
+      return true;
+    }
+    return false;
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -139,27 +221,7 @@ const MtBatchSelector = ({
     
       if (res.variant === "success") {
         setAlreadyBoughtBatch(res.data);
-        if (!selectedBatch) {
-          setSelectedBatch([]);
-        }
-      } else {
-        alert(res);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }   
-    setLoading(false);
-  }
-  async function getBoughtBatch() {
-    setLoading(true);
-    try {
-      let res = await mockTestService.alreadyBoughtMock({
-        childId: selectedChild._id, 
-        id: `${data._id}`
-      });
-    
-      if (res.variant === "success") {
-        setAlreadyBoughtBatch(res.data);
+        setUserWaitingList(res.waitingData);
         if (!selectedBatch) {
           setSelectedBatch([]);
         }
@@ -247,6 +309,18 @@ const MtBatchSelector = ({
           const isSelected = (selectedBatch || []).some(b => b._id === batch._id);
           const isSelectable = isBatchSelectable(batch);
           const isAlreadyBought = alreadyBoughtBatch?.some(b => b._id === batch._id);
+          const showWaitingList = isShowWaitingList(batch);
+          const alreadyInWaitingList = userWaitingList?.some(w => w.batchId === batch._id);
+
+          let isJoinWaitingList = true;
+          let isLeaveWaitingList = false;
+          if(showWaitingList){
+            if(alreadyInWaitingList){
+              isJoinWaitingList = false;
+              isLeaveWaitingList = true;
+            }
+          }
+
 
           return (
             <Grid item xs={12} key={batch._id}>
@@ -324,17 +398,79 @@ const MtBatchSelector = ({
                               {batch.startTime} - {batch.endTime}
                             </Typography>
                           </Box>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>    
-                            <Typography 
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>  
+              
+                             
+           
+                             <Typography 
                               sx={{ 
                                 color: isSelectable ? '#059669' : '#DC2626',
                                 fontSize: '0.75rem',
                                 fontWeight: 700,
-                                mt: 1
+                                mt: showWaitingList ? 0 : 1
                               }}
                             >
                               {isSelectable ? "Available" : isAlreadyBought ? `Already Booked for ${selectedChild.childName}` : 'Booking Full'}
                             </Typography>
+                            {showWaitingList && (
+                              <>
+                                {isJoinWaitingList && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={waitingListLoading[batch._id] ? 
+                                      <CircularProgress size={16} /> : 
+                                      <HourglassEmptyIcon />
+                                    }
+                                    onClick={(e) => handleJoinWaitingList(batch, e)}
+                                    disabled={waitingListLoading[batch._id]}
+                                    sx={{
+                                      color: '#059669',
+                                      borderColor: '#059669',
+                                      fontSize: '0.7rem',
+                                      textTransform: 'none',
+                                      minWidth: 'auto',
+                                      px: 1,
+                                      py: 0.5,
+                                      '&:hover': {
+                                        backgroundColor: '#F0FDF4',
+                                        borderColor: '#047857'
+                                      }
+                                    }}
+                                  >
+                                    Join Waiting List
+                                  </Button>
+                                )}
+                                
+                                {isLeaveWaitingList && (
+                                  <Button
+                                    size="small"
+                                    variant="outlined"
+                                    startIcon={waitingListLoading[batch._id] ? 
+                                      <CircularProgress size={16} /> : 
+                                      <HourglassDisabledIcon />
+                                    }
+                                    onClick={(e) => handleLeaveWaitingList(batch, e)}
+                                    disabled={waitingListLoading[batch._id]}
+                                    sx={{
+                                      color: '#DC2626',
+                                      borderColor: '#DC2626',
+                                      fontSize: '0.7rem',
+                                      textTransform: 'none',
+                                      minWidth: 'auto',
+                                      px: 1,
+                                      py: 0.5,
+                                      '&:hover': {
+                                        backgroundColor: '#FEF2F2',
+                                        borderColor: '#B91C1C'
+                                      }
+                                    }}
+                                  >
+                                    Leave Waiting List
+                                  </Button>
+                                )}
+                              </>
+                                                         )}
                           </Box>
                         </Box>
                       </Grid>

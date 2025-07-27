@@ -325,4 +325,103 @@ getFsceMockTestIdsByChildId = async (childId) => {
     .then((res) => res.data.result.Location)
     .catch((err) => {console.log(err) });
   };
+
+  // ==================== WAITING LIST METHODS ====================
+
+  /**
+   * Join waiting list for a mock test batch
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @param {string} params.childId - Child ID (optional)
+   * @returns {Promise} Response with success/error message
+   */
+  joinWaitingList = async ({ mockId, batchId, childId = null }) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/mockTest/waitingList/join/${mockId}`, { batchId, childId }, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  /**
+   * Leave waiting list for a mock test batch
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @param {string} params.childId - Child ID (optional)
+   * @returns {Promise} Response with success/error message
+   */
+  leaveWaitingList = async ({ mockId, batchId, childId = null }) => {
+    return this.instance
+      .delete(`/api/v1/publicMaster/mockTest/waitingList/leave/${mockId}`, {
+        headers: getAuthorizationHeader(),
+        data: { batchId, childId }
+      })
+      .then((res) => res.data);
+  };
+
+  /**
+   * Admin: Get waiting list entries with optional filters
+   * @param {Object} params - Query parameters
+   * @param {string} params.status - Filter by status (pending/accepted/rejected)
+   * @param {string} params.mockTestId - Filter by mock test ID
+   * @param {string} params.search - Search term
+   * @param {string} params.sort - Sort order (dateAsc/dateDesc)
+   * @returns {Promise} Response with waiting list data
+   */
+  adminGetWaitingList = async (params = {}) => {
+    const qs = new URLSearchParams(params).toString();
+    return this.instance
+      .get(`/api/v1/publicMaster/mockTest/waitingList/admin/listAll${qs ? `?${qs}` : ""}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  /**
+   * Admin: Update waiting list entry status
+   * @param {Object} params - Parameters object
+   * @param {string} params.entryId - Waiting list entry ID
+   * @param {string} params.status - New status (accepted/rejected/pending)
+   * @returns {Promise} Response with success/error message
+   */
+  adminUpdateWaitingStatus = async ({ entryId, status }) => {
+    return this.instance
+      .post(`/api/v1/publicMaster/mockTest/waitingList/admin/updateStatus/${entryId}`, { status }, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  /**
+   * Check if seat is available for a mock test batch
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @returns {Promise} Response with availability status
+   */
+  checkIfSeatAvailable = async ({ mockId, batchId }) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/mockTest/getMockTest/checkIfSeatAvailable/${mockId}/${batchId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
+
+  /**
+   * Check if seat is available for a mock test batch for specific child
+   * @param {Object} params - Parameters object
+   * @param {string} params.mockId - Mock test ID
+   * @param {string} params.batchId - Batch ID
+   * @param {string} params.childId - Child ID
+   * @returns {Promise} Response with availability status
+   */
+  checkIfSeatAvailableForChild = async ({ mockId, batchId, childId }) => {
+    return this.instance
+      .get(`/api/v1/publicMaster/mockTest/getMockTest/checkIfSeatAvailableForChild/${mockId}/${batchId}/${childId}`, {
+        headers: getAuthorizationHeader(),
+      })
+      .then((res) => res.data);
+  };
 }

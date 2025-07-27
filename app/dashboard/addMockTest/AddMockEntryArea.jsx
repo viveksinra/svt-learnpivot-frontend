@@ -37,12 +37,14 @@ const AddMockEntryArea = forwardRef((props, ref) => {
         oneBatchprice: 40, 
         filled: false,
         byPassBookingFull: false,
+        allowWaitingList: false,
         selectedUsers: []
     }]);
     const [PAccordion, setPAccordion] = useState(false);
     const [privateAccordion, setPrivateAccordion] = useState(true);
     const [allUsers, setAllUsers] = useState([]);
     const [stripeAccount, setStripeAccount] = useState(null);
+    const [allowWaitingList, setAllowWaitingList] = useState(false);
 
     const getAllUsers = async () => {
         let res = await dashboardService.getAllUserForDropDown();
@@ -92,7 +94,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 if (res.variant === "success") {
                     const {
                         isPublished, mockTestTitle, mockTestLink, shortDescription, pincode, highlightedText,
-                        blinkText, testType, location, stripeAccount: stripeAccountData, imageUrls, fullDescription, totalSeat, batch,
+                        blinkText, testType, location, stripeAccount: stripeAccountData, imageUrls, fullDescription, totalSeat, batch, allowWaitingList: waitingList,
                     } = res.data;
                     setIsPublished(isPublished);
                     setMockTestTitle(mockTestTitle);
@@ -111,8 +113,10 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                         ...b,
                         date: b.date.split('T')[0],
                         byPassBookingFull: b.byPassBookingFull || false,
+                        allowWaitingList: b.allowWaitingList || false,
                         selectedUsers: b.selectedUsers || []
                     })));
+                    setAllowWaitingList(waitingList || false);
                     setPAccordion(true);
                     snackRef.current.handleSnack(res);
                 } else {
@@ -151,9 +155,11 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             oneBatchprice: 0, 
             filled: false,
             byPassBookingFull: false,
+            allowWaitingList: false,
             selectedUsers: []
         }]);
         setStripeAccount(null);
+        setAllowWaitingList(false);
         setPAccordion(true);
     };
 
@@ -190,6 +196,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
             oneBatchprice: 0, 
             filled: false,
             byPassBookingFull: false,
+            allowWaitingList: false,
             selectedUsers: []
         }]);
     };
@@ -219,6 +226,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                     totalSeat,
                     imageUrls,
                     isPublished,
+                    allowWaitingList,
                     batch
                 };
                 const response = await mockTestService.add(props.id, myMockTestData);
@@ -562,7 +570,19 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 label={`By-Pass Booking Full`} 
                             />
                         </Grid>
-                        <Grid item xs={12} sm={6} md={8}>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <FormControlLabel 
+                                control={
+                                    <Checkbox
+                                        checked={entry.allowWaitingList}
+                                        onChange={(e) => handleBatchChange(index, 'allowWaitingList', e.target.checked)}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />               
+                                } 
+                                label={`Allow Waiting List`} 
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={12} md={4}>
                             {renderUserSelect(index)}
                         </Grid>
                     </Grid>
@@ -597,6 +617,21 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={2}>
+                        <Grid item xs={12} md={4}>
+                            <FormControlLabel 
+                                control={
+                                    <Checkbox
+                                        checked={allowWaitingList}
+                                        onChange={() => setAllowWaitingList(!allowWaitingList)}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />               
+                                } 
+                                label={`Allow Waiting List`} 
+                            />
+                            <Typography variant="caption" color="text.secondary" display="block">
+                                Enable waiting list for full batches
+                            </Typography>
+                        </Grid>
                         <Grid item xs={12}>
                             <TextField
                                 label="Full Description"
