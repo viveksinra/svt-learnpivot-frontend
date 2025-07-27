@@ -41,13 +41,21 @@ const MtBatchSelector = ({
   today.setHours(0, 0, 0, 0);
 
   const [loading, setLoading] = useState(true);
-  const [waitingListLoading, setWaitingListLoading] = useState({});
+
   const [alreadyBoughtBatch, setAlreadyBoughtBatch] = useState([]);
   const [userWaitingList, setUserWaitingList] = useState([]);
   const [conflictDialogOpen, setConflictDialogOpen] = useState(false);
   const [conflictBatch, setConflictBatch] = useState(null);
   const { state } = useContext(MainContext);
   const currentUser = Cookies.get("currentUser");
+
+  // Add confirmation dialog states
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    type: '', // 'join' or 'leave'
+    batch: null,
+    loading: false
+  });
 
   function countDecimalPlaces(num) {
     const numStr = num.toString();
@@ -69,11 +77,32 @@ const MtBatchSelector = ({
     setTotalAmount(newTotalAmount);
   }, [selectedBatch]);
 
-  // Handle joining waiting list
-  const handleJoinWaitingList = async (batch, event) => {
-    event.stopPropagation(); // Prevent batch selection
-    
-    setWaitingListLoading(prev => ({ ...prev, [batch._id]: true }));
+  // Handle join waiting list click - show confirmation dialog
+  const handleJoinWaitingListClick = (batch, event) => {
+    event.stopPropagation();
+    setConfirmDialog({
+      open: true,
+      type: 'join',
+      batch: batch,
+      loading: false
+    });
+  };
+
+  // Handle leave waiting list click - show confirmation dialog  
+  const handleLeaveWaitingListClick = (batch, event) => {
+    event.stopPropagation();
+    setConfirmDialog({
+      open: true,
+      type: 'leave', 
+      batch: batch,
+      loading: false
+    });
+  };
+
+  // Handle confirmed joining waiting list
+  const handleConfirmedJoinWaitingList = async () => {
+    const batch = confirmDialog.batch;
+    setConfirmDialog(prev => ({ ...prev, loading: true }));
     
     try {
       const res = await mockTestService.joinWaitingList({
@@ -85,22 +114,22 @@ const MtBatchSelector = ({
       if (res.variant === "success") {
         // Update waiting list state
         setUserWaitingList(prev => [...prev, { batchId: batch._id, childId: selectedChild._id }]);
+        setConfirmDialog({ open: false, type: '', batch: null, loading: false });
       } else {
         alert(res.message || "Failed to join waiting list");
+        setConfirmDialog(prev => ({ ...prev, loading: false }));
       }
     } catch (error) {
       console.error("Error joining waiting list:", error);
       alert("Failed to join waiting list. Please try again.");
-    } finally {
-      setWaitingListLoading(prev => ({ ...prev, [batch._id]: false }));
+      setConfirmDialog(prev => ({ ...prev, loading: false }));
     }
   };
 
-  // Handle leaving waiting list
-  const handleLeaveWaitingList = async (batch, event) => {
-    event.stopPropagation(); // Prevent batch selection
-    
-    setWaitingListLoading(prev => ({ ...prev, [batch._id]: true }));
+  // Handle confirmed leaving waiting list
+  const handleConfirmedLeaveWaitingList = async () => {
+    const batch = confirmDialog.batch;
+    setConfirmDialog(prev => ({ ...prev, loading: true }));
     
     try {
       const res = await mockTestService.leaveWaitingList({
@@ -112,14 +141,15 @@ const MtBatchSelector = ({
       if (res.variant === "success") {
         // Update waiting list state
         setUserWaitingList(prev => prev.filter(w => w.batchId !== batch._id));
+        setConfirmDialog({ open: false, type: '', batch: null, loading: false });
       } else {
         alert(res.message || "Failed to leave waiting list");
+        setConfirmDialog(prev => ({ ...prev, loading: false }));
       }
     } catch (error) {
       console.error("Error leaving waiting list:", error);
       alert("Failed to leave waiting list. Please try again.");
-    } finally {
-      setWaitingListLoading(prev => ({ ...prev, [batch._id]: false }));
+      setConfirmDialog(prev => ({ ...prev, loading: false }));
     }
   };
 
@@ -324,24 +354,31 @@ const MtBatchSelector = ({
 
           return (
             <Grid item xs={12} key={batch._id}>
-              <Paper
-                elevation={isSelected ? 3 : 1}
-                sx={{
-                  p: 1,
-                  backgroundColor: isSelected ? '#F0F9FF' : '#ffffff',
-                  border: '1px solid',
-                  borderColor: isSelected ? '#BAE6FD' : isSelectable ? '#059669' : '#DC2626',
-                  borderRadius: 2,
-                  transition: 'all 0.3s ease',
-                  cursor: isSelectable ? 'pointer' : 'default',
-                  opacity: isSelectable ? 1 : 0.7,
-                  '&:hover': isSelectable ? {
-                    borderColor: '#7DD3FC',
-                    backgroundColor: '#F0F9FF',
-                    transform: 'translateY(-2px)',
-                  } : {},
-                }}
-                onClick={() => isSelectable && handleCheckboxChange(batch)}
+              <Box sx={{ 
+                display: 'flex', 
+                gap: 2, 
+                alignItems: 'stretch',
+                flexDirection: { xs: 'column', md: 'row' }
+              }}>
+                                <Paper
+                  elevation={isSelected ? 3 : 1}
+                  sx={{
+                    p: 1,
+                    flex: 1,
+                    backgroundColor: isSelected ? '#F0F9FF' : '#ffffff',
+                    border: '1px solid',
+                    borderColor: isSelected ? '#BAE6FD' : isSelectable ? '#059669' : '#DC2626',
+                    borderRadius: 2,
+                    transition: 'all 0.3s ease',
+                    cursor: isSelectable ? 'pointer' : 'default',
+                    opacity: isSelectable ? 1 : 0.7,
+                    '&:hover': isSelectable ? {
+                      borderColor: '#7DD3FC',
+                      backgroundColor: '#F0F9FF',
+                      transform: 'translateY(-2px)',
+                    } : {},
+                  }}
+                  onClick={() => isSelectable && handleCheckboxChange(batch)}
               >
                 <Grid container spacing={2}>
                   <Grid item xs={1} sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -404,73 +441,19 @@ const MtBatchSelector = ({
            
                              <Typography 
                               sx={{ 
-                                color: isSelectable ? '#059669' : '#DC2626',
-                                fontSize: '0.75rem',
+                                color: isSelectable ? '#059669' : isAlreadyBought ? '#F97316' : '#DC2626',
+                                fontSize: '0.875rem',
                                 fontWeight: 700,
-                                mt: showWaitingList ? 0 : 1
+                                mt: 1,
+                                backgroundColor: isSelectable ? '#F0FDF4' : isAlreadyBought ? '#FFF7ED' : '#FEF2F2',
+                                px: 1.5,
+                                py: 0.5,
+                                borderRadius: 1,
+                                display: 'inline-block'
                               }}
                             >
-                              {isSelectable ? "Available" : isAlreadyBought ? `Already Booked for ${selectedChild.childName}` : 'Booking Full'}
+                              {isSelectable ? "✓ Available" : isAlreadyBought ? `🎫 Already Booked for ${selectedChild.childName}` : '❌ Booking Full'}
                             </Typography>
-                            {showWaitingList && (
-                              <>
-                                {isJoinWaitingList && (
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    startIcon={waitingListLoading[batch._id] ? 
-                                      <CircularProgress size={16} /> : 
-                                      <HourglassEmptyIcon />
-                                    }
-                                    onClick={(e) => handleJoinWaitingList(batch, e)}
-                                    disabled={waitingListLoading[batch._id]}
-                                    sx={{
-                                      color: '#059669',
-                                      borderColor: '#059669',
-                                      fontSize: '0.7rem',
-                                      textTransform: 'none',
-                                      minWidth: 'auto',
-                                      px: 1,
-                                      py: 0.5,
-                                      '&:hover': {
-                                        backgroundColor: '#F0FDF4',
-                                        borderColor: '#047857'
-                                      }
-                                    }}
-                                  >
-                                    Join Waiting List
-                                  </Button>
-                                )}
-                                
-                                {isLeaveWaitingList && (
-                                  <Button
-                                    size="small"
-                                    variant="outlined"
-                                    startIcon={waitingListLoading[batch._id] ? 
-                                      <CircularProgress size={16} /> : 
-                                      <HourglassDisabledIcon />
-                                    }
-                                    onClick={(e) => handleLeaveWaitingList(batch, e)}
-                                    disabled={waitingListLoading[batch._id]}
-                                    sx={{
-                                      color: '#DC2626',
-                                      borderColor: '#DC2626',
-                                      fontSize: '0.7rem',
-                                      textTransform: 'none',
-                                      minWidth: 'auto',
-                                      px: 1,
-                                      py: 0.5,
-                                      '&:hover': {
-                                        backgroundColor: '#FEF2F2',
-                                        borderColor: '#B91C1C'
-                                      }
-                                    }}
-                                  >
-                                    Leave Waiting List
-                                  </Button>
-                                )}
-                              </>
-                                                         )}
                           </Box>
                         </Box>
                       </Grid>
@@ -478,6 +461,76 @@ const MtBatchSelector = ({
                   </Grid>
                 </Grid>
               </Paper>
+              
+              {/* Waiting List Button - Outside the batch box */}
+              {showWaitingList && (
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  minWidth: { xs: '100%', md: '180px' },
+                  maxWidth: { xs: '100%', md: '180px' }
+                }}>
+                  {isJoinWaitingList && (
+                    <Button
+                      fullWidth
+                      size="medium"
+                      variant="contained"
+                      startIcon={<HourglassEmptyIcon />}
+                      onClick={(e) => handleJoinWaitingListClick(batch, e)}
+                      sx={{
+                        backgroundColor: '#059669',
+                        color: 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        px: 2,
+                        py: 1.5,
+                        borderRadius: 2,
+                        boxShadow: '0 4px 6px rgba(5, 150, 105, 0.2)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: '#047857',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 10px rgba(5, 150, 105, 0.3)'
+                        }
+                      }}
+                    >
+                      Join Waiting List
+                    </Button>
+                  )}
+                  
+                  {isLeaveWaitingList && (
+                    <Button
+                      fullWidth
+                      size="medium"
+                      variant="contained"
+                      startIcon={<HourglassDisabledIcon />}
+                      onClick={(e) => handleLeaveWaitingListClick(batch, e)}
+                      sx={{
+                        backgroundColor: '#DC2626',
+                        color: 'white',
+                        fontSize: '0.875rem',
+                        fontWeight: 600,
+                        textTransform: 'none',
+                        px: 2,
+                        py: 1.5,
+                        borderRadius: 2,
+                        boxShadow: '0 4px 6px rgba(220, 38, 38, 0.2)',
+                        transition: 'all 0.3s ease',
+                        '&:hover': {
+                          backgroundColor: '#B91C1C',
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 6px 10px rgba(220, 38, 38, 0.3)'
+                        }
+                      }}
+                    >
+                      Leave Waiting List
+                    </Button>
+                  )}
+                </Box>
+              )}
+            </Box>
             </Grid>
           );
         })}
@@ -505,6 +558,99 @@ const MtBatchSelector = ({
           selectedChild={selectedChild}
         />
       </Box>
+
+      {/* Confirmation Dialog for Waiting List */}
+      <Dialog
+        open={confirmDialog.open}
+        onClose={() => !confirmDialog.loading && setConfirmDialog({ open: false, type: '', batch: null, loading: false })}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 2,
+            boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+          }
+        }}
+      >
+        <DialogTitle sx={{ 
+          fontWeight: 600, 
+          fontSize: '1.25rem',
+          borderBottom: '1px solid #E5E7EB',
+          pb: 2
+        }}>
+          {confirmDialog.type === 'join' ? '🎯 Join Waiting List' : '🚪 Leave Waiting List'}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <DialogContentText sx={{ fontSize: '1rem', color: '#374151' }}>
+            {confirmDialog.type === 'join' ? (
+              <>
+                Are you sure you want to join the waiting list for <strong>{selectedChild.childName}</strong>?
+                <Box sx={{ mt: 2, p: 2, backgroundColor: '#F3F4F6', borderRadius: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#6B7280' }}>
+                    📅 Date: <strong>{confirmDialog.batch && new Date(confirmDialog.batch.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#6B7280', mt: 1 }}>
+                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.time}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#059669', mt: 2 }}>
+                    ✨ You'll be notified when a spot becomes available!
+                  </Typography>
+                </Box>
+              </>
+            ) : (
+              <>
+                Are you sure you want to leave the waiting list for <strong>{selectedChild.childName}</strong>?
+                <Box sx={{ mt: 2, p: 2, backgroundColor: '#FEF2F2', borderRadius: 1 }}>
+                  <Typography variant="body2" sx={{ color: '#6B7280' }}>
+                    📅 Date: <strong>{confirmDialog.batch && new Date(confirmDialog.batch.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#6B7280', mt: 1 }}>
+                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.time}</strong>
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#DC2626', mt: 2 }}>
+                    ⚠️ You'll lose your position in the waiting list!
+                  </Typography>
+                </Box>
+              </>
+            )}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: '1px solid #E5E7EB' }}>
+          <Button 
+            onClick={() => setConfirmDialog({ open: false, type: '', batch: null, loading: false })}
+            disabled={confirmDialog.loading}
+            sx={{ 
+              color: '#6B7280',
+              textTransform: 'none',
+              '&:hover': {
+                backgroundColor: '#F3F4F6'
+              }
+            }}
+          >
+            Cancel
+          </Button>
+          <Button 
+            onClick={confirmDialog.type === 'join' ? handleConfirmedJoinWaitingList : handleConfirmedLeaveWaitingList}
+            variant="contained"
+            disabled={confirmDialog.loading}
+            startIcon={confirmDialog.loading && <CircularProgress size={20} color="inherit" />}
+            sx={{ 
+              backgroundColor: confirmDialog.type === 'join' ? '#059669' : '#DC2626',
+              color: 'white',
+              textTransform: 'none',
+              minWidth: 120,
+              '&:hover': {
+                backgroundColor: confirmDialog.type === 'join' ? '#047857' : '#B91C1C'
+              },
+              '&:disabled': {
+                backgroundColor: '#9CA3AF'
+              }
+            }}
+          >
+            {confirmDialog.loading ? 'Processing...' : confirmDialog.type === 'join' ? 'Join List' : 'Leave List'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
