@@ -472,7 +472,7 @@ const MtBatchSelector = ({
               </Paper>
               
               {/* Waiting List Button - Outside the batch box */}
-              {!isSelectable && !isAlreadyBought  && showWaitingList && (
+              {!isSelectable && !isAlreadyBought && !isDateConflict && showWaitingList && (
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center',
