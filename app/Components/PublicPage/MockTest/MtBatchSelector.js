@@ -590,7 +590,7 @@ const MtBatchSelector = ({
                     📅 Date: <strong>{confirmDialog.batch && new Date(confirmDialog.batch.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#6B7280', mt: 1 }}>
-                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.time}</strong>
+                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.startTime} - {confirmDialog.batch && confirmDialog.batch.endTime}</strong>
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#059669', mt: 2 }}>
                     ✨ You'll be notified when a spot becomes available!
@@ -605,7 +605,7 @@ const MtBatchSelector = ({
                     📅 Date: <strong>{confirmDialog.batch && new Date(confirmDialog.batch.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</strong>
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#6B7280', mt: 1 }}>
-                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.time}</strong>
+                    ⏰ Time: <strong>{confirmDialog.batch && confirmDialog.batch.startTime} - {confirmDialog.batch && confirmDialog.batch.endTime}</strong>
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#DC2626', mt: 2 }}>
                     ⚠️ You'll lose your position in the waiting list!
