@@ -301,7 +301,7 @@ const MtBatchSelector = ({
         </DialogTitle>
         <DialogContent sx={{ padding: 3 }}>
           <DialogContentText sx={{ color: '#4B5563' }}>
-            You have already selected or booked a mock test on {conflictBatch && formatDate(conflictBatch.date)}.
+            You have already selected a mock test on {conflictBatch && formatDate(conflictBatch.date)}.
           </DialogContentText>
         </DialogContent>
         <DialogActions sx={{ padding: 2 }}>
