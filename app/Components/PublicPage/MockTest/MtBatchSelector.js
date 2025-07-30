@@ -268,6 +268,14 @@ const MtBatchSelector = ({
     getBoughtBatch();
   }, [selectedChild]);
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ position: 'relative', pb: '80px', padding: isMobile ? "20px" : "0px" }}>
       <Dialog
@@ -464,7 +472,7 @@ const MtBatchSelector = ({
               </Paper>
               
               {/* Waiting List Button - Outside the batch box */}
-              {!isSelectable && showWaitingList && (
+              {!isSelectable && !isAlreadyBought && !isDateConflict && showWaitingList && (
                 <Box sx={{ 
                   display: 'flex', 
                   alignItems: 'center',
