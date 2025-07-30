@@ -562,18 +562,6 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                             <FormControlLabel 
                                 control={
                                     <Checkbox
-                                        checked={entry.byPassBookingFull}
-                                        onChange={(e) => handleBatchChange(index, 'byPassBookingFull', e.target.checked)}
-                                        inputProps={{ 'aria-label': 'controlled' }}
-                                    />               
-                                } 
-                                label={`By-Pass Booking Full`} 
-                            />
-                        </Grid>
-                        <Grid item xs={12} sm={6} md={4}>
-                            <FormControlLabel 
-                                control={
-                                    <Checkbox
                                         checked={entry.allowWaitingList}
                                         onChange={(e) => handleBatchChange(index, 'allowWaitingList', e.target.checked)}
                                         inputProps={{ 'aria-label': 'controlled' }}
@@ -582,6 +570,19 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                                 label={`Allow Waiting List`} 
                             />
                         </Grid>
+                        <Grid item xs={12} sm={6} md={4}>
+                            <FormControlLabel 
+                                control={
+                                    <Checkbox
+                                        checked={entry.byPassBookingFull}
+                                        onChange={(e) => handleBatchChange(index, 'byPassBookingFull', e.target.checked)}
+                                        inputProps={{ 'aria-label': 'controlled' }}
+                                    />               
+                                } 
+                                label={`By-Pass Booking Full`} 
+                            />
+                        </Grid>
+                   
                         <Grid item xs={12} sm={12} md={4}>
                             {renderUserSelect(index)}
                         </Grid>
@@ -617,21 +618,7 @@ const AddMockEntryArea = forwardRef((props, ref) => {
                 </AccordionSummary>
                 <AccordionDetails>
                     <Grid container spacing={2}>
-                        <Grid item xs={12} md={4}>
-                            <FormControlLabel 
-                                control={
-                                    <Checkbox
-                                        checked={allowWaitingList}
-                                        onChange={() => setAllowWaitingList(!allowWaitingList)}
-                                        inputProps={{ 'aria-label': 'controlled' }}
-                                    />               
-                                } 
-                                label={`Allow Waiting List`} 
-                            />
-                            <Typography variant="caption" color="text.secondary" display="block">
-                                Enable waiting list for full batches
-                            </Typography>
-                        </Grid>
+            
                         <Grid item xs={12}>
                             <TextField
                                 label="Full Description"
