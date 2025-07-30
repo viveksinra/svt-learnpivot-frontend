@@ -339,6 +339,7 @@ const MtBatchSelector = ({
           const isSelected = (selectedBatch || []).some(b => b._id === batch._id);
           const isSelectable = isBatchSelectable(batch);
           const isAlreadyBought = alreadyBoughtBatch?.some(b => b._id === batch._id);
+          const isDateConflict = alreadyBoughtBatch?.some(b => new Date(b.date).toDateString() === new Date(batch.date).toDateString()) && !isAlreadyBought;
           const showWaitingList = isShowWaitingList(batch);
           const alreadyInWaitingList = userWaitingList?.some(w => w.batchId === batch._id);
 
@@ -452,7 +453,7 @@ const MtBatchSelector = ({
                                 display: 'inline-block'
                               }}
                             >
-                              {isSelectable ? "✓ Available" : isAlreadyBought ? `🎫 Already Booked for ${selectedChild.childName}` : '❌ Booking Full'}
+                              {isSelectable ? "✓ Available" : isAlreadyBought ? `🎫 Already Booked for ${selectedChild.childName}` : isDateConflict ? '🚫 Not Allowed' : '❌ Booking Full'}
                             </Typography>
                           </Box>
                         </Box>
