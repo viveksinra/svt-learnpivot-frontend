@@ -29,7 +29,7 @@ import {
   InputLabel,
   FormControl
 } from '@mui/material';
-import { MdOutlineClose } from 'react-icons/md';
+import { MdOutlineClose, MdFileDownload } from 'react-icons/md';
 
 const statusTabs = [
   { label: 'Pending', value: 'pending' },
@@ -101,6 +101,58 @@ export default function CourseWaitingListAdmin() {
     return new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
   };
 
+  const exportToCSV = () => {
+    if (rows.length === 0) {
+      setSnack({ message: 'No data to export', severity: 'warning' });
+      return;
+    }
+
+    // Create CSV headers
+    const headers = [
+      'Course Title',
+      'Parent Name', 
+      'Email',
+      'Mobile',
+      'Child Name',
+      'Date',
+      'Status'
+    ];
+
+    // Convert data to CSV format
+    const csvData = rows.map(row => [
+      row.courseId?.courseTitle || '',
+      `${row.user?.firstName || ''} ${row.user?.lastName || ''}`.trim(),
+      row.user?.email || '',
+      row.user?.mobile || '',
+      row.childId ? row.childId.childName : (row.children?.join(', ') || ''),
+      formatDate(row.date),
+      status.charAt(0).toUpperCase() + status.slice(1) // Capitalize first letter
+    ]);
+
+    // Combine headers and data
+    const csvContent = [headers, ...csvData]
+      .map(row => row.map(field => `"${field}"`).join(','))
+      .join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    
+    // Generate filename with status and timestamp
+    const timestamp = new Date().toISOString().split('T')[0];
+    const courseName = selectedCourse ? `_${selectedCourse.courseTitle.replace(/[^a-zA-Z0-9]/g, '_')}` : '';
+    link.setAttribute('download', `course_waiting_list_${status}${courseName}_${timestamp}.csv`);
+    
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    setSnack({ message: 'Export completed successfully', severity: 'success' });
+  };
+
   return (
     <Box sx={{ p: 2, pb: 60 }}>
       <Typography variant="h5" color="primary" gutterBottom>
@@ -149,6 +201,17 @@ export default function CourseWaitingListAdmin() {
             <MenuItem value="dateAsc">Oldest First</MenuItem>
           </Select>
         </FormControl>
+
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<MdFileDownload />}
+          onClick={exportToCSV}
+          disabled={loading || rows.length === 0}
+          sx={{ minWidth: 120 }}
+        >
+          Export
+        </Button>
       </Box>
 
       {loading ? (
@@ -177,6 +240,9 @@ export default function CourseWaitingListAdmin() {
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
                     Email: {r.user?.email}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Mobile: {r.user?.mobile || '-'}
                   </Typography>
                   <Divider sx={{ my: 1 }} />
                   {status === 'pending' && (
@@ -210,6 +276,7 @@ export default function CourseWaitingListAdmin() {
                 <TableCell>Child</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Email</TableCell>
+                <TableCell>Mobile</TableCell>
                 {(status === 'pending' || status === 'accepted' || status === 'rejected') && <TableCell>Action</TableCell>}
               </TableRow>
             </TableHead>
@@ -221,6 +288,7 @@ export default function CourseWaitingListAdmin() {
                   <TableCell>{r.childId ? r.childId.childName : (r.children?.join(', ') || '-')}</TableCell>
                   <TableCell>{formatDate(r.date)}</TableCell>
                   <TableCell>{r.user?.email}</TableCell>
+                  <TableCell>{r.user?.mobile || '-'}</TableCell>
                   <TableCell>
                     {status === 'pending' && (
                       <Stack direction="row" spacing={1}>
