@@ -22,7 +22,7 @@ import {
 } from "@mui/material/";
 import MuiAppBar from "@mui/material/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
-import { MdDashboard, MdPayment, MdAccountCircle, MdLogout, MdPerson, MdMenu, MdChevronLeft, MdAssignment } from "react-icons/md";
+import { MdDashboard, MdPayment, MdAccountCircle, MdLogout, MdPerson, MdMenu, MdChevronLeft, MdAssignment, MdDescription } from "react-icons/md";
 import { FaUser, FaChild, FaFileAlt } from "react-icons/fa";
 import { FcEngineering } from "react-icons/fc";
 import Image from "next/image";
@@ -41,6 +41,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
     { title: "Dashboard", active: true, link: "/userDash", icon: <MdDashboard className="drawer-icon" size={24} color="#1976d2" /> },
     { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <MdPayment className="drawer-icon" size={24} color="#2e7d32" /> },
     { title: "My Report", active: false, link: "/userDash/mockTestReport", icon: <MdAssignment className="drawer-icon" size={24} color="#9c27b0" /> },
+    { title: "My Papers", active: false, link: "/userDash/myBoughtPaper", icon: <MdDescription className="drawer-icon" size={24} color="#0288d1" /> },
    
     { title: "Profile", active: false, link: "/userDash/myProfile", icon: <FaUser className="drawer-icon" size={22} color="#0288d1" /> },
     { title: "My Child", active: false, link: "/userDash/myProfile/myChild", icon: <FaChild className="drawer-icon" size={22} color="#d32f2f" /> },
