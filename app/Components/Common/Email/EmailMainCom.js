@@ -1,4 +1,4 @@
-import React, { useState, useRef, forwardRef } from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
     TextField, Grid, ButtonGroup, Button, Typography, Stack, CircularProgress, InputAdornment,
     Avatar, Chip, Box, Paper, Divider, IconButton
@@ -26,6 +26,12 @@ const EmailMainCom = forwardRef(({
     const [attachmentUrls, setAttachmentUrls] = useState([]);
     const [loadingAttachment, setLoadingAttachment] = useState(false);
     const [loading, setLoading] = useState(false);
+    // Expose imperative methods for parent components (Clear/Send)
+    useImperativeHandle(ref, () => ({
+        handleClear: () => handleClear(),
+        handleSubmit: () => handleSendEmail(),
+        handleSendEmail: () => handleSendEmail(),
+    }));
 
     const insertAtCursor = (field, ref) => {
         const textarea = ref.current.querySelector('input, textarea');

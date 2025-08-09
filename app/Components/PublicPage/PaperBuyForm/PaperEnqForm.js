@@ -7,6 +7,7 @@ import MainContext from "../../Context/MainContext";
 import Cookies from "js-cookie";
 import CourseChildSelector from "../LoginSignUp/CourseChildSelector";
 import { paperService } from "@/app/services";
+import PaperSelectionGrid from "./PaperSelectionGrid.jsx";
 
 // Paper selection + child selection + stepper, mirroring CourseEnqForm UX
 export default function PaperEnqForm({
@@ -132,59 +133,17 @@ export default function PaperEnqForm({
       )}
 
       {step === 3 && (
-        <div style={{ padding: isMobile ? 20 : 0 }}>
-          {/* Selection grid mimicking simple card list like earlier version */}
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ fontWeight: 600, fontSize: 18 }}>{data.setTitle}</div>
-            {!!data.shortDescription && (
-              <div style={{ marginTop: 6, color: '#475569' }}>{data.shortDescription}</div>
-            )}
-          </div>
-          <div className="grid" style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(1, minmax(0, 1fr))' }}>
-            {data.papers?.map((p, idx) => {
-              const selected = selectedPapers.find((sp) => sp.index === idx);
-              const disabled = disabledIndexes.includes(idx);
-              return (
-                <div key={idx} style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 12, opacity: disabled ? 0.6 : 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: 600 }}>{p.title}</div>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <input type="checkbox" disabled={disabled} checked={!!selected} onChange={() => togglePaper(idx)} />
-                      <span>Select</span>
-                    </label>
-                  </div>
-                  {selected && (
-                    <div style={{ marginTop: 8, display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-                      {p.allowCheckingService && (
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <input type="checkbox" checked={!!selected.extras?.checking} onChange={() => toggleExtra(idx, 'checking')} />
-                          <span>Add Checking (+£{p.checkingServicePrice})</span>
-                        </label>
-                      )}
-                      {p.allowOneOnOneService && (
-                        <label style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                          <input type="checkbox" checked={!!selected.extras?.oneOnOne} onChange={() => toggleExtra(idx, 'oneOnOne')} />
-                          <span>Add 1:1 Explanation (+£{p.oneOnOnePrice})</span>
-                        </label>
-                      )}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
-            <div style={{ fontWeight: 600 }}>Total: £{Number(totalAmount || 0).toFixed(2)}</div>
-            <button
-              onClick={handleProceedToPay}
-              disabled={!selectedChild || (selectedPapers?.length || 0) === 0}
-              style={{ background: '#1976d2', color: '#fff', border: 0, borderRadius: 6, padding: '8px 16px', cursor: 'pointer' }}
-            >
-              Proceed to Pay
-            </button>
-          </div>
-      </div>
+        <PaperSelectionGrid
+          data={data}
+          isMobile={isMobile}
+          selectedPapers={selectedPapers}
+          onTogglePaper={togglePaper}
+          onToggleExtra={toggleExtra}
+          disabledIndexes={disabledIndexes}
+          totalAmount={totalAmount}
+          onProceed={handleProceedToPay}
+          proceedDisabled={!selectedChild || (selectedPapers?.length || 0) === 0}
+        />
       )}
 
       <MySnackbar ref={snackRef} />
