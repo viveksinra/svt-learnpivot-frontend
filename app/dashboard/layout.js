@@ -41,7 +41,7 @@ import {
   MdOutlineReceiptLong
 } from "react-icons/md";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
@@ -62,6 +62,7 @@ const MenuHeader = ({ title, open }) => (
 const DrawerData = ({ open, setMobileOpen }) => {
   const router = useRouter();
   const { logout } = useLogout();
+  const pathname = usePathname();
 
   // Dashboard Item
   const dashboardItem = {
@@ -221,12 +222,35 @@ const DrawerData = ({ open, setMobileOpen }) => {
     }
   };
 
+  // Determine active by pathname (exact match preferred; else longest prefix)
+  const allLinks = [
+    dashboardItem.link,
+    ...courseItems.map(i => i.link),
+    ...purchaseItems.map(i => i.link),
+    ...mockReportItems.map(i => i.link),
+    ...courseReportItems.map(i => i.link),
+    ...userReportItems.map(i => i.link),
+    ...transactionItems.map(i => i.link)
+  ];
+  const getActiveLink = (currentPath, linkList) => {
+    let best = null;
+    let bestScore = -1;
+    for (const link of linkList) {
+      let score = -1;
+      if (currentPath === link) score = 10000 + link.length;
+      else if (currentPath.startsWith(link + "/")) score = link.length;
+      if (score > bestScore) { best = link; bestScore = score; }
+    }
+    return best;
+  };
+  const activeLink = getActiveLink(pathname, allLinks);
+
   const renderMenuItem = (item, index) => (
     <ListItem
       key={index}
       onClick={() => handleLink(item, index, "Ar1")}
       disablePadding
-      className={item?.active ? "activeLink" : ""}
+      className={item?.link === activeLink ? "activeLink" : ""}
       sx={{ mb: 0.5, borderRadius: '8px' }}
     >
       <ListItemButton
@@ -260,7 +284,7 @@ const DrawerData = ({ open, setMobileOpen }) => {
           sx={{ 
             opacity: open ? 1 : 0,
             '& .MuiTypography-root': {
-              fontWeight: item.active ? 600 : 400
+              fontWeight: item.link === activeLink ? 600 : 400
             }
           }} 
         />

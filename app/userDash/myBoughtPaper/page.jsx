@@ -135,6 +135,7 @@ export default function MyBoughtPaperPage() {
         p: { xs: 1, md: 2 },
         m: { xs: 1, md: 2 },
         maxWidth: tabular ? containerWidth : "100%",
+        minHeight: "100vh",
       }}
     >
       <Grid container spacing={2} alignItems="center">

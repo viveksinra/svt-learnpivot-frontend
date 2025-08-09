@@ -26,7 +26,7 @@ import { MdDashboard, MdPayment, MdAccountCircle, MdLogout, MdPerson, MdMenu, Md
 import { FaUser, FaChild, FaFileAlt } from "react-icons/fa";
 import { FcEngineering } from "react-icons/fc";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Loading from "../Components/Loading/Loading";
 import { useLogout } from "../hooks/auth/uselogout";
 import { authService } from "../services";
@@ -37,6 +37,7 @@ const drawerWidth = 240;
 const DrawerData = ({ open, setMobileOpen }) => {
   const router = useRouter();
   const { logout } = useLogout();
+  const pathname = usePathname();
   const [dashList, setDashList] = useState([
     { title: "Dashboard", active: true, link: "/userDash", icon: <MdDashboard className="drawer-icon" size={24} color="#1976d2" /> },
     { title: "Transaction", active: false, link: "/userDash/reports/allPayment", icon: <MdPayment className="drawer-icon" size={24} color="#2e7d32" /> },
@@ -59,15 +60,35 @@ const DrawerData = ({ open, setMobileOpen }) => {
     if (setMobileOpen) setMobileOpen(false);
   };
 
+  // Compute active item based on current pathname (exact match preferred, otherwise longest prefix)
+  const links = dashList.map((i) => i.link);
+  const getActiveLink = (currentPath, linkList) => {
+    let best = null;
+    let bestScore = -1;
+    for (const link of linkList) {
+      let score = -1;
+      if (currentPath === link) score = 10000 + link.length; // prefer exact match
+      else if (currentPath.startsWith(link + "/")) score = link.length; // longest prefix
+      if (score > bestScore) {
+        best = link;
+        bestScore = score;
+      }
+    }
+    return best;
+  };
+  const activeLink = getActiveLink(pathname, links);
+
   return (
     <div>
       <List sx={{ px: 1 }}>
-        {dashList.map((item, index) => (
+        {dashList.map((item, index) => {
+          const isActive = item.link === activeLink;
+          return (
           <ListItem
             key={index}
             onClick={() => handleLink(item, index, "dashList")}
             disablePadding
-            className={item.active ? "activeLink" : ""}
+            className={isActive ? "activeLink" : ""}
             sx={{ mb: 0.5, borderRadius: '8px' }}
           >
             <ListItemButton
@@ -100,14 +121,12 @@ const DrawerData = ({ open, setMobileOpen }) => {
                 primary={item.title} 
                 sx={{ 
                   opacity: open ? 1 : 0,
-                  '& .MuiTypography-root': {
-                    fontWeight: item.active ? 600 : 400
-                  }
+                  '& .MuiTypography-root': { fontWeight: isActive ? 600 : 400 }
                 }} 
               />
             </ListItemButton>
           </ListItem>
-        ))}
+        );})}
       </List>
       <Divider sx={{ my: 1 }} />
 
