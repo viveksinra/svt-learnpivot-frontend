@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { 
   Card, Box, Chip, Typography, Stack, Button, 
-  Skeleton, Container, useTheme, useMediaQuery, Grid
+  Skeleton, Container, useTheme, useMediaQuery, Grid, Divider
 } from '@mui/material';
 import { 
   PersonOutline, CalendarToday, AccessTimeOutlined, 
@@ -9,7 +9,7 @@ import {
 } from '@mui/icons-material';
 import moment from 'moment';
 import { useRouter } from 'next/navigation';
-import { reportService } from '@/app/services';
+import { reportService, paperService } from '@/app/services';
 
 const LoadingSkeleton = () => {
   const theme = useTheme();
@@ -217,6 +217,7 @@ export const UpcomingEvents = ({ selectedChild }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [events, setEvents] = useState({ classes: [], mockTests: [] });
+  const [papers, setPapers] = useState([]);
   const [classPage, setClassPage] = useState(1);
   const [mockPage, setMockPage] = useState(1);
   const router = useRouter();
@@ -227,11 +228,13 @@ export const UpcomingEvents = ({ selectedChild }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await reportService.getUpcomingEvent({ childId: selectedChild });
-        
-        if (response?.myData?.upcomingBookings) {
-          setEvents(response.myData.upcomingBookings);
-        }
+        const [response, myPapers] = await Promise.all([
+          reportService.getUpcomingEvent({ childId: selectedChild }),
+          paperService.getMine(),
+        ]);
+
+        if (response?.myData?.upcomingBookings) setEvents(response.myData.upcomingBookings);
+        if (myPapers?.data) setPapers(myPapers.data);
       } catch (error) {
         console.error('Fetch error:', error);
         setError('Failed to load events. Please check your connection.');
@@ -352,6 +355,53 @@ export const UpcomingEvents = ({ selectedChild }) => {
           />
         ) : (
           <EmptyState type="class" onButtonClick={handleNavigate} />
+        )}
+      </Box>
+
+      <Divider sx={{ my: 3 }} />
+
+      <Box>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            mb: 2,
+            fontWeight: 700,
+            fontSize: isMobile ? '1.25rem' : '1.5rem'
+          }}
+        >
+          Recent Paper Purchases
+        </Typography>
+        {papers?.length ? (
+          <Grid container spacing={2}>
+            {papers.slice(0, 3).map((bp) => (
+              <Grid item key={bp._id} xs={12} sm={6} md={4}>
+                <Card sx={{ p: 2, borderRadius: 2 }}>
+                  <Stack spacing={1}>
+                    <Typography variant="subtitle2" fontWeight={700} color="primary">
+                      {bp.paperSetId?.setTitle}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {bp.childId?.childName}
+                    </Typography>
+                    <Stack direction="row" spacing={1}>
+                      <Chip label={bp.status} size="small" color={bp.status === 'succeeded' ? 'success' : 'default'} variant="outlined" />
+                      {bp.invoiceNumber && (
+                        <Chip label={`Inv: ${bp.invoiceNumber}`} size="small" variant="outlined" />
+                      )}
+                    </Stack>
+                    <Typography variant="body2">
+                      £{Number(bp.amount || 0).toFixed(2)} — {(bp.selectedPapers || []).map((p) => p.title).join(', ')}
+                    </Typography>
+                    <Button size="small" variant="outlined" href={`/paper/buy/${bp.paperSetId?._id}`} sx={{ textTransform: 'none', alignSelf: 'flex-start' }}>
+                      Buy more
+                    </Button>
+                  </Stack>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Typography variant="body2" color="text.secondary">No paper purchases found.</Typography>
         )}
       </Box>
     </Container>
