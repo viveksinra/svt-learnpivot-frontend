@@ -5,6 +5,7 @@ import { MainProvider } from "./Components/Context/MainContext";
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { blue, deepPurple, purple } from '@mui/material/colors'; // Change the primary color to blue
 import ScrollbarFix from './Components/ScrollbarFix';
+import { SessionProvider } from "next-auth/react";
 
 const lightTheme = createTheme({
   palette: {
@@ -19,11 +20,13 @@ const lightTheme = createTheme({
 
 export default function LayoutWrapper({ children }) {
   return (
-    <MainProvider>
-      <ThemeProvider theme={lightTheme}>
-        <ScrollbarFix />
-        {children}
-      </ThemeProvider>
-    </MainProvider>
+    <SessionProvider>
+      <MainProvider>
+        <ThemeProvider theme={lightTheme}>
+          <ScrollbarFix />
+          {children}
+        </ThemeProvider>
+      </MainProvider>
+    </SessionProvider>
   );
 }

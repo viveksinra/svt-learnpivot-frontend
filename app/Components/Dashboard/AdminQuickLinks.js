@@ -47,6 +47,7 @@ export const AdminQuickLinks = () => {
       items: [
         { title: "All Courses", link: "/dashboard/addCourse", count: 24 },
         { title: "Mock Tests", link: "/dashboard/addMockTest", count: 16 },
+        { title: "Paper Sets", link: "/dashboard/addPaper", count: 10, isNew: true },
         { title: "User Course Access", link: "/dashboard/report/userCourseAccess", count: 16 },
         { title: "CSSE Report Maker", link: "/dashboard/reportMaker/csseMockTest", count: 12 },
         { title: "FSCE Report Maker", link: "/dashboard/reportMaker/fsceMockTest", count: 12 },
@@ -63,6 +64,7 @@ export const AdminQuickLinks = () => {
       items: [
         { title: "Purchased Mocks", link: "/dashboard/allBuyMock", count: 85 },
         { title: "Purchased Courses", link: "/dashboard/allBuyCourse", count: 124 },
+        { title: "Paper Purchases", link: "/dashboard/report/paperPurchase", count: 0, isNew: true },
         { title: "All Payments", link: "/dashboard/allPayment", count: 256 }
       ],
       bgColor: theme.palette.success.light,

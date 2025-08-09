@@ -10,6 +10,7 @@ import { ChildService } from "./child.service";
 import { ReportService } from "./report.service";
 import { MyProfileService } from "./myProfile.service";
 import { TransactionService } from "./transaction.service";
+import { PaperService } from "./paper.service";
 
 export const authService = new AuthService(API_ENDPOINT);
 export const dashboardService = new DashboardService(API_ENDPOINT);
@@ -20,5 +21,6 @@ export const childService = new ChildService(API_ENDPOINT);
 export const myProfileService = new MyProfileService(API_ENDPOINT);
 export const reportService = new ReportService(API_ENDPOINT);
 export const transactionService = new TransactionService(API_ENDPOINT);
+export const paperService = new PaperService(API_ENDPOINT);
 
 

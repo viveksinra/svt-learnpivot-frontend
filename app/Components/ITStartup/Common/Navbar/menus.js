@@ -21,6 +21,10 @@ export const menus = [
       label: "11+ Mock Tests",
       link: "/mockTest/",
     },
+    {
+      label: "11+ Papers",
+      link: "/paper/",
+    },
      {
       label: "Contact",
       link: "/contact/",

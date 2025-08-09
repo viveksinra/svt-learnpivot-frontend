@@ -4,6 +4,8 @@ export const protectedRoutes = [
     "/dashboard/allBuyCourse",
     "/dashboard/addCourse",
     "/dashboard/addMockTest",
+    "/dashboard/addPaper",
+    "/dashboard/allPaper",
     "/dashboard/allPayment",
     "/dashboard/report/parentCourseReport",
     "/dashboard/report/courseBatchReport",
@@ -15,6 +17,7 @@ export const protectedRoutes = [
     "/dashboard/report/userCourseAccess",
     "/dashboard/report/courseWaitingList",
     "/dashboard/report/userCourseUpdate",
+    "/dashboard/report/paperPurchase",
     "/dashboard/transaction/oneUserTransaction",
     "/dashboard/transaction/allUserReport",
     "/dashboard/filtertag",
@@ -26,6 +29,7 @@ export const userProtectedRoutes = [
     "/userDash",
     "/userDash/dashCourse",
     "/userDash/dashMock",
+    "/userDash/myPapers",
     "/userDash/allPayment",
     "/userDash/myProfile",
     "/userDash/myProfile/myChild",
@@ -36,4 +40,4 @@ export const userProtectedRoutes = [
 ];
 
 export const authRoutes = ["/login"];
-export const publicRoutes = ["/","/login", "/course","/mockTest","/contact"];
+export const publicRoutes = ["/","/login", "/course","/mockTest","/paper","/contact"];

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, Typography, Box } from '@mui/material';
-import { AssignmentOutlined, Book, CalendarToday } from '@mui/icons-material';
+import { AssignmentOutlined, Book, Description } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 
 const quickLinks = [
@@ -18,6 +18,14 @@ const quickLinks = [
     link: "/course",
     icon: <Book sx={{ fontSize: 28, color: 'white' }} />,
     bgColor: 'linear-gradient(135deg, #FF6B6B 0%, #FFD93D 100%)'
+
+  },
+  {
+    id: 3,
+    title: 'Buy Papers',
+    link: "/paper",
+    icon: <Description sx={{ fontSize: 28, color: 'white' }} />,
+    bgColor: 'linear-gradient(135deg, #00b09b 0%, #96c93d 100%)'
 
   },
 

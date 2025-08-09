@@ -13,6 +13,7 @@ const list1 = [
   {title:"About Us",icon:<FcKindle/>, link:"/about"},
   {title:"Course",icon:<FcStackOfPhotos/>, link:"/course"},
   {title:"Mock Test",icon:<FcPicture/>, link:"/mockTest"},
+  {title:"Papers",icon:<FcCurrencyExchange/>, link:"/paper"},
   {title:"Contact",icon:<FcInvite/>, link:"/contact"}]
   return (
     <div>
